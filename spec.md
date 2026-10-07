@@ -1,47 +1,48 @@
-# Chi è?: MVP Spec
+# 谁？ (Shéi?): MVP Spec
 
 | | |
 |---|---|
-| Status | v0.5 draft (2026-10-06). Becomes `v1` after the review in section 10.1 |
-| Product name | **Chi è?** ("Who is it?"). Never use "Guess Who" or "Indovina chi?" in public branding (Hasbro trademarks) |
-| Audience for this doc | Whoever builds, reviews, or tests the MVP |
+| Status | v0 draft (2026-10-07). Becomes `v1` after the sign-off in section 10.1 |
+| Product name | **谁？** (*Shéi?*, "Who?"). Written `谁？` in the app and `Shei` in code, URLs and repo names. Never use "Guess Who", "Guess Who?" or any official Chinese title of that game in public branding (Hasbro trademarks; `TBD: verify` which Chinese titles Hasbro uses) |
+| Sibling product | **Chi è?**, the Italian game in `jennarbates/Italian`. This game reuses its code, stack and backend design. Where this doc says "as Chi è?", the Chi è? spec section named is the reference (kept here as `docs/chi-e-spec.md`), and its code is already in this repo |
+| Audience for this doc | Whoever builds, reviews, or tests the MVP, including the Mandarin reviewer |
 
-Conventions: each section leads with the decision, then the reason. `TBD:` marks an open question. Italian strings in this doc are the exact strings the app must produce.
+Conventions: each section leads with the decision, then the reason. `TBD:` marks an open question. Chinese strings in this doc are the exact strings the app must produce, including full-width punctuation (`，` `。` `？`). Pinyin is written with tone marks, never tone numbers.
 
 ---
 
 ## 1. Scope and non-goals
 
-**Goal.** A browser game where an A1 Italian learner plays a Guess-Who style round against the computer, and every move (asking, answering) is a small, checked piece of Italian.
+**Goal.** A browser game where a new HSK 1 learner plays a Guess-Who style round against the computer, and every move (asking, answering) is a small, checked piece of HSK 1 Mandarin.
 
-**Target user.** Adult learner at CEFR A1, on a phone, who can read basic Italian and knows the alphabet and pronunciation basics. UI chrome is in English; game content is in Italian.
+**Target user.** An adult learning Mandarin at new HSK 1 level (the 300-word list in the 2025 syllabus). They can read pinyin with tones, know the basic SVO sentence and 吗 questions, and recognise some characters. They play on a phone (portrait) or a laptop (1024px wide or more), in 5 to 15 minute sessions. UI chrome is in English; game content is in simplified Chinese.
 
 **Success criteria for the MVP.**
 
-1. Live URL that plays a full round on an iPhone (Safari) and an Android phone (Chrome).
-2. `engine/` tests pass in CI with at least 90% line coverage.
-3. Every item in the definition of done (10.3) is checked.
-4. README explains how to run, test, and add a character.
+1. Live URL at `shei.parlaplay.games` plays a full round on an iPhone (Safari), an Android phone (Chrome), and a laptop at 1024 × 640 by mouse only and by keyboard only.
+2. Every word a player can see or use in a question or answer (the lexicon, section 3.3) is covered by the 2025 HSK 1 list, checked by a test against `content/hsk1.json`. Character names are the only exception (3.2).
+3. `engine/` tests pass in CI with at least 90% line coverage.
+4. Every item in the definition of done (10.3) is checked.
+5. README explains how to run, test, and add a character.
 
 **In and out of the MVP.**
 
 | In MVP | Out of MVP (future, see section 11) |
 |---|---|
-| 24 characters, 8 attributes, 3 question templates | Themed decks (family, food, city), jobs, more attributes |
-| Level 1: tap pre-built questions with English hints | Level 3: free-typed questions |
-| Level 2: build questions from tiles, no English | Level 4: audio-only CPU questions |
-| Player asks; CPU answers in Italian text | Audio of any kind (TTS, recordings, speech input) |
-| CPU asks simple yes/no questions; player answers Sì/No | CPU choosing questions from the learner's weak words (SRS-weighted) |
-| Mistake log and "due words" list | Flashcard review mode |
-| Card detail view: long-press shows the face large, no text | Colorblind mode (Italian labels on cards) |
-| Spaced repetition scheduling stored per user | Any LLM feature (hints, free chat, grading) |
-| Guest play (local only) and email sign-in (6-digit code) with sync | Multiplayer (live or async) |
-| | Teacher-made decks, classrooms, leaderboards |
-| | Native apps |
-| Account deletion on request by email (7.3) | Account deletion in the app, Google sign-in |
-| | Championship mode (first to 5 wins), Easy CPU setting |
-| | Offline play and installable PWA |
-| | Daily new-card limit (comes back with SRS-weighted CPU questions) |
+| 24 characters, 9 attributes (gender, job, place, 2 pets, 3 things), 14 questions | Faces board (hair, eyes, clothes, colors), which needs words beyond HSK 1 |
+| Every board word in the 2025 HSK 1 list | HSK 2 deck |
+| Level 1: tap pre-built questions, with pinyin and English | Level 3: questions typed in pinyin or characters |
+| Level 2: build questions by ordering character tiles, pinyin off by default with a toggle | A-not-A questions (`他是不是医生？`) |
+| Player chooses 他 or 她 when asking | |
+| Player answers CPU questions with the natural verb answer (`有` / `没有`), not yes/no | |
+| Simplified characters | Traditional characters |
+| CPU answers in text, with pinyin | Audio of any kind (recorded clips, TTS, speech input) |
+| Mistakes tab with words and grammar points; "due words" list | Flashcard review mode; FSRS cards for grammar points |
+| Spaced repetition scheduling stored per user (28 cards) | CPU choosing questions from weak words |
+| Guest play (local only) and email sign-in (6-digit code) with sync | Shared accounts across parlaplay games |
+| Phone layout and desktop layout (as Chi è? `spec-desktop.md`) | Native apps, offline play, installable PWA |
+| Account deletion by email request | In-app account deletion, Google sign-in |
+| | Multiplayer, teacher decks, leaderboards, any LLM feature |
 
 Anything not in the left column is out. When a new idea comes up, it goes into section 11, not into the build.
 
@@ -49,320 +50,353 @@ Anything not in the left column is out. When a new idea comes up, it goes into s
 
 ## 2. Game rules
 
-**Setup.**
+**Setup.** As Chi è? section 2:
 - Both sides use the same 24 characters.
-- The engine draws two secret characters from the seed: `cpuSecret` (the player must find it) and `playerSecret` (the CPU must find it). They are drawn independently and may be the same character.
-- The player sees their own secret card. The board shows all 24 characters face up; it is the player's notes about who the CPU's secret could be.
+- The engine draws `cpuSecret` (the player must find it) and `playerSecret` (the CPU must find it) from the seed, independently. They may be the same character.
+- The player sees their own secret card. The board shows all 24 characters face up and is the player's notes.
 - The player always goes first.
 
-**A turn.** On their turn, a side does exactly one of:
-- **Ask** one yes/no question, or
-- **Guess** one character.
+**A turn.** On their turn, a side does exactly one of: **ask** one yes/no question, or **guess** one character. Then the turn passes.
 
-Then the turn passes to the other side.
+**Questions.** Every question has the shape *pronoun + verb + object + 吗？*:
 
-**Answers.** All questions are yes/no. Answers are full Italian sentences:
-- Yes: `Sì, ` + question body with its first letter lowercased + `.` e.g. `Ha i capelli biondi?` becomes `Sì, ha i capelli biondi.`
-- No: `No, non ` + question body with its first letter lowercased + `.` e.g. `No, non ha i capelli biondi.`, `No, non è un uomo.`
+| Verb | Used for | Objects | Example |
+|---|---|---|---|
+| 是 *shì* | who someone is | 男的, 女的, 老师, 学生, 医生 | `她是医生吗？` |
+| 有 *yǒu* | pets and things someone has | 狗, 猫, 手机, 书, 电脑 | `他有狗吗？` |
+| 在 *zài* | where someone is | 家, 学校, 医院, 饭店 | `他在学校吗？` |
 
-The answer repeats the player's own words. If the player asked with `castani` for eyes, the answer says `castani`; with `marroni`, it says `marroni` (3.3).
+That gives 14 questions. The pronoun is not part of the question's identity: `他有狗吗？` and `她有狗吗？` are the same question.
+
+**Pronouns.** The player picks 他 or 她. Both are always accepted, because the player cannot know the secret's gender until they ask (in speech both are *tā*). Once the player has asked a gender question this round (`是男的吗？` or `是女的吗？`), the gender is known. A question that then uses the other pronoun is still accepted, but the slip is shown and logged (soft error, 3.6 `gp.pron.gender`). 你 is never right: the question is about the secret person, not the CPU (hard error, `gp.pron.you`).
+
+**Answers.** Chinese has no single word for "yes" or "no". The natural answer repeats the verb, and the negative form depends on the verb. Answers are the short answer, a comma, then the full sentence with the asker's pronoun:
+
+| Verb | Yes | No |
+|---|---|---|
+| 是 | `是，{pron}是{obj}。` | `不是，{pron}不是{obj}。` |
+| 有 | `有，{pron}有{obj}。` | `没有，{pron}没有{obj}。` |
+| 在 | `在，{pron}在{obj}。` | `不在，{pron}不在{obj}。` |
+
+Examples: `他有狗吗？` → `没有，他没有狗。` / `她在学校吗？` → `在，她在学校。` The answer repeats the asker's pronoun, so it never reveals the secret's gender. Pinyin of the same answer: `Méiyǒu, tā méiyǒu gǒu.`
 
 The CPU always answers truthfully.
 
-**Player answering the CPU.** The player taps Sì or No. If the player answers wrongly, the app shows the correct answer, logs a mistake, and the CPU receives the correct answer. There is no other penalty. (Reason: a wrong answer from a learner should teach, not break the CPU's logic.)
+**CPU questions and the CPU's pronoun.** The CPU uses 她 when every character in `cpuCandidates` is a woman, 他 when every one is a man, and 他 otherwise (他 is the traditional written form when gender is unknown). `TBD:` the Mandarin reviewer confirms that the generic 他 reads naturally to learners.
 
-**Flipping.** The player can flip any board card down or back up at any time during a round, including the card that is actually the CPU's secret. Flipping is free, reversible, and never ends a turn.
+**Player answering the CPU.**
+- Level 1: two buttons, the yes and no forms of the question's verb (`有` / `没有`), each with pinyin.
+- Level 2: seven buttons, always in this order: `是` `不是` `有` `没有` `不有` `在` `不在`. `不有` is never correct. It is there because "不有" is the classic beginner error.
 
-**Winning and losing.**
-- Player guesses `cpuSecret` correctly: player wins.
-- Player guesses wrongly: the player loses. This is the official board game rule (see decision D3), so every guess goes through a confirm dialog.
-- CPU guesses `playerSecret`: player loses. The CPU only guesses when one candidate remains, so its guess is always right.
+A wrong answer shows the correct full answer and logs a mistake (section 6). The CPU always receives the true answer. There is no other penalty. (Reason: as Chi è? D4, a learner's slip should teach, not break the CPU's logic.)
+
+**Flipping, winning, losing.** As Chi è? section 2: flipping is free, reversible, allowed any time during a round and never ends a turn. A right guess wins; a wrong guess loses (the official rule), so every guess goes through a confirm dialog. The CPU guesses only when one candidate remains, so its guess is always right.
 
 **Edge cases.**
 
 | Situation | Rule |
 |---|---|
-| Player asks a question already asked by the player this round | Rejected, turn not used, previous answer shown again |
+| Player asks a question already asked by the player this round, with either pronoun | Rejected as `duplicate`, turn not used, previous answer shown again |
 | Player asks a question the CPU already asked | Allowed (different side, different secret) |
-| Player uses the wrong verb or article (Level 2) | Rejected, turn not used, mistake logged, feedback names the rule |
-| Player's only error is adjective agreement (Level 2, e.g. `bionde` for `biondi`) | Accepted and answered; the correct form is shown with the answer and the slip goes to the Mistakes tab (soft feedback, see 3.4) |
-| Player builds a grammatical but meaningless question (`Ha gli occhi biondi?`) | Rejected, turn not used, no mistake logged |
-| Player asks about brown eyes with `castani` or `marroni` | Both accepted; they mean the same thing, so asking one after the other is a duplicate |
-| Player builds `capelli marroni` | Rejected, turn not used, no mistake logged; feedback says "For *capelli*, Italians say *castani*" (3.7) |
+| Player asks `是男的吗？` after `是女的吗？` was answered | Allowed. Different question, even though the answer is already implied |
+| Player uses 他 before any gender question, and the secret is a woman | Accepted, no feedback |
+| Player uses 他 after learning the secret is a woman (or 她 for a man) | Accepted and answered; soft slip `gp.pron.gender` shown and logged, no rating penalty |
+| Player uses 你 (Level 2) | Rejected, turn not used, mistake `gp.pron.you` logged |
+| Player leaves out 吗 (Level 2) | Rejected, turn not used, mistake `gp.ma` logged |
+| Player builds the right words in the wrong order, e.g. `他狗有吗` (Level 2) | Rejected, turn not used, mistake `gp.order` logged; feedback shows the right order |
+| Player uses the wrong verb for the object, e.g. `他是狗吗` (Level 2) | Rejected, turn not used, `again` rating for the object, feedback names the right verb |
+| Player builds `他有老师吗？` ("Does he have a teacher?") | Real Chinese, but the board cannot answer it. Rejected as `offBoard`, turn not used, no mistake logged; feedback explains 是 is for jobs |
+| Player leaves a word kind out, or uses two of a kind (Level 2) | Shape error, message shown, nothing logged |
+| Player answers a CPU question with `不有` | Mistake `gp.neg.mei` logged; if they meant "no", the fact is still counted as understood (section 6) |
+| Player answers with the wrong verb (`有` to a `是` question) | Mistake `gp.answer.verb` logged; polarity judged separately (section 6) |
+| Player turns the pinyin toggle on or off mid-round | Allowed, no effect on scoring, remembered on this device |
 | Player flips all 24 cards down | Allowed. An "Unflip all" button appears. Game continues |
 | Player guesses a card that is flipped down | Allowed, with a confirm dialog that says it is flipped |
-| Player taps "Quit round", or starts a new round while one is saved | The old round is recorded as `abandoned` and its saved state discarded. Ratings already logged are kept |
-| App reloads mid-round | Round resumes from saved state (state is saved after every action), unless the content version changed (3.6) |
+| Player taps "Quit round", or starts a new round while one is saved | Old round recorded as `abandoned`, saved state discarded; ratings already logged are kept |
+| App reloads mid-round | Round resumes from saved state, unless the content version changed (3.7) |
+| A character in the content has no glyph in the device's fonts | Never shipped: every character used is in the system fonts checked in 10.2 (Manual) |
 
-There is no turn limit and no timer. Each round stands alone; there is no match score across rounds.
+There is no turn limit, no timer and no match score across rounds.
 
 ---
 
 ## 3. Content model
 
-All Italian lives in JSON, validated with Zod at build time (a Vite plugin checks every file in `src/content/`, so a bad file fails `pnpm build`). Every inflected form is written out as data. There is no inflection code.
+All Chinese lives in JSON in `src/content/`, validated with Zod at build time (the Vite plugin from Chi è? fails `pnpm build` on a bad file). Every string is written out as data: there is no pinyin conversion code and no tone sandhi code.
 
 ### 3.1 Attributes
 
-| Key | Values (lexicon lemma ids) | Question form |
+| Key | Values (lexicon ids) | Question |
 |---|---|---|
-| `gender` | `n.uomo`, `n.donna` | `È un uomo?` / `È una donna?` |
-| `hairColor` | `adj.biondo`, `adj.castano`, `adj.nero`, `adj.rosso`, `adj.bianco` | `Ha i capelli castani?` |
-| `hairLength` | `adj.corto`, `adj.lungo` | `Ha i capelli lunghi?` |
-| `eyeColor` | `adj.azzurro`, `adj.marrone`, `adj.verde` | `Ha gli occhi verdi?` |
-| `glasses` | boolean | `Ha gli occhiali?` |
-| `hat` | boolean | `Ha il cappello?` |
-| `beard` | boolean | `Ha la barba?` |
-| `mustache` | boolean | `Ha i baffi?` |
+| `gender` | `n.nande` 男的, `n.nvde` 女的 | `他是男的吗？` |
+| `job` | `n.laoshi` 老师, `n.xuesheng` 学生, `n.yisheng` 医生 | `他是老师吗？` |
+| `place` | `n.jia` 家, `n.xuexiao` 学校, `n.yiyuan` 医院, `n.fandian` 饭店 | `他在饭店吗？` |
+| `dog` | boolean (`n.gou` 狗) | `他有狗吗？` |
+| `cat` | boolean (`n.mao` 猫) | `他有猫吗？` |
+| `phone` | boolean (`n.shouji` 手机) | `他有手机吗？` |
+| `book` | boolean (`n.shu` 书) | `他有书吗？` |
+| `computer` | boolean (`n.diannao` 电脑) | `他有电脑吗？` |
 
-That gives 16 possible questions. Brown eyes can be asked two ways (`Ha gli occhi castani?` and `Ha gli occhi marroni?`); both are the same question. Skin tone and name vary for variety but are never game attributes and are never asked about.
+14 questions. Skin and hair style vary for variety but are never attributes and never asked about. No attribute depends on color, so no colorblind mode is needed.
+
+Ids use toneless pinyin with `ü` written `v` (`n.nvde`), the common keyboard convention.
 
 ### 3.2 Characters
 
 ```ts
-const Character = z.object({
-  id: z.string(),                 // "c.giulia"
-  name: z.string(),               // "Giulia"
-  attrs: z.object({
-    gender: z.enum(["n.uomo", "n.donna"]),
-    hairColor: z.enum(["adj.biondo", "adj.castano", "adj.nero", "adj.rosso", "adj.bianco"]),
-    hairLength: z.enum(["adj.corto", "adj.lungo"]),
-    eyeColor: z.enum(["adj.azzurro", "adj.marrone", "adj.verde"]),
-    glasses: z.boolean(),
-    hat: z.boolean(),
-    beard: z.boolean(),
-    mustache: z.boolean(),
+const Character = z.strictObject({
+  id: z.string(),                    // "c.lili": "c." + toneless pinyin of the name
+  name: z.string(),                  // "李丽"
+  namePinyin: z.string(),            // "Lǐ Lì"
+  attrs: z.strictObject({
+    gender: z.enum(["n.nande", "n.nvde"]),
+    job: z.enum(["n.laoshi", "n.xuesheng", "n.yisheng"]),
+    place: z.enum(["n.jia", "n.xuexiao", "n.yiyuan", "n.fandian"]),
+    dog: z.boolean(),
+    cat: z.boolean(),
+    phone: z.boolean(),
+    book: z.boolean(),
+    computer: z.boolean(),
   }),
-  skin: z.string(),               // art layer only, never asked
+  skin: z.enum(["s1", "s2", "s3", "s4", "s5"]),  // art only, never asked
+  hairStyle: z.enum(["h1", "h2", "h3"]),         // art only, never asked
 });
 ```
 
 ```json
 [
-  { "id": "c.giulia", "name": "Giulia",
-    "attrs": { "gender": "n.donna", "hairColor": "adj.castano", "hairLength": "adj.lungo",
-               "eyeColor": "adj.verde", "glasses": true, "hat": false, "beard": false, "mustache": false },
-    "skin": "s3" },
-  { "id": "c.marco", "name": "Marco",
-    "attrs": { "gender": "n.uomo", "hairColor": "adj.nero", "hairLength": "adj.corto",
-               "eyeColor": "adj.marrone", "glasses": false, "hat": true, "beard": true, "mustache": true },
-    "skin": "s2" },
-  { "id": "c.elena", "name": "Elena",
-    "attrs": { "gender": "n.donna", "hairColor": "adj.biondo", "hairLength": "adj.corto",
-               "eyeColor": "adj.azzurro", "glasses": false, "hat": true, "beard": false, "mustache": false },
-    "skin": "s1" }
+  { "id": "c.lili", "name": "李丽", "namePinyin": "Lǐ Lì",
+    "attrs": { "gender": "n.nvde", "job": "n.yisheng", "place": "n.yiyuan",
+               "dog": false, "cat": true, "phone": true, "book": false, "computer": false },
+    "skin": "s2", "hairStyle": "h1" },
+  { "id": "c.wangming", "name": "王明", "namePinyin": "Wáng Míng",
+    "attrs": { "gender": "n.nande", "job": "n.laoshi", "place": "n.xuexiao",
+               "dog": true, "cat": false, "phone": false, "book": true, "computer": false },
+    "skin": "s3", "hairStyle": "h2" }
 ]
 ```
 
-**Content invariants (checked by a test, not by hand).**
-- No two characters have the same 8 attribute values. This guarantees the CPU can always find a splitting question.
-- Women have `beard: false` and `mustache: false`.
-- 12 men, 12 women.
-- Every one of the 16 questions gets "yes" from at least 3 and at most 15 of the 24 characters. (`TBD:` tune after playtesting.)
+**Names.** Character names are the only Chinese on screen outside the HSK 1 list, so they are always shown with pinyin, at every level, and are never part of a question or a card. Draft list (`TBD:` the Mandarin reviewer checks each is a natural, clearly gendered name):
 
-**How characters are made.** `scripts/generate-characters.ts` takes a seed and picks 24 attribute combinations that pass every invariant above, retrying until they do. It runs once by hand, not at build time. Its output is reviewed, given Italian names, and committed as `content/characters.json`. After release, characters change only by editing that file, and ids stay permanent (3.6). The MVP set is seed 5152: among seeds 1 to 20,000 it had the most natural spread (each hair color on 3 to 6 people, half long hair and half short for both men and women, 7 of 12 men bearded, 4 or 6 people on each skin layer). Ids are `c.` plus the lowercased name.
+| Men | Women |
+|---|---|
+| 王明 Wáng Míng, 张伟 Zhāng Wěi, 李强 Lǐ Qiáng, 刘洋 Liú Yáng, 陈杰 Chén Jié, 杨军 Yáng Jūn, 赵磊 Zhào Lěi, 黄涛 Huáng Tāo, 周斌 Zhōu Bīn, 吴刚 Wú Gāng, 徐亮 Xú Liàng, 孙浩 Sūn Hào | 李丽 Lǐ Lì, 王芳 Wáng Fāng, 张静 Zhāng Jìng, 刘娜 Liú Nà, 陈红 Chén Hóng, 杨雪 Yáng Xuě, 赵敏 Zhào Mǐn, 黄梅 Huáng Méi, 周颖 Zhōu Yǐng, 吴琳 Wú Lín, 徐慧 Xú Huì, 孙月 Sūn Yuè |
+
+Name pinyin follows GB/T 16159-2012: surname and given name written apart, each capitalised.
+
+**Content invariants (each checked by a test, not by hand).**
+1. No two characters have the same 8 attribute values. This guarantees the CPU can always find a splitting question.
+2. 12 men and 12 women.
+3. Each job is held by 7 to 9 characters. Each place has exactly 6 characters.
+4. Each of the 5 boolean questions gets "yes" from at least 5 and at most 14 characters. (`TBD:` tune after playtesting.)
+5. Each character has between 1 and 3 of the 5 pets and things, so a card is never empty and never too crowded to read at 80px.
+6. Ids are unique and match `c.` + the toneless pinyin of `name`, lowercased, without spaces.
+
+**How characters are made.** `scripts/generate-characters.ts` (adapted from Chi è?) takes a seed and picks 24 attribute sets that pass every invariant, retrying until they do. It runs once by hand. Its output gets names from the table above, is reviewed, and is committed as `content/characters.json`. The seed is chosen on content day by running seeds 1 to 20,000 and keeping the one whose CPU simulation (section 5) has the lowest maximum number of questions, ties going to the lowest seed. `TBD:` record the chosen seed and its simulation numbers here.
 
 ### 3.3 Lexicon
 
+`content/lexicon.json` is one array of entries told apart by `pos`. Every object schema is strict.
+
 ```ts
-const Article = z.object({
-  id: z.string(),                       // "art.i"
-  pos: z.literal("article"),
-  text: z.string(),                     // "i"
-});
+const Base = {
+  id: z.string(),
+  hanzi: z.string(),                    // "没有"
+  pinyin: z.string(),                   // "méiyǒu", as spoken in this game (3.4)
+  gloss: z.string(),                    // English, used in Level 1 hints and the Progress screen
+  hsk: z.array(z.string()).min(1),      // HSK 1 headwords that cover it: ["男", "的"] for 男的
+  retired: z.boolean().optional(),      // see 3.7
+};
 
-const Verb = z.object({
-  id: z.string(),                       // "v.ha"
-  pos: z.literal("verb"),
-  text: z.string(),                     // "ha"
-});
-
-const Noun = z.object({
-  id: z.string(),                       // "n.capelli"
+const Noun = z.strictObject({ ...Base,
   pos: z.literal("noun"),
-  text: z.string(),                     // "capelli"
-  gloss: z.string(),                    // "hair"
-  gender: z.enum(["m", "f"]),
-  number: z.enum(["sg", "pl"]),
-  defArt: z.string(),                   // "art.i"
-  indefArt: z.string().optional(),      // "art.un" (only nouns used with essere)
-  template: z.string(),                 // which template this noun is asked with
-  artRule: z.string(),                  // feedback message key for its article (3.7), e.g. "art.mpl.consonant"
-  attr: z.string().optional(),          // boolean attribute it tests ("glasses")
-  adjAttrs: z.array(z.string()).optional(), // attributes its adjectives may describe
-  level: z.enum(["A1", "A2"]),         // from the Profilo check (3.3)
-  retired: z.boolean().optional(),      // see 3.6
+  category: z.enum(["gender", "job", "place", "pet", "thing"]),
+  verb: z.enum(["v.shi", "v.you", "v.zai"]),        // the verb this noun is asked with
+  attr: z.enum(["dog", "cat", "phone", "book", "computer"]).optional(), // pets and things only
+  offBoardVerbs: z.array(z.enum(["v.shi", "v.you", "v.zai"])).optional(), // real Chinese the board can't answer
 });
 
-const Adjective = z.object({
-  id: z.string(),                       // "adj.biondo"
-  pos: z.literal("adj"),
-  gloss: z.string(),                    // "blond"
-  attr: z.string(),                     // "hairColor"
-  alsoMeans: z.array(z.object({         // extra meanings on other attributes
-    attr: z.string(),                   // "eyeColor"
-    value: z.string(),                  // "adj.marrone"
-  })).optional(),
-  wordChoice: z.array(z.object({        // nouns this word sounds wrong with
-    noun: z.string(),                   // "n.capelli"
-    use: z.string(),                    // "adj.castano"
-  })).optional(),
-  forms: z.object({ ms: z.string(), fs: z.string(), mp: z.string(), fp: z.string() }),
-  level: z.enum(["A1", "A2"]),
-  retired: z.boolean().optional(),
+const Verb = z.strictObject({ ...Base,
+  pos: z.literal("verb"),
+  yes: z.string(),                      // answer id: "a.you"
+  no: z.string(),                       // answer id: "a.meiyou"
+});
+
+const Pronoun = z.strictObject({ ...Base,
+  pos: z.literal("pronoun"),
+  gender: z.enum(["m", "f"]).optional(), // none for 你
+});
+
+const Particle = z.strictObject({ ...Base, pos: z.literal("particle") });
+
+const Answer = z.strictObject({ ...Base,
+  pos: z.literal("answer"),
+  verb: z.enum(["v.shi", "v.you", "v.zai"]),
+  polarity: z.boolean(),                // true = yes
+  valid: z.boolean(),                   // false only for 不有
 });
 ```
-
-`lexicon.json` is one array of all four kinds, told apart by `pos`. In the code every object schema is strict, so an unknown or misspelled key fails the build.
-
-A specific form of an adjective is referenced as `<lemmaId>#<formKey>`, e.g. `adj.biondo#mp` is `biondi`.
 
 ```json
 [
-  { "id": "n.capelli", "pos": "noun", "text": "capelli", "gloss": "hair",
-    "gender": "m", "number": "pl", "defArt": "art.i", "artRule": "art.mpl.consonant",
-    "template": "t.have.adj", "adjAttrs": ["hairColor", "hairLength"], "level": "A1" },
-  { "id": "n.occhiali", "pos": "noun", "text": "occhiali", "gloss": "glasses",
-    "gender": "m", "number": "pl", "defArt": "art.gli", "artRule": "art.mpl.vowel",
-    "template": "t.have", "attr": "glasses", "level": "A1" },
-  { "id": "n.donna", "pos": "noun", "text": "donna", "gloss": "woman",
-    "gender": "f", "number": "sg", "defArt": "art.la", "indefArt": "art.una", "artRule": "art.indef.f",
-    "template": "t.be", "level": "A1" },
-  { "id": "adj.biondo", "pos": "adj", "gloss": "blond", "attr": "hairColor",
-    "forms": { "ms": "biondo", "fs": "bionda", "mp": "biondi", "fp": "bionde" }, "level": "A1" },
-  { "id": "adj.castano", "pos": "adj", "gloss": "brown (hair, eyes)", "attr": "hairColor",
-    "alsoMeans": [{ "attr": "eyeColor", "value": "adj.marrone" }],
-    "forms": { "ms": "castano", "fs": "castana", "mp": "castani", "fp": "castane" }, "level": "A1" },
-  { "id": "adj.marrone", "pos": "adj", "gloss": "brown (eyes)", "attr": "eyeColor",
-    "wordChoice": [{ "noun": "n.capelli", "use": "adj.castano" }],
-    "forms": { "ms": "marrone", "fs": "marrone", "mp": "marroni", "fp": "marroni" }, "level": "A1" }
+  { "id": "n.gou", "pos": "noun", "hanzi": "狗", "pinyin": "gǒu", "gloss": "dog",
+    "hsk": ["狗"], "category": "pet", "verb": "v.you", "attr": "dog" },
+  { "id": "n.laoshi", "pos": "noun", "hanzi": "老师", "pinyin": "lǎoshī", "gloss": "teacher",
+    "hsk": ["老师"], "category": "job", "verb": "v.shi", "offBoardVerbs": ["v.you"] },
+  { "id": "n.nvde", "pos": "noun", "hanzi": "女的", "pinyin": "nǚ de", "gloss": "female (person)",
+    "hsk": ["女", "的"], "category": "gender", "verb": "v.shi" },
+  { "id": "v.you", "pos": "verb", "hanzi": "有", "pinyin": "yǒu", "gloss": "to have",
+    "hsk": ["有"], "yes": "a.you", "no": "a.meiyou" },
+  { "id": "pr.ta.f", "pos": "pronoun", "hanzi": "她", "pinyin": "tā", "gloss": "she",
+    "hsk": ["她"], "gender": "f" },
+  { "id": "a.buzai", "pos": "answer", "hanzi": "不在", "pinyin": "bú zài", "gloss": "no (not at)",
+    "hsk": ["不", "在"], "verb": "v.zai", "polarity": false, "valid": true },
+  { "id": "a.buyou", "pos": "answer", "hanzi": "不有", "pinyin": "bù yǒu", "gloss": "(wrong: use 没有)",
+    "hsk": ["不", "有"], "verb": "v.you", "polarity": false, "valid": false }
 ]
 ```
 
-Full MVP lexicon: 8 nouns (`capelli`, `occhi`, `occhiali`, `cappello`, `barba`, `baffi`, `uomo`, `donna`), 10 adjectives (`biondo`, `castano`, `nero`, `rosso`, `bianco`, `corto`, `lungo`, `azzurro`, `marrone`, `verde`), articles (`il`, `la`, `l'`, `i`, `gli`, `un`, `una`), verbs (`ha`, `è`). `l'` is there because every noun needs a definite article and `uomo`'s is `l'`; no question uses it, since `uomo` is only asked with `È un uomo?`.
+**Full MVP lexicon (28 entries).**
 
-Vocabulary choice: `castani` for brown hair and `azzurri` for blue eyes, the standard textbook forms. For brown eyes, both `castani` and `marroni` are accepted: `castani` is the traditional form and `marroni` is very common in everyday speech, and A1 exams (CILS, CELI) publish no word list that picks one. `capelli marroni` is not natural Italian, so it is rejected with a hint. The Italian review in 10.1 confirms all strings.
+| Kind | Entries |
+|---|---|
+| Nouns (14) | 男的 nán de, 女的 nǚ de, 老师 lǎoshī, 学生 xuésheng, 医生 yīshēng, 狗 gǒu, 猫 māo, 手机 shǒujī, 书 shū, 电脑 diànnǎo, 家 jiā, 学校 xuéxiào, 医院 yīyuàn, 饭店 fàndiàn |
+| Verbs (3) | 是 shì, 有 yǒu, 在 zài |
+| Pronouns (3) | 他 tā, 她 tā, 你 nǐ |
+| Particle (1) | 吗 ma |
+| Answers (7) | 是 shì, 不是 bú shì, 有 yǒu, 没有 méiyǒu, 不有 bù yǒu (invalid), 在 zài, 不在 bú zài |
 
-`TBD:` which brown-eyes word is the default, used in the Level 1 picker and in CPU questions. The Italian reviewer decides on day 1.
+The three job nouns have `offBoardVerbs: ["v.you"]`; no other noun has the field.
 
-**Level check.** The words were chosen for what the board can show, not taken from an A1 list, so each of the 18 lemmas is checked against the *Profilo della lingua italiana* (Spinelli and Parizzi, 2010), the CEFR reference level description for Italian. The Italian-speaking reviewer does this check. A word found above A1 is swapped for an A1 alternative if one exists; otherwise it stays, marked `level: "A2"`. Likely safe: `capelli`, `occhi`, `uomo`, `donna`, the colors, `lungo`, `corto`. Most likely to need a decision: `baffi`, `barba`, `castano`, `occhiali`, `cappello`.
+**HSK check.** `content/hsk1.json` holds the 300 headwords of HSK 1 from the 2025 syllabus (`{ "source": "...", "words": ["爱", ...] }`), typed in once from the official syllabus. A content test checks that every `hsk` headword of every non-retired lexicon entry is in that list, and that every Chinese character used in lexicon, messages and rendered questions and answers appears in some HSK 1 headword (names excepted). `TBD: verify` the official syllabus document to type the list from; secondary sources agree on 300 words, released November 2025 (References). The Mandarin reviewer spot-checks 30 entries against the official list.
 
-### 3.4 Question templates
+**Pinyin source.** Noun pinyin is copied from the HSK 1 list. `TBD:` the reviewer confirms the neutral tones the game uses (`xuésheng` versus the list's spelling, `nán de`).
 
-Templates are declarative data. The predicate is a named operation, not a function, so templates can live in JSON and be tested exhaustively.
+### 3.4 Rendering and pinyin
 
-```ts
-const Template = z.object({
-  id: z.string(),
-  pattern: z.string(),                          // "Ha {art} {noun} {adj}?"
-  verb: z.enum(["v.ha", "v.e"]),
-  article: z.enum(["def", "indef"]),
-  needsAdj: z.boolean(),
-  predicate: z.enum(["hasFeature", "featureIs", "genderIs"]),
-});
-```
+**Decision: there is one sentence shape, so there are no templates (D2).** A question is `{pron}{verb}{obj}吗？`. The predicate comes from the object's `category`:
 
-| Id | Pattern | Article | Predicate (yes when...) | Example |
-|---|---|---|---|---|
-| `t.have` | `Ha {art} {noun}?` | def | `attrs[noun.attr] === true` | `Ha la barba?` |
-| `t.have.adj` | `Ha {art} {noun} {adj}?` | def | `attrs[m.attr] === m.value`, where `m` is the adjective's meaning for this noun (4.3) | `Ha gli occhi azzurri?` |
-| `t.be` | `È {art} {noun}?` | indef | `attrs.gender === noun.id` | `È una donna?` |
+| Category | Yes when |
+|---|---|
+| `gender` | `attrs.gender === obj.id` |
+| `job` | `attrs.job === obj.id` |
+| `place` | `attrs.place === obj.id` |
+| `pet`, `thing` | `attrs[obj.attr] === true` |
 
-**Rendering.** `render(template, fill)` substitutes the form texts, always using the adjective the player chose (so `castani` and `marroni` each render as themselves). Answers follow the rule in section 2. One template definition therefore produces the question, the answer, the truth value, and the grammar check.
+**Characters.** No spaces between characters. Full-width `，` `。` `？`.
 
-**Grammar check (Level 2).** Given the noun, the expected tiles are:
-- verb: the template's verb (`ha` for `t.have*`, `è` for `t.be`). Wrong verb is the avere/essere error.
-- article: `noun.defArt` or `noun.indefArt` per the template.
-- adjective form: `adj.forms[noun.gender + noun.number]` (`m` + `pl` → `mp`). The given form is compared by its text, not its form key, because some forms are identical (`marrone` is both `ms` and `fs`).
+**Pinyin.** Built by joining the entries' `pinyin` with single spaces, ASCII punctuation attached to the word before it (`, . ?`), and the first letter of the sentence capitalised (GB/T 16159-2012). Examples: `Tā yǒu gǒu ma?`, `Bú shì, tā bú shì yīshēng.`
 
-**Tile builder shape.** The Level 2 builder has fixed slots in order: verb, article, noun, adjective. A slot left empty is a shape error (`noVerb`, `noArt`, `noNoun`, `needsAdj`), as is an adjective on a noun that takes none (`noAdjAllowed`). Shape errors show a message and log nothing. A filled slot with the wrong word is a grammar error.
+**Tone sandhi.** Pinyin shows the tone as spoken in this game, because that is what learners will hear: 不 before a fourth tone is written `bú` (`bú shì`, `bú zài`). The only other sandhi in the 84 strings is third tone before third tone (`yǒu gǒu`, `yǒu shǒujī`), which is not marked, following standard dictionary practice. `TBD:` the reviewer confirms both choices. Because sandhi is stored in the answer entries' `pinyin`, not computed, the golden-string test (10.2) is the check.
 
-**Hard and soft errors.** A wrong verb or article rejects the question. A wrong adjective form does not: the question is accepted, rendered with the correct form, and the slip is shown and logged without an `again` rating. Reason: A1 syllabi disagree on agreement. CELI A1 expects noun-adjective agreement, while other A1 syllabi do not require learners to produce it. Showing the fix every time teaches it without punishing it.
+**Ruby.** On screen, pinyin is shown above characters with HTML `<ruby>` per word (Level 1 always; Level 2 when the toggle is on). Every Chinese element has `lang="zh-Hans"` and every pinyin element `lang="zh-Latn-pinyin"`, so browsers pick Chinese, not Japanese, glyph shapes.
 
-Every mismatch is reported separately (`{ slot, given, expected, rule }`, where `rule` is a message key from 3.7) so feedback can say, for example: "*capelli* is masculine plural and starts with a consonant: use *i*."
+**Golden strings.** 14 questions × 2 pronouns = 28 questions; each has a yes and a no answer = 56 answers. All 84, in characters and in pinyin, are a snapshot test and are signed off by the reviewer.
 
 ### 3.5 Art manifest
 
-Characters are SVG built from stacked layers, chosen from the attributes, so the picture can never disagree with the data. The MVP ships with simple placeholder layers (flat shapes and colors) made in code. Final art replaces them later by dropping in files with the same names; no code changes.
+As Chi è? 3.5: characters are stacked SVG layers chosen from the attributes, so the picture can never disagree with the data. The MVP ships placeholder layers; final art drops in by file name.
 
 | z | Layer | Driven by | Files |
 |---|---|---|---|
-| 0 | background | fixed | `bg.svg` |
-| 1 | body + shirt | `gender` | `body-m.svg`, `body-f.svg` |
+| 0 | background | `place` | `bg-jia.svg`, `bg-xuexiao.svg`, `bg-yiyuan.svg`, `bg-fandian.svg` |
+| 1 | body and outfit | `gender` + `job` | `body-{m,f}-{laoshi,xuesheng,yisheng}.svg` (6) |
 | 2 | face | `skin` | `face-s1.svg` ... `face-s5.svg` |
-| 3 | eyes | `eyeColor` | `eyes-azzurro.svg`, `eyes-marrone.svg`, `eyes-verde.svg` |
-| 4 | beard | `beard` + `hairColor` | `beard-{color}.svg` (5) |
-| 5 | mustache | `mustache` + `hairColor` | `mustache-{color}.svg` (5) |
-| 6 | hair | `hairColor` + `hairLength` | `hair-{color}-{length}.svg` (10) |
-| 7 | glasses | `glasses` | `glasses.svg` |
-| 8 | hat | `hat` | `hat.svg` (drawn high on the head, so short hair always shows a visible band below it and long hair still shows) |
+| 3 | hair | `gender` + `hairStyle` | `hair-{m,f}-{h1,h2,h3}.svg` (6) |
+| 4 | book | `book` | `book.svg`, held under the left arm |
+| 5 | phone | `phone` | `phone.svg`, in the right hand |
+| 6 | computer | `computer` | `computer.svg`, on a small desk at the bottom centre |
+| 7 | dog | `dog` | `dog.svg`, bottom left corner |
+| 8 | cat | `cat` | `cat.svg`, bottom right corner |
 
-Placeholder rule: each layer must make its attribute obvious at card size (about 80 px wide), e.g. a hat is a solid block on top, glasses are two clear rings, eyes are drawn larger than life so their color reads, and a beard without a mustache leaves a visible gap under the nose. If a placeholder is ambiguous, the game is unfair, so this gets checked in the device test.
+**Placeholder rules.** Each layer must make its attribute obvious at card size (about 80px wide):
+- Places: a flat backdrop color plus one large icon in the top corner: home a house, school a blackboard, hospital a red cross, restaurant a bowl with chopsticks.
+- Jobs: doctor a white coat with a red cross badge; student a blue school tracksuit with backpack straps; teacher a dark jacket with a lanyard badge.
+- Pets and things always sit in the fixed positions above, so an empty position is visibly empty.
 
-**Detail view.** Long-pressing a card (or its "Zoom" control for keyboard users) shows that face large, with no text, so small details like eye color are easy to check. A colorblind mode that adds Italian labels is future work (section 11).
+If a placeholder is ambiguous the game is unfair, so this is checked in the device test (10.2). The long-press detail view is as Chi è? 3.5 (face large, no text).
 
-### 3.6 Content ids and versions
+### 3.6 Grammar points and feedback messages
 
-Ids (`n.capelli`, `adj.biondo`, `c.giulia`, `t.have.adj`) are permanent. They are never renamed or reused, because the review log refers to them forever. A word that leaves the game stays in the lexicon with `retired: true`, so old history still resolves.
+Grammar points are mistakes that belong to a pattern, not to one word. They are shown in the Mistakes tab, grouped by point, but are not FSRS cards in the MVP (section 11).
 
-`content/version.json` holds an integer `contentVersion`, bumped whenever content changes. Each saved game stores the version it started with (also the `content_version` column in 7.1). An unfinished saved game with an older version is discarded on load instead of resumed. `content/released-ids.json` lists every id in the last production release and is updated as part of each release. A content test fails if any id in that file is missing from the current content.
+```ts
+const GrammarPoint = z.strictObject({
+  id: z.string(),      // "gp.neg.mei"
+  title: z.string(),   // "没有, not 不有"
+  explain: z.string(), // one sentence, shown in the Mistakes tab
+});
+```
 
-### 3.7 Feedback messages
+| Id | Title | Explain |
+|---|---|---|
+| `gp.ma` | 吗 questions | Put 吗 at the end of a statement to make a yes/no question. |
+| `gp.order` | Word order | Who + verb + what + 吗: 他有狗吗？ |
+| `gp.pron.you` | 他, 她, not 你 | You are asking about the hidden person, so use 他 or 她. |
+| `gp.pron.gender` | 他 or 她 | Once you know someone is a woman, write 她; a man, 他. |
+| `gp.answer.verb` | Answer with the verb | Chinese answers yes/no questions by repeating the verb. |
+| `gp.neg.mei` | 没有, not 不有 | 有 is made negative with 没, never with 不. |
 
-Every feedback string lives in `content/messages.json`, keyed by rule id, with `{placeholders}`. UI chrome is English, with Italian words in italics. The list below is a draft; the Italian reviewer checks it in 10.1.
+Every feedback string lives in `content/messages.json`, keyed by rule id, with `{placeholders}`. UI chrome is English. Chinese inside a message is never italicised (synthetic italics make characters hard to read); it is wrapped in a `lang="zh-Hans"` span and shown in the normal weight. Draft, checked by the reviewer in 10.1:
 
 | Key | When | Message (draft) |
 |---|---|---|
-| `verb.avere` | Used `è` where `ha` is needed | Use *ha* (avere) for things someone has: *Ha {art} {noun}?* |
-| `verb.essere` | Used `ha` where `è` is needed | Use *è* (essere) for what someone is: *È {art} {noun}?* |
-| `art.msg.consonant` | Wrong article on `cappello` | *{noun}* is masculine singular and starts with a consonant: use *il*. |
-| `art.fsg` | Wrong article on `barba` | *{noun}* is feminine singular: use *la*. |
-| `art.mpl.consonant` | Wrong article on `capelli`, `baffi` | *{noun}* is masculine plural and starts with a consonant: use *i*. |
-| `art.mpl.vowel` | Wrong article on `occhi`, `occhiali` | *{noun}* is masculine plural and starts with a vowel: use *gli*. |
-| `art.indef.m` | Wrong article on `uomo` | *{noun}* is masculine: use *un*. |
-| `art.indef.f` | Wrong article on `donna` | *{noun}* is feminine: use *una*. |
-| `agreement` | Adjective form slip (soft) | *{expected}*, not *{given}*: *{noun}* is {genderNumber}. |
-| `meaning.mismatch` | Adjective can't describe the noun | *{noun}* can't be *{given}*. Try a word for {allowed}. |
-| `meaning.wordChoice` | `capelli marroni` | For *{noun}*, Italians say *{use}*. |
+| `verb.shi` | Wrong verb on a gender or job | Use 是 (shì) for who someone is: {pron}是{obj}吗？ |
+| `verb.you` | Wrong verb on a pet or thing | Use 有 (yǒu) for things someone has: {pron}有{obj}吗？ |
+| `verb.zai` | Wrong verb on a place | Use 在 (zài) for where someone is: {pron}在{obj}吗？ |
+| `offBoard.youJob` | 有 with a job | {given} asks if they have a {gloss}. To ask about their job, use 是: {pron}是{obj}吗？ |
+| `gp.ma` | No 吗 | Add 吗 (ma) at the end to make a yes/no question. |
+| `gp.order` | Wrong order | Chinese word order is who + verb + what + 吗. Try: {expected} |
+| `gp.pron.you` | Used 你 | 你 (nǐ) means "you". Ask about them with 他 or 她. |
+| `gp.pron.gender` | Pronoun against known gender (soft) | You found out they're {genderGloss}, so write {expected}. |
+| `gp.answer.verb` | Answered with another verb | Answer with the question's verb: {expected} |
+| `gp.neg.mei` | Answered 不有 | 有 is negated with 没: {expected} (méiyǒu). |
+| `answer.wrong` | Wrong polarity | Not quite: {answerText} |
 | `duplicate` | Question already asked | You already asked that. The answer was: {answerText} |
-| `shape.noVerb`, `shape.noArt`, `shape.noNoun` | Empty slot | Add a verb. / Add an article. / Add a noun. |
-| `shape.needsAdj` | `capelli` or `occhi` with no adjective | *{noun}* needs a description: add a color or length. |
-| `shape.noAdjAllowed` | Adjective on `barba` etc. | Just ask *Ha {art} {noun}?* |
-| `answer.wrong` | Wrong Sì/No to a CPU question | Not quite: {answerText} |
+| `shape.empty` | Nothing in the tray | Tap words to build a question. |
+| `shape.noPron` | No pronoun | Add who you're asking about: 他 or 她. |
+| `shape.noVerb` | No verb | Add a verb: 是, 有 or 在. |
+| `shape.noObj` | No object noun | Add a word to ask about. |
+| `shape.extra` | Two words of one kind, or two 吗 | Use one word of each kind. |
+
+`{genderGloss}` is `a woman` or `a man`.
+
+### 3.7 Content ids and versions
+
+As Chi è? 3.6: ids are permanent and never reused; a word that leaves the game stays with `retired: true`; `content/version.json` holds `contentVersion`, stored with each game; an unfinished saved game with an older version is discarded on load; `content/released-ids.json` lists every id in the last production release and a test fails if any is missing. Grammar point ids follow the same rules.
 
 ---
 
 ## 4. Engine contract
 
-`engine/` is pure TypeScript with no React, DOM, or time access. One function moves the game forward: `step(state, action, content) → { state, events }`. Randomness comes only from the seed.
+`engine/` is pure TypeScript: no React, DOM, network, or clock access, enforced by the existing lint rule. One function moves the game forward: `step(state, action, content) → { state, events }`. Randomness comes only from the seed.
 
 ### 4.1 Types
 
 ```ts
 type Phase = "setup" | "playerTurn" | "playerReview" | "cpuTurn" | "cpuReview" | "over";
 
-type Fill = { verb: string; art: string; noun: string; adj?: string }; // ids, adj as "adj.biondo#mp"
-
-type QuestionKey = string; // `${templateId}|${nounId}|${value ?? ""}`, value = the attribute value tested ("adj.marrone" for both castani and marroni eyes)
+type QuestionKey = string; // `${verbId}|${objectId}`, e.g. "v.you|n.gou". The pronoun is not part of it
 
 type SlotError = {
-  slot: "verb" | "art" | "adj" | "answer";
-  given: string;           // text the player chose ("gli", "bionde", "Sì")
-  expected: string;        // correct text ("i", "biondi", "No")
-  rule: string;            // message key from 3.7
+  slot: "pron" | "verb" | "order" | "ma" | "answer";
+  given: string;           // text shown: "是", "他狗有吗", "不有"
+  expected: string;        // "有", "他有狗吗？", "没有"
+  rule: string;            // message key from 3.6
 };
 
-type ShapeError = { kind: "noVerb" | "noArt" | "noNoun" | "needsAdj" | "noAdjAllowed" };
+type ShapeError = { kind: "empty" | "noPron" | "noVerb" | "noObj" | "extra" };
 
-type Feedback = { messageKey: string; params: Record<string, string> }[]; // rendered with content/messages.json
+type Feedback = { messageKey: string; params: Record<string, string> }[];
 
 type AskedQuestion = {
   by: "player" | "cpu";
   key: QuestionKey;
-  text: string;            // "Ha i capelli biondi?"
+  pron: string;            // "pr.ta.m"
+  text: string;            // "他有狗吗？"
   answer: boolean;         // the truth
-  answerText: string;      // "No, non ha i capelli biondi."
-  playerAnswer?: boolean;  // CPU questions only
+  answerText: string;      // "没有，他没有狗。"
+  playerAnswer?: string;   // CPU questions only: the answer id chosen, "a.meiyou"
 };
 
 type GameState = {
@@ -372,37 +406,34 @@ type GameState = {
   turn: number;
   playerSecret: string;
   cpuSecret: string;
-  flipped: string[];               // player's board, ids face down
-  cpuCandidates: string[];         // who the CPU still thinks playerSecret could be
-  cpuQuestionOrder: QuestionKey[]; // seeded shuffle of the 16 questions, fixed at START
-  pendingCpuQuestion?: QuestionKey;
+  flipped: string[];
+  cpuCandidates: string[];
+  cpuQuestionOrder: QuestionKey[]; // seeded shuffle of the 14 questions, fixed at START
+  pendingCpuQuestion?: { key: QuestionKey; pron: string };
   history: AskedQuestion[];
-  ratedThisTurn: string[];         // "lexiconId|direction", at most one rating per card per turn; cleared when `turn` increments
-  lastFeedback?: Feedback;         // what the UI shows after the last action
+  ratedThisTurn: string[];         // "lexiconId|direction"; cleared when `turn` increments
+  lastFeedback?: Feedback;
   result?: "won" | "lost";
 };
 
 type Action =
   | { type: "START"; seed: number; level: 1 | 2 }
-  | { type: "ASK"; templateId: string; fill: Fill }
+  | { type: "ASK"; tokens: string[] }            // lexicon ids in the order placed, e.g. ["pr.ta.m","v.you","n.gou","pt.ma"]
   | { type: "GUESS"; characterId: string }
-  | { type: "FLIP"; characterId: string }       // toggles
-  | { type: "ANSWER"; value: boolean; hintShown: boolean }
+  | { type: "FLIP"; characterId: string }
+  | { type: "ANSWER"; answerId: string; hintShown: boolean }
   | { type: "END_TURN" };
 
 type GameEvent =
-  | { type: "rejected"; reason: "wrongPhase" | "unknownId" | "grammar" | "nonsense" | "duplicate"; errors?: SlotError[] }
+  | { type: "rejected"; reason: "wrongPhase" | "unknownId" | "shape" | "grammar" | "offBoard" | "duplicate";
+      errors?: SlotError[]; shape?: ShapeError }
   | { type: "asked"; by: "player" | "cpu"; key: QuestionKey; answer: boolean }
   | { type: "rating"; lexiconId: string; direction: "recognize" | "produce"; rating: "again" | "hard" | "good"; detail?: SlotError }
-  | { type: "agreementSlip"; lexiconId: string; given: string; expected: string }
+  | { type: "grammarSlip"; point: string; given: string; expected: string }
   | { type: "gameOver"; result: "won" | "lost" };
 ```
 
-The engine emits `rating` events but never timestamps them. The progress store adds time and day (section 6).
-
-Level 2 tiles are turned into `{ templateId, fill }` by the pure function `parseTiles(tiles)`. The noun picks the template. Shape problems (an empty slot, a missing adjective for `capelli`, an adjective on `barba`) return a `ShapeError` that the UI shows; no action is dispatched and nothing is logged.
-
-Quitting is not an engine action. The game store records the round as `abandoned` and discards the saved state (section 2).
+Level 1 builds `tokens` from the picker (the chosen pronoun, the question's verb and object, `pt.ma`), so it always passes steps 3 to 5 of 4.3. Quitting is not an engine action (as Chi è?).
 
 ### 4.2 Transition table
 
@@ -413,23 +444,46 @@ Quitting is not an engine action. The game store records the round as `abandoned
 | setup | → playerTurn | R | R | R | R | R |
 | playerTurn | R | see 4.3 | right → over (won); wrong → over (lost) | toggle | R | R |
 | playerReview | R | R | R | toggle | R | CPU moves (section 5): → cpuTurn, or → over (lost) |
-| cpuTurn | R | R | R | toggle | → cpuReview | R |
+| cpuTurn | R | R | R | toggle | see 4.4 → cpuReview | R |
 | cpuReview | R | R | R | toggle | R | → playerTurn, `turn + 1`, `ratedThisTurn` cleared |
 | over | → playerTurn (new game) | R | R | R | R | R |
 
 ### 4.3 ASK validation order
 
-Checks run in this order; the first failure rejects:
+The first failing step rejects, except that step 4 collects every grammar error before rejecting.
 
-1. Phase is `playerTurn`.
-2. Template and all fill ids exist (`unknownId`).
-3. Grammar: verb and article (`grammar`). Emits an `again` rating for the noun (section 6). A wrong adjective form does not reject here; it becomes an agreement slip on success. If step 3 fails, the adjective form is still checked and any mismatch is added to `errors` with `rule: "agreement"`, so feedback shows every problem at once. Only the noun's `again` rating is emitted: no `agreementSlip` and no slip row, because the question was not accepted.
-4. Meaning (`nonsense`). The adjective's meaning for this noun is its own `attr` if that is in `noun.adjAttrs`, otherwise the first `alsoMeans` entry whose `attr` is in `noun.adjAttrs` (so `castani` on `occhi` means `eyeColor: adj.marrone`). If neither exists, the question is rejected; if the adjective has a `wordChoice` entry for this noun, the feedback is `meaning.wordChoice`, otherwise `meaning.mismatch`.
-5. Not already asked by the player this round (`duplicate`).
+1. Phase is `playerTurn`, else `wrongPhase`.
+2. Every token id exists in the lexicon and is a pronoun, verb, noun or particle, else `unknownId`.
+3. **Shape.** `tokens` is non-empty (`empty`); has exactly one pronoun (`noPron` if none), one verb (`noVerb`), one noun (`noObj`), and at most one `pt.ma`; any kind appearing twice is `extra`. Rejected with reason `shape`. Nothing is logged, no rating.
+4. **Grammar.** Collect all that apply:
+   - pronoun is `pr.ni`: `{ slot: "pron", given: "你", expected: "他 / 她", rule: "gp.pron.you" }`
+   - verb is not `noun.verb` and is not in `noun.offBoardVerbs`: `{ slot: "verb", given, expected: noun.verb's hanzi, rule: "verb.shi" | "verb.you" | "verb.zai" }` (the rule names the expected verb)
+   - no `pt.ma`: `{ slot: "ma", given: tokens as text, expected: correct question, rule: "gp.ma" }`
+   - order of the tokens, ignoring a missing 吗, is not pronoun, verb, noun, 吗: `{ slot: "order", given: tokens as text, expected: correct question, rule: "gp.order" }`
 
-On success: evaluate the predicate against `cpuSecret`, render question and answer using the correct adjective form, append to `history`, emit `asked`, and move to `playerReview`. At level 2 only, also emit the produce ratings and any `agreementSlip` (section 6). At level 1 the question comes from the picker, so steps 3 and 4 always pass and no produce rating is emitted.
+   If any error was collected: rejected with reason `grammar` and all errors. Events: a verb error emits `rating { noun, produce, again, detail }`; each `gp.*` error emits one `grammarSlip`. Phase stays `playerTurn`.
+5. **Off board.** The verb is in `noun.offBoardVerbs`: rejected with reason `offBoard`, feedback `offBoard.youJob`, nothing logged.
+6. **Duplicate.** The key `verb|noun` is already in the player's history this round: rejected with reason `duplicate`, previous answer shown, nothing logged.
 
-### 4.4 Invariants (each becomes a test)
+On success: evaluate the predicate (3.4) against `cpuSecret`, render the question and answer with the player's pronoun, append to `history`, emit `asked`, move to `playerReview`. At Level 2 only: emit `rating { noun, produce, good }`. Then the soft check: if the player's history has a gender question (`v.shi|n.nande` or `v.shi|n.nvde`) and the pronoun's gender differs from `cpuSecret`'s gender, emit `grammarSlip { point: "gp.pron.gender", given, expected }` and add `gp.pron.gender` to the feedback. This applies at both levels, because the Level 1 pronoun switch is a real choice.
+
+### 4.4 ANSWER rules
+
+`expected` = the question verb's `yes` answer if the truth is yes, else its `no` answer. For the chosen answer `c`:
+- `verbRight` = `c.verb` is the question's verb
+- `formRight` = `c.valid`
+- `polarityRight` = `c.polarity` equals the truth
+
+Events, in this order:
+1. If `!verbRight`: `grammarSlip { point: "gp.answer.verb", given: c.hanzi, expected: expected.hanzi }`.
+2. If `!formRight`: `grammarSlip { point: "gp.neg.mei", given: "不有", expected: "没有" }`.
+3. If `hintShown` is false (the hint exists only at Level 1) and the object's `recognize` card was not rated this turn: `rating { object, recognize, polarityRight ? "hard" : "again" }`, with `detail { slot: "answer", given: c.hanzi, expected: expected.hanzi, rule: "answer.wrong" }` when `again`.
+
+The answer is correct only if all three are true; otherwise the feedback shows every applicable message plus the full correct answer. The CPU filters `cpuCandidates` by the truth. Phase → `cpuReview`.
+
+At Level 1 only the two right-verb, valid buttons exist, so only polarity can be wrong.
+
+### 4.5 Invariants (each becomes a test)
 
 1. `playerSecret` and `cpuSecret` never change after START.
 2. `cpuCandidates` always contains `playerSecret`.
@@ -437,113 +491,89 @@ On success: evaluate the predicate against `cpuSecret`, render question and answ
 4. A rejected action changes no field except `lastFeedback` and `ratedThisTurn`.
 5. `history` only grows within a round.
 6. `over` accepts only START.
-7. Same seed + same action sequence produces the same state and events (determinism).
-8. At most one `rating` event per `lexiconId|direction` per turn.
+7. Same seed and same action sequence produce the same state and events.
+8. At most one `rating` per `lexiconId|direction` per turn.
 9. `ratedThisTurn` is empty at the start of every player turn.
+10. Every `answerText` contains the asker's pronoun and never the other one.
+11. A Level 1 ASK emits no `rating` events.
+12. Two questions that differ only in pronoun have the same `QuestionKey`.
 
-### 4.5 Traced example turn
+### 4.6 Traced example turn
 
-Level 2, CPU secret is Giulia (castano, lungo, verde, glasses). The same question at level 1 emits only `asked`.
+Level 2, CPU secret 李丽 (woman, doctor, at the hospital, cat, phone). No gender question asked yet.
 
-1. Player taps tiles `Ha` `i` `capelli` `biondi`. UI calls `parseTiles` → `{ templateId: "t.have.adj", fill: { verb: "v.ha", art: "art.i", noun: "n.capelli", adj: "adj.biondo#mp" } }`.
-2. UI dispatches `ASK` with that payload.
-3. Engine: phase is `playerTurn` (ok). Ids exist (ok). Grammar: `capelli` is m pl, expected verb `v.ha`, article `art.i`, form `mp` (all match). Meaning: `hairColor` is in `capelli.adjAttrs` (ok). Key `t.have.adj|n.capelli|adj.biondo` not in player history (ok).
-4. Predicate `featureIs`: `attrs.hairColor` is `adj.castano`, not `adj.biondo` → `false`.
-5. Render: question `Ha i capelli biondi?`, answer `No, non ha i capelli biondi.`
-6. Returns state with `phase: "playerReview"`, the new `AskedQuestion` in `history`, `ratedThisTurn: ["n.capelli|produce", "adj.biondo|produce"]`, and events:
-   - `asked { by: "player", key, answer: false }`
-   - `rating { n.capelli, produce, good }`
-   - `rating { adj.biondo, produce, good }`
-7. UI shows the answer and the progress store writes two review-log rows. The player flips the blond characters down and taps "Avanti" (END_TURN).
+1. Player taps tiles `他` `有` `狗` `吗`. UI dispatches `ASK { tokens: ["pr.ta.m", "v.you", "n.gou", "pt.ma"] }`.
+2. Phase is `playerTurn` (ok). Ids exist (ok). Shape: one of each (ok). Grammar: pronoun not 你; `n.gou.verb` is `v.you` (ok); 吗 present; order is pronoun, verb, noun, 吗 (ok). Not off board. Key `v.you|n.gou` not asked (ok).
+3. Predicate (`pet`): `attrs.dog` is `false`.
+4. Render: question `他有狗吗？` (`Tā yǒu gǒu ma?`), answer `没有，他没有狗。` (`Méiyǒu, tā méiyǒu gǒu.`).
+5. No gender question in history, so no pronoun check.
+6. Returns `phase: "playerReview"`, the new `AskedQuestion`, `ratedThisTurn: ["n.gou|produce"]`, events `asked { by: "player", key: "v.you|n.gou", answer: false }` and `rating { n.gou, produce, good }`.
+7. The progress store writes one review-log row. The player flips down everyone with a dog and presses Next (END_TURN).
 
-Same tiles but with `bionde`: steps 3 to 5 pass (the verb and article are right). The question is accepted and rendered correctly as `Ha i capelli biondi?`, the feedback says "*biondi*, not *bionde*: *capelli* is masculine plural", and the events are `asked`, `rating { n.capelli, produce, good }` and `agreementSlip { adj.biondo, given: "bionde", expected: "biondi" }`. `adj.biondo` gets no rating this turn.
+**Variant: wrong verb.** Tokens `他` `是` `狗` `吗`: step 4 finds `{ slot: "verb", given: "是", expected: "有", rule: "verb.you" }`. Events: `rejected { reason: "grammar", errors: [that] }`, `rating { n.gou, produce, again, detail }`. Phase stays `playerTurn`. Feedback: "Use 有 (yǒu) for things someone has: 他有狗吗？"
 
-Same tiles but with `gli` instead of `i`: step 3 fails, the engine returns `rejected { reason: "grammar", errors: [{ slot: "art", given: "gli", expected: "i", rule: "art.mpl.consonant" }] }` and `rating { n.capelli, produce, again }`, and the phase stays `playerTurn`.
+**Variant: two errors.** Tokens `你` `狗` `有`: step 3 passes (one pronoun, verb, noun). Step 4 collects `gp.pron.you`, `gp.ma`, and `gp.order` (`你狗有` is not pronoun, verb, noun). Events: `rejected { reason: "grammar", errors: [3 errors] }` and three `grammarSlip` events. No `rating`, because the verb was right for the noun.
 
-Same tiles but with `gli` and `bionde`: step 3 fails, the engine returns `rejected { reason: "grammar", errors: [{ slot: "art", given: "gli", expected: "i", rule: "art.mpl.consonant" }, { slot: "adj", given: "bionde", expected: "biondi", rule: "agreement" }] }` and `rating { n.capelli, produce, again }`, and nothing else: no `agreementSlip`, no rating for `adj.biondo`.
+**Variant: pronoun slip.** Earlier this round the player asked `他是女的吗？` and got `是，他是女的。` Now they ask `他有猫吗？`. Accepted; answer `有，他有猫。`; events `asked`, `rating { n.mao, produce, good }`, `grammarSlip { point: "gp.pron.gender", given: "他", expected: "她" }`. Feedback adds "You found out they're a woman, so write 她."
 
 ---
 
 ## 5. CPU behavior
 
-The CPU plays smart and deterministic: it always asks the question that best splits its remaining candidates.
+As Chi è? section 5, with 14 questions: the CPU always asks the question whose "yes" count among `cpuCandidates` is closest to half, ties broken by `cpuQuestionOrder`; it guesses when one candidate remains; it answers truthfully; it filters by the true answer.
 
-CPU questions always use the default wording (for brown eyes, the word picked in the Italian review, 3.3).
+**Pronoun.** Chosen when the question is set (section 2): 她 if every candidate is a woman, 他 if every one is a man, otherwise 他. Stored in `pendingCpuQuestion.pron`.
 
-**Choosing a move** (runs inside END_TURN from `playerReview`):
-1. If `cpuCandidates` has one id, the CPU guesses it → `over`, `lost`.
-2. Otherwise, among the questions it has not asked, it picks the one whose "yes" count among `cpuCandidates` is closest to half. Ties go to the question that comes first in `cpuQuestionOrder` (seeded shuffle of the 16 questions, set at START), so games vary but stay reproducible. The content invariant in 3.2 guarantees a question that splits the candidates always exists.
-3. It sets `pendingCpuQuestion` and moves to `cpuTurn`. The UI shows it.
-
-**Answering the player's questions:** truthfully, by evaluating the predicate on `cpuSecret`.
-
-**Updating after the player answers:** the CPU filters `cpuCandidates` using the true answer, not the player's answer.
-
-Measured length (`node scripts/simulate.ts`, 1,000 games): the CPU needs 4.7 questions on average and never more than 5 to find the player's character, close to the best possible (log2 24 ≈ 4.6). A player who asks questions as well as the CPU wins about 78% of games, because both sides need the same number of questions and the player goes first; real learners will ask less efficient questions and win less. If playtesting shows learners lose too often, the planned fix is an Easy setting (section 11), not a weaker default.
+**Measured length.** `node scripts/simulate.ts` (1,000 games) reports the CPU's mean and maximum number of questions for the chosen seed. Fewer questions split 50/50 than in Chi è? (places split 6 to 18), so the mean is expected to be a little above log2 24 ≈ 4.6. `TBD:` record the measured mean, maximum, and the player's win rate when playing as well as the CPU. If the CPU needs fewer than 5 on average and learners lose most playtest rounds, the planned fix is the Easy setting in section 11, not a weaker default (as Chi è? D8).
 
 ---
 
 ## 6. Learning model
 
-Spaced repetition with FSRS (proposed library: `ts-fsrs`, default parameters, desired retention 0.9). In the MVP, scheduling is computed and stored, and shown on the Progress screen. Nothing in gameplay reads it yet.
+As Chi è? section 6 (FSRS with `ts-fsrs`, default parameters, desired retention 0.9; computed, stored and shown, but nothing in gameplay reads it yet), with these differences.
 
-**Card.** One card per `(lexiconId, direction)` for nouns and adjectives (18 lemmas × 2 = 36 cards).
-- `recognize`: Italian → meaning. Exercised when the player answers a CPU question.
-- `produce`: meaning → Italian. Exercised when the player builds a question at Level 2.
+**Cards.** One card per `(noun id, direction)`: 14 nouns × 2 = 28 cards.
+- `recognize`: Chinese → meaning. Exercised when answering a CPU question.
+- `produce`: meaning → Chinese. Exercised when building a question at Level 2.
 
-Articles and verbs are not cards. An article error is rated against the noun (choosing the article means knowing the noun's gender and number). A verb error (avere/essere) is also rated against the noun.
+Verbs, pronouns, 吗 and answers are not cards. A wrong verb is rated against the noun, because choosing the verb means knowing what kind of thing the noun is (as Chi è? rates articles against nouns).
 
 **Event → rating.**
 
 | Game event | Cards | Rating |
 |---|---|---|
-| Level 2 question accepted, adjective in the right form | produce: noun, adjective | good |
-| Level 2 question accepted with an agreement slip | produce: noun good; adjective not rated | slip row logged for the Mistakes tab |
-| Level 2 question rejected for grammar (verb or article) | produce: the noun | again |
-| Level 1 pre-built question tapped | none | none (exposure only) |
-| Question rejected as `nonsense` or `duplicate`, or a `shapeError` | none | none |
-| CPU question answered correctly, hint not shown | recognize: noun, adjective | hard |
-| CPU question answered wrongly | recognize: noun, adjective | again, with `detail` `{ slot: "answer", given, expected, rule: "answer.wrong" }` for the Mistakes tab |
-| Hint shown before answering | none | none |
+| Level 2 question accepted | produce: the noun | good |
+| Level 2 question accepted with a pronoun slip | produce: the noun good | plus a `slip` row for `gp.pron.gender` |
+| Level 2 question rejected for the wrong verb | produce: the noun | again |
+| Level 2 question rejected for 你, missing 吗 or order only | none | one `slip` row per grammar point |
+| Level 1 question tapped | none | none (exposure only); a pronoun slip still writes a `slip` row |
+| `offBoard`, `duplicate`, or a shape error | none | none |
+| CPU question answered with the right polarity, hint not shown | recognize: the noun | hard (capped: a two-way choice can be right by luck, as Chi è? D7) |
+| CPU question answered with the wrong polarity | recognize: the noun | again, with `detail` for the Mistakes tab |
+| CPU question answered with the wrong verb or 不有 | as polarity says | plus a `slip` row per grammar point |
+| Hint shown before answering | none | none (grammar slips still logged) |
 
-`easy` is never produced by the game.
-
-**Guess-proofing.** A Sì/No answer is right half the time by luck, so a correct answer is capped at `hard`. Only producing the form (Level 2) can earn `good`.
-
-**One rating per card per turn.** If a learner fails and then fixes a question in the same turn, the fixed card keeps its `again`.
-
-**Review log.** Append-only, and the source of truth. Card state is a cache that can always be rebuilt by replaying the log in `created_at` order.
-
-```ts
-type ReviewLogRow = {
-  id: string;            // uuid generated on the client
-  gameId: string;
-  lexiconId: string;
-  direction: "recognize" | "produce";
-  rating: "again" | "hard" | "good" | "slip"; // "slip" rows feed the Mistakes tab; FSRS replay skips them
-  detail?: SlotError;    // { given, expected } for the mistake log
-  localDay: string;      // "2026-10-06" in the learner's timezone at the time
-  createdAt: string;     // ISO timestamp
-};
-```
-
-**No daily new-card limit in the MVP.** Every counted rating is scheduled. A limit only matters once gameplay follows the schedule, so it returns together with SRS-weighted CPU questions (section 11). `localDay` is still stored so a future limit can be replayed the same way on any device.
+**Review log.** As Chi è?: append-only, source of truth, cards rebuilt by replay. `slip` rows carry the grammar point id in `lexiconId` (e.g. `gp.neg.mei`) and `detail` `{ given, expected }`. FSRS replay skips `slip` rows. No daily new-card limit.
 
 ---
 
 ## 7. Data and backend
 
-Supabase (Postgres + Auth) with Row Level Security. No custom server code in the MVP. Guests' data stays in IndexedDB and is never sent to a server.
+As Chi è? section 7: Supabase (Postgres and Auth) with Row Level Security, no custom server code, guests local only. Schema and policies are identical and are written out below so this repo stands alone.
 
 **Environments.**
 
 | Environment | Supabase | Used by |
 |---|---|---|
-| Local | Supabase CLI in Docker; catches sign-in emails in a local inbox | Development, Vitest sync tests, Playwright, CI |
-| Staging | Free cloud project | Pull request preview deploys |
-| Production | Free cloud project, upgraded to Pro at launch | `main` deploys at `chie.parlaplay.games` |
+| Local | Supabase CLI in Docker; local inbox for sign-in emails | Development, Vitest sync tests, Playwright, CI |
+| Staging | Free cloud project `shei-staging` | Pull request preview deploys, from Thu Oct 29 |
+| Production | Project `shei-prod` in the paid organization Chi è? moves to Pro at its launch | `main` deploys at `shei.parlaplay.games` |
 
-That uses both free cloud projects. Schema changes are SQL files in `supabase/migrations/`, applied locally, then to staging, then to production with the CLI, before merging any code that needs them. The app only ever holds the public key (called the publishable key in newer Supabase projects, the anon key in older ones); the service role or secret key is never in the app or the repo.
+**Why staging starts late.** Supabase's free plan allows 2 active free projects, and Chi è? uses both (staging and production) until it upgrades on Wed Oct 28. Until Shéi staging exists, preview deploys are built with no Supabase settings and run guest-only (8.2, "Sign-in unavailable"). `TBD: verify` whether the 2-project limit counts per organization or across every organization the owner belongs to; if per organization, `shei-staging` can be made on day 2 in a new free organization.
+
+**Production cost.** On the Pro plan each additional project adds its own compute; the $10 monthly credit covers one Micro instance, which Chi è? production uses. `shei-prod` on Micro therefore adds about $10 a month (References).
+
+Migrations live in `supabase/migrations/` and are applied local → staging → production with the CLI before merging code that needs them. The app holds only the public (publishable or anon) key.
 
 ### 7.1 Tables
 
@@ -555,7 +585,6 @@ create table public.profiles (
   created_at timestamptz not null default now()
 );
 
--- every new auth user gets a profile row
 create function public.handle_new_user() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
@@ -569,7 +598,7 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 create table public.games (
-  id uuid primary key,                                   -- generated on the client
+  id uuid primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
   seed bigint not null,
   level smallint not null check (level in (1, 2)),
@@ -580,10 +609,10 @@ create table public.games (
 );
 
 create table public.review_log (
-  id uuid primary key,                                   -- generated on the client, makes sync idempotent
+  id uuid primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
   game_id uuid references public.games (id) on delete set null,
-  lexicon_id text not null,
+  lexicon_id text not null,                              -- a noun id, or a grammar point id on slip rows
   direction text not null check (direction in ('recognize', 'produce')),
   rating text not null check (rating in ('again', 'hard', 'good', 'slip')),
   detail jsonb,
@@ -597,19 +626,18 @@ create table public.cards (
   user_id uuid not null references auth.users (id) on delete cascade,
   lexicon_id text not null,
   direction text not null check (direction in ('recognize', 'produce')),
-  state jsonb not null,                                  -- FSRS card state
+  state jsonb not null,
   due timestamptz not null,
-  log_count int not null,                                -- review_log rows the state was built from
+  log_count int not null,
   updated_at timestamptz not null default now(),
   primary key (user_id, lexicon_id, direction)
 );
 
--- a device with an older copy of the log can never overwrite newer card state
 create function public.cards_keep_newest() returns trigger
 language plpgsql set search_path = '' as $$
 begin
   if new.log_count < old.log_count then
-    return null;  -- skip this stale update
+    return null;
   end if;
   return new;
 end;
@@ -620,6 +648,8 @@ create trigger cards_keep_newest
   for each row execute function public.cards_keep_newest();
 ```
 
+`slip` rows need a `direction` value: answer-side slips use `recognize`, question-side slips use `produce`.
+
 ### 7.2 RLS policies
 
 ```sql
@@ -628,7 +658,6 @@ alter table public.games      enable row level security;
 alter table public.review_log enable row level security;
 alter table public.cards      enable row level security;
 
--- profiles: read, create, and update your own row
 create policy profiles_select on public.profiles for select to authenticated
   using ((select auth.uid()) = id);
 create policy profiles_insert on public.profiles for insert to authenticated
@@ -636,7 +665,6 @@ create policy profiles_insert on public.profiles for insert to authenticated
 create policy profiles_update on public.profiles for update to authenticated
   using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
 
--- games: read, create, and update (to set ended_at/result) your own games
 create policy games_select on public.games for select to authenticated
   using ((select auth.uid()) = user_id);
 create policy games_insert on public.games for insert to authenticated
@@ -644,7 +672,7 @@ create policy games_insert on public.games for insert to authenticated
 create policy games_update on public.games for update to authenticated
   using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
--- review_log: append-only. No update or delete policy exists, so both are denied.
+-- append-only: no update or delete policy exists, so both are denied
 create policy review_log_select on public.review_log for select to authenticated
   using ((select auth.uid()) = user_id);
 create policy review_log_insert on public.review_log for insert to authenticated
@@ -656,8 +684,6 @@ create policy review_log_insert on public.review_log for insert to authenticated
     ))
   );
 
--- cards: derived cache, fully owned by the user. Kept on the server for future
--- features such as "words due today" emails; the app itself rebuilds cards from the log.
 create policy cards_select on public.cards for select to authenticated
   using ((select auth.uid()) = user_id);
 create policy cards_insert on public.cards for insert to authenticated
@@ -670,120 +696,95 @@ The `anon` role has no policies, so it can read and write nothing.
 
 ### 7.3 Auth and sync rules
 
-- Sign-in: a 6-digit code sent by email, typed into the same tab; Google sign-in is future work. There is no magic link, because on phones the email often opens in another app or browser, which would sign the user in somewhere without their guest data. The app calls `signInWithOtp` to send the code and `verifyOtp` (type `email`) to check it. The Supabase email template shows `{{ .Token }}` and no link. The sheet offers "Resend code" after Supabase's cooldown.
-- Sending email: Supabase's built-in sender is for testing only (about 2 emails an hour, delivered only to the project team), so production sends through **AWS SES** set as Supabase's custom SMTP, from the domain `chie.parlaplay.games`. Setup: verify the domain in SES (SPF, DKIM and DMARC records), then request production access to leave the SES sandbox. Approval can take a day or more, so it is requested on day 2. **Fallback:** if SES access is slow or refused, Resend is used as the custom SMTP instead, with the same domain. Staging uses the built-in sender, which is enough for the team.
-- Guest: data lives in IndexedDB under the key `guest` and is never uploaded unless the guest signs in. The app calls `navigator.storage.persist()` to ask the browser to keep it. Safari on iOS can still delete a site's storage after 7 days of Safari use without a visit, so after each finished guest round the app shows a quiet "Sign in to keep your progress safe" nudge, and the privacy note says so. The app needs a connection to load (online only in the MVP, see 11.1); once loaded, a round keeps working if the connection drops.
-- Guest → account (any sign-in while guest data exists on this device): ask "Save your progress to this account?" (default Yes).
-  - Yes: rewrite `user_id` on local rows, upload `games` first, then `review_log` with `insert ... on conflict (id) do nothing`.
-  - No: delete guest data.
-- Signed in, normal play: every write goes to an IndexedDB outbox first, then flushes to Supabase. The `games` row enters the outbox at START and is upserted again at round end with `ended_at` and `result`. A flush always sends `games` rows before `review_log` rows, because each log row must point at an existing game. Flush on each round end, on app start, and on the `online` event. A failed flush keeps rows in the outbox and shows a quiet banner.
-- Merging across devices: the review log is append-only with client uuids, so a merge is a union with no conflicts. After each sync the client downloads the full log, replays it to rebuild card state, and upserts `cards` with `log_count` set to the number of log rows it replayed. The trigger in 7.1 ignores an upsert with a smaller `log_count` than the stored one.
-- Sign-out: clears the local copy of that user's data (shared devices). If the outbox still has unsynced rows, the app first warns: "Some progress hasn't synced yet. Sign out anyway?" with "Sign out" and "Wait" buttons.
-- Account deletion: by request. The privacy note gives an email address; the owner deletes the user in the Supabase dashboard, and the `on delete cascade` foreign keys remove all of their rows. Requests are handled within one month (the GDPR deadline). An in-app button is future work (section 11).
+As Chi è? 7.3 in full (6-digit email code only, guest data in IndexedDB under `guest`, `navigator.storage.persist()`, guest nudge, "Save your progress to this account?" upload, outbox with `games` before `review_log`, union merge and replay, `log_count` guard, unsynced sign-out warning, account deletion by email within one month), with these differences:
+
+- **Email.** Sign-in codes are sent through the same AWS SES account as Chi è?, from a new verified domain identity `shei.parlaplay.games` (SPF, DKIM, DMARC records in Cloudflare DNS). SES production access is granted per account and per Region, so if Chi è? already left the sandbox in that Region, Shéi needs only the new identity. If Chi è? fell back to Resend, Shéi does too. Staging uses Supabase's built-in sender.
+- **Separate accounts.** A Chi è? account and a Shéi account are different users in different projects, even with the same email. The privacy note says so. Shared accounts are future work.
+- **Local settings.** The Level 2 pinyin toggle and the Level 1 pronoun switch are stored per device in IndexedDB (`settings` store), not synced, and kept on sign-out.
 
 ---
 
 ## 8. UX
 
-Mobile-first, portrait, styled with Tailwind CSS. The full 24-card board must fit without scrolling in the space a 360 × 640 phone actually shows after the browser's own toolbars (roughly 360 × 560; layout uses `dvh` units, and this is checked on real phones). The question builder (or the CPU's question) lives in a bottom sheet over the board that collapses to a one-line bar, so the board never shrinks.
+As Chi è? section 8 and `spec-desktop.md`, which come with the copied code. Below are only the differences. The phone board still fits 360 × 560 (a 360 × 640 phone after browser toolbars) with the bottom sheet collapsed; the desktop board still fits 1024 × 640 with no page scroll.
 
-Desktop (1024px and wider) has its own spec, [`spec-desktop.md`](spec-desktop.md). Nothing below 1024px changes.
+### 8.1 Screens
 
-### 8.1 Screens and flow
+Same screens, flow and routes (`/`, `/play`, `/progress`, `/settings`, `/privacy`). Changes:
 
-```
-Home ──► Game ──► Round end ──► Game (play again)
-  │                    └──────► Home
-  ├──► Progress (Mistakes | Due)
-  └──► Settings ──► Sign-in sheet
-                └─► Privacy note
-```
-
-| Screen | Contents |
+| Screen | Change |
 |---|---|
-| Home | Play (or "Continue round" when one is saved), level picker (1 or 2), Progress, Settings, sign-in status |
-| Game | Top bar (turn, whose turn). Your secret card (small; tap it for the detail view, 3.5). Board: 4 columns × 6 rows. Bottom sheet: question picker (Level 1) or tile builder (Level 2) on your turn; CPU question with Sì / No on its turn; feedback after each action. Collapsed, the sheet shows one line (e.g. the last answer). "Indovina" (guess) button. "Avanti" (end turn) button. A menu with "Quit round" (asks to confirm). Long-press a card for the detail view (3.5) |
-| Round end | Result, both secrets revealed, question history with answers, this round's mistakes, Play again |
-| Progress | Mistakes tab: grouped by word, showing what was given and what was expected. Due tab: words due today and their next review date |
-| Settings | Default level, account (sign in or out, with the unsynced warning from 7.3), link to the privacy note |
-| Sign-in sheet | Email field, then a 6-digit code field with "Resend code" |
-| Privacy note | What is stored, the services in section 9 (Privacy) and what each sees, that guest data can be cleared by Safari, and the email address for account deletion |
-
-**Level 1 question picker:** a list of the 16 questions, each with its English gloss. Questions already asked this round are greyed out and show their answer.
-**Level 2 tile builder:** four slots in order (verb, article, noun, adjective) above rows of verb tiles, article tiles, noun tiles, and adjective lemma tiles. Tapping a tile fills its slot. Tapping an adjective opens its forms, each distinct text shown once (`marrone`, `marroni`). Built question previews in the slots. "Chiedi" submits.
-**Guessing:** tap "Indovina", tap a card, confirm.
-**CPU questions at Level 1:** a "Show hint" button reveals the English. Revealing it removes the rating for that answer (section 6).
-
-**Routes (React Router).** `/` Home, `/play` Game (the round-end view is part of it), `/progress`, `/settings`, `/privacy`. Sign-in is a sheet, not a route, since the code is typed in the same tab.
+| Home | Title `谁？` with `Shéi?` below it |
+| Game: card | Face art, then the name in characters with its pinyin below, both on the card at every level |
+| Game: Level 1 picker | Pronoun switch at the top (`他` / `她`, default `他`). The 14 questions, each with ruby pinyin and its English gloss ("Is he a doctor?"). Asked questions greyed out with their answer |
+| Game: Level 2 builder | A tray line above the tiles: one row with the pronouns `他 她 你`, the verbs `是 有 在` and `吗` (7 tiles), then the 14 nouns in three rows. Tapping a tile appends it to the tray; tapping a tile in the tray removes it; "Clear" empties it; the tray holds at most 6 tiles and ignores further taps. "Ask" submits. A "Pinyin" toggle shows ruby pinyin on every tile and in the tray |
+| Game: CPU question | The question with ruby pinyin at Level 1 (characters only at Level 2 unless the toggle is on); "Show hint" reveals English at Level 1; answer buttons as section 2 |
+| Game: buttons | English: "Guess", "Next", "Ask", "Quit round". Reason: HSK 1 has no word for "guess", and English chrome matches the rest of the UI |
+| Progress: Mistakes | Grouped by noun or by grammar point; a grammar point shows its title and explanation from 3.6 |
+| Privacy | As Chi è?, with Shéi's domain and the note that accounts are separate from Chi è? |
 
 ### 8.2 States
 
+As Chi è? 8.2 and `spec-desktop.md` DS 11, plus:
+
 | State | Where | Behavior |
 |---|---|---|
-| Loading | App start, content load | Skeleton board; content is bundled so this should be under a second |
-| Empty | Progress with no data | "Play a round to see your words here." |
-| Error: sync failed | Any screen when signed in | Small banner "Saved on this device, will sync later." Play is never blocked |
-| Error: code wrong or expired | Sign-in sheet | Inline message; "Resend code" |
-| Error: email failed to send | Sign-in sheet | Inline message with retry |
-| Unsynced sign-out | Settings | Confirm dialog from 7.3 |
-| Guest nudge | Round end, as a guest | Quiet "Sign in to keep your progress safe" line (7.3) |
-| Connection lost | Mid-round | Play continues (everything is already loaded); signed-in sync waits in the outbox |
-| Resume | App reopened mid-round | Offer "Continue round" on Home |
+| Sign-in unavailable | Settings and the guest nudge, on a build with no Supabase settings | Sign-in is hidden; Settings shows "Sign-in isn't available on this preview." Guest play works |
+| Pronoun slip | Game, after a question is accepted | The answer, then the soft message in a muted line below it |
+
+### 8.3 Desktop keys
+
+As `spec-desktop.md` DS 8, with these keys changed because the Italian ones were Italian words:
+
+| Key | Action | Replaces |
+|---|---|---|
+| `g` | Guess | `g` Indovina (same key) |
+| `n` | Next (END_TURN) | `a` Avanti |
+| `1`, `2` | Level 1 answers, in button order | `s` Sì, `n` No |
+| `1` to `7` | Level 2 answers, in button order (`是 不是 有 没有 不有 在 不在`) | `s`, `n` |
+| `p` | Pinyin toggle (Level 2) | new |
+| `t` | Pronoun switch (Level 1) | new |
+| Enter in the tray | Ask | Chiedi |
+
+Level 2 has no tile letter keys, as DS 8 (DD8).
 
 ---
 
 ## 9. Non-functional
 
-**Browsers.** Current and previous major version of: Safari on iOS, Chrome on Android, desktop Chrome, Firefox, Safari, Edge.
+**Browsers, stack, accessibility target, performance budgets, error reporting, cheating.** As Chi è? section 9 and `spec-desktop.md` DS 12, unchanged: current and previous major versions of iOS Safari, Android Chrome and desktop Chrome, Firefox, Safari, Edge; React, TypeScript (strict), Vite, React Router, Zustand, Tailwind CSS, Zod, `ts-fsrs`, Supabase JS, `idb`; Vitest, fast-check, Playwright; pnpm, ESLint, Prettier; WCAG 2.2 AA; initial JS under 250 KB gzipped, LCP under 2.5 s on Lighthouse mobile, `step()` under 5 ms; Sentry errors only with every data collection category off and URLs scrubbed.
 
-**Stack.** React + TypeScript (strict) + Vite, React Router, Zustand, Tailwind CSS, Zod, `ts-fsrs`, Supabase JS client, a small IndexedDB wrapper (e.g. `idb`). Tests: Vitest, fast-check, Playwright. Tooling: pnpm, ESLint, Prettier.
+**Fonts.** System fonts only: `"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif` for Chinese. No web font, because a full Chinese font is several megabytes and would break the 250 KB budget. Every element with Chinese text has `lang="zh-Hans"` (3.4).
 
-**Folder structure.**
+**Accessibility additions.**
+- Each card's accessible name is in Chinese with `lang="zh-Hans"`, e.g. `李丽：女的，医生，在医院，有猫，有手机`. `TBD:` check on the real devices that VoiceOver and TalkBack switch to a Chinese voice for it; if not, add pinyin to the name.
+- Ruby pinyin is exposed to screen readers only where it is visible.
+- Touch targets for tiles are at least 44 × 44 px, so the 21 tiles take four rows on a 360px phone.
+
+**Repo.** A separate repository `jennarbates/Chinese`, started from Chi è? `main` at `29a45c1` with its full history, then Italian content removed and renamed. Chi è? is the `italian` remote (fetch only; pushing is disabled). Reason: the two games will diverge in content and engine, so they stay separate repos; keeping the shared history lets Chi è? fixes come over with `git cherry-pick` from `italian/main`, and makes a later merge into one repo a normal merge. Each cherry-picked or skipped Chi è? fix gets a line in `docs/port-log.md`. Whether to merge the two into one repo with a shared package is decided after both launch (section 11.1). Branches are named `shei-<issue number>-<short name>`.
+
+**Folder structure.** As Chi è?, with these content files:
 
 ```
 src/
-  engine/      pure TS: types, step, questions, grammar, cpu (no React, DOM or time)
-  content/     characters.json, lexicon.json, templates.json, messages.json, version.json, released-ids.json
-  services/    storage (IndexedDB), sync (Supabase), srs (FSRS replay), errors (Sentry)
-  store/       gameStore, progressStore (Zustand)
-  ui/          Board, CardDetail, BottomSheet, QuestionPicker, TileBuilder, RoundEnd, Progress, Settings, SignInSheet, Privacy
-  routes.tsx
+  engine/      pure TS: types, step, ask (shape, grammar, order), answer, render, cpu
+  content/     characters.json, lexicon.json, grammar.json, messages.json, hsk1.json, version.json, released-ids.json
+  services/    storage, sync, srs, errors (unchanged)
+  store/       gameStore, progressStore, settingsStore
+  ui/          Board, Card, Ruby, CardDetail, BottomSheet, QuestionPicker, TileTray, AnswerButtons, RoundEnd, Progress, Settings, SignInSheet, Privacy
 public/art/    SVG layers named as in 3.5
-scripts/       generate-characters.ts
-supabase/      migrations/ (tables and RLS from section 7)
+scripts/       generate-characters.ts, simulate.ts
+supabase/      migrations/
 e2e/           Playwright tests
-docs/spec.md   this file
+spec.md        this file
+spec-desktop.md  copied from Chi è?, unchanged; this file's 8.3 overrides its keys
 ```
 
-**Repo and delivery.** Code lives on GitHub. GitHub Actions runs typecheck, lint, Vitest and Playwright on every push and pull request; `main` is protected and merges need green CI. CI starts a local Supabase first (`supabase start`, the Supabase CLI command that launches the local stack in Docker) so the sync tests and Playwright sign-in test have a backend. Cloudflare's GitHub integration builds every pull request to its own preview URL, built with the staging Supabase URL and key; merging to `main` deploys production with the production URL and key.
+**CI and deploy.** As Chi è?: GitHub Actions runs typecheck, lint, Vitest and Playwright on every push and pull request with a local Supabase; `main` is protected; Cloudflare builds each pull request to a preview URL (with `shei-staging` settings once it exists); merging to `main` deploys production.
 
-**Error reporting.** Sentry browser SDK, errors only: no session replay, no performance tracing, no session tracking, every `dataCollection` category off (Sentry 11's replacement for `sendDefaultPii: false`), and the user's email is never sent. A `beforeSend` and `beforeBreadcrumb` hook strips query strings and hashes from every URL, and the Sentry project setting that prevents storing IP addresses is turned on. Each release is tagged with its git commit.
+**Privacy.** As Chi è?: guest data never leaves the device; accounts store email, profile, games, review log and cards; no analytics. Third parties: Supabase (database and sign-in), Cloudflare (hosting, sees IPs), AWS SES or Resend (sees the email address), Sentry (errors, personal data stripped). The Supabase region for `shei-prod` matches Chi è? production.
 
-**Accessibility.** Target WCAG 2.2 AA.
-- Every card is a button with an accessible name listing the name and attributes in Italian (e.g. "Giulia: capelli castani lunghi, occhi verdi, occhiali"). This gives screen reader users the same information the picture gives everyone else, and doubles as reading practice.
-- Fully playable by keyboard. Visible focus. The card detail view opens from a "Zoom" control on the focused card, as well as by long-press.
-- Flipped state is shown by more than color (card face hidden, icon).
-- `prefers-reduced-motion` disables the flip animation.
-- Touch targets at least 44 × 44 px.
-
-**Performance.**
-- Initial JS under 250 KB gzipped, including the Supabase client and Sentry.
-- LCP under 2.5 s in Lighthouse mobile.
-- `step()` under 5 ms per action.
-
-**Privacy.**
-- Guests' game data and progress never leave the device.
-- Accounts store email, profile, games, review log, cards. No analytics or trackers. The services that process data:
-  - Supabase: database and sign-in. Stores everything listed above.
-  - Cloudflare: hosting. Sees each visitor's IP address and requests, guests included.
-  - AWS SES (or Resend if the fallback is used): sends the sign-in email. Sees the email address.
-  - Sentry: error reports, with personal data stripped (see Error reporting).
-- The Supabase region is chosen deliberately when the projects are created (EU if EU users are expected), and each provider's data processing agreement is accepted.
-- There is no in-app account deletion in the MVP. The privacy note says so plainly and gives the email address for deletion requests (7.3).
-
-**Cheating.** The CPU's secret is in the page's memory, so a determined player can find it with developer tools. Accepted: single player, nothing at stake.
-
-**Hosting.** Cloudflare, deploying the Vite build as Workers static assets (Cloudflare's recommended path for new projects; requests to static assets are free and unlimited, and commercial use is allowed), served at `chie.parlaplay.games`. The Wrangler config sets `assets.not_found_handling = "single-page-application"` so deep links such as `/play` load the app instead of a 404. Supabase free tier for the backend. Chosen over Vercel because Vercel's free plan is non-commercial only and this app may make money later. Chosen over GitHub Pages for the same reason (its terms forbid running an online business or SaaS on it), and because Pages has no preview per pull request and no single-page-app fallback. Supabase's free tier pauses a project after 7 days without activity and allows 2 active free projects (staging and production use both). Accepted until launch: guests are unaffected and signed-in sync waits in the outbox until the project is resumed. Upgrade production to Supabase Pro ($25/month) at public launch; staging stays free and may pause.
+**Hosting.** Cloudflare Workers static assets at `shei.parlaplay.games`, with `assets.not_found_handling = "single-page-application"`. Requests to static assets are free and unlimited on every plan, and commercial use is allowed. Rejected alternatives as Chi è? D11 and D29 (Vercel free is non-commercial; GitHub Pages forbids running a business and has no previews). The Sentry project lives in the same Sentry account as Chi è?; `TBD: verify` the free plan's error quota and whether it is shared between projects.
 
 ---
 
@@ -791,68 +792,71 @@ docs/spec.md   this file
 
 ### 10.1 Spec sign-off (before building)
 
-1. Trace one full game on paper using only this doc. Every point where you had to guess becomes a `TBD:` or a fix.
-2. The Italian-speaking reviewer goes through section 3 and every rendered string (17 questions, counting both brown-eyes wordings, their 34 answers, and every message in 3.7), checks all 18 words against the *Profilo della lingua italiana* (3.3), and picks the default brown-eyes word.
-3. A developer reviews sections 4 and 7.
-4. Tag the doc `v1`. After that, every change adds a dated line to the changelog at the bottom.
+1. Trace one full game on paper using only this doc (and the Chi è? sections it points to). Every guess becomes a `TBD:` or a fix.
+2. The Mandarin reviewer checks: all 84 golden strings in characters and pinyin (3.4); the generic 他 (section 2); the answer format; the tone sandhi and neutral tone choices (3.3, 3.4); the classification of `不有` (and whether `没在` should be offered); the 24 names (3.2); every message and grammar explanation (3.6); and 30 HSK entries against the official list.
+3. A developer reviews sections 4 and 7. `TBD:` name the developer reviewer; if there is none, the owner does a second paper trace of 4.3 and 4.4 a day after writing them.
+4. Tag the doc `v1`. After that, every change adds a dated line to the changelog.
 
 ### 10.2 Tests
 
 | Layer | Tool | What |
 |---|---|---|
-| Content | Vitest | All JSON passes Zod; every invariant in 3.2; every lexicon id and message key referenced exists; no id in `released-ids.json` is missing (3.6) |
-| Engine | Vitest | Every cell of the transition table; every invariant in 4.4; the traced turns in 4.5 as tests; a level 1 ASK emits no `rating` or `agreementSlip` events, while CPU-question recognize ratings fire at both levels |
-| Engine | fast-check | Random action sequences never break the invariants |
-| Rendering | Vitest snapshot | All 17 question strings and 34 answers as golden strings, reviewed by the Italian speaker; answers lowercase the first letter |
-| Grammar | Vitest | Each wrong verb and article is rejected with the right `SlotError`; each wrong adjective form is accepted as a slip with the right correction; a question with both an article error and an agreement error returns both `SlotError`s and logs only the noun's `again`; `occhi castani` and `occhi marroni` are both accepted and count as one question; `capelli marroni` is rejected with `meaning.wordChoice`; each `ShapeError` kind is returned by `parseTiles` |
-| CPU | Vitest | Always finds a splitting question; never guesses wrong; same seed gives the same game |
-| SRS | Vitest | Event → rating table; rebuild from log equals incremental state |
-| Sync | Vitest + local Supabase | Guest upload is idempotent; games flush before review rows; two-device merge converges; a `cards` upsert with a smaller `log_count` is ignored; a new user gets a profile row; RLS blocks reading another user's rows |
-| E2E | Playwright (Chromium, WebKit) | Full seeded round to a win; wrong guess loses; quitting records `abandoned`; sign-in with a code from the local inbox; reload mid-round resumes; `/play` loads directly |
-| Manual | Real iPhone + Android phone | Board fits the visible area with browser toolbars showing, bottom sheet works, detail view opens by long-press, a full round is playable one-handed |
-| Playtest | 3 or more A1 learners | Each plays 3 rounds; note rounds lost, minutes per round, and every confusing string |
+| Content | Vitest | All JSON passes Zod; every invariant in 3.2; every id and message key referenced exists; every `hsk` headword is in `hsk1.json`; every Chinese character used outside names is in an HSK 1 headword; pinyin uses tone marks only; no id in `released-ids.json` is missing |
+| Engine | Vitest | Every cell of the transition table; every invariant in 4.5; the four traced turns in 4.6; every ANSWER combination in 4.4 (7 answers × 3 verbs × 2 truths = 42 cases) |
+| Engine | fast-check | Random action sequences never break the invariants; random token lists never throw and always return exactly one of accepted, shape, grammar, offBoard, duplicate |
+| Rendering | Vitest snapshot | All 28 questions and 56 answers in characters and pinyin as golden strings, signed off by the reviewer; answers contain only the asker's pronoun |
+| Grammar | Vitest | Each wrong verb for each of the 14 nouns gives the right rule; 有 with each job is `offBoard`; 你, missing 吗, and each of the 23 wrong orders of 4 tokens give their errors; errors combine as in 4.6; each `ShapeError` kind; the pronoun slip fires only after a gender question |
+| CPU | Vitest | Always finds a splitting question; never guesses wrong; same seed gives the same game; pronoun rule in section 5 |
+| SRS | Vitest | Event → rating table in section 6; `slip` rows skipped in replay; rebuild equals incremental state |
+| Sync | Vitest + local Supabase | As Chi è? (idempotent guest upload, games before review rows, two-device merge, stale `cards` upsert ignored, profile row, RLS blocks another user's rows) |
+| E2E | Playwright (Chromium, WebKit) | Seeded round to a win at each level; wrong guess loses; quitting records `abandoned`; sign-in with a code from the local inbox; reload mid-round resumes; `/play` loads directly; a desktop round by keyboard only with the keys in 8.3 |
+| Manual | Real iPhone, Android phone, Windows laptop, Mac laptop | Board fits after browser toolbars; every character renders in the system font with Chinese glyph shapes; ruby pinyin readable at card size; every placeholder attribute readable at 80px (each of the 24 cards checked against its data); screen reader reads card names in Chinese |
+| Playtest | 3 or more HSK 1 learners | Each plays 3 rounds (at least one at Level 2); note rounds lost, minutes per round, and every confusing string |
 
 ### 10.3 Definition of done
 
-- [ ] Deployed URL loads on an iPhone and plays a full round.
-- [ ] Deployed URL loads on an Android phone and plays a full round.
-- [ ] All 24 characters render with art that matches their attributes (spot check against data for every character).
-- [x] Level 1 and Level 2 both playable to a win and a loss.
-- [x] A grammar mistake at Level 2 shows feedback naming the rule and appears in the Mistakes tab; an agreement slip shows the correct form and also appears there.
-- [ ] Every lexicon entry has a `level` from the Profilo check.
-- [x] Guest progress survives a reload.
-- [x] Signing in with guest progress uploads it; signing in on a second browser shows the same Progress.
-- [x] RLS test proves user A cannot read user B's `review_log`.
-- [ ] A sign-in code email reaches an address outside the team (SES out of the sandbox, or Resend as the fallback).
-- [ ] The privacy note is live and gives the account deletion email; one deletion has been tested on staging.
+- [ ] Deployed URL plays a full round on an iPhone.
+- [ ] Deployed URL plays a full round on an Android phone.
+- [ ] Deployed URL plays a full round on a laptop at 1024 × 640 by mouse only and by keyboard only.
+- [ ] All 24 characters render with art that matches their attributes (checked card by card).
+- [ ] Level 1 and Level 2 are both playable to a win and a loss.
+- [ ] A Level 2 grammar mistake (wrong verb, 你, missing 吗, wrong order) shows feedback naming the rule and appears in the Mistakes tab.
+- [ ] Answering `不有` or with the wrong verb shows the right answer and logs the grammar point.
+- [ ] The content test proves every lexicon word is in the 2025 HSK 1 list.
+- [ ] The Mandarin reviewer has signed off all 84 golden strings.
+- [ ] Guest progress survives a reload.
+- [ ] Signing in with guest progress uploads it; signing in on a second browser shows the same Progress.
+- [ ] RLS test proves user A cannot read user B's `review_log`.
+- [ ] A sign-in code email from `shei.parlaplay.games` reaches an address outside the team.
+- [ ] The privacy note is live, gives the deletion email, and says accounts are separate from Chi è?; one deletion tested on staging.
 - [ ] A pull request preview signs in against staging, never production.
-- [ ] Sentry receives a test error from production, with no personal data in it.
-- [ ] At least 3 A1 learners have playtested, and their findings are logged and triaged.
-- [x] `engine/` coverage at or above 90%; CI green.
-- [x] Lighthouse mobile: LCP under 2.5 s, accessibility score at least 95.
-- [ ] Every `TBD:` in this doc is resolved or explicitly moved to section 11.
-- [x] README covers run, test, deploy, and adding a character.
+- [ ] Sentry receives a test error from production with no personal data.
+- [ ] At least 3 HSK 1 learners have playtested; findings logged and triaged.
+- [ ] `engine/` coverage at or above 90%; CI green.
+- [ ] Lighthouse mobile: LCP under 2.5 s, accessibility score at least 95.
+- [ ] Every `TBD:` here is resolved or moved to section 11.
+- [ ] README covers run, test, deploy, and adding a character.
 
 ### 10.4 Milestones
 
-Full time on weekdays, starting Wednesday, October 7, 2026, the target launch is **Thursday, October 29**. Steps that wait on other people (Italian review, SES approval, playtests) are the likeliest to slip, so they are started early. Playtests are on day 12, leaving four working days to fix what they find.
+**Capacity assumption.** Shéi is planned in parallel with the Chi è? launch (Thu Oct 29), so until then it gets **half days**; from Fri Oct 30 it is full time. `TBD:` confirm this split. Work that waits on other people (the Mandarin review, finding playtesters, SES identity, DNS) starts on step 1. Three full days are left after the playtest for fixes.
 
-| Day | Date | Deliverable | Done when |
-|---|---|---|---|
-| 1 | Wed Oct 7 | Spec review: section 3, the messages in 3.7, the Profilo vocabulary check and the brown-eyes default to the Italian speaker; sections 4 and 7 to a developer; paper-trace one game. Add DNS for `chie.parlaplay.games` | Reviews requested; trace gaps logged; subdomain resolves |
-| 2 | Thu Oct 8 | Repo scaffold: pnpm, Vite, React Router, Tailwind, ESLint, Prettier, Vitest, Playwright, GitHub Actions (with local Supabase), Cloudflare previews and SPA fallback, Sentry with URL scrubbing. Create the staging and production Supabase projects. Verify the domain in SES and request production access; open a Resend account as the fallback | CI green on an empty app; a pull request gets a preview URL pointing at staging |
-| 3 | Fri Oct 9 | Character generator, content JSON, messages, placeholder SVG layers (high hat, large eyes); fold in review feedback | Content tests pass; all 24 characters render; spec tagged `v1` |
-| 4-5 | Mon Oct 12 to Tue Oct 13 | Engine: types, `step`, templates, grammar, smart CPU | All engine tests pass, coverage at 90% |
-| 6 | Wed Oct 14 | Board UI, flipping, secret card, SVG composer, bottom sheet, card detail view | 24 cards fit a real phone's visible area with the sheet collapsed |
-| 7 | Thu Oct 15 | Level 1 picker, Level 2 tile builder, feedback messages | Can ask and read answers on a real iPhone |
-| 8 | Fri Oct 16 | CPU turn, Sì/No, guessing, round end, Quit round, Continue round | Full round playable to win and loss; quitting records `abandoned` |
-| 9 | Mon Oct 19 | Progress store, review log, FSRS, Progress screen | SRS tests pass; Mistakes and Due tabs show real data |
-| 10 | Tue Oct 20 | Supabase migrations (tables, RLS, triggers), sign-in code through SES or Resend, sync, outbox, sign-out warning, guest nudge | Sync and RLS tests pass; a code email reaches an outside address |
-| 11 | Wed Oct 21 | Accessibility, states from 8.2, privacy note, real device pass, playtest build on staging | Manual checklist done; playtest build ready |
-| 12 | Thu Oct 22 | Playtests with 3 or more A1 learners | Findings logged and triaged |
-| 13-15 | Fri Oct 23, Mon Oct 26, Tue Oct 27 | Fix playtest findings | Every must-fix finding fixed |
-| 16 | Wed Oct 28 | Production setup (Supabase Pro, final SES or Resend check), README, DoD sweep | Every 10.3 box checked |
-| 17 | Thu Oct 29 | Launch | Production URL live at `chie.parlaplay.games` |
+| Step | Dates | Capacity | Deliverable | Done when |
+|---|---|---|---|---|
+| 1 | Thu Oct 8 | Half | Send the reviewer section 3 and the questions in 10.1; start recruiting 3 or more HSK 1 playtesters for Fri Nov 6; add DNS for `shei.parlaplay.games` | Review requested with a due date of Wed Oct 14; recruiting message sent; subdomain resolves |
+| 2 | Fri Oct 9 to Tue Oct 13 | Half | New repo from a copy of Chi è? `main`; rename; Italian content replaced by stubs; CI green; Cloudflare Worker and previews; Sentry project; SES domain identity for `shei.parlaplay.games` | CI green on the stub app; a pull request gets a guest-only preview URL; SES identity verified |
+| 3 | Wed Oct 14 to Mon Oct 19 | Half | `hsk1.json`, lexicon, grammar points, messages, character generator with seed search, names, placeholder SVG layers; fold in the review | Content tests pass; all 24 characters render; spec tagged `v1` |
+| 4 | Tue Oct 20 to Wed Oct 28 | Half | Engine: token ASK with shape, grammar and order checks; ANSWER rules; rendering and pinyin; CPU with pronoun rule; simulation | All engine tests pass; coverage at 90%; simulation numbers recorded in section 5 |
+| 5 | Thu Oct 29 | Half | Create `shei-staging` once Chi è? production is on Pro; point previews at it | A preview build talks to `shei-staging` |
+| 6 | Fri Oct 30 | Full | Board UI: card art, names with pinyin, `Ruby`, `lang` attributes, system fonts; phone and desktop layouts | 24 cards fit 360 × 560 and 1024 × 640 |
+| 7 | Mon Nov 2 | Full | Level 1 picker with pronoun switch; Level 2 tile tray with pinyin toggle; feedback | Can ask and read answers on a real iPhone at both levels |
+| 8 | Tue Nov 3 | Full | CPU turn, answer buttons (2 and 7), guessing, round end, quit; desktop keys from 8.3 | Full round to a win and a loss by touch and by keyboard |
+| 9 | Wed Nov 4 | Full | Progress with grammar points, FSRS for 28 cards; migrations on staging; sign-in email through SES | Sync and RLS tests pass; a code email reaches an outside address |
+| 10 | Thu Nov 5 | Full | Accessibility, states from 8.2, privacy note, real device pass, playtest build on staging | Manual checklist done; playtest build ready |
+| 11 | Fri Nov 6 | Full | Playtests with 3 or more HSK 1 learners | Findings logged and triaged |
+| 12 to 14 | Mon Nov 9 to Wed Nov 11 | Full | Fix playtest findings | Every must-fix finding fixed |
+| 15 | Thu Nov 12 | Full | Create `shei-prod` in the paid organization, apply migrations, connect SES; README; definition of done sweep | Every 10.3 box checked |
+| 16 | Fri Nov 13 | Full | Launch | `shei.parlaplay.games` live on production |
 
 ---
 
@@ -860,84 +864,71 @@ Full time on weekdays, starting Wednesday, October 7, 2026, the target launch is
 
 ### 11.1 Future work
 
-**LLM features.** An LLM could explain why an answer was wrong in friendlier language, generate new characters and themed decks, or grade free-typed questions. It stays out of the MVP because the template engine already gives exact, testable feedback, and an LLM adds cost, latency, and the risk of teaching wrong Italian. If added, it should only explain or generate content that is then validated by the engine, never decide truth.
+**Audio.** Left out of the MVP by choice, even though tones are hard to learn from pinyin alone. The game only ever says 28 questions, 56 answers and 7 answer words: 91 clips, generated once with a high-quality voice, checked by the Mandarin reviewer, and shipped as files (as Chi è? 11.1). A Level 3 "listen only" mode and speech input build on it.
 
-**Free typing (Level 3).** Players type questions; the input is normalized (case, accents, punctuation) and matched against the 16 templates' rendered forms, with near misses mapped to `SlotError`s. This needs a tolerant tokenizer and careful accent handling (`e` vs `è`). The template system was built so this is an added parser, not a rewrite.
+**Typed input (Level 3).** Players type the question in pinyin (with or without tone numbers) or characters with their own IME. Needs a tokenizer that maps input to lexicon ids, then reuses the same validation (4.3), which was designed for token lists for this reason.
 
-**Multiplayer.** Two humans play live (WebSocket via Supabase Realtime) or asynchronously (turns stored in a table). The engine's `step` moves to the server as the authority, and clients send the same `Action` types. Secrets must never be sent to the opposing client, so state needs a per-player view.
+**A-not-A questions.** `他是不是医生？` and `他有没有狗？` are common and HSK 1 level. They add a second question shape, so they wait until the first shape is proven.
 
-**Account deletion.** An in-app "Delete my account" button that calls a small server-side function with the service role to delete the auth user; the cascading foreign keys remove everything else. Replaces the manual email process the MVP launches with (7.3).
+**HSK 2 deck and the faces board.** HSK 2 adds colors, clothes and body words, so a faces board like Chi è?'s becomes possible. The content model already supports more categories.
 
-**Colorblind mode.** A setting that adds Italian labels to each card (e.g. "capelli castani lunghi, occhi verdi"), so hair and eye color never depend on seeing color. Regular mode stays label-free to keep the reading challenge.
+**Grammar point cards.** Make `gp.*` FSRS cards so grammar is scheduled like words. Needs a way to practise a grammar point on demand, so it comes with SRS-weighted CPU questions.
 
-**SRS-weighted CPU and the daily new-card limit.** When the CPU starts choosing questions from the learner's due words, bring back a daily limit on new cards (replayed per `localDay`, see section 6), since gameplay will then follow the schedule.
+**Shared accounts and a shared engine package.** One parlaplay account across games, and the common engine, sync and UI moved into a package both repos use. Worth it once a third game is planned.
 
-**Audio.** The game only ever says 17 questions and 34 answers, so the first step is 51 clips generated once with a high-quality TTS voice and shipped as files. That avoids the uneven browser voices on iOS. Level 4 (audio only) and speech input build on it.
+**Traditional characters.** A setting that swaps every string for a traditional version, written out as data. Needs a second golden-string review.
 
-**Offline.** A service worker that caches the app and content, making it an installable PWA that guests can play with no connection.
-
-Also queued: final character art, colorblind mode, Easy CPU setting, championship mode (first to 5 wins, from the official rules), Google sign-in, SRS-weighted CPU questions, Level 4 audio-only, speech input, themed decks, flashcard review mode.
+Also queued, as Chi è?: final art, Easy CPU setting, championship mode, Google sign-in, in-app account deletion, offline PWA, multiplayer.
 
 ### 11.2 Decision log
 
 | Id | Decision | Reason |
 |---|---|---|
-| D1 | Questions come only from templates; no free typing in MVP | Grammar checking stays exact and fully testable |
-| D2 | Every inflected form is stored as data; no inflection code | Small vocabulary; data is easier to review than rules |
-| D3 | A wrong guess loses the round | It is the official board game rule; a confirm dialog guards against accidental guesses |
-| D4 | The CPU always uses the true answer, even if the player answered wrongly | The CPU never makes an impossible guess; the mistake is still logged |
-| D5 | The review log is append-only and the source of truth; cards are a cache | Sync becomes a conflict-free union, and scheduling can be rebuilt |
-| D6 | Guest mode is local only (no anonymous Supabase accounts) | No server rows or cost for people who never sign up |
-| D7 | Correct Sì/No answers are capped at `hard` | A yes/no answer can be right by luck |
-| D8 | The CPU plays smart (best split every time) | A real opponent makes the player's questions matter; Easy mode can come later |
-| D9 | Placeholder SVG art for the MVP | Unblocks the build; final art drops in by file name |
-| D10 | A 6-digit email code is the only sign-in (changed from magic link in v0.4) | No passwords; works when the email opens in another app or browser, and guest data stays in the tab that asked |
-| D11 | Host on Cloudflare (Workers static assets) | Free tier allows commercial use, static requests are unlimited |
-| D12 | Single rounds, no match score | Keeps the MVP small; championship mode is future work |
-| D13 | No audio in the MVP | Browser voices are uneven; reading practice comes first |
-| D14 | Online only, no service worker | Less to build and debug; offline is future work |
-| D15 | Sign-in emails sent through AWS SES, with Resend as the fallback | Supabase's built-in sender is for testing only; SES approval can be slow or refused |
-| D16 | Local Supabase for dev and tests, a staging project for previews, a production project | Tests run without the network; previews never touch real data; free tier allows 2 projects |
-| D17 | Accept free-tier pausing until launch | Guests are unaffected; Pro costs $25/month |
-| D18 | Tailwind CSS and a bottom-sheet layout | Fast mobile layouts; the board never shrinks |
-| D19 | Sentry for errors only | See real crashes without tracking people |
-| D20 | Characters come from a seeded generator script | Balance rules are met by construction |
-| D21 | Content ids are permanent; games store a content version | Review history never points at missing words |
-| D22 | pnpm, ESLint, Prettier, React Router, GitHub Actions, a preview per pull request | Closest to the industry standard for this stack |
-| D23 | Vocabulary is checked against the *Profilo della lingua italiana* | It is the CEFR word-level reference for Italian; fitting the board does not make a word A1 |
-| D24 | Adjective agreement errors are soft at Level 2 | A1 syllabi disagree on whether learners must produce agreement; showing the fix teaches without punishing |
-| D25 | `occhi castani` and `occhi marroni` are both accepted; `capelli marroni` gets a word-choice hint | Both are common for eyes and exams name neither; rejecting either would mark real Italian wrong |
-| D26 | Hats are drawn high so short hair always shows | Every attribute must be visible or the game is unfair |
-| D27 | Long-press detail view with no text; colorblind mode with labels is future work | Small details become visible without giving away the Italian |
-| D28 | Account deletion by email request at launch | Meets data-protection duties with no code; in-app deletion later |
-| D29 | Hosting stays on Cloudflare, not GitHub Pages | Pages forbids running a business or SaaS, has no previews and no SPA fallback |
-| D30 | App and email on `chie.parlaplay.games` | A studio domain bought for this and future language games, each on its own subdomain; its DNS is on Cloudflare, so the Worker custom domain and the SES records live in one place |
-| D31 | Keep the server `cards` table, guarded by `log_count` | Ready for server features like due-word emails; stale devices can't overwrite newer state |
-| D32 | No daily new-card limit in the MVP | Gameplay doesn't follow the schedule yet, so a limit would only discard data |
-| D33 | "Quit round" button; starting a new round abandons the saved one | Every round ends in a recorded result |
-| D34 | The `games` row is written at START | Review rows always have a game to point to |
-| D35 | Unsynced sign-out warns and lets the user choose | Shared devices still work; progress isn't lost silently |
-| D36 | Launch moved to October 29 | Four working days to fix playtest findings |
+| D1 | Board of people and things (gender, job, place, pets, things) instead of faces | HSK 1 has no words for hair, eyes, glasses, hats or colors; this board uses only HSK 1 words |
+| D2 | One question shape, no templates; the object's category picks the predicate | Every HSK 1 question here is pronoun + verb + object + 吗; templates would add nothing |
+| D3 | The 2025 HSK 1 list (300 words) is the reference | It replaces the old 150-word list from the July 2026 exams onward |
+| D4 | Every board word is checked against `hsk1.json` by a test; names are the only exception | The game's promise is "HSK 1 only"; a test keeps it true as content changes |
+| D5 | Answers repeat the verb (`有` / `没有`), then give the full sentence | That is how Chinese answers yes/no questions, and it teaches 不 versus 没 every turn |
+| D6 | Answers repeat the asker's pronoun | The answer must never reveal the secret's gender |
+| D7 | The player may use 他 or 她; a mismatch after the gender is known is a soft slip | Before asking, the player cannot know; after, choosing the right one is a real skill worth showing without punishing |
+| D8 | The CPU uses 他 unless all its candidates share a gender | 他 is the traditional form for unknown gender; using 她 only when certain is natural |
+| D9 | Level 2 is a free-order tile tray, not fixed slots | Word order is the core HSK 1 grammar skill; fixed slots would remove it |
+| D10 | Level 2 answers offer 7 buttons including the invalid `不有` | Choosing the verb and its negation is the skill; `不有` is the most common beginner error |
+| D11 | `有` + job is rejected without logging a mistake | `他有老师吗？` is correct Chinese; marking it wrong would teach something false |
+| D12 | Grammar points are logged as `slip` rows, not FSRS cards | Gives a useful Mistakes tab without designing grammar practice yet |
+| D13 | Pinyin shows 不 sandhi (`bú shì`) but not third-tone sandhi | Matches what learners hear and what dictionaries print |
+| D14 | Simplified characters, pinyin always at Level 1, toggle at Level 2 | HSK uses simplified; Level 2 should push reading characters without stranding the learner |
+| D15 | No audio in the MVP | The owner's choice for a smaller build; clips are the first future feature |
+| D16 | English UI chrome and buttons | HSK 1 lacks words like "guess"; consistent with Chi è?'s English chrome |
+| D17 | System fonts with `lang="zh-Hans"`, no web font | A Chinese web font would blow the 250 KB budget; `lang` prevents Japanese glyph shapes |
+| D18 | New repo copied from Chi è?, no shared package yet | Two games are not enough to know what should be shared |
+| D19 | Separate Supabase projects and accounts from Chi è? | Keeps each game's data and RLS simple; shared accounts are future work |
+| D20 | `shei-staging` created after Chi è? goes Pro; guest-only previews before that | The free plan allows 2 active projects and Chi è? uses both |
+| D21 | Same SES account, new domain identity | Production access is per account and Region, so Shéi inherits it |
+| D22 | Half-day capacity until Oct 29, launch Fri Nov 13 | Built in parallel with the Chi è? launch, with 3 fix days after the playtest |
+| D23 | Each character has 1 to 3 pets and things | A card with all five is unreadable at 80px; one with none looks broken |
+| D24 | Desktop layout from day 1, reusing `spec-desktop.md` | The code exists already; only keys change |
+| D25 | Name `谁？` (Shéi?), on `shei.parlaplay.games` | 谁 is itself an HSK 1 word, and the name avoids Hasbro's marks |
 
 ---
 
 ## References
 
-- Spinelli, B. and Parizzi, F. (2010). *Profilo della lingua italiana. Livelli di riferimento del QCER A1, A2, B1, B2*. La Nuova Italia.
-- Università per Stranieri di Perugia, CELI required competences: https://www.unistrapg.it/sites/default/files/docs/certificazioni/celi-i-competenze-richieste.pdf
-- Istituto Italiano di Cultura di Buenos Aires, A1 content: https://iicbuenosaires.esteri.it/wp-content/uploads/2025/05/Contenuti-Livello-A1.pdf
-- Guess Who official rules summary: https://www.geekyhobbies.com/guess-who-board-game-rules-and-instructions-for-how-to-play/
-- Daily Italian Words, castano vs marrone: https://dailyitalianwords.com/castano-vs-marrone-in-italian/
-- GitHub Pages limits and prohibited uses: https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits
+- Mandarin Zone, New HSK 1 vocabulary list (cites the 2025 CLEC syllabus): https://www.mandarinzone.com/hsk-1-vocabulary-list-excel-with-3-free-quiz-sheets/
+- StudyCLI, HSK 1 vocabulary (300 words): https://studycli.org/zh-CN/chinese-tools/hsk-1-vocabulary/
+- Mandarin Bean, New HSK 1 word list: https://mandarinbean.com/new-hsk-1-word-list/
+- HSK Lord, HSK 3.0 guide and timeline: https://hsklord.com/blog/new-hsk-3-0-complete-guide
+- Wikipedia, Hanyu Shuiping Kaoshi: https://en.wikipedia.org/wiki/Hanyu_Shuiping_Kaoshi
+- GB/T 16159-2012, Basic rules of Hanyu Pinyin orthography (2012 revision summary): https://pinyin.info/news/2015/prcs-official-rules-for-pinyin-2012-revision/
+- Basic rules of Hanyu Pinyin orthography (English translation): https://www.pinyin.info/readings/zyg/rules.html
+- Supabase pricing: https://supabase.com/pricing
+- Cloudflare Workers pricing (static assets free and unlimited): https://developers.cloudflare.com/workers/platform/pricing/
+- Amazon SES, moving out of the sandbox (per account, per Region): https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html
+- Chi è? `spec.md` and `spec-desktop.md`: https://github.com/jennarbates/Italian
 
 ---
 
 ## Changelog
 
-- 2026-10-06: v0 draft.
-- 2026-10-06: v0.1. Named the game Chi è?; wrong guess loses (official rule); smart CPU; placeholder art; magic link only; no account deletion in MVP; Cloudflare hosting; resolved vocabulary, guess-proofing and screen reader TBDs.
-- 2026-10-06: v0.2. No audio; online only; AWS SES for magic links; local plus one production Supabase; Tailwind and bottom sheet; Sentry errors only; character generator; permanent content ids; stack, folders, CI and deploy flow; calendar milestones to October 22; playtest plan.
-- 2026-10-06: v0.3. Vocabulary checked against the Profilo with a `level` field per word; adjective agreement errors at Level 2 become soft slips; `slip` rows in the review log; references section.
-- 2026-10-06: v0.4. Spec review fixes. Both `castani` and `marroni` accepted for eyes; high hats, large eyes and a long-press detail view; 6-digit email code replaces the magic link; Resend as SES fallback; staging Supabase for previews; `chie.1412labs.com`; account deletion by email and a privacy note; Quit round; games row at START and ordered outbox flush; unsynced sign-out warning; guest storage persistence and nudge; `cards` stale-write guard and profile trigger; no daily new-card limit; feedback message catalogue (3.7); `SlotError`, `ShapeError` and `Feedback` types; slot-based tile builder; answers lowercase the first letter; `ratedThisTurn` reset; released-ids snapshot; SPA fallback; Sentry URL scrubbing; board fit measured after browser toolbars; launch moved to October 29.
-- 2026-10-06: v0.5. App and email domain is `chie.parlaplay.games` (D30); `1412labs.com` was not ours.
-- 2026-10-07: Desktop layout split out into `spec-desktop.md` (v0.1 draft); 8 links to it.
+- 2026-10-07: v0 draft.
+- 2026-10-07: Repo (section 9) starts from Chi è?'s history instead of a files-only copy, with an `italian` remote for cherry-picking fixes; Chi è?'s spec kept as `docs/chi-e-spec.md`.
