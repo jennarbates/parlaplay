@@ -1,9 +1,9 @@
 import "fake-indexeddb/auto";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import type { GameEvent } from "../../languages/it/engine/index.ts";
 import { read, resetForTests, write } from "../services/storage.ts";
-import { localDay, progressSaved, rowsFor, useProgressStore } from "./progressStore.ts";
+import { rowsFor } from "../../languages/it/store/rows.ts";
+import { progressSaved, useProgressStore } from "./progressStore.ts";
 
 beforeEach(() => {
   vi.stubGlobal("indexedDB", new IDBFactory());
@@ -12,110 +12,24 @@ beforeEach(() => {
 });
 
 const at = new Date(2026, 9, 6, 23, 30); // 23:30 local time on 6 October
-let n = 0;
-const ids = () => `id-${++n}`;
-
-describe("rowsFor (CHI-070)", () => {
-  test("each rating becomes a row with a client id, gameId, localDay and createdAt", () => {
-    const events: GameEvent[] = [
-      { type: "asked", by: "player", key: "k", answer: true },
-      { type: "rating", lexiconId: "n.capelli", direction: "produce", rating: "good" },
-      {
-        type: "rating",
-        lexiconId: "n.occhi",
-        direction: "recognize",
-        rating: "again",
-        detail: { slot: "answer", given: "Sì", expected: "No", rule: "answer.wrong" },
-      },
-    ];
-    n = 0;
-    expect(rowsFor("g1", events, at, ids)).toEqual([
-      {
-        id: "id-1",
-        gameId: "g1",
-        lexiconId: "n.capelli",
-        direction: "produce",
-        rating: "good",
-        localDay: "2026-10-06",
-        createdAt: at.toISOString(),
-      },
-      {
-        id: "id-2",
-        gameId: "g1",
-        lexiconId: "n.occhi",
-        direction: "recognize",
-        rating: "again",
-        detail: { slot: "answer", given: "Sì", expected: "No", rule: "answer.wrong" },
-        localDay: "2026-10-06",
-        createdAt: at.toISOString(),
-      },
-    ]);
-  });
-
-  test("an agreement slip becomes a slip row with the forms as detail", () => {
-    const rows = rowsFor(
-      "g1",
-      [{ type: "agreementSlip", lexiconId: "adj.biondo", given: "bionde", expected: "biondi" }],
-      at,
-    );
-    expect(rows).toEqual([
-      expect.objectContaining({
-        lexiconId: "adj.biondo",
-        direction: "produce",
-        rating: "slip",
-        detail: { slot: "adj", given: "bionde", expected: "biondi", rule: "agreement" },
-      }),
-    ]);
-  });
-
-  test("events that are not learning data make no rows", () => {
-    expect(
-      rowsFor(
-        "g1",
-        [
-          { type: "asked", by: "cpu", key: "k", answer: false },
-          { type: "rejected", reason: "nonsense" },
-          { type: "gameOver", result: "won" },
-        ],
-        at,
-      ),
-    ).toEqual([]);
-  });
-
-  test("ids are real uuids by default, all different", () => {
-    const rows = rowsFor(
-      "g",
-      Array.from({ length: 50 }, (): GameEvent => ({
-        type: "rating",
-        lexiconId: "n.x",
-        direction: "produce",
-        rating: "good",
-      })),
-      at,
-    );
-    expect(new Set(rows.map((r) => r.id)).size).toBe(50);
-    for (const r of rows) expect(r.id).toMatch(/^[0-9a-f-]{36}$/);
-  });
-
-  test("localDay is the learner's own date, not UTC", () => {
-    expect(localDay(new Date(2026, 0, 2, 0, 5))).toBe("2026-01-02");
-    expect(localDay(new Date(2026, 11, 31, 23, 59))).toBe("2026-12-31");
-  });
-});
 
 describe("the log is append-only", () => {
   test("appending never edits or removes earlier rows", () => {
     const store = useProgressStore.getState();
-    store.appendEvents(
-      "g1",
-      [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "again" }],
-      at,
+    store.appendRows(
+      rowsFor(
+        "g1",
+        [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "again" }],
+        at,
+      ),
     );
     const first = useProgressStore.getState().reviewLog;
-    store.appendEvents(
-      "g1",
-      [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "good" }],
-      at,
+    store.appendRows(
+      rowsFor(
+        "g1",
+        [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "good" }],
+        at,
+      ),
     );
     const second = useProgressStore.getState().reviewLog;
     expect(second.slice(0, first.length)).toEqual(first);
@@ -129,7 +43,7 @@ describe("the log is append-only", () => {
     // switchOwner loads another owner's data and mergeRemote only adds rows (a union
     // by id); nothing edits or deletes log rows.
     expect(api.sort()).toEqual([
-      "appendEvents",
+      "appendRows",
       "hydrate",
       "mergeRemote",
       "recordGameEnd",
@@ -169,10 +83,12 @@ describe("persistence", () => {
       contentVersion: 1,
       startedAt: at.toISOString(),
     });
-    store.appendEvents(
-      "g1",
-      [{ type: "rating", lexiconId: "n.a", direction: "recognize", rating: "hard" }],
-      at,
+    store.appendRows(
+      rowsFor(
+        "g1",
+        [{ type: "rating", lexiconId: "n.a", direction: "recognize", rating: "hard" }],
+        at,
+      ),
     );
     await progressSaved();
     const saved = await read<{ games: unknown[]; reviewLog: unknown[] }>("guest");
@@ -192,10 +108,12 @@ describe("persistence", () => {
     await write("guest", { games: [], reviewLog: [{ id: "old" }] });
     useProgressStore
       .getState()
-      .appendEvents(
-        "g",
-        [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "good" }],
-        at,
+      .appendRows(
+        rowsFor(
+          "g",
+          [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "good" }],
+          at,
+        ),
       );
     await useProgressStore.getState().hydrate();
     expect(useProgressStore.getState().reviewLog.map((r) => r.id)[0]).toBe("old");
@@ -249,10 +167,12 @@ describe("owners", () => {
   test("switching to the owner you already are does nothing", async () => {
     useProgressStore
       .getState()
-      .appendEvents(
-        "g",
-        [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "good" }],
-        at,
+      .appendRows(
+        rowsFor(
+          "g",
+          [{ type: "rating", lexiconId: "n.a", direction: "produce", rating: "good" }],
+          at,
+        ),
       );
     await useProgressStore.getState().switchOwner("guest");
     expect(useProgressStore.getState().reviewLog).toHaveLength(1);

@@ -2,8 +2,7 @@
 // retention 0.9). Card state is never stored as the truth: it is rebuilt by
 // replaying the append-only review log in createdAt order.
 import { createEmptyCard, fsrs, generatorParameters, Rating, type Card, type Grade } from "ts-fsrs";
-import type { LexiconEntry } from "../../languages/it/content/schemas.ts";
-import type { Direction } from "../../languages/it/engine/index.ts";
+import type { Direction } from "../types.ts";
 import type { ReviewLogRow } from "../store/progressStore.ts";
 
 export type CardState = {
@@ -27,14 +26,14 @@ export const grades: Record<"again" | "hard" | "good", Grade> = {
 const directions: Direction[] = ["recognize", "produce"];
 export const cardKey = (lexiconId: string, direction: Direction) => `${lexiconId}|${direction}`;
 
-// One card per noun and adjective per direction: 18 lemmas × 2 = 36 in the MVP.
-export function emptyCards(lexicon: LexiconEntry[]): Cards {
+// One card per id per direction. Each language says which lexicon ids get cards
+// (its cardIds: Chi è? nouns and adjectives, Shéi nouns).
+export function emptyCards(cardIds: readonly string[]): Cards {
   const cards: Cards = new Map();
-  for (const e of lexicon) {
-    if (e.pos !== "noun" && e.pos !== "adj") continue;
+  for (const id of cardIds) {
     for (const direction of directions) {
-      cards.set(cardKey(e.id, direction), {
-        lexiconId: e.id,
+      cards.set(cardKey(id, direction), {
+        lexiconId: id,
         direction,
         card: createEmptyCard(new Date(0)),
         reviews: 0,
@@ -73,8 +72,8 @@ export function logOrder(a: ReviewLogRow, b: ReviewLogRow): number {
 }
 
 // Rebuild every card from the log, oldest first.
-export function replay(lexicon: LexiconEntry[], log: ReviewLogRow[]): Cards {
-  return [...log].sort(logOrder).reduce(applyRow, emptyCards(lexicon));
+export function replay(cardIds: readonly string[], log: ReviewLogRow[]): Cards {
+  return [...log].sort(logOrder).reduce(applyRow, emptyCards(cardIds));
 }
 
 // Reviewed cards whose next review falls on or before the end of `day` (local).

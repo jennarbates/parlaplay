@@ -1,4 +1,6 @@
 import fc from "fast-check";
+import { rowsFor } from "../../languages/it/store/rows.ts";
+import { cardIds } from "../../languages/it/cards.ts";
 import { Rating } from "ts-fsrs";
 import { describe, expect, test } from "vitest";
 import { content } from "../../languages/it/content/index.ts";
@@ -11,7 +13,7 @@ import {
 } from "../../languages/it/engine/index.ts";
 import { evaluate } from "../../languages/it/engine/meaning.ts";
 import { startGame } from "../../languages/it/engine/start.ts";
-import { rowsFor, type ReviewLogRow } from "../store/progressStore.ts";
+import { type ReviewLogRow } from "../store/progressStore.ts";
 import {
   applyRow,
   cardKey,
@@ -23,7 +25,7 @@ import {
   replay,
 } from "./srs.ts";
 
-const lexicon = content.lexicon;
+const ids = cardIds();
 const t0 = new Date("2026-10-06T10:00:00Z");
 const row = (
   over: Partial<ReviewLogRow> & Pick<ReviewLogRow, "lexiconId" | "rating">,
@@ -39,7 +41,7 @@ const row = (
 
 describe("cards (CHI-072)", () => {
   test("36 cards: 18 lemmas × 2 directions", () => {
-    const cards = emptyCards(lexicon);
+    const cards = emptyCards(ids);
     expect(cards.size).toBe(36);
     const lemmas = new Set([...cards.values()].map((c) => c.lexiconId));
     expect(lemmas.size).toBe(18);
@@ -56,7 +58,7 @@ describe("cards (CHI-072)", () => {
   });
 
   test("slip rows are skipped", () => {
-    const cards = replay(lexicon, [row({ lexiconId: "adj.biondo", rating: "slip" })]);
+    const cards = replay(ids, [row({ lexiconId: "adj.biondo", rating: "slip" })]);
     expect(cards.get("adj.biondo|produce")?.reviews).toBe(0);
   });
 
@@ -66,28 +68,28 @@ describe("cards (CHI-072)", () => {
       row({ lexiconId: "n.barba", rating: "good" }, 60 * 24),
       row({ lexiconId: "n.barba", rating: "hard" }, 60 * 24 * 3),
     ];
-    const inOrder = replay(lexicon, log);
-    const shuffled = replay(lexicon, [log[2], log[0], log[1]] as ReviewLogRow[]);
+    const inOrder = replay(ids, log);
+    const shuffled = replay(ids, [log[2], log[0], log[1]] as ReviewLogRow[]);
     expect(shuffled).toEqual(inOrder);
   });
 
   test("good pushes the next review further out than again", () => {
-    const good = replay(lexicon, [row({ lexiconId: "n.occhi", rating: "good" })]).get(
+    const good = replay(ids, [row({ lexiconId: "n.occhi", rating: "good" })]).get(
       "n.occhi|produce",
     );
-    const again = replay(lexicon, [row({ lexiconId: "n.occhi", rating: "again" })]).get(
+    const again = replay(ids, [row({ lexiconId: "n.occhi", rating: "again" })]).get(
       "n.occhi|produce",
     );
     expect(good?.card.due.getTime()).toBeGreaterThan(again?.card.due.getTime() ?? Infinity);
   });
 
-  test("a card unknown to the current lexicon (removed word) is still replayed", () => {
-    const cards = replay(lexicon, [row({ lexiconId: "n.cane", rating: "good" })]);
+  test("a card unknown to the current ids (removed word) is still replayed", () => {
+    const cards = replay(ids, [row({ lexiconId: "n.cane", rating: "good" })]);
     expect(cards.get("n.cane|produce")?.reviews).toBe(1);
   });
 
   test("isDue: reviewed cards due by the end of the day", () => {
-    const cards = replay(lexicon, [
+    const cards = replay(ids, [
       row({ lexiconId: "n.donna", direction: "recognize", rating: "again" }),
     ]);
     const state = cards.get("n.donna|recognize");
@@ -100,7 +102,7 @@ describe("cards (CHI-072)", () => {
 });
 
 describe("rebuilding from the log equals the incremental state (CHI-073)", () => {
-  const lemmas = lexicon.filter((e) => e.pos === "noun" || e.pos === "adj").map((e) => e.id);
+  const lemmas = [...ids];
   const logArb = fc.array(
     fc.record({
       lexiconId: fc.constantFrom(...lemmas),
@@ -119,15 +121,12 @@ describe("rebuilding from the log equals the incremental state (CHI-073)", () =>
           minutes += e.gap;
           return row({ lexiconId: e.lexiconId, direction: e.direction, rating: e.rating }, minutes);
         });
-        const incremental = [...log].sort(logOrder).reduce(applyRow, emptyCards(lexicon));
-        expect(replay(lexicon, log)).toEqual(incremental);
+        const incremental = [...log].sort(logOrder).reduce(applyRow, emptyCards(ids));
+        expect(replay(ids, log)).toEqual(incremental);
         // And it does not depend on the order rows arrive in, even with equal timestamps.
-        expect(replay(lexicon, [...log].reverse())).toEqual(incremental);
+        expect(replay(ids, [...log].reverse())).toEqual(incremental);
         expect(
-          replay(lexicon, [
-            ...log.filter((_, i) => i % 2 === 1),
-            ...log.filter((_, i) => i % 2 === 0),
-          ]),
+          replay(ids, [...log.filter((_, i) => i % 2 === 1), ...log.filter((_, i) => i % 2 === 0)]),
         ).toEqual(incremental);
         const reviews = [...incremental.values()].reduce((n, c) => n + c.reviews, 0);
         expect(reviews).toBe(log.filter((r) => r.rating !== "slip").length);
@@ -148,7 +147,7 @@ describe("the spec 6 event → rating table, end to end (CHI-073)", () => {
       events.push(...r.events);
     }
     const log = rowsFor("g", events, t0);
-    return { state: s, log, cards: replay(lexicon, log) };
+    return { state: s, log, cards: replay(ids, log) };
   }
   const reviewed = (cards: ReturnType<typeof replay>) =>
     [...cards.values()]

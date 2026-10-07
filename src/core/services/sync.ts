@@ -3,7 +3,6 @@
 // log row points at its game. A failed flush keeps everything and tries again on
 // the next round end, app start or `online` event; play is never blocked.
 import { create } from "zustand";
-import type { LexiconEntry } from "../../languages/it/content/schemas.ts";
 import type { GameRow, ReviewLogRow } from "../store/progressStore.ts";
 import { replay } from "./srs.ts";
 import { read, write } from "./storage.ts";
@@ -173,7 +172,7 @@ async function fetchAll<T>(table: "games" | "review_log"): Promise<T[]> {
 // conflicts. The cards are then rebuilt by replaying it and upserted with
 // log_count, which the database uses to ignore a stale device's older state.
 export async function pull(
-  lexicon: LexiconEntry[],
+  cardIds: readonly string[],
 ): Promise<{ games: GameRow[]; reviewLog: ReviewLogRow[] } | null> {
   const { userId } = useSyncStore.getState();
   if (!userId || !supabase) return null;
@@ -183,7 +182,7 @@ export async function pull(
       fetchAll<DbReview>("review_log"),
     ]);
     const reviewLog = log.map(reviewFromDb);
-    const cards = [...replay(lexicon, reviewLog).values()].filter((c) => c.reviews > 0);
+    const cards = [...replay(cardIds, reviewLog).values()].filter((c) => c.reviews > 0);
     if (cards.length) {
       const { error } = await supabase.from("cards").upsert(
         cards.map((c) => ({

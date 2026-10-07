@@ -1,7 +1,7 @@
 // The default level (spec 8.1 Settings, 7.1 profiles.level). Kept on the device for
 // everyone, and in the profile when signed in so it follows the learner.
 import { create } from "zustand";
-import type { Level } from "../../languages/it/engine/index.ts";
+import type { Level } from "../types.ts";
 import { supabase } from "../services/supabase.ts";
 
 const key = "chie.level";

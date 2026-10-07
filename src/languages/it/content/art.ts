@@ -2,7 +2,7 @@ import type { Character } from "./schemas.ts";
 
 // Spec 3.5: the art manifest. Every card is these layers stacked in z order, all
 // drawn on the same canvas, so the picture can never disagree with the data.
-// Files live in public/art/ and can be replaced by final art with the same names.
+// Files live in public/art/it/ and can be replaced by final art with the same names.
 
 export const artViewBox = { width: 100, height: 120 } as const;
 

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
+import { cardIds } from "../cards.ts";
 import { content } from "../content/index.ts";
 import { endOfLocalDay, isDue, replay, type CardState } from "../../../core/services/srs.ts";
 import {
@@ -192,7 +193,7 @@ const timeFormat = new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-d
 // Under the desktop "Due" heading, its own headings are a level lower.
 function Due({ log, heading = "h2" }: { log: ReviewLogRow[]; heading?: "h2" | "h3" }) {
   const cards = useMemo(
-    () => [...replay(content.lexicon, log).values()].filter((c) => c.reviews > 0),
+    () => [...replay(cardIds(), log).values()].filter((c) => c.reviews > 0),
     [log],
   );
   const end = endOfLocalDay(new Date());

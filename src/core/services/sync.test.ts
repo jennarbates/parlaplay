@@ -1,4 +1,5 @@
 import "fake-indexeddb/auto";
+import { rowsFor } from "../../languages/it/store/rows.ts";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { GameRow, ReviewLogRow } from "../store/progressStore.ts";
@@ -160,9 +161,13 @@ describe("the progress store feeds the outbox only when signed in", () => {
     useProgressStore.setState({ owner: user });
     const p = useProgressStore.getState();
     p.recordGameStart(game("g1"));
-    p.appendEvents("g1", [
-      { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" },
-    ]);
+    p.appendRows(
+      rowsFor(
+        "g1",
+        [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" }],
+        new Date(),
+      ),
+    );
     p.recordGameEnd("g1", "lost");
     expect(useSyncStore.getState().outbox.map((op) => op.kind)).toEqual(["game", "review", "game"]);
     expect(useSyncStore.getState().outbox[2]).toMatchObject({
@@ -174,9 +179,13 @@ describe("the progress store feeds the outbox only when signed in", () => {
   test("as a guest, nothing is queued", () => {
     const p = useProgressStore.getState();
     p.recordGameStart(game("g1"));
-    p.appendEvents("g1", [
-      { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" },
-    ]);
+    p.appendRows(
+      rowsFor(
+        "g1",
+        [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" }],
+        new Date(),
+      ),
+    );
     expect(useSyncStore.getState().outbox).toEqual([]);
   });
 });

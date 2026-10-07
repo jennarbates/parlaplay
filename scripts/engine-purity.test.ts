@@ -13,12 +13,12 @@ type PureDir = {
 };
 
 const pureDirs: PureDir[] = [
-  {
-    name: "engine/",
-    dir: new URL("../src/languages/it/engine/", import.meta.url).pathname,
-    allowed: (from, statement) =>
+  ...(["it", "zh"] as const).map((code) => ({
+    name: `languages/${code}/engine/`,
+    dir: new URL(`../src/languages/${code}/engine/`, import.meta.url).pathname,
+    allowed: (from: string, statement: string) =>
       from.startsWith("../content/") && statement.startsWith("import type"),
-  },
+  })),
   {
     name: "core/state/",
     dir: new URL("../src/core/state/", import.meta.url).pathname,

@@ -2,10 +2,11 @@
 // starts (supabase start). Skipped when it isn't running, as on a laptop without
 // Docker. The app's own sync code runs here, signed in as throwaway test users.
 import "fake-indexeddb/auto";
+import { rowsFor } from "../src/languages/it/store/rows.ts";
+import { cardIds } from "../src/languages/it/cards.ts";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { content } from "../src/languages/it/content/index.ts";
 import { resetForTests } from "../src/core/services/storage.ts";
 import { setClientForTests } from "../src/core/services/supabase.ts";
 import { pull, useSyncStore } from "../src/core/services/sync.ts";
@@ -145,9 +146,13 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     useProgressStore.getState().recordGameStart(gA);
     useProgressStore
       .getState()
-      .appendEvents(gA.id, [
-        { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" },
-      ]);
+      .appendRows(
+        rowsFor(
+          gA.id,
+          [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" }],
+          new Date(),
+        ),
+      );
     await syncNow();
     const phone = useProgressStore.getState();
     const phoneRows = { games: phone.games, reviewLog: phone.reviewLog };
@@ -157,9 +162,13 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     useProgressStore.getState().recordGameStart(gB);
     useProgressStore
       .getState()
-      .appendEvents(gB.id, [
-        { type: "rating", lexiconId: "n.occhi", direction: "recognize", rating: "hard" },
-      ]);
+      .appendRows(
+        rowsFor(
+          gB.id,
+          [{ type: "rating", lexiconId: "n.occhi", direction: "recognize", rating: "hard" }],
+          new Date(),
+        ),
+      );
     await syncNow();
     const laptop = useProgressStore.getState();
     const ids = (rows: { id: string }[]) => rows.map((r) => r.id).sort();
@@ -193,10 +202,16 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     await device(id, client);
     const g = game(crypto.randomUUID());
     useProgressStore.getState().recordGameStart(g);
-    useProgressStore.getState().appendEvents(g.id, [
-      { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" },
-      { type: "rating", lexiconId: "n.occhi", direction: "recognize", rating: "hard" },
-    ]);
+    useProgressStore.getState().appendRows(
+      rowsFor(
+        g.id,
+        [
+          { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" },
+          { type: "rating", lexiconId: "n.occhi", direction: "recognize", rating: "hard" },
+        ],
+        new Date(),
+      ),
+    );
     await syncNow();
     const { data } = await client
       .from("cards")
@@ -206,7 +221,7 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
       { lexicon_id: "n.barba", direction: "produce", log_count: 2 },
       { lexicon_id: "n.occhi", direction: "recognize", log_count: 2 },
     ]);
-    expect((await pull(content.lexicon))?.reviewLog).toHaveLength(2);
+    expect((await pull(cardIds()))?.reviewLog).toHaveLength(2);
   });
 
   test("one user cannot read another's rows", async () => {
@@ -217,9 +232,13 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     useProgressStore.getState().recordGameStart(g);
     useProgressStore
       .getState()
-      .appendEvents(g.id, [
-        { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "good" },
-      ]);
+      .appendRows(
+        rowsFor(
+          g.id,
+          [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "good" }],
+          new Date(),
+        ),
+      );
     await syncNow();
     expect(await count(b.client, "review_log")).toBe(1);
     expect(await count(a.client, "review_log")).toBe(0);

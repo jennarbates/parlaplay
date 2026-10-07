@@ -13,6 +13,7 @@ import {
 import { read, remove, write } from "../../../core/services/storage.ts";
 import { syncNow } from "../../../core/store/account.ts";
 import { useProgressStore } from "../../../core/store/progressStore.ts";
+import { rowsFor } from "./rows.ts";
 
 export type SavedRound = { contentVersion: number; gameId: string; state: GameState };
 
@@ -100,7 +101,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!game || !gameId) return [];
     const { state, events } = step(game, action, content);
     const progress = useProgressStore.getState();
-    progress.appendEvents(gameId, events);
+    progress.appendRows(rowsFor(gameId, events, new Date()));
     const over = events.find((e) => e.type === "gameOver");
     if (over?.type === "gameOver") {
       progress.recordGameEnd(gameId, over.result);

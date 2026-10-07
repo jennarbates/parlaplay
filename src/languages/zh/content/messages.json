@@ -1,0 +1,19 @@
+{
+  "verb.shi": "Use 是 (shì) for who someone is: {pron}是{obj}吗？",
+  "verb.you": "Use 有 (yǒu) for things someone has: {pron}有{obj}吗？",
+  "verb.zai": "Use 在 (zài) for where someone is: {pron}在{obj}吗？",
+  "offBoard.youJob": "{given} asks if they have a {gloss}. To ask about their job, use 是: {pron}是{obj}吗？",
+  "gp.ma": "Add 吗 (ma) at the end to make a yes/no question.",
+  "gp.order": "Chinese word order is who + verb + what + 吗. Try: {expected}",
+  "gp.pron.you": "你 (nǐ) means \"you\". Ask about them with 他 or 她.",
+  "gp.pron.gender": "You found out they're {genderGloss}, so write {expected}.",
+  "gp.answer.verb": "Answer with the question's verb: {expected}",
+  "gp.neg.mei": "有 is negated with 没: {expected} (méiyǒu).",
+  "answer.wrong": "Not quite: {answerText}",
+  "duplicate": "You already asked that. The answer was: {answerText}",
+  "shape.empty": "Tap words to build a question.",
+  "shape.noPron": "Add who you're asking about: 他 or 她.",
+  "shape.noVerb": "Add a verb: 是, 有 or 在.",
+  "shape.noObj": "Add a word to ask about.",
+  "shape.extra": "Use one word of each kind."
+}

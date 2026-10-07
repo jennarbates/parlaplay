@@ -1,5 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, test } from "vitest";
+import { cardIds } from "../cards.ts";
 import { content } from "../content/index.ts";
 import { endOfLocalDay, isDue, replay } from "../../../core/services/srs.ts";
 import { localDay, type GameRow, type ReviewLogRow } from "../../../core/store/progressStore.ts";
@@ -38,7 +39,7 @@ const daysAgo = (d: number, hour = 12) =>
 
 // What the Due list on the Progress screen shows for the same moment.
 const dueListLength = (log: ReviewLogRow[], at: Date) =>
-  [...replay(content.lexicon, log).values()]
+  [...replay(cardIds(), log).values()]
     .filter((c) => c.reviews > 0)
     .filter((c) => isDue(c, endOfLocalDay(at))).length;
 
@@ -109,7 +110,7 @@ describe("invariants", () => {
       fc.property(anyLog, (rows) => {
         const log = rows.map((r) => row({ ...r, at: daysAgo(r.day, r.hour) }));
         const s = progressStats({ games: [], reviewLog: log }, now);
-        const reviewed = [...replay(content.lexicon, log).values()].filter((c) => c.reviews > 0);
+        const reviewed = [...replay(cardIds(), log).values()].filter((c) => c.reviews > 0);
         expect(s.dueToday).toBeGreaterThanOrEqual(0);
         expect(s.dueToday).toBeLessThanOrEqual(reviewed.length);
         expect(reviewed.length).toBeLessThanOrEqual(2 * s.wordsSeen);

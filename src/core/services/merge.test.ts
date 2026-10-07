@@ -1,7 +1,8 @@
 import "fake-indexeddb/auto";
+import { rowsFor } from "../../languages/it/store/rows.ts";
+import { cardIds } from "../../languages/it/cards.ts";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { content } from "../../languages/it/content/index.ts";
 import type { GameRow, ReviewLogRow } from "../store/progressStore.ts";
 
 // A fake Supabase holding one account's rows, shared by two "devices".
@@ -89,7 +90,7 @@ describe("pull (CHI-086)", () => {
       reviewToDb(user, review(`r${String(i).padStart(5, "0")}`, "g1", i % 60)),
     );
     server.games = [gameToDb(user, game("g1"))];
-    const remote = await pull(content.lexicon);
+    const remote = await pull(cardIds());
     expect(remote?.reviewLog).toHaveLength(2500);
     expect(ranges.filter(([from]) => from >= 0).map(([from]) => from)).toEqual(
       expect.arrayContaining([0, 1000, 2000]),
@@ -106,7 +107,7 @@ describe("pull (CHI-086)", () => {
         detail: { slot: "art", given: "il", expected: "la", rule: "art.fsg" },
       }),
     ];
-    const remote = await pull(content.lexicon);
+    const remote = await pull(cardIds());
     expect(remote).toEqual({
       games: [game("g1", { endedAt: "2026-10-19T10:09:00.000Z", result: "won" })],
       reviewLog: [
@@ -123,7 +124,7 @@ describe("pull (CHI-086)", () => {
       reviewToDb(user, review("r1", "g1", 1)),
       reviewToDb(user, review("r2", "g1", 2)),
     ];
-    await pull(content.lexicon);
+    await pull(cardIds());
     expect(server.cards).toEqual([
       expect.objectContaining({
         user_id: user,
@@ -145,7 +146,7 @@ describe("pull (CHI-086)", () => {
       },
     ];
     server.review_log = [reviewToDb(user, review("r1", "g1"))];
-    await pull(content.lexicon);
+    await pull(cardIds());
     expect(server.cards[0]).toMatchObject({ log_count: 9, state: { newer: true } });
   });
 });
@@ -156,9 +157,13 @@ describe("two devices converge (CHI-086)", () => {
     useProgressStore.getState().recordGameStart(game("gA"));
     useProgressStore
       .getState()
-      .appendEvents("gA", [
-        { type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" },
-      ]);
+      .appendRows(
+        rowsFor(
+          "gA",
+          [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" }],
+          new Date(),
+        ),
+      );
     await syncNow();
     const deviceA = {
       games: useProgressStore.getState().games,
@@ -172,9 +177,13 @@ describe("two devices converge (CHI-086)", () => {
     useProgressStore.getState().recordGameStart(game("gB"));
     useProgressStore
       .getState()
-      .appendEvents("gB", [
-        { type: "rating", lexiconId: "n.occhi", direction: "recognize", rating: "hard" },
-      ]);
+      .appendRows(
+        rowsFor(
+          "gB",
+          [{ type: "rating", lexiconId: "n.occhi", direction: "recognize", rating: "hard" }],
+          new Date(),
+        ),
+      );
     await syncNow();
     const ids = (rows: { id: string }[]) => rows.map((r) => r.id).sort();
     expect(ids(useProgressStore.getState().games)).toEqual(["gA", "gB"]);

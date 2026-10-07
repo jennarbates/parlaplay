@@ -1,4 +1,4 @@
-import { content } from "../content/index.ts";
+import { cardIds } from "../cards.ts";
 import { endOfLocalDay, isDue, replay } from "../../../core/services/srs.ts";
 import { localDay } from "../../../core/services/localDay.ts";
 import type { GuestData } from "../../../core/store/progressStore.ts";
@@ -18,8 +18,7 @@ export function progressStats(data: GuestData, now: Date): ProgressStats {
   const end = endOfLocalDay(now);
   return {
     wordsSeen: new Set(data.reviewLog.map((r) => r.lexiconId)).size,
-    dueToday: [...replay(content.lexicon, data.reviewLog).values()].filter((c) => isDue(c, end))
-      .length,
+    dueToday: [...replay(cardIds(), data.reviewLog).values()].filter((c) => isDue(c, end)).length,
     mistakesThisWeek: data.reviewLog.filter(
       (r) =>
         (r.rating === "again" || r.rating === "slip") &&

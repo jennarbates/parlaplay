@@ -2,7 +2,7 @@
 // round) and the append-only review log, both under the IndexedDB key "guest"
 // (spec 7.3). Sync for signed-in users builds on this in Sprint 3.
 import { create } from "zustand";
-import type { Direction, GameEvent, Level, SlotError } from "../../languages/it/engine/index.ts";
+import type { Direction, Level, SlotDetail } from "../types.ts";
 import { localDay } from "../services/localDay.ts";
 import { read, write, type StorageKey } from "../services/storage.ts";
 import { useSyncStore, type Op } from "../services/sync.ts";
@@ -23,7 +23,7 @@ export type ReviewLogRow = {
   lexiconId: string;
   direction: Direction;
   rating: "again" | "hard" | "good" | "slip"; // slip rows feed the Mistakes tab; FSRS skips them
-  detail?: SlotError;
+  detail?: SlotDetail;
   localDay: string; // "2026-10-06" in the learner's timezone
   createdAt: string; // ISO
 };
@@ -42,48 +42,13 @@ type ProgressStore = GuestData & {
   mergeRemote: (remote: GuestData) => void;
   recordGameStart: (game: Omit<GameRow, "endedAt" | "result">) => void;
   recordGameEnd: (gameId: string, result: NonNullable<GameRow["result"]>, at?: Date) => void;
-  appendEvents: (gameId: string, events: GameEvent[], at?: Date) => ReviewLogRow[];
+  // Each language turns its round's events into rows (its rowsFor); they are
+  // appended here, never edited or removed.
+  appendRows: (rows: ReviewLogRow[]) => ReviewLogRow[];
 };
 
 // In its own module so code that runs outside Vite (e2e tests) can use it too.
 export { localDay };
-
-// Rating and slip events become log rows; every other event is not learning data.
-export function rowsFor(
-  gameId: string,
-  events: GameEvent[],
-  at: Date,
-  newId: () => string = () => crypto.randomUUID(),
-): ReviewLogRow[] {
-  const common = { gameId, localDay: localDay(at), createdAt: at.toISOString() };
-  return events.flatMap((e): ReviewLogRow[] => {
-    if (e.type === "rating") {
-      return [
-        {
-          id: newId(),
-          ...common,
-          lexiconId: e.lexiconId,
-          direction: e.direction,
-          rating: e.rating,
-          ...(e.detail && { detail: e.detail }),
-        },
-      ];
-    }
-    if (e.type === "agreementSlip") {
-      return [
-        {
-          id: newId(),
-          ...common,
-          lexiconId: e.lexiconId,
-          direction: "produce",
-          rating: "slip",
-          detail: { slot: "adj", given: e.given, expected: e.expected, rule: "agreement" },
-        },
-      ];
-    }
-    return [];
-  });
-}
 
 export const storageKeyFor = (owner: string): StorageKey =>
   owner === "guest" ? "guest" : `user:${owner}`;
@@ -153,8 +118,7 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
     sync(get().owner, [{ kind: "game", row: after }]);
   },
 
-  appendEvents(gameId, events, at = new Date()) {
-    const rows = rowsFor(gameId, events, at);
+  appendRows(rows) {
     if (rows.length) {
       // Append only: rows are never edited or removed.
       set((s) => ({ reviewLog: [...s.reviewLog, ...rows] }));

@@ -1,4 +1,5 @@
 import "fake-indexeddb/auto";
+import { rowsFor } from "../../languages/it/store/rows.ts";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -41,10 +42,12 @@ async function playAsGuest() {
     contentVersion: 1,
     startedAt: at.toISOString(),
   });
-  p.appendEvents(
-    "g1",
-    [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" }],
-    at,
+  p.appendRows(
+    rowsFor(
+      "g1",
+      [{ type: "rating", lexiconId: "n.barba", direction: "produce", rating: "again" }],
+      at,
+    ),
   );
   p.recordGameEnd("g1", "lost", at);
   await progressSaved();

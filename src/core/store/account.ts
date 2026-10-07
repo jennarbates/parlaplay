@@ -4,9 +4,11 @@
 // save it to the account.
 import { create } from "zustand";
 import { read, remove, write } from "../services/storage.ts";
+// Until the shell knows the language in play (PLAY-023, PLAY-025), sync replays
+// Chi è?'s cards and sign-out clears Chi è?'s round.
+import { cardIds } from "../../languages/it/cards.ts";
 import { useGameStore } from "../../languages/it/store/gameStore.ts";
 import { usePrefs } from "./prefs.ts";
-import { content } from "../../languages/it/content/index.ts";
 import { pull, useSyncStore, type Op } from "../services/sync.ts";
 import { useAuthStore } from "./authStore.ts";
 import { progressSaved, storageKeyFor, useProgressStore, type GuestData } from "./progressStore.ts";
@@ -88,7 +90,7 @@ export async function syncNow(): Promise<void> {
   const sync = useSyncStore.getState();
   if (!sync.userId) return;
   if (!(await sync.flush())) return;
-  const remote = await pull(content.lexicon);
+  const remote = await pull(cardIds());
   if (remote && useProgressStore.getState().owner === sync.userId)
     useProgressStore.getState().mergeRemote(remote);
 }

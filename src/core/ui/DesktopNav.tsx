@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router";
 import { useAccountStore } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
+// Play starts a Chi è? round until each language has its own nav (PLAY-028).
 import { inProgress, useGameStore } from "../../languages/it/store/gameStore.ts";
 import { usePrefs } from "../store/prefs.ts";
 
