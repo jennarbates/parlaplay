@@ -3,7 +3,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { build } from "vite";
 import { afterEach, describe, expect, test } from "vitest";
-import { contentCheck, contentDir, validateContentDir } from "./content-check.ts";
+import {
+  contentCheck,
+  contentDir,
+  registryFile,
+  validateContentDir,
+  validateRegistryFile,
+} from "./content-check.ts";
 
 // Folders in these tests hold only the files under test.
 const partial = { requireAll: false };
@@ -69,7 +75,55 @@ describe("validateContentDir", () => {
   });
 });
 
+describe("validateRegistryFile", () => {
+  const registry = (text: string) => join(contentFolder({ "languages.json": text }), "languages.json");
+  const it = '{ "code": "it", "englishName": "Italian", "gameTitle": "Chi è?", "gameTitleLang": "it", "blurb": "b", "level": "A1" }';
+
+  test("the real registry is valid", () => {
+    expect(validateRegistryFile(registryFile)).toEqual([]);
+  });
+
+  test("an unknown code fails", () => {
+    const problems = validateRegistryFile(registry(`[${it.replace('"it"', '"fr"')}]`));
+    expect(problems[0]).toMatch(/^languages\.json: 0\.code: /);
+  });
+
+  test("a misspelled key fails", () => {
+    const problems = validateRegistryFile(registry(`[${it.replace("blurb", "blurp")}]`));
+    expect(problems.length).toBeGreaterThan(0);
+  });
+
+  test("contentVersion is not written by hand", () => {
+    const problems = validateRegistryFile(registry(`[${it.replace("}", ', "contentVersion": 1 }')}]`));
+    expect(problems.length).toBeGreaterThan(0);
+  });
+
+  test("a code listed twice fails", () => {
+    expect(validateRegistryFile(registry(`[${it}, ${it}]`))).toEqual([
+      "languages.json: each language code appears once",
+    ]);
+  });
+
+  test("broken JSON", () => {
+    expect(validateRegistryFile(registry("[{,]"))[0]).toMatch(/^languages\.json: not valid JSON/);
+  });
+});
+
 describe("the build fails on invalid content", () => {
+  test("vite build throws on an invalid registry", async () => {
+    const dir = contentFolder({ "version.json": '{ "contentVersion": 1 }' });
+    const registry = join(contentFolder({ "languages.json": "[]" }), "languages.json");
+    await expect(
+      build({
+        configFile: false,
+        logLevel: "silent",
+        root: contentFolder({ "index.html": "<!doctype html><title>x</title>" }),
+        plugins: [contentCheck(dir, partial, registry)],
+        build: { write: false },
+      }),
+    ).rejects.toThrow(/languages\.json: /);
+  });
+
   test("vite build throws with the problem in the message", async () => {
     const dir = contentFolder({ "version.json": '{ "contentVersion": "one" }' });
     await expect(

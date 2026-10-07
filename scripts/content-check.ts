@@ -5,6 +5,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Plugin } from "vite";
 import { contentFiles, type ContentFile } from "../src/content/schemas.ts";
+import { RegistryFile } from "../src/core/languages.ts";
 
 export function validateContentDir(dir: string, { requireAll = true } = {}): string[] {
   const problems: string[] = [];
@@ -44,16 +45,35 @@ function formatPath(path: PropertyKey[]): string {
 
 export const contentDir = new URL("../src/content/", import.meta.url).pathname;
 
-export function contentCheck(dir = contentDir, options?: { requireAll?: boolean }): Plugin {
+// Spec 3.1: the language registry is checked like content.
+export function validateRegistryFile(file: string): string[] {
+  let data: unknown;
+  try {
+    data = JSON.parse(readFileSync(file, "utf8"));
+  } catch (error) {
+    return [`languages.json: not valid JSON (${(error as Error).message})`];
+  }
+  const result = RegistryFile.safeParse(data);
+  if (result.success) return [];
+  return result.error.issues.map((issue) => `languages.json: ${formatPath(issue.path)}${issue.message}`);
+}
+
+export const registryFile = new URL("../src/core/languages.json", import.meta.url).pathname;
+
+export function contentCheck(
+  dir = contentDir,
+  options?: { requireAll?: boolean },
+  registry = registryFile,
+): Plugin {
   const check = () => {
-    const problems = validateContentDir(dir, options);
+    const problems = [...validateContentDir(dir, options), ...validateRegistryFile(registry)];
     if (problems.length) throw new Error(`Invalid content:\n  ${problems.join("\n  ")}`);
   };
   return {
     name: "content-check",
     buildStart: check,
     handleHotUpdate({ file }) {
-      if (file.startsWith(dir) && file.endsWith(".json")) check();
+      if ((file.startsWith(dir) && file.endsWith(".json")) || file === registry) check();
     },
   };
 }
