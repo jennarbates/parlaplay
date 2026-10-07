@@ -6,10 +6,10 @@ import { openDB, type IDBPDatabase } from "idb";
 const dbName = "shei";
 const storeName = "kv";
 
-// Guest data lives under "guest" (spec 7.3) and the round in progress under
-// "round". A signed-in user's local copy and outbox are kept per user, so signing
+// Guest data lives under "guest" (spec 7.3), the round in progress under "round",
+// and this device's settings (pinyin toggle, pronoun switch) under "settings". A signed-in user's local copy and outbox are kept per user, so signing
 // out can clear exactly that user's data.
-export type StorageKey = "guest" | "round" | `user:${string}` | `outbox:${string}`;
+export type StorageKey = "guest" | "round" | "settings" | `user:${string}` | `outbox:${string}`;
 
 let db: Promise<IDBPDatabase> | undefined;
 

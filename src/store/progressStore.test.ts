@@ -52,18 +52,28 @@ describe("rowsFor (CHI-070)", () => {
     ]);
   });
 
-  test("an agreement slip becomes a slip row with the forms as detail", () => {
+  test("a grammar slip becomes a slip row keyed by the grammar point (spec 6, 7.1)", () => {
     const rows = rowsFor(
       "g1",
-      [{ type: "agreementSlip", lexiconId: "adj.biondo", given: "bionde", expected: "biondi" }],
+      [
+        { type: "grammarSlip", point: "gp.order", given: "他狗有吗", expected: "他有狗吗？" },
+        { type: "grammarSlip", point: "gp.neg.mei", given: "不有", expected: "没有" },
+      ],
       at,
     );
     expect(rows).toEqual([
       expect.objectContaining({
-        lexiconId: "adj.biondo",
+        lexiconId: "gp.order",
         direction: "produce",
         rating: "slip",
-        detail: { slot: "adj", given: "bionde", expected: "biondi", rule: "agreement" },
+        detail: { slot: "order", given: "他狗有吗", expected: "他有狗吗？", rule: "gp.order" },
+      }),
+      // Answer-side slips are filed under recognize.
+      expect.objectContaining({
+        lexiconId: "gp.neg.mei",
+        direction: "recognize",
+        rating: "slip",
+        detail: { slot: "answer", given: "不有", expected: "没有", rule: "gp.neg.mei" },
       }),
     ]);
   });
@@ -74,7 +84,7 @@ describe("rowsFor (CHI-070)", () => {
         "g1",
         [
           { type: "asked", by: "cpu", key: "k", answer: false },
-          { type: "rejected", reason: "nonsense" },
+          { type: "rejected", reason: "offBoard" },
           { type: "gameOver", result: "won" },
         ],
         at,

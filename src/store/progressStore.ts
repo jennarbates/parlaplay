@@ -19,7 +19,7 @@ export type GameRow = {
 export type ReviewLogRow = {
   id: string; // client uuid, makes sync idempotent
   gameId: string;
-  lexiconId: string;
+  lexiconId: string; // a noun id, or a grammar point id on slip rows
   direction: Direction;
   rating: "again" | "hard" | "good" | "slip"; // slip rows feed the Mistakes tab; FSRS skips them
   detail?: SlotError;
@@ -50,6 +50,15 @@ export function localDay(at: Date): string {
   return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}`;
 }
 
+const slipSlots: Record<string, { slot: SlotError["slot"]; direction: Direction }> = {
+  "gp.ma": { slot: "ma", direction: "produce" },
+  "gp.order": { slot: "order", direction: "produce" },
+  "gp.pron.you": { slot: "pron", direction: "produce" },
+  "gp.pron.gender": { slot: "pron", direction: "produce" },
+  "gp.answer.verb": { slot: "answer", direction: "recognize" },
+  "gp.neg.mei": { slot: "answer", direction: "recognize" },
+};
+
 // Rating and slip events become log rows; every other event is not learning data.
 export function rowsFor(
   gameId: string,
@@ -71,15 +80,18 @@ export function rowsFor(
         },
       ];
     }
-    if (e.type === "agreementSlip") {
+    // Spec 6 and 7.1: a slip row carries the grammar point id. Answer-side slips
+    // are filed under recognize, question-side slips under produce.
+    if (e.type === "grammarSlip") {
+      const slip = slipSlots[e.point] ?? { slot: "order", direction: "produce" };
       return [
         {
           id: newId(),
           ...common,
-          lexiconId: e.lexiconId,
-          direction: "produce",
+          lexiconId: e.point,
+          direction: slip.direction,
           rating: "slip",
-          detail: { slot: "adj", given: e.given, expected: e.expected, rule: "agreement" },
+          detail: { slot: slip.slot, given: e.given, expected: e.expected, rule: e.point },
         },
       ];
     }

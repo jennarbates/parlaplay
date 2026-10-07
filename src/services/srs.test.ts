@@ -2,14 +2,7 @@ import fc from "fast-check";
 import { Rating } from "ts-fsrs";
 import { describe, expect, test } from "vitest";
 import { content } from "../content/index.ts";
-import {
-  allQuestions,
-  step,
-  type Action,
-  type GameEvent,
-  type GameState,
-} from "../engine/index.ts";
-import { evaluate } from "../engine/meaning.ts";
+import { parseKey, step, type Action, type GameEvent, type GameState } from "../engine/index.ts";
 import { startGame } from "../engine/start.ts";
 import { rowsFor, type ReviewLogRow } from "../store/progressStore.ts";
 import {
@@ -38,11 +31,11 @@ const row = (
 });
 
 describe("cards (CHI-072)", () => {
-  test("36 cards: 18 lemmas × 2 directions", () => {
+  test("28 cards: 14 nouns × 2 directions (spec 6)", () => {
     const cards = emptyCards(lexicon);
-    expect(cards.size).toBe(36);
+    expect(cards.size).toBe(28);
     const lemmas = new Set([...cards.values()].map((c) => c.lexiconId));
-    expect(lemmas.size).toBe(18);
+    expect(lemmas.size).toBe(14);
     for (const id of lemmas) {
       expect(cards.has(cardKey(id, "recognize"))).toBe(true);
       expect(cards.has(cardKey(id, "produce"))).toBe(true);
@@ -56,8 +49,9 @@ describe("cards (CHI-072)", () => {
   });
 
   test("slip rows are skipped", () => {
-    const cards = replay(lexicon, [row({ lexiconId: "adj.biondo", rating: "slip" })]);
-    expect(cards.get("adj.biondo|produce")?.reviews).toBe(0);
+    const cards = replay(lexicon, [row({ lexiconId: "gp.neg.mei", rating: "slip" })]);
+    expect(cards.get("gp.neg.mei|produce")).toBeUndefined();
+    expect([...cards.values()].every((c) => c.reviews === 0)).toBe(true);
   });
 
   test("replay goes in createdAt order, whatever order the log arrives in", () => {
@@ -93,14 +87,14 @@ describe("cards (CHI-072)", () => {
     const state = cards.get("n.donna|recognize");
     if (!state) throw new Error("no card");
     expect(isDue(state, endOfLocalDay(t0))).toBe(true);
-    const unseen = cards.get("n.uomo|recognize");
+    const unseen = cards.get("n.nande|recognize");
     if (!unseen) throw new Error("no card");
     expect(isDue(unseen, endOfLocalDay(new Date(2099, 0, 1)))).toBe(false);
   });
 });
 
 describe("rebuilding from the log equals the incremental state (CHI-073)", () => {
-  const lemmas = lexicon.filter((e) => e.pos === "noun" || e.pos === "adj").map((e) => e.id);
+  const lemmas = lexicon.filter((e) => e.pos === "noun").map((e) => e.id);
   const logArb = fc.array(
     fc.record({
       lexiconId: fc.constantFrom(...lemmas),
@@ -154,106 +148,121 @@ describe("the spec 6 event → rating table, end to end (CHI-073)", () => {
     [...cards.values()]
       .filter((c) => c.reviews > 0)
       .map((c) => `${c.lexiconId}|${c.direction}|${c.card.state}`);
-  const g2 = { ...startGame(1, 2, content), cpuSecret: "c.giulia", playerSecret: "c.marco" };
+  const woman = content.characters.find((c) => c.attrs.gender === "n.nvde");
+  const man = content.characters.find((c) => c.attrs.gender === "n.nande");
+  if (!woman || !man) throw new Error("no characters");
+  const g2 = { ...startGame(1, 2, content), cpuSecret: woman.id, playerSecret: man.id };
   const g1 = { ...g2, level: 1 as const };
-  const ask = (fill: { verb: string; art: string; noun: string; adj?: string }): Action => ({
-    type: "ASK",
-    templateId: fill.adj
-      ? "t.have.adj"
-      : fill.noun === "n.donna" || fill.noun === "n.uomo"
-        ? "t.be"
-        : "t.have",
-    fill,
-  });
-  const capelli = { verb: "v.ha", art: "art.i", noun: "n.capelli", adj: "adj.biondo#mp" };
+  const ask = (...tokens: string[]): Action => ({ type: "ASK", tokens });
+  const dog = ["pr.ta.f", "v.you", "n.gou", "pt.ma"];
+  const lines = (log: ReviewLogRow[]) => log.map((r) => [r.lexiconId, r.direction, r.rating]);
 
-  test("Level 2 accepted, right form: produce noun and adjective good", () => {
-    const { log } = play(g2, [ask(capelli)]);
-    expect(log.map((r) => [r.lexiconId, r.direction, r.rating])).toEqual([
-      ["n.capelli", "produce", "good"],
-      ["adj.biondo", "produce", "good"],
+  test("Level 2 question accepted: produce the noun, good", () => {
+    expect(lines(play(g2, [ask(...dog)]).log)).toEqual([["n.gou", "produce", "good"]]);
+  });
+
+  test("Level 2 accepted with a pronoun slip: noun good, plus a slip row", () => {
+    const { log, cards } = play(g2, [
+      ask("pr.ta.f", "v.shi", "n.nvde", "pt.ma"),
+      { type: "END_TURN" },
+      { type: "ANSWER", answerId: "a.shi", hintShown: true },
+      { type: "END_TURN" },
+      ask("pr.ta.m", "v.you", "n.gou", "pt.ma"),
     ]);
-  });
-
-  test("Level 2 accepted with a slip: noun good, adjective not rated, slip row logged", () => {
-    const { log, cards } = play(g2, [ask({ ...capelli, adj: "adj.biondo#fp" })]);
-    expect(log.map((r) => [r.lexiconId, r.rating])).toEqual([
-      ["n.capelli", "good"],
-      ["adj.biondo", "slip"],
+    expect(lines(log)).toEqual([
+      ["n.nvde", "produce", "good"],
+      ["n.gou", "produce", "good"],
+      ["gp.pron.gender", "produce", "slip"],
     ]);
-    expect(cards.get("adj.biondo|produce")?.reviews).toBe(0);
+    expect(cards.get("gp.pron.gender|produce")).toBeUndefined();
   });
 
-  test("Level 2 rejected for grammar: produce noun again", () => {
-    const { log } = play(g2, [ask({ ...capelli, art: "art.gli" })]);
-    expect(log.map((r) => [r.lexiconId, r.direction, r.rating])).toEqual([
-      ["n.capelli", "produce", "again"],
+  test("Level 2 rejected for the wrong verb: produce the noun, again", () => {
+    const { log } = play(g2, [ask("pr.ta.f", "v.shi", "n.gou", "pt.ma")]);
+    expect(lines(log)).toEqual([["n.gou", "produce", "again"]]);
+    expect(log[0]?.detail).toEqual({ slot: "verb", given: "是", expected: "有", rule: "verb.you" });
+  });
+
+  test("Level 2 rejected for 你, missing 吗 or order: one slip row per grammar point, no rating", () => {
+    const { log } = play(g2, [ask("pr.ni", "n.gou", "v.you")]);
+    expect(lines(log)).toEqual([
+      ["gp.pron.you", "produce", "slip"],
+      ["gp.ma", "produce", "slip"],
+      ["gp.order", "produce", "slip"],
     ]);
   });
 
   test.each([
-    ["a Level 1 question", g1, [ask(capelli)]],
-    ["nonsense", g2, [ask({ ...capelli, adj: "adj.verde#mp" })]],
-    ["a shape error (dispatches nothing)", g2, []],
+    ["a Level 1 question", g1, [ask(...dog)]],
+    ["off board", g2, [ask("pr.ta.f", "v.you", "n.laoshi", "pt.ma")]],
+    ["a shape error", g2, [ask("pr.ta.f", "n.gou", "pt.ma")]],
   ] as const)("%s: no rating", (_, start, actions) => {
     expect(play(start, [...actions]).log).toEqual([]);
   });
 
   test("a duplicate: no rating", () => {
     const first = play(g2, [
-      ask(capelli),
+      ask(...dog),
       { type: "END_TURN" },
-      { type: "ANSWER", value: true, hintShown: true },
+      { type: "ANSWER", answerId: "a.shi", hintShown: true },
       { type: "END_TURN" },
     ]);
-    const again = play(first.state, [ask(capelli)]);
-    expect(again.log).toEqual([]);
+    expect(play(first.state, [ask("pr.ta.m", "v.you", "n.gou", "pt.ma")]).log).toEqual([]);
   });
 
   function cpuAsking(start: GameState) {
-    const s = play(start, [
-      ask({ verb: "v.e", art: "art.una", noun: "n.donna" }),
-      { type: "END_TURN" },
-    ]).state;
-    const q = allQuestions(content).find((x) => x.key === s.pendingCpuQuestion);
-    const marco = content.characters.find((c) => c.id === "c.marco");
-    if (!q || !marco) throw new Error("no CPU question");
-    return { s, q, truth: evaluate(q.asked, marco.attrs) };
+    const s = play(start, [ask(...dog), { type: "END_TURN" }]).state;
+    const { verbId, nounId } = parseKey(s.pendingCpuQuestion?.key ?? "");
+    const verb = lexicon.find((e) => e.id === verbId);
+    const noun = lexicon.find((e) => e.id === nounId);
+    if (verb?.pos !== "verb" || noun?.pos !== "noun") throw new Error("no CPU question");
+    const truth =
+      noun.category === "gender" || noun.category === "job" || noun.category === "place"
+        ? man?.attrs[noun.category] === noun.id
+        : !!noun.attr && !!man?.attrs[noun.attr];
+    return {
+      s,
+      noun: noun.id,
+      right: truth ? verb.yes : verb.no,
+      wrong: truth ? verb.no : verb.yes,
+    };
   }
 
-  test.each([1, 2] as const)(
-    "level %i, CPU question answered right without hint: recognize hard",
-    (level) => {
-      const { s, q, truth } = cpuAsking({ ...g2, level });
-      const { log, cards } = play(s, [{ type: "ANSWER", value: truth, hintShown: false }]);
-      const words = [q.fill.noun, ...(q.fill.adj ? [q.fill.adj.split("#")[0]] : [])];
-      expect(log.map((r) => [r.lexiconId, r.direction, r.rating])).toEqual(
-        words.map((w) => [w, "recognize", "hard"]),
-      );
-      for (const w of words) expect(cards.get(`${w}|recognize`)?.reviews).toBe(1);
-    },
-  );
+  test.each([1, 2] as const)("level %i, right without hint: recognize the noun, hard", (level) => {
+    const { s, noun, right } = cpuAsking({ ...g2, level });
+    const { log, cards } = play(s, [{ type: "ANSWER", answerId: right, hintShown: false }]);
+    expect(lines(log)).toEqual([[noun, "recognize", "hard"]]);
+    expect(cards.get(`${noun}|recognize`)?.reviews).toBe(1);
+  });
 
-  test("CPU question answered wrongly: recognize again, with the answer.wrong detail", () => {
-    const { s, truth } = cpuAsking(g2);
-    const { log } = play(s, [{ type: "ANSWER", value: !truth, hintShown: false }]);
-    expect(log.length).toBeGreaterThan(0);
-    for (const r of log) {
-      expect(r).toMatchObject({
+  test("wrong polarity: recognize again, with the answer.wrong detail", () => {
+    const { s, noun, wrong } = cpuAsking(g2);
+    const { log } = play(s, [{ type: "ANSWER", answerId: wrong, hintShown: false }]);
+    expect(log).toEqual([
+      expect.objectContaining({
+        lexiconId: noun,
         direction: "recognize",
         rating: "again",
-        detail: { slot: "answer", rule: "answer.wrong" },
-      });
-    }
+        detail: expect.objectContaining({ slot: "answer", rule: "answer.wrong" }),
+      }),
+    ]);
+  });
+
+  test("不有: rated as polarity says, plus a recognize slip row", () => {
+    const { s } = cpuAsking(g2);
+    const { log } = play(s, [{ type: "ANSWER", answerId: "a.buyou", hintShown: false }]);
+    expect(
+      log.filter((r) => r.rating === "slip").map((r) => [r.lexiconId, r.direction]),
+    ).toContainEqual(["gp.neg.mei", "recognize"]);
   });
 
   test("hint shown before answering: no rating", () => {
-    const { s } = cpuAsking({ ...g2, level: 1 });
-    expect(play(s, [{ type: "ANSWER", value: true, hintShown: true }]).log).toEqual([]);
+    const { s, right } = cpuAsking({ ...g2, level: 1 });
+    expect(play(s, [{ type: "ANSWER", answerId: right, hintShown: true }]).log).toEqual([]);
   });
 
   test("replayed cards reflect the ratings", () => {
-    const { cards } = play(g2, [ask(capelli)]);
-    expect(reviewed(cards).sort()).toEqual(["adj.biondo|produce|1", "n.capelli|produce|1"]);
+    const { cards } = play(g2, [ask(...dog)]);
+    expect(reviewed(cards)).toEqual(["n.gou|produce|1"]);
   });
 });

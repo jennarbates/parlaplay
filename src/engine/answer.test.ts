@@ -10,8 +10,9 @@ import type { GameState } from "./types.ts";
 
 const index = indexContent(content);
 const answers = content.lexicon.filter((e): e is Answer => e.pos === "answer");
-const secret = content.characters[0];
-if (!secret) throw new Error("no characters");
+const first = content.characters[0];
+if (!first) throw new Error("no characters");
+const secret = first;
 
 // One question per verb, and a noun that gives each truth for the secret.
 const nounFor = (verb: string, truth: boolean) => {

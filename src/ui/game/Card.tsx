@@ -17,7 +17,7 @@ type Props = {
 // cross, so the state never depends on color alone.
 export function Card({ character, flipped, onTap, onZoom, guessing }: Props) {
   const press = useLongPress(onZoom);
-  // Spec 9: the name and attributes in Italian; the flipped state is aria-pressed.
+  // Spec 9: the name and attributes in Chinese; the flipped state is aria-pressed.
   const described = describeCharacter(character, content.lexicon);
   const label = guessing ? `Guess ${described}${flipped ? " (flipped down)" : ""}` : described;
 
@@ -26,6 +26,7 @@ export function Card({ character, flipped, onTap, onZoom, guessing }: Props) {
       <button
         type="button"
         aria-label={label}
+        lang={guessing ? undefined : "zh-Hans"}
         aria-pressed={guessing ? undefined : flipped}
         data-flipped={flipped}
         className={`group relative block aspect-[5/6] w-full select-none rounded-md outline-offset-2 [-webkit-touch-callout:none] [perspective:600px] ${
@@ -44,11 +45,6 @@ export function Card({ character, flipped, onTap, onZoom, guessing }: Props) {
         >
           <span className="absolute inset-0 overflow-hidden rounded-md shadow-sm ring-1 ring-stone-300 [backface-visibility:hidden]">
             <Face character={character} className="h-full w-full" />
-            {!flipped && (
-              <span className="absolute inset-x-0 bottom-0 truncate bg-white/80 px-0.5 text-center text-[10px] leading-tight font-medium">
-                {character.name}
-              </span>
-            )}
           </span>
           <span
             aria-hidden="true"
@@ -64,12 +60,22 @@ export function Card({ character, flipped, onTap, onZoom, guessing }: Props) {
             >
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
-            {flipped && (
-              <span className="text-[10px] leading-tight text-stone-800">{character.name}</span>
-            )}
           </span>
         </span>
       </button>
+      {/* Spec 3.2, 8.1: names are outside HSK 1, so pinyin is always shown with them. */}
+      <p
+        aria-hidden="true"
+        className="flex flex-col items-center overflow-hidden leading-none whitespace-nowrap"
+        style={{ height: "var(--card-cap)" }}
+      >
+        <span lang="zh-Hans" className="pt-0.5 text-[12px] font-medium">
+          {character.name}
+        </span>
+        <span lang="zh-Latn-pinyin" className="text-[9px] text-stone-600">
+          {character.namePinyin}
+        </span>
+      </p>
       <button
         type="button"
         onClick={onZoom}

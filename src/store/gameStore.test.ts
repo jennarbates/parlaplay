@@ -2,14 +2,14 @@ import "fake-indexeddb/auto";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { contentVersion } from "../content/index.ts";
-import { allQuestions } from "../engine/index.ts";
+import { allQuestions, questionTokens } from "../engine/index.ts";
 import { read, resetForTests, write } from "../services/storage.ts";
 import { randomSeed, savesSettled, useGameStore, type SavedRound } from "./gameStore.ts";
 import { progressSaved, useProgressStore } from "./progressStore.ts";
 
 const q = allQuestions((await import("../content/index.ts")).content)[0];
 if (!q) throw new Error("no questions");
-const ask = { type: "ASK" as const, templateId: q.templateId, fill: q.fill };
+const ask = { type: "ASK" as const, tokens: questionTokens(q, "pr.ta.m") };
 
 beforeEach(() => {
   vi.stubGlobal("indexedDB", new IDBFactory());
@@ -42,7 +42,7 @@ describe("start and dispatch", () => {
     store.start(1, 5);
     for (const action of [
       ask,
-      { type: "FLIP" as const, characterId: "c.anna" },
+      { type: "FLIP" as const, characterId: "c.lili" },
       { type: "END_TURN" as const },
     ]) {
       store.dispatch(action);
@@ -69,7 +69,7 @@ describe("start and dispatch", () => {
   test("start after a finished round begins a fresh one", () => {
     const store = useGameStore.getState();
     store.start(1, 5);
-    store.dispatch({ type: "GUESS", characterId: "c.anna" });
+    store.dispatch({ type: "GUESS", characterId: "c.lili" });
     store.start(2, 6);
     expect(useGameStore.getState().game).toMatchObject({
       phase: "playerTurn",
@@ -196,24 +196,23 @@ describe("games rows and the review log (CHI-070, CHI-071)", () => {
   test("ratings and slips from play are appended to the log with the game's id", () => {
     useGameStore.getState().start(2, 99);
     const { gameId } = useGameStore.getState();
-    useGameStore.getState().dispatch({
-      type: "ASK",
-      templateId: "t.have.adj",
-      fill: { verb: "v.ha", art: "art.i", noun: "n.capelli", adj: "adj.biondo#fp" },
-    });
+    useGameStore.getState().dispatch({ type: "ASK", tokens: ["pr.ni", "v.you", "n.gou", "pt.ma"] });
+    useGameStore
+      .getState()
+      .dispatch({ type: "ASK", tokens: ["pr.ta.m", "v.you", "n.gou", "pt.ma"] });
     expect(log()).toEqual([
       expect.objectContaining({
         gameId,
-        lexiconId: "n.capelli",
+        lexiconId: "gp.pron.you",
         direction: "produce",
-        rating: "good",
+        rating: "slip",
+        detail: { slot: "pron", given: "你", expected: "他 / 她", rule: "gp.pron.you" },
       }),
       expect.objectContaining({
         gameId,
-        lexiconId: "adj.biondo",
+        lexiconId: "n.gou",
         direction: "produce",
-        rating: "slip",
-        detail: { slot: "adj", given: "bionde", expected: "biondi", rule: "agreement" },
+        rating: "good",
       }),
     ]);
   });
@@ -233,8 +232,7 @@ describe("games rows and the review log (CHI-070, CHI-071)", () => {
     const { gameId } = useGameStore.getState();
     useGameStore.getState().dispatch({
       type: "ASK",
-      templateId: "t.have",
-      fill: { verb: "v.e", art: "art.la", noun: "n.barba" },
+      tokens: ["pr.ta.m", "v.shi", "n.gou", "pt.ma"],
     });
     const logged = log();
     expect(logged).toHaveLength(1);
@@ -254,7 +252,7 @@ describe("games rows and the review log (CHI-070, CHI-071)", () => {
   test("a finished round is not marked abandoned by the next start", () => {
     useGameStore.getState().start(1, 5);
     const first = useGameStore.getState().gameId;
-    useGameStore.getState().dispatch({ type: "GUESS", characterId: "c.anna" });
+    useGameStore.getState().dispatch({ type: "GUESS", characterId: "c.lili" });
     const result = games().find((g) => g.id === first)?.result;
     useGameStore.getState().start(1, 6);
     expect(games().find((g) => g.id === first)?.result).toBe(result);
@@ -264,8 +262,7 @@ describe("games rows and the review log (CHI-070, CHI-071)", () => {
     useGameStore.getState().start(2, 99);
     useGameStore.getState().dispatch({
       type: "ASK",
-      templateId: "t.have",
-      fill: { verb: "v.ha", art: "art.la", noun: "n.barba" },
+      tokens: ["pr.ta.m", "v.you", "n.gou", "pt.ma"],
     });
     const before = { games: games(), reviewLog: log() };
     await progressSaved();

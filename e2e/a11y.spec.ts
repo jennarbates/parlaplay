@@ -1,10 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
 import { startGame } from "../src/engine/start.ts";
+import { answersFor, savedRound, waitForPhase } from "./game.ts";
 
-// CHI-090: WCAG 2.2 AA basics. Screen reader names in Italian, a whole round by
+// CHI-090: WCAG 2.2 AA basics. Screen reader names in Chinese, a whole round by
 // keyboard with visible focus, and 44 × 44 px touch targets.
 
 // Every visible control smaller than 44 × 44 px. A radio or checkbox counts as its
@@ -50,23 +49,20 @@ test.describe("touch targets are at least 44 × 44 px", () => {
     expect(await smallTargets(page)).toEqual([]);
     // The CPU's turn, with Show hint.
     await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
-    await page.getByRole("button", { name: "Avanti" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
     await expect(page.getByRole("button", { name: "Show hint" })).toBeVisible();
     expect(await smallTargets(page)).toEqual([]);
   });
 
   test("Level 2 builder and the round end", async ({ page }) => {
     await page.goto("/play?level=2&seed=5");
-    await page
-      .getByRole("group", { name: "Adjective", exact: true })
-      .getByRole("button")
-      .first()
-      .click();
+    await page.getByRole("checkbox", { name: "Pinyin" }).check();
+    await page.getByRole("group", { name: "People" }).getByRole("button").first().click();
     expect(await smallTargets(page)).toEqual([]);
     const g = startGame(5, 2, content);
     const name = content.characters.find((c) => c.id === g.cpuSecret)?.name ?? "";
-    await page.getByRole("button", { name: "Indovina" }).click();
-    await page.getByRole("button", { name: new RegExp(`^Guess ${name}: [^(]*$`) }).click();
+    await page.getByRole("button", { name: "Guess", exact: true }).click();
+    await page.getByRole("button", { name: new RegExp(`^Guess ${name}：[^(]*$`) }).click();
     expect(await smallTargets(page)).toEqual([]); // the confirm dialog
     await page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }).click();
     await expect(page.getByRole("heading", { name: "You won!" })).toBeVisible();
@@ -74,16 +70,18 @@ test.describe("touch targets are at least 44 × 44 px", () => {
   });
 });
 
-test("each card's accessible name lists name and attributes in Italian", async ({ page }) => {
+test("each card's accessible name lists name and attributes in Chinese (spec 9)", async ({
+  page,
+}) => {
   await page.goto("/play?seed=1");
   const cards = page.locator('ul[aria-label="Board"] button[aria-pressed]');
   await expect(cards).toHaveCount(24);
   const names = await cards.evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
   for (const n of names)
     expect(n).toMatch(
-      /^[A-Z][a-z]+: capelli [a-z]+ [a-z]+, occhi [a-z]+(, (occhiali|cappello|barba|baffi))*$/,
+      /^\p{Script=Han}{2}：(男的|女的)，(老师|学生|医生)，在(家|学校|医院|饭店)(，有(狗|猫|手机|书|电脑))+$/u,
     );
-  expect(names).toContain("Giulia: capelli rossi corti, occhi verdi");
+  await expect(cards.first()).toHaveAttribute("lang", "zh-Hans");
 });
 
 test.describe("keyboard only", () => {
@@ -117,35 +115,28 @@ test.describe("keyboard only", () => {
     await page.locator("body").focus();
 
     // Ask the first question.
-    const first = allQuestions(content)[0];
-    if (!first) throw new Error("no questions");
-    await tabTo(page, (el) => el.text.startsWith(first.text));
+    await tabTo(page, (el) => el.text.endsWith("Is he a man?"));
     const outline = await page.evaluate(
       () => getComputedStyle(document.activeElement as Element).outlineStyle,
     );
     expect(outline).toBe("solid");
     await page.keyboard.press("Enter");
-    await tabTo(page, (el) => el.text === "Avanti");
+    await tabTo(page, (el) => el.text === "Next");
     await page.keyboard.press("Enter");
 
-    // Answer the CPU truthfully.
-    const text = await page.evaluate(
-      () =>
-        document.querySelector('section[aria-label="Questions"] p[lang="it"]')?.textContent ?? "",
-    );
-    const q = allQuestions(content).find((x) => x.text === text);
-    const attrs = content.characters.find((c) => c.id === g.playerSecret)?.attrs;
-    if (!q || !attrs) throw new Error("no CPU question");
-    const answer = evaluate(q.asked, attrs) ? "Sì" : "No";
-    await tabTo(page, (el) => el.text === answer);
+    // Answer the CPU truthfully. Level 1 buttons show pinyin above the characters.
+    await waitForPhase(page, "cpuTurn");
+    const key = (await savedRound(page))?.pendingCpuQuestion?.key ?? "";
+    const right = content.lexicon.find((e) => e.id === answersFor(key, g.playerSecret)[0]);
+    await tabTo(page, (el) => el.text === `${right?.pinyin}${right?.hanzi}`);
     await page.keyboard.press("Enter");
-    await tabTo(page, (el) => el.text === "Avanti");
+    await tabTo(page, (el) => el.text === "Next");
     await page.keyboard.press("Enter");
 
     // Flip a card and open its Zoom view from the keyboard.
-    await tabTo(page, (el) => el.label.startsWith("Anna: "));
+    await tabTo(page, (el) => el.label.startsWith("王明："));
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("button", { name: /^Anna: / })).toHaveAttribute(
+    await expect(page.getByRole("button", { name: /^王明：/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -156,12 +147,12 @@ test.describe("keyboard only", () => {
 
     // Guess right, confirming in the dialog.
     const name = content.characters.find((c) => c.id === g.cpuSecret)?.name ?? "";
-    await tabTo(page, (el) => el.text === "Indovina");
+    await tabTo(page, (el) => el.text === "Guess");
     await page.keyboard.press("Enter");
     await page.locator("body").focus();
-    await tabTo(page, (el) => el.label.startsWith(`Guess ${name}: `));
+    await tabTo(page, (el) => el.label.startsWith(`Guess ${name}：`));
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("dialog")).toContainText(`Guess ${name}?`);
+    await expect(page.getByRole("dialog")).toContainText(`Guess ${name}`);
     await tabTo(page, (el) => el.text === "Guess", 5);
     await page.keyboard.press("Enter");
     await expect(page.getByRole("heading", { name: "You won!" })).toBeVisible();

@@ -34,11 +34,15 @@ export function GuessConfirm({
         <div className="flex flex-col items-center gap-3 text-center">
           <Face character={character} className="w-28 rounded-xl" />
           <h2 id="guess-title" className="text-xl font-semibold">
-            Guess {character.name}?
+            Guess <span lang="zh-Hans">{character.name}</span>{" "}
+            <span lang="zh-Latn-pinyin" className="font-normal text-stone-600">
+              {character.namePinyin}
+            </span>
+            ?
           </h2>
           {flipped && (
             <p className="rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-950 ring-1 ring-amber-200">
-              {character.name} is flipped down.
+              <span lang="zh-Hans">{character.name}</span> is flipped down.
             </p>
           )}
           <p className="text-sm text-stone-600">A wrong guess loses the round.</p>

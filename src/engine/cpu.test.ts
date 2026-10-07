@@ -11,7 +11,11 @@ import { step } from "./step.ts";
 import type { GameState } from "./types.ts";
 
 const index = indexContent(content);
-const attrsOf = (id: string) => index.character.get(id)?.attrs ?? content.characters[0]!.attrs;
+const attrsOf = (id: string) => {
+  const c = index.character.get(id);
+  if (!c) throw new Error(id);
+  return c.attrs;
+};
 const ids = content.characters.map((c) => c.id);
 const women = content.characters.filter((c) => c.attrs.gender === "n.nvde").map((c) => c.id);
 const men = content.characters.filter((c) => c.attrs.gender === "n.nande").map((c) => c.id);

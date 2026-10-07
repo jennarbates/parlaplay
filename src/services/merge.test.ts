@@ -103,7 +103,7 @@ describe("pull (CHI-086)", () => {
     server.review_log = [
       reviewToDb(user, {
         ...review("r1", "g1"),
-        detail: { slot: "art", given: "il", expected: "la", rule: "art.fsg" },
+        detail: { slot: "verb", given: "是", expected: "有", rule: "verb.you" },
       }),
     ];
     const remote = await pull(content.lexicon);
@@ -112,7 +112,7 @@ describe("pull (CHI-086)", () => {
       reviewLog: [
         {
           ...review("r1", "g1"),
-          detail: { slot: "art", given: "il", expected: "la", rule: "art.fsg" },
+          detail: { slot: "verb", given: "是", expected: "有", rule: "verb.you" },
         },
       ],
     });

@@ -1,56 +1,22 @@
 import { expect, test, type Page } from "@playwright/test";
 import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
 import { startGame } from "../src/engine/start.ts";
+import {
+  answerCpu,
+  build,
+  guessCard,
+  hanziOf,
+  nameOf,
+  picker,
+  savedGuest,
+  savedRound,
+  waitForPhase,
+} from "./game.ts";
 
-// CHI-060, CHI-061, CHI-062: round end, quit and continue, and Home.
+// Round end, quit and continue, and Home (spec 8.1).
 
-const nameOf = (id: string) => content.characters.find((c) => c.id === id)?.name ?? "";
-const attrsOf = (id: string) => content.characters.find((c) => c.id === id)?.attrs;
-
-// The games rows saved on this device, read from IndexedDB in the page.
-function savedGames(page: Page): Promise<{ id: string; result?: string }[]> {
-  return page.evaluate(
-    () =>
-      new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
-        open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("guest");
-          get.onsuccess = () => {
-            open.result.close();
-            resolve(
-              (get.result as { games?: { id: string; result?: string }[] } | undefined)?.games ??
-                [],
-            );
-          };
-        };
-      }),
-  );
-}
-
-// The phase of the round saved in IndexedDB.
-function savedPhase(page: Page): Promise<string | undefined> {
-  return page.evaluate(
-    () =>
-      new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
-        open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("round");
-          get.onsuccess = () => {
-            open.result.close();
-            resolve((get.result as { state?: { phase?: string } } | undefined)?.state?.phase);
-          };
-        };
-      }),
-  );
-}
-
-async function cpuQuestionText(page: Page) {
-  return page.evaluate(
-    () => document.querySelector('section[aria-label="Questions"] p[lang="it"]')?.textContent ?? "",
-  );
-}
+const savedGames = async (page: Page) => (await savedGuest(page)).games ?? [];
+const savedPhase = async (page: Page) => (await savedRound(page))?.phase;
 
 test.describe("round end (CHI-060)", () => {
   test("after a round with a mistake: result, both cards, history, mistakes, nudge, Play again", async ({
@@ -61,33 +27,21 @@ test.describe("round end (CHI-060)", () => {
     await page.goto(`/play?level=2&seed=${seed}`);
 
     // A grammar mistake, then the fixed question.
-    const tile = (group: string, name: string) =>
-      page
-        .getByRole("group", { name: group, exact: true })
-        .getByRole("button", { name, exact: true });
-    await tile("Verb", "ha").click();
-    await tile("Article", "il").click();
-    await tile("Noun", "barba").click();
-    await page.getByRole("button", { name: "Chiedi" }).click();
-    await expect(page.getByRole("status")).toContainText("barba is feminine singular: use la.");
-    await tile("Article", "la").click();
-    await page.getByRole("button", { name: "Chiedi" }).click();
-    await page.getByRole("button", { name: "Avanti" }).click();
+    await build(page, "他", "是", "狗", "吗");
+    await page.getByRole("button", { name: "Ask", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText("Use 有 (yǒu)");
+    await page.getByRole("button", { name: "Clear" }).click();
+    await build(page, "他", "有", "狗", "吗");
+    await page.getByRole("button", { name: "Ask", exact: true }).click();
+    await page.getByRole("button", { name: "Next" }).click();
 
     // Answer the CPU wrongly.
-    const text = await cpuQuestionText(page);
-    const cpuQ = allQuestions(content).find((x) => x.text === text);
-    const a = attrsOf(g.playerSecret);
-    if (!cpuQ || !a) throw new Error("no CPU question");
-    const truth = evaluate(cpuQ.asked, a);
-    await page.getByRole("button", { name: truth ? "No" : "Sì", exact: true }).click();
-    await page.getByRole("button", { name: "Avanti" }).click();
+    const wrong = await answerCpu(page, false, g.playerSecret);
+    await page.getByRole("button", { name: "Next" }).click();
 
     // Guess right.
-    await page.getByRole("button", { name: "Indovina" }).click();
-    await page
-      .getByRole("button", { name: new RegExp(`^Guess ${nameOf(g.cpuSecret)}: [^(]*$`) })
-      .click();
+    await page.getByRole("button", { name: "Guess", exact: true }).click();
+    await guessCard(page, nameOf(g.cpuSecret)).click();
     await page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }).click();
 
     await expect(page.getByRole("heading", { name: "You won!" })).toBeVisible();
@@ -101,14 +55,13 @@ test.describe("round end (CHI-060)", () => {
 
     const history = page.getByRole("region", { name: "Questions" });
     await expect(history.getByRole("listitem")).toHaveCount(2);
-    await expect(history).toContainText("Ha la barba?");
-    await expect(history).toContainText(text);
-    await expect(history).toContainText(`(you said ${truth ? "No" : "Sì"})`);
+    await expect(history).toContainText("他有狗吗？");
+    await expect(history).toContainText(`(you said ${hanziOf(wrong.id)})`);
 
     const mistakes = page.getByRole("region", { name: "This round's mistakes" });
-    await expect(mistakes.getByRole("listitem")).toHaveCount(cpuQ.fill.adj ? 3 : 2);
-    await expect(mistakes).toContainText("barba: il → la");
-    await expect(mistakes).toContainText(`${truth ? "No" : "Sì"} → ${truth ? "Sì" : "No"}`);
+    await expect(mistakes.getByRole("listitem")).toHaveCount(2);
+    await expect(mistakes).toContainText("狗: 是 → 有");
+    await expect(mistakes).toContainText(`${hanziOf(wrong.id)} →`);
 
     await expect(
       page.getByRole("link", { name: "Sign in to keep your progress safe" }),
@@ -122,10 +75,8 @@ test.describe("round end (CHI-060)", () => {
   test("a clean round has no mistakes, and Home goes home", async ({ page }) => {
     const g = startGame(5, 1, content);
     await page.goto("/play?seed=5");
-    await page.getByRole("button", { name: "Indovina" }).click();
-    await page
-      .getByRole("button", { name: new RegExp(`^Guess ${nameOf(g.cpuSecret)}: [^(]*$`) })
-      .click();
+    await page.getByRole("button", { name: "Guess", exact: true }).click();
+    await guessCard(page, nameOf(g.cpuSecret)).click();
     await page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }).click();
     await expect(page.getByText("None. Nicely done.")).toBeVisible();
     await page.getByRole("link", { name: "Home" }).click();
@@ -138,23 +89,15 @@ test.describe("round end (CHI-060)", () => {
     // Answer every CPU question truthfully and never guess: the CPU wins.
     const g = startGame(3, 1, content);
     await page.goto("/play?seed=3");
-    const qs = allQuestions(content);
     for (let i = 0; i < 8; i++) {
       if (await page.getByRole("heading", { name: "You lost." }).isVisible()) break;
-      await page
-        .getByRole("list", { name: "Questions to ask" })
-        .getByRole("button", { name: new RegExp(qs[i]?.text.replace("?", "\\?") ?? "") })
-        .click();
-      await page.getByRole("button", { name: "Avanti" }).click();
+      await picker(page).getByRole("button").nth(i).click();
+      await page.getByRole("button", { name: "Next" }).click();
+      await page.waitForTimeout(100);
       if (await page.getByRole("heading", { name: "You lost." }).isVisible()) break;
-      const text = await cpuQuestionText(page);
-      const q = qs.find((x) => x.text === text);
-      const a = attrsOf(g.playerSecret);
-      if (!q || !a) throw new Error("no CPU question");
-      await page
-        .getByRole("button", { name: evaluate(q.asked, a) ? "Sì" : "No", exact: true })
-        .click();
-      await page.getByRole("button", { name: "Avanti" }).click();
+      await answerCpu(page, true, g.playerSecret);
+      await page.getByRole("button", { name: "Next" }).click();
+      await waitForPhase(page, "playerTurn").catch(() => undefined);
     }
     await expect(page.getByRole("heading", { name: "You lost." })).toBeVisible();
     await expect(
@@ -191,7 +134,7 @@ test.describe("quit and continue (CHI-061)", () => {
   test("Home offers Continue round when one is saved, even after a reload", async ({ page }) => {
     await page.goto("/play?seed=4");
     await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
-    await page.getByRole("button", { name: "Avanti" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
     await expect.poll(() => savedPhase(page)).toBe("cpuTurn");
     await page.goto("/");
     await expect(page.getByText("You have a round in progress (Level 1, turn 1).")).toBeVisible();

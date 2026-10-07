@@ -1,200 +1,117 @@
 import { useState } from "react";
 import { content } from "../../content/index.ts";
-import type { Adjective, Article, Noun, Verb } from "../../content/schemas.ts";
-import { parseTiles, type Fill, type ShapeError, type Tiles } from "../../engine/index.ts";
-import { FeedbackText } from "./FeedbackText.tsx";
+import type { LexiconEntry } from "../../content/schemas.ts";
+import { Word } from "./Ruby.tsx";
 
-const verbs = content.lexicon.filter((e): e is Verb => e.pos === "verb");
-const articles = content.lexicon.filter((e): e is Article => e.pos === "article");
-const nouns = content.lexicon.filter((e): e is Noun => e.pos === "noun" && !e.retired);
-const adjectives = content.lexicon.filter((e): e is Adjective => e.pos === "adj" && !e.retired);
-const text = new Map<string, string>([...verbs, ...articles, ...nouns].map((e) => [e.id, e.text]));
+const entry = new Map(content.lexicon.map((e) => [e.id, e]));
+const pick = (ids: string[]) => ids.flatMap((id) => entry.get(id) ?? []);
 
-// "adj.marrone#mp" → "marroni"
-function adjText(ref: string | undefined): string | undefined {
-  if (!ref) return undefined;
-  const [id, key] = ref.split("#");
-  const adj = adjectives.find((a) => a.id === id);
-  return adj && key ? adj.forms[key as keyof Adjective["forms"]] : undefined;
-}
+// Spec 8.1, Level 2: pronouns, verbs and 吗 in one row (7 tiles), then the 14
+// nouns in three rows. Order is free (D9): the tray holds tiles as tapped.
+const rows: { label: string; tiles: LexiconEntry[] }[] = [
+  {
+    label: "Who, verbs and 吗",
+    tiles: pick(["pr.ta.m", "pr.ta.f", "pr.ni", "v.shi", "v.you", "v.zai", "pt.ma"]),
+  },
+  { label: "People", tiles: pick(["n.nande", "n.nvde", "n.laoshi", "n.xuesheng", "n.yisheng"]) },
+  { label: "Pets and things", tiles: pick(["n.gou", "n.mao", "n.shouji", "n.shu", "n.diannao"]) },
+  { label: "Places", tiles: pick(["n.jia", "n.xuexiao", "n.yiyuan", "n.fandian"]) },
+];
+const maxTray = 6;
 
-// Each distinct form text once, with the first form key that spells it.
-function distinctForms(adj: Adjective): { ref: string; text: string }[] {
-  const seen = new Set<string>();
-  return (["ms", "fs", "mp", "fp"] as const).flatMap((k) => {
-    const t = adj.forms[k];
-    if (seen.has(t)) return [];
-    seen.add(t);
-    return [{ ref: `${adj.id}#${k}`, text: t }];
-  });
-}
-
-function shapeFeedback(error: ShapeError, tiles: Tiles) {
-  const noun = nouns.find((n) => n.id === tiles.noun);
-  const art = noun ? text.get(noun.defArt) : undefined;
-  return [
-    { messageKey: `shape.${error.kind}`, params: { noun: noun?.text ?? "", art: art ?? "" } },
-  ];
-}
-
-// Spec 3.4 and 8.1, Level 2: four slots in order (verb, article, noun,
-// adjective) filled by tapping tiles, with no English.
-export function TileBuilder({ onAsk }: { onAsk: (templateId: string, fill: Fill) => void }) {
-  const [tiles, setTiles] = useState<Tiles>({});
-  const [openAdj, setOpenAdj] = useState<string>();
-  const [shapeError, setShapeError] = useState<ShapeError>();
-
-  const set = (slot: keyof Tiles, value: string | undefined) => {
-    setShapeError(undefined);
-    setTiles((t) => {
-      const rest = Object.fromEntries(Object.entries(t).filter(([k]) => k !== slot)) as Tiles;
-      return value === undefined ? rest : { ...rest, [slot]: value };
-    });
-  };
-
-  const submit = () => {
-    const parsed = parseTiles(tiles, content);
-    if ("shapeError" in parsed) {
-      setShapeError(parsed.shapeError);
-      return;
-    }
-    onAsk(parsed.templateId, parsed.fill);
-  };
-
-  const slots: { slot: keyof Tiles; label: string; value: string | undefined }[] = [
-    { slot: "verb", label: "Verb", value: tiles.verb && text.get(tiles.verb) },
-    { slot: "art", label: "Article", value: tiles.art && text.get(tiles.art) },
-    { slot: "noun", label: "Noun", value: tiles.noun && text.get(tiles.noun) },
-    { slot: "adj", label: "Adjective", value: adjText(tiles.adj) },
-  ];
-  const tile = (selected: boolean) =>
-    `min-h-11 min-w-11 rounded-lg px-3 font-medium ring-1 ${
-      selected
-        ? "bg-stone-900 text-white ring-stone-900"
-        : "bg-white ring-stone-300 active:bg-stone-100"
-    }`;
+export function TileBuilder({
+  pinyin,
+  onPinyin,
+  onAsk,
+}: {
+  pinyin: boolean;
+  onPinyin: (on: boolean) => void;
+  onAsk: (tokens: string[]) => void;
+}) {
+  const [tray, setTray] = useState<string[]>([]);
+  const add = (id: string) => setTray((t) => (t.length >= maxTray ? t : [...t, id]));
+  const removeAt = (i: number) => setTray((t) => t.filter((_, j) => j !== i));
 
   return (
-    <div className="flex flex-col gap-3 py-2">
-      <div
-        aria-label="Your question"
-        role="group"
-        className="flex flex-wrap items-center gap-1.5 text-lg"
-      >
-        {slots.map(({ slot, label, value }, i) => (
-          <button
-            key={slot}
-            type="button"
-            onClick={() => set(slot, undefined)}
-            aria-label={value ? `${label}: ${value}. Tap to clear` : `${label}: empty`}
-            className={`min-h-11 min-w-16 rounded-lg border-2 px-2 ${
-              value
-                ? "border-stone-900 bg-white font-semibold"
-                : "border-dashed border-stone-400 text-sm text-stone-600"
-            }`}
-            lang={value ? "it" : undefined}
-          >
-            {value ? (i === 0 ? value.charAt(0).toUpperCase() + value.slice(1) : value) : label}
-          </button>
-        ))}
-        <span className="text-xl font-semibold">?</span>
+    <form
+      className="flex flex-col gap-2 py-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onAsk(tray);
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-stone-600">Build a question:</p>
+        <label className="flex min-h-11 items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={pinyin}
+            onChange={(e) => onPinyin(e.target.checked)}
+            className="h-5 w-5"
+          />
+          Pinyin
+        </label>
       </div>
 
-      {shapeError && <FeedbackText feedback={shapeFeedback(shapeError, tiles)} />}
-
-      <TileRow label="Verb">
-        {verbs.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            lang="it"
-            onClick={() => set("verb", v.id)}
-            className={tile(tiles.verb === v.id)}
-          >
-            {v.text}
-          </button>
-        ))}
-      </TileRow>
-      <TileRow label="Article">
-        {articles.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            lang="it"
-            onClick={() => set("art", a.id)}
-            className={tile(tiles.art === a.id)}
-          >
-            {a.text}
-          </button>
-        ))}
-      </TileRow>
-      <TileRow label="Noun">
-        {nouns.map((n) => (
-          <button
-            key={n.id}
-            type="button"
-            lang="it"
-            onClick={() => set("noun", n.id)}
-            className={tile(tiles.noun === n.id)}
-          >
-            {n.text}
-          </button>
-        ))}
-      </TileRow>
-      <TileRow label="Adjective">
-        {adjectives.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            lang="it"
-            aria-expanded={openAdj === a.id}
-            onClick={() => setOpenAdj(openAdj === a.id ? undefined : a.id)}
-            className={tile(tiles.adj?.startsWith(`${a.id}#`) ?? false)}
-          >
-            {a.forms.ms}…
-          </button>
-        ))}
-      </TileRow>
-      {openAdj && (
-        <div
-          role="group"
-          aria-label="Forms"
-          className="flex flex-wrap gap-1.5 rounded-xl bg-stone-100 p-2"
-        >
-          {distinctForms(adjectives.find((a) => a.id === openAdj) as Adjective).map((f) => (
+      <div
+        role="group"
+        aria-label="Your question"
+        className="flex min-h-14 flex-wrap items-center gap-1 rounded-xl bg-white px-2 py-1 ring-1 ring-stone-300"
+      >
+        {tray.length === 0 && <span className="text-sm text-stone-400">Tap words below</span>}
+        {tray.map((id, i) => {
+          const e = entry.get(id);
+          return e ? (
             <button
-              key={f.ref}
+              key={`${i}-${id}`}
               type="button"
-              lang="it"
-              onClick={() => {
-                set("adj", f.ref);
-                setOpenAdj(undefined);
-              }}
-              className={tile(
-                adjText(tiles.adj) === f.text && tiles.adj?.startsWith(`${openAdj}#`) === true,
-              )}
+              onClick={() => removeAt(i)}
+              aria-label={`Remove ${e.hanzi}`}
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stone-900 px-2 text-lg text-white"
             >
-              {f.text}
+              <Word hanzi={e.hanzi} pinyin={e.pinyin} showPinyin={pinyin} />
+            </button>
+          ) : null;
+        })}
+      </div>
+
+      {rows.map((row, r) => (
+        <div
+          key={row.label}
+          role="group"
+          aria-label={row.label}
+          // The first row is always one line of 7 (spec 8.1); nouns wrap as needed.
+          className={r === 0 ? "grid grid-cols-7 gap-0.5" : "flex flex-wrap gap-1"}
+        >
+          {row.tiles.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              onClick={() => add(e.id)}
+              disabled={tray.length >= maxTray}
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stone-100 px-2 text-lg ring-1 ring-stone-300 enabled:active:bg-stone-200 disabled:opacity-50"
+            >
+              <Word hanzi={e.hanzi} pinyin={e.pinyin} showPinyin={pinyin} />
             </button>
           ))}
         </div>
-      )}
+      ))}
 
-      <button
-        type="button"
-        onClick={submit}
-        className="min-h-12 rounded-xl bg-stone-900 font-semibold text-white active:bg-stone-700"
-      >
-        Chiedi
-      </button>
-    </div>
-  );
-}
-
-function TileRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-      {children}
-    </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => setTray([])}
+          className="min-h-12 rounded-xl bg-stone-200 font-semibold active:bg-stone-300"
+        >
+          Clear
+        </button>
+        <button
+          type="submit"
+          className="min-h-12 rounded-xl bg-stone-900 font-semibold text-white active:bg-stone-700"
+        >
+          Ask
+        </button>
+      </div>
+    </form>
   );
 }

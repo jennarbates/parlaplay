@@ -37,13 +37,17 @@ export function TopBar({
           <figcaption className="text-right text-xs leading-tight text-stone-600">
             You are
             <br />
-            <span className="font-medium text-stone-900">{secret.name}</span>
+            <span lang="zh-Hans" className="text-sm font-medium text-stone-900">
+              {secret.name}
+            </span>
+            <br />
+            <span lang="zh-Latn-pinyin">{secret.namePinyin}</span>
           </figcaption>
           <button
             type="button"
             onClick={onZoom}
             title="Zoom your card"
-            className="rounded hover:ring-2 hover:ring-stone-400 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
+            className="flex min-w-11 justify-center rounded hover:ring-2 hover:ring-stone-400 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
           >
             <Face
               character={secret}

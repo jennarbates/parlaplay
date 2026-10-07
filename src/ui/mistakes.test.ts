@@ -14,23 +14,23 @@ const row = (
   lexiconId,
   direction: "produce",
   rating,
-  ...(given !== undefined && { detail: { slot: "art", given, expected, rule: "r" } }),
+  ...(given !== undefined && { detail: { slot: "verb", given, expected, rule: "r" } }),
   localDay: "2026-10-06",
   createdAt: `2026-10-06T${at}:00.000Z`,
 });
 
-test("groups by word, newest word first, counting repeated mistakes", () => {
+test("groups by noun or grammar point, newest first, counting repeated mistakes", () => {
   const groups = groupMistakes([
-    row("n.capelli", "again", "gli", "i", "10:00"),
-    row("n.barba", "again", "il", "la", "10:05"),
-    row("n.capelli", "again", "gli", "i", "10:10"),
-    row("adj.biondo", "slip", "bionde", "biondi", "10:02"),
-    row("n.capelli", "again", "la", "i", "10:03"),
+    row("n.gou", "again", "是", "有", "10:00"),
+    row("n.jia", "again", "有", "在", "10:05"),
+    row("n.gou", "again", "是", "有", "10:10"),
+    row("gp.neg.mei", "slip", "不有", "没有", "10:02"),
+    row("n.gou", "again", "在", "有", "10:03"),
   ]);
-  expect(groups.map((g) => g.lexiconId)).toEqual(["n.capelli", "n.barba", "adj.biondo"]);
+  expect(groups.map((g) => g.lexiconId)).toEqual(["n.gou", "n.jia", "gp.neg.mei"]);
   expect(groups[0]?.pairs).toEqual([
-    { given: "gli", expected: "i", count: 2 },
-    { given: "la", expected: "i", count: 1 },
+    { given: "是", expected: "有", count: 2 },
+    { given: "在", expected: "有", count: 1 },
   ]);
 });
 

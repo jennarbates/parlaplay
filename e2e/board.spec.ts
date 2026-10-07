@@ -1,36 +1,15 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { card, collapseSheet, savedRound } from "./game.ts";
 
-// CHI-051 to CHI-054: the board, top bar, bottom sheet and card detail view.
+// The board, top bar, bottom sheet and card detail view (spec 8).
 
-const card = (page: Page, name: string) =>
-  page.getByRole("button", { name: new RegExp(`^${name}: capelli`) });
-
-// The flipped cards of the round saved in IndexedDB, read from inside the page.
-function savedFlipped(page: Page): Promise<string[] | undefined> {
-  return page.evaluate(
-    () =>
-      new Promise<string[] | undefined>((resolve) => {
-        const open = indexedDB.open("chi-e");
-        open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("round");
-          get.onsuccess = () => {
-            open.result.close();
-            resolve((get.result as { state?: { flipped?: string[] } } | undefined)?.state?.flipped);
-          };
-        };
-      }),
-  );
-}
-
-async function collapseSheet(page: Page) {
-  const toggle = page.getByRole("button", { name: /questions$/ });
-  if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
-}
+const savedFlipped = async (page: Parameters<typeof savedRound>[0]) =>
+  (await savedRound(page))?.flipped;
 
 test.describe("on a 360 × 560 phone (spec 8)", () => {
   test.use({ viewport: { width: 360, height: 560 } });
 
-  test("all 24 cards fit above the collapsed sheet, with no scrolling", async ({ page }) => {
+  test("all 24 cards fit above the collapsed sheet, 6 × 4, with no scrolling", async ({ page }) => {
     await page.goto("/play?seed=1");
     await expect(page.getByRole("list", { name: "Board" }).getByRole("listitem")).toHaveCount(24);
     await collapseSheet(page);
@@ -52,18 +31,23 @@ test.describe("on a 360 × 560 phone (spec 8)", () => {
       document.documentElement.scrollHeight,
     ]);
     expect(scroll).toEqual([360, 560]);
+    // Six columns, four rows (Board.tsx): the dog and cat corners stay visible.
+    const xs = new Set<number>();
+    for (const item of await page.getByRole("list", { name: "Board" }).getByRole("listitem").all())
+      xs.add(Math.round((await item.boundingBox())?.x ?? 0));
+    expect(xs.size).toBe(6);
   });
 
   test("opening the sheet never shrinks the board", async ({ page }) => {
     await page.goto("/play?seed=1");
     await collapseSheet(page);
-    const closed = await card(page, "Anna").boundingBox();
+    const closed = await card(page, "王明").boundingBox();
     await page.getByRole("button", { name: /questions$/ }).click();
     await expect(page.getByRole("button", { name: /questions$/ })).toHaveAttribute(
       "aria-expanded",
       "true",
     );
-    expect(await card(page, "Anna").boundingBox()).toEqual(closed);
+    expect(await card(page, "王明").boundingBox()).toEqual(closed);
   });
 });
 
@@ -72,13 +56,13 @@ test("tap flips a card and tap again flips it back, and it shows by more than co
 }) => {
   await page.goto("/play?seed=1");
   await collapseSheet(page);
-  await card(page, "Chiara").click();
-  const flipped = card(page, "Chiara");
+  await card(page, "张伟").click();
+  const flipped = card(page, "张伟");
   await expect(flipped).toHaveAttribute("aria-pressed", "true");
   // The face is turned away and a cross shows instead.
   await expect(flipped.locator("svg path")).toBeVisible();
   await flipped.click();
-  await expect(card(page, "Chiara")).toHaveAttribute("aria-pressed", "false");
+  await expect(card(page, "张伟")).toHaveAttribute("aria-pressed", "false");
 });
 
 test("Unflip all appears once every card is down, and turns them all back", async ({ page }) => {
@@ -98,14 +82,14 @@ test("Unflip all appears once every card is down, and turns them all back", asyn
 test("flips survive a reload, because the round is saved after every action", async ({ page }) => {
   await page.goto("/play?seed=3");
   await collapseSheet(page);
-  await card(page, "Marco").click();
-  await card(page, "Sara").click();
-  await expect(card(page, "Sara")).toHaveAttribute("aria-pressed", "true");
+  await card(page, "李强").click();
+  await card(page, "李丽").click();
+  await expect(card(page, "李丽")).toHaveAttribute("aria-pressed", "true");
   // Each action is written to IndexedDB; wait for the writes to land, then reload.
-  await expect.poll(() => savedFlipped(page)).toEqual(["c.marco", "c.sara"]);
+  await expect.poll(() => savedFlipped(page)).toEqual(["c.liqiang", "c.lili"]);
   await page.reload();
-  await expect(card(page, "Marco")).toHaveAttribute("aria-pressed", "true");
-  await expect(card(page, "Sara")).toHaveAttribute("aria-pressed", "true");
+  await expect(card(page, "李强")).toHaveAttribute("aria-pressed", "true");
+  await expect(card(page, "李丽")).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the top bar shows the turn, whose turn, and your own card", async ({ page }) => {
@@ -113,7 +97,7 @@ test("the top bar shows the turn, whose turn, and your own card", async ({ page 
   const bar = page.locator("header");
   await expect(bar).toContainText("Turn 1");
   await expect(bar).toContainText("Your turn");
-  await expect(bar.getByRole("img", { name: /^Your card: \w+$/ })).toBeVisible();
+  await expect(bar.getByRole("img", { name: /^Your card: \p{Script=Han}+$/u })).toBeVisible();
 });
 
 test.describe("card detail view (spec 3.5)", () => {
@@ -134,7 +118,7 @@ test.describe("card detail view (spec 3.5)", () => {
   }) => {
     await page.goto("/play?seed=1");
     await collapseSheet(page);
-    const davide = card(page, "Davide");
+    const davide = card(page, "刘洋");
     const box = await davide.boundingBox();
     if (!box) throw new Error("no card");
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -143,7 +127,7 @@ test.describe("card detail view (spec 3.5)", () => {
     await page.mouse.up();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("img", { name: "Davide" })).toBeVisible();
+    await expect(dialog.getByRole("img", { name: "刘洋" })).toBeVisible();
     expect((await dialog.innerText()).replace("×", "").trim()).toBe("");
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
@@ -153,7 +137,7 @@ test.describe("card detail view (spec 3.5)", () => {
   test("a short tap does not open it", async ({ page }) => {
     await page.goto("/play?seed=1");
     await collapseSheet(page);
-    await card(page, "Elena").click();
+    await card(page, "陈杰").click();
     await expect(page.getByRole("dialog")).toBeHidden();
   });
 
@@ -162,14 +146,14 @@ test.describe("card detail view (spec 3.5)", () => {
     await collapseSheet(page);
     // The Zoom control comes right after its card in tab order. WebKit does not Tab
     // between buttons by default, so there it is focused directly.
-    const zoom = page.getByRole("button", { name: "Zoom Luca" });
-    await card(page, "Luca").focus();
+    const zoom = page.getByRole("button", { name: "Zoom 杨军" });
+    await card(page, "杨军").focus();
     await page.keyboard.press("Tab");
     if (!(await zoom.evaluate((el) => el === document.activeElement))) await zoom.focus();
     await expect(zoom).toBeFocused();
     await expect(zoom).toBeVisible();
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("dialog").getByRole("img", { name: "Luca" })).toBeVisible();
+    await expect(page.getByRole("dialog").getByRole("img", { name: "杨军" })).toBeVisible();
     await page.getByRole("button", { name: "Close" }).click();
     await expect(page.getByRole("dialog")).toBeHidden();
   });
@@ -178,13 +162,13 @@ test.describe("card detail view (spec 3.5)", () => {
 test("the flip animation is off under prefers-reduced-motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/play?seed=1");
-  const duration = await card(page, "Anna")
+  const duration = await card(page, "王明")
     .locator("> span")
     .evaluate((el) => getComputedStyle(el).transitionProperty);
   expect(duration).toBe("none");
 
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  const animated = await card(page, "Anna")
+  const animated = await card(page, "王明")
     .locator("> span")
     .evaluate((el) => getComputedStyle(el).transitionProperty);
   expect(animated).toContain("transform");

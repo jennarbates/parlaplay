@@ -27,11 +27,11 @@ export const grades: Record<"again" | "hard" | "good", Grade> = {
 const directions: Direction[] = ["recognize", "produce"];
 export const cardKey = (lexiconId: string, direction: Direction) => `${lexiconId}|${direction}`;
 
-// One card per noun and adjective per direction: 18 lemmas × 2 = 36 in the MVP.
+// One card per noun per direction: 14 nouns × 2 = 28 in the MVP (spec 6).
 export function emptyCards(lexicon: LexiconEntry[]): Cards {
   const cards: Cards = new Map();
   for (const e of lexicon) {
-    if (e.pos !== "noun" && e.pos !== "adj") continue;
+    if (e.pos !== "noun") continue;
     for (const direction of directions) {
       cards.set(cardKey(e.id, direction), {
         lexiconId: e.id,

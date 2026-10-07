@@ -15,14 +15,14 @@ test.each(content.characters.map((c) => [c.name, c] as const))(
 );
 
 test("layers are decorative; the label goes on the face", () => {
-  const giulia = content.characters.find((c) => c.id === "c.giulia");
-  if (!giulia) throw new Error("c.giulia missing");
-  const labelled = renderToStaticMarkup(<Face character={giulia} label="Giulia" />);
+  const lili = content.characters.find((c) => c.id === "c.lili");
+  if (!lili) throw new Error("c.lili missing");
+  const labelled = renderToStaticMarkup(<Face character={lili} label="李丽" />);
   expect(labelled).toContain('role="img"');
-  expect(labelled).toContain('aria-label="Giulia"');
-  expect(labelled.match(/alt=""/g)).toHaveLength(layersFor(giulia).length);
+  expect(labelled).toContain('aria-label="李丽"');
+  expect(labelled.match(/alt=""/g)).toHaveLength(layersFor(lili).length);
 
-  const hidden = renderToStaticMarkup(<Face character={giulia} />);
+  const hidden = renderToStaticMarkup(<Face character={lili} />);
   expect(hidden).toContain('aria-hidden="true"');
   expect(hidden).not.toContain("role=");
 });

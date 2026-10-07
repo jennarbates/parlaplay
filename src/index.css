@@ -5,3 +5,23 @@
   outline: 3px solid #2563eb;
   outline-offset: 2px;
 }
+
+/* Spec 9, D17: system fonts only, with Chinese glyph shapes. No web font: a full
+   Chinese font is megabytes and would break the 250 KB budget. */
+:lang(zh-Hans) {
+  font-family:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC",
+    sans-serif;
+}
+
+/* Spec 3.4: pinyin above each word. Centre the reading over its word instead of
+   spreading the characters, and keep neighbouring readings apart. */
+ruby {
+  ruby-align: center;
+  ruby-position: over;
+  margin-inline: 0.12em;
+}
+rt {
+  font-size: 0.55em;
+  line-height: 1.1;
+}

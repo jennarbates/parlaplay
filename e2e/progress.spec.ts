@@ -1,34 +1,12 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
 import { startGame } from "../src/engine/start.ts";
+import { answerCpu, build, hanziOf, savedGuest } from "./game.ts";
 
-// CHI-074: the Progress screen.
+// The Progress screen (spec 8.1).
 
-// The ratings in the review log saved in IndexedDB.
-function savedRatings(page: Page): Promise<string[]> {
-  return page.evaluate(
-    () =>
-      new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
-        open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("guest");
-          get.onsuccess = () => {
-            open.result.close();
-            resolve(
-              (
-                (get.result as { reviewLog?: { rating: string }[] } | undefined)?.reviewLog ?? []
-              ).map((r) => r.rating),
-            );
-          };
-        };
-      }),
-  );
-}
-
-const tile = (page: Page, group: string, name: string) =>
-  page.getByRole("group", { name: group, exact: true }).getByRole("button", { name, exact: true });
+const savedRatings = async (page: Parameters<typeof savedGuest>[0]) =>
+  ((await savedGuest(page)).reviewLog ?? []).map((r) => r.rating);
 
 test("with no play yet, both tabs show the empty state", async ({ page }) => {
   await page.goto("/progress");
@@ -38,65 +16,48 @@ test("with no play yet, both tabs show the empty state", async ({ page }) => {
   await expect(page.getByText("Play a round to see your words here.")).toBeVisible();
 });
 
-test("after a round: mistakes grouped by word, and words due with dates", async ({ page }) => {
+test("after a round: mistakes by word and grammar point, and words due with dates", async ({
+  page,
+}) => {
   const g = startGame(8, 2, content);
   await page.goto("/play?level=2&seed=8");
+  const ask = () => page.getByRole("button", { name: "Ask", exact: true }).click();
+  const clear = () => page.getByRole("button", { name: "Clear" }).click();
 
-  // Two article mistakes on barba (one repeated), then a slip on biondi.
-  await tile(page, "Verb", "ha").click();
-  await tile(page, "Article", "il").click();
-  await tile(page, "Noun", "barba").click();
-  await page.getByRole("button", { name: "Chiedi" }).click();
-  await page.getByRole("button", { name: "Chiedi" }).click(); // the same mistake again, same turn: one rating
-  await tile(page, "Article", "la").click();
-  await page.getByRole("button", { name: "Chiedi" }).click();
-  await page.getByRole("button", { name: "Avanti" }).click();
+  // A wrong verb on 狗 (twice in one turn: one rating), then the fixed question.
+  await build(page, "他", "是", "狗", "吗");
+  await ask();
+  await ask();
+  await clear();
+  await build(page, "他", "有", "狗", "吗");
+  await ask();
+  await page.getByRole("button", { name: "Next" }).click();
 
-  // Answer the CPU wrongly.
-  const text = await page.evaluate(
-    () => document.querySelector('section[aria-label="Questions"] p[lang="it"]')?.textContent ?? "",
-  );
-  const q = allQuestions(content).find((x) => x.text === text);
-  const attrs = content.characters.find((c) => c.id === g.playerSecret)?.attrs;
-  if (!q || !attrs) throw new Error("no CPU question");
-  await page
-    .getByRole("button", { name: evaluate(q.asked, attrs) ? "No" : "Sì", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Avanti" }).click();
+  // Answer the CPU wrongly: the question's noun is rated again, to understand.
+  const { key } = await answerCpu(page, false, g.playerSecret);
+  await page.getByRole("button", { name: "Next" }).click();
 
-  // Turn 2: a slip.
-  await tile(page, "Verb", "ha").click();
-  await tile(page, "Article", "i").click();
-  await tile(page, "Noun", "capelli").click();
-  await page
-    .getByRole("group", { name: "Adjective", exact: true })
-    .getByRole("button", { name: "biondo…" })
-    .click();
-  await tile(page, "Forms", "bionde").click();
-  await page.getByRole("button", { name: "Chiedi" }).click();
-  await expect(page.getByRole("button", { name: "Avanti" })).toBeVisible();
+  // Turn 2: a word-order slip.
+  await build(page, "他", "狗", "有", "吗");
+  await ask();
 
-  // Wait for the review log to reach IndexedDB before leaving the page.
   await expect.poll(() => savedRatings(page)).toContain("slip");
   await page.goto("/progress");
-  const mistakes = page.getByRole("list", { name: "Mistakes by word" });
-  await expect(mistakes).toContainText("barba");
-  await expect(mistakes).toContainText("il → la");
-  await expect(mistakes).toContainText("biondo");
-  await expect(mistakes).toContainText("bionde → biondi");
-  await expect(mistakes).toContainText(q.fill.noun.replace("n.", ""));
-  // Newest first: the slip on biondo came last.
-  await expect(mistakes.getByRole("listitem").first()).toContainText("biondo");
+  const mistakes = page.getByRole("list", { name: "Mistakes by word and grammar point" });
+  await expect(mistakes).toContainText("狗");
+  await expect(mistakes).toContainText("是 → 有");
+  await expect(mistakes).toContainText("Word order");
+  await expect(mistakes).toContainText("Who + verb + what + 吗");
+  // Newest first: the order slip came last.
+  await expect(mistakes.getByRole("listitem").first()).toContainText("Word order");
+  await expect(mistakes).toContainText(hanziOf(key.split("|")[1] ?? ""));
 
   await page.getByRole("tab", { name: "Due" }).click();
-  // barba was rated again (due now); the CPU question's words were rated again too.
+  // 狗 was rated again to say (due now) and good later; every card shows its time.
   const dueToday = page.getByRole("region", { name: "Due today" });
-  await expect(dueToday).toContainText("barba");
+  await expect(dueToday).toContainText("狗");
   await expect(dueToday).toContainText("Say");
   await expect(dueToday).toContainText("Understand");
-  // capelli was rated good. FSRS's learning steps bring a new card back within
-  // minutes, so it is due later today, and every card shows its next review time.
-  await expect(dueToday).toContainText("capelli");
   for (const time of await dueToday.locator("time").all()) {
     await expect(time).toHaveAttribute("datetime", /^\d{4}-\d\d-\d\dT/);
     await expect(time).toHaveText(/\d{1,2}:\d\d/);

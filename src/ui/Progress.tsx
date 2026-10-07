@@ -4,22 +4,20 @@ import { content } from "../content/index.ts";
 import { endOfLocalDay, isDue, replay, type CardState } from "../services/srs.ts";
 import { useProgressStore, type ReviewLogRow } from "../store/progressStore.ts";
 import { groupMistakes } from "./mistakes.ts";
+import { Mixed } from "./Mixed.tsx";
+import { labelFor } from "./words.ts";
 
-const word = new Map(
-  content.lexicon.flatMap((e) =>
-    e.pos === "noun"
-      ? [[e.id, { text: e.text, gloss: e.gloss }] as const]
-      : e.pos === "adj"
-        ? [[e.id, { text: e.forms.ms, gloss: e.gloss }] as const]
-        : [],
-  ),
-);
 const directionLabel = { recognize: "Understand", produce: "Say" } as const;
+const labelOf = (id: string) => {
+  const l = labelFor(id);
+  return l?.kind === "noun" ? l.hanzi : id;
+};
 
 type Tab = "mistakes" | "due";
 
-// Spec 8.1: Mistakes (grouped by word, given and expected) and Due (words due
-// today and their next review date). Spec 8.2: an empty state before any play.
+// Spec 8.1: Mistakes (grouped by noun or by grammar point, given and expected) and
+// Due (words due today and their next review date). Spec 8.2: an empty state
+// before any play.
 export function Progress() {
   const { reviewLog, loaded } = useProgressStore();
   const [tab, setTab] = useState<Tab>("mistakes");
@@ -78,23 +76,39 @@ function Mistakes({ log }: { log: ReviewLogRow[] }) {
   const groups = useMemo(() => groupMistakes(log), [log]);
   if (groups.length === 0) return <p className="text-stone-600">No mistakes yet. Keep playing!</p>;
   return (
-    <ul className="flex flex-col gap-2" aria-label="Mistakes by word">
+    <ul className="flex flex-col gap-2" aria-label="Mistakes by word and grammar point">
       {groups.map((g) => {
-        const w = word.get(g.lexiconId);
+        const label = labelFor(g.lexiconId);
         return (
           <li key={g.lexiconId} className="rounded-xl bg-white p-3 ring-1 ring-stone-200">
-            <p>
-              <strong lang="it">{w?.text ?? g.lexiconId}</strong>{" "}
-              <span className="text-sm text-stone-600">{w?.gloss}</span>
-            </p>
+            {label?.kind === "grammar" ? (
+              <>
+                <p>
+                  <strong>
+                    <Mixed text={label.title} />
+                  </strong>
+                </p>
+                <p className="text-sm text-stone-600">
+                  <Mixed text={label.explain} />
+                </p>
+              </>
+            ) : (
+              <p>
+                <strong lang="zh-Hans">{label?.hanzi ?? g.lexiconId}</strong>{" "}
+                <span lang="zh-Latn-pinyin" className="text-sm text-stone-600">
+                  {label?.pinyin}
+                </span>{" "}
+                <span className="text-sm text-stone-600">{label?.gloss}</span>
+              </p>
+            )}
             <ul className="mt-1 flex flex-col gap-0.5 text-sm">
               {g.pairs.map((p) => (
                 <li key={`${p.given}→${p.expected}`}>
-                  <span lang="it" className="line-through decoration-rose-500">
+                  <span lang="zh-Hans" className="line-through decoration-rose-500">
                     {p.given}
                   </span>
                   {" → "}
-                  <strong lang="it">{p.expected}</strong>
+                  <strong lang="zh-Hans">{p.expected}</strong>
                   {p.count > 1 && <span className="text-stone-600"> ×{p.count}</span>}
                 </li>
               ))}
@@ -166,7 +180,7 @@ function CardList({
               className="flex items-center justify-between gap-2 px-3 py-2"
             >
               <span>
-                <strong lang="it">{word.get(c.lexiconId)?.text ?? c.lexiconId}</strong>{" "}
+                <strong lang="zh-Hans">{labelOf(c.lexiconId)}</strong>{" "}
                 <span className="text-xs text-stone-600">{directionLabel[c.direction]}</span>
               </span>
               <time dateTime={c.card.due.toISOString()} className="text-sm text-stone-600">
