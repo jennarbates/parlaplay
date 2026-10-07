@@ -675,7 +675,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 
 | Day | Date | Capacity | Deliverable | Done when |
 |---|---|---|---|---|
-| 1 | Thu Oct 8 | Half | (Done Wed Oct 7: `jennarbates/parlaplay` created with this spec and the backlog. Public DNS checked Wed Oct 7: the zone is on Cloudflare name servers, and the root and `www` have no records.) Confirm `parlaplay.games` root is owned and unused; create the SES domain identity `parlaplay.games`; this spec to owner review | Root domain answers only Cloudflare; SES identity pending verification; review date set (Wed Oct 14) |
+| 1 | Thu Oct 8 | Half | (Done Wed Oct 7: `jennarbates/parlaplay` created with this spec and the backlog. Public DNS checked Wed Oct 7: the zone is on Cloudflare name servers, and the root and `www` have no records. Owner confirmed Wed Oct 7 that `parlaplay.games` is the zone in the Cloudflare account that holds `chie.parlaplay.games`.) Confirm `parlaplay.games` root is owned and unused; create the SES domain identity `parlaplay.games`; this spec to owner review | Root domain answers only Cloudflare; SES identity pending verification; review date set (Wed Oct 14) |
 | 2 | Fri Oct 9 | Half | Paper trace 10.1; spike: largest handoff fragment in Safari iOS | Trace done, TBDs listed; fragment limit recorded in 5.3 |
 | 3 | Mon Oct 12 to Wed Oct 14 | Half | Revise spec; tag `v1` | Spec `v1` tagged |
 | 4 | Thu Oct 15 to Wed Oct 28 | Half | Shéi game work per its spec (content review, engine), in `jennarbates/Chinese` | Shéi spec milestones 3 and 4 done |
