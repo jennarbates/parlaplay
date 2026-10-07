@@ -76,8 +76,10 @@ describe("validateContentDir", () => {
 });
 
 describe("validateRegistryFile", () => {
-  const registry = (text: string) => join(contentFolder({ "languages.json": text }), "languages.json");
-  const it = '{ "code": "it", "englishName": "Italian", "gameTitle": "Chi è?", "gameTitleLang": "it", "blurb": "b", "level": "A1" }';
+  const registry = (text: string) =>
+    join(contentFolder({ "languages.json": text }), "languages.json");
+  const it =
+    '{ "code": "it", "englishName": "Italian", "gameTitle": "Chi è?", "gameTitleLang": "it", "blurb": "b", "level": "A1" }';
 
   test("the real registry is valid", () => {
     expect(validateRegistryFile(registryFile)).toEqual([]);
@@ -94,7 +96,9 @@ describe("validateRegistryFile", () => {
   });
 
   test("contentVersion is not written by hand", () => {
-    const problems = validateRegistryFile(registry(`[${it.replace("}", ', "contentVersion": 1 }')}]`));
+    const problems = validateRegistryFile(
+      registry(`[${it.replace("}", ', "contentVersion": 1 }')}]`),
+    );
     expect(problems.length).toBeGreaterThan(0);
   });
 

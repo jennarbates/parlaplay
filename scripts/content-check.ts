@@ -55,7 +55,9 @@ export function validateRegistryFile(file: string): string[] {
   }
   const result = RegistryFile.safeParse(data);
   if (result.success) return [];
-  return result.error.issues.map((issue) => `languages.json: ${formatPath(issue.path)}${issue.message}`);
+  return result.error.issues.map(
+    (issue) => `languages.json: ${formatPath(issue.path)}${issue.message}`,
+  );
 }
 
 export const registryFile = new URL("../src/core/languages.json", import.meta.url).pathname;

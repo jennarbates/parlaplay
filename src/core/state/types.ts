@@ -6,9 +6,7 @@ export type Registry = readonly Pick<LanguageEntry, "code">[];
 
 export type Account = { kind: "guest" } | { kind: "signedIn"; userId: string };
 
-export type Prompt =
-  | { kind: "saveGuest"; languages: LanguageCode[] }
-  | { kind: "unsyncedSignOut" };
+export type Prompt = { kind: "saveGuest"; languages: LanguageCode[] } | { kind: "unsyncedSignOut" };
 
 export type ShellState = {
   hydrated: boolean; // the app key has been read from IndexedDB

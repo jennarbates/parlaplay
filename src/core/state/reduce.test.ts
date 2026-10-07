@@ -9,13 +9,24 @@ import type { ShellAction, ShellState } from "./types.ts";
 const registry = registryJson as LanguageEntry[];
 const run = (state: ShellState, action: ShellAction) => reduce(state, action, registry);
 
-const base: ShellState = { ...initialShellState, hydrated: true, path: "/it", language: "it", lastLanguage: "it" };
+const base: ShellState = {
+  ...initialShellState,
+  hydrated: true,
+  path: "/it",
+  language: "it",
+  lastLanguage: "it",
+};
 const guest = base;
 const signedIn: ShellState = { ...base, account: { kind: "signedIn", userId: "u1" } };
 const withP: ShellState = { ...signedIn, prompt: { kind: "saveGuest", languages: ["it", "zh"] } };
 const withU: ShellState = { ...signedIn, prompt: { kind: "unsyncedSignOut" } };
 
-const signedInAction: ShellAction = { type: "SIGNED_IN", userId: "u2", serverLast: "zh", guestLanguages: [] };
+const signedInAction: ShellAction = {
+  type: "SIGNED_IN",
+  userId: "u2",
+  serverLast: "zh",
+  guestLanguages: [],
+};
 const ignored = (state: ShellState, action: ShellAction) =>
   expect(run(state, action)).toEqual({ state, effects: [] });
 
@@ -39,7 +50,12 @@ describe("4.2: Guest, no prompt", () => {
   });
 
   test("CHOOSE from inside that language (starting a round) does not navigate", () => {
-    const state = { ...guest, path: "/zh/play", language: "zh" as const, lastLanguage: "it" as const };
+    const state = {
+      ...guest,
+      path: "/zh/play",
+      language: "zh" as const,
+      lastLanguage: "it" as const,
+    };
     expect(run(state, { type: "CHOOSE", code: "zh" })).toEqual({
       state: { ...state, lastLanguage: "zh" },
       effects: [{ type: "write", key: "app", value: { lastLanguage: "zh" } }],
@@ -201,7 +217,9 @@ describe("4.2: HYDRATED", () => {
   test("a stored code that is not in the registry counts as none", () => {
     const opened = run(fresh, { type: "OPEN", path: "/" }).state;
     const stale = { type: "HYDRATED", lastLanguage: "fr" } as unknown as ShellAction;
-    expect(run(opened, stale).effects).toEqual([{ type: "navigate", to: "/languages", replace: true }]);
+    expect(run(opened, stale).effects).toEqual([
+      { type: "navigate", to: "/languages", replace: true },
+    ]);
   });
 });
 
@@ -234,19 +252,25 @@ describe("4.3: each rule is the first match", () => {
     });
   });
 
-  test.each(["/zh", "/zh/", "/zh/play", "/zh/progress"])("4: %s sets the language, not the default", (path) => {
-    expect(run(guest, { type: "OPEN", path })).toEqual({
-      state: { ...guest, path, language: "zh" },
-      effects: [],
-    });
-  });
+  test.each(["/zh", "/zh/", "/zh/play", "/zh/progress"])(
+    "4: %s sets the language, not the default",
+    (path) => {
+      expect(run(guest, { type: "OPEN", path })).toEqual({
+        state: { ...guest, path, language: "zh" },
+        effects: [],
+      });
+    },
+  );
 
-  test.each(["/fr", "/fr/play", "/settings/extra", "/IT", "/play"])("5: %s is not found", (path) => {
-    expect(run(guest, { type: "OPEN", path })).toEqual({
-      state: { ...guest, path, language: null },
-      effects: [],
-    });
-  });
+  test.each(["/fr", "/fr/play", "/settings/extra", "/IT", "/play"])(
+    "5: %s is not found",
+    (path) => {
+      expect(run(guest, { type: "OPEN", path })).toEqual({
+        state: { ...guest, path, language: null },
+        effects: [],
+      });
+    },
+  );
 
   test("routeOf names each kind", () => {
     expect(routeOf("/", registry)).toEqual({ kind: "root" });
@@ -266,7 +290,12 @@ describe("4.5 traced example", () => {
     lastLanguage: "zh",
   };
   // Steps 2 and 3.
-  const signIn = run(start, { type: "SIGNED_IN", userId: "u1", serverLast: "it", guestLanguages: ["it", "zh"] });
+  const signIn = run(start, {
+    type: "SIGNED_IN",
+    userId: "u1",
+    serverLast: "it",
+    guestLanguages: ["it", "zh"],
+  });
 
   test("steps 2 and 3: signed in with P, device last kept over the server's", () => {
     expect(signIn).toEqual({

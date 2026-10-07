@@ -12,7 +12,16 @@ const codes = LanguageCode.options;
 const code = fc.constantFrom(...codes);
 const maybeCode = fc.option(code, { nil: null });
 const path = fc.oneof(
-  fc.constantFrom("/", "/languages", "/settings", "/privacy", "/import", "/fr", "/fr/play", "/play"),
+  fc.constantFrom(
+    "/",
+    "/languages",
+    "/settings",
+    "/privacy",
+    "/import",
+    "/fr",
+    "/fr/play",
+    "/play",
+  ),
   fc.tuple(code, fc.constantFrom("", "/", "/play", "/progress")).map(([c, rest]) => `/${c}${rest}`),
   fc.string().map((s) => `/${s}`),
 );
@@ -30,7 +39,9 @@ const action: fc.Arbitrary<ShellAction> = fc.oneof(
     .map((a) => ({ type: "SIGNED_IN" as const, ...a })),
   fc.constantFrom("yes", "no").map((answer) => ({ type: "SAVE_GUEST" as const, answer })),
   fc.boolean().map((unsynced) => ({ type: "SIGN_OUT" as const, unsynced })),
-  fc.constantFrom("signOut", "wait").map((answer) => ({ type: "CONFIRM_SIGN_OUT" as const, answer })),
+  fc
+    .constantFrom("signOut", "wait")
+    .map((answer) => ({ type: "CONFIRM_SIGN_OUT" as const, answer })),
 );
 
 // Every navigate target is a route of 4.3 that a navigate may point at.

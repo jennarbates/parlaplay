@@ -47,7 +47,10 @@ function open(state: ShellState, path: string, registry: Registry): ShellResult 
       // Rule 0: wait for the app key, or a returning player lands on the picker.
       if (!state.hydrated) return { state: { ...next, language: null }, effects: [] };
       const to = state.lastLanguage ? `/${state.lastLanguage}` : "/languages"; // rules 1, 2
-      return { state: { ...next, language: null }, effects: [{ type: "navigate", to, replace: true }] };
+      return {
+        state: { ...next, language: null },
+        effects: [{ type: "navigate", to, replace: true }],
+      };
     }
     case "language": // rule 4: following a link does not change the default
       return { state: { ...next, language: route.code }, effects: [] };
@@ -78,9 +81,11 @@ export function reduce(state: ShellState, action: ShellAction, registry: Registr
       if (state.prompt || !known(action.code, registry)) return unchanged(state);
       const code = action.code;
       const effects: ShellEffect[] = [{ type: "write", key: "app", value: { lastLanguage: code } }];
-      if (state.account.kind === "signedIn") effects.push({ type: "writeProfile", lastLanguage: code });
+      if (state.account.kind === "signedIn")
+        effects.push({ type: "writeProfile", lastLanguage: code });
       // Starting a round chooses the language it is already in; stay on the page.
-      if (state.language !== code) effects.push({ type: "navigate", to: `/${code}`, replace: false });
+      if (state.language !== code)
+        effects.push({ type: "navigate", to: `/${code}`, replace: false });
       return { state: { ...state, language: code, lastLanguage: code }, effects };
     }
 
@@ -111,7 +116,9 @@ export function reduce(state: ShellState, action: ShellAction, registry: Registr
       if (state.prompt?.kind !== "saveGuest") return unchanged(state);
       const { languages } = state.prompt;
       const effect: ShellEffect =
-        action.answer === "yes" ? { type: "uploadGuest", languages } : { type: "deleteGuest", languages };
+        action.answer === "yes"
+          ? { type: "uploadGuest", languages }
+          : { type: "deleteGuest", languages };
       return { state: { ...state, prompt: null }, effects: [effect] };
     }
 
