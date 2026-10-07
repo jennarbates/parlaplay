@@ -56,7 +56,7 @@ SPRINTS = [  # key, title, first day, last day, due date, goal
 
 EPICS = [  # key, name
     ("E0", "Spec sign-off"),
-    ("E1", "Domain, email and vendors"),
+    ("E1", "Vendors and email"),
     ("E2", "Repo merge"),
     ("E3", "Shell and routing"),
     ("E4", "Accounts and storage"),

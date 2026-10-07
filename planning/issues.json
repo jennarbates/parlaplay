@@ -44,9 +44,9 @@
    "description": "Card belongs to the Spec sign-off epic"
   },
   {
-   "name": "epic: Domain, email and vendors",
+   "name": "epic: Vendors and email",
    "color": "cf7a24",
-   "description": "Card belongs to the Domain, email and vendors epic"
+   "description": "Card belongs to the Vendors and email epic"
   },
   {
    "name": "epic: Repo merge",
@@ -138,11 +138,11 @@
   },
   {
    "key": "E1",
-   "title": "Epic: Domain, email and vendors",
+   "title": "Epic: Vendors and email",
    "body": "Epic for the parlaplay platform. 4 cards, 4 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
    "labels": [
     "epic",
-    "epic: Domain, email and vendors"
+    "epic: Vendors and email"
    ]
   },
   {
@@ -234,7 +234,7 @@
    "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · chore\nEpic: {{E1}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nCheck the root domain before anything is built on it.\n\n### Acceptance criteria\n\n- [ ] parlaplay.games is a zone in the Cloudflare account that holds chie.parlaplay.games\n- [ ] The root and www have no records serving anything else\n- [ ] Result written into the spec's day 1 row\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones) · [D1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
    "labels": [
     "type: chore",
-    "epic: Domain, email and vendors",
+    "epic: Vendors and email",
     "waits on others"
    ],
    "milestone": "S1",
@@ -249,7 +249,7 @@
    "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · chore\nEpic: {{E1}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nAdd parlaplay.games as an SES identity in the Region Chi è? already uses.\n\n### Acceptance criteria\n\n- [ ] SES domain identity parlaplay.games created in the same account and Region as chie.parlaplay.games\n- [ ] SPF, DKIM and DMARC records added in Cloudflare DNS\n- [ ] Identity shows Verified\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [D19](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
    "labels": [
     "type: chore",
-    "epic: Domain, email and vendors",
+    "epic: Vendors and email",
     "waits on others"
    ],
    "milestone": "S1",
@@ -355,7 +355,7 @@
    "body": "**Sprint 1: Spec and vendors** · Day 3, Wed Oct 14 · **1 point** · spike\nEpic: {{E1}}\n\nCheck the facts the spec marks TBD: verify.\n\n### Acceptance criteria\n\n- [ ] Sentry free plan limits checked on sentry.io and cited\n- [ ] Sign-in code lifetime read from the production Auth settings and matched in the email text\n- [ ] Each result written into the spec with its source\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [References](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#references)",
    "labels": [
     "type: spike",
-    "epic: Domain, email and vendors"
+    "epic: Vendors and email"
    ],
    "milestone": "S1",
    "epic": "E1",
@@ -722,7 +722,7 @@
    "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **1 point** · chore\nEpic: {{E1}}\n\nThe neutral template and subject on staging, ready for production.\n\n### Acceptance criteria\n\n- [ ] Subject Your parlaplay sign-in code\n- [ ] Body matches the spec 6.3 template\n- [ ] Template committed to supabase/templates and applied to staging\n\n### Depends on\n\n- {{PLAY-002}}\n- {{PLAY-022}}\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [D19](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
    "labels": [
     "type: chore",
-    "epic: Domain, email and vendors"
+    "epic: Vendors and email"
    ],
    "milestone": "S3",
    "epic": "E1",

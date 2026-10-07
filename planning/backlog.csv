@@ -1,8 +1,8 @@
 ID,Title,Status,Epic,Type,Sprint,Day,Date,Story points,Depends on,Waits on others,Spec refs,Description,Acceptance criteria
-PLAY-001,Confirm parlaplay.games root is ours and unused,To do,"Domain, email and vendors",chore,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,,yes,"10.4, D1",Check the root domain before anything is built on it.,"parlaplay.games is a zone in the Cloudflare account that holds chie.parlaplay.games
+PLAY-001,Confirm parlaplay.games root is ours and unused,To do,Vendors and email,chore,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,,yes,"10.4, D1",Check the root domain before anything is built on it.,"parlaplay.games is a zone in the Cloudflare account that holds chie.parlaplay.games
 The root and www have no records serving anything else
 Result written into the spec's day 1 row"
-PLAY-002,Create the SES domain identity for parlaplay.games,To do,"Domain, email and vendors",chore,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,,yes,"6.3, D19",Add parlaplay.games as an SES identity in the Region Chi è? already uses.,"SES domain identity parlaplay.games created in the same account and Region as chie.parlaplay.games
+PLAY-002,Create the SES domain identity for parlaplay.games,To do,Vendors and email,chore,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,,yes,"6.3, D19",Add parlaplay.games as an SES identity in the Region Chi è? already uses.,"SES domain identity parlaplay.games created in the same account and Region as chie.parlaplay.games
 SPF, DKIM and DMARC records added in Cloudflare DNS
 Identity shows Verified"
 PLAY-056,Create jennarbates/parlaplay with the spec and backlog,To do,Repo merge,chore,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,,no,"5.1, D4",Done Wed Oct 7: the repo exists early so issues can link to the spec.,"jennarbates/parlaplay main is Chi è? main with its history plus docs/spec.md and planning/
@@ -21,7 +21,7 @@ If it is under 500 KB, spec 5.3 gets a decision (compress or split) and a decisi
 PLAY-007,Fold in the reviews and tag the spec v1,To do,Spec sign-off,task,Sprint 1: Spec and vendors,Day 3,Wed Oct 14,2,"PLAY-003, PLAY-004, PLAY-005, PLAY-006",no,"10.1, 1","Apply every review comment, resolve or move each TBD, and tag v1.","Every review comment applied or answered
 Every TBD resolved or moved to section 11
 Changelog line added and the spec tagged v1"
-PLAY-008,Verify the remaining vendor facts,To do,"Domain, email and vendors",spike,Sprint 1: Spec and vendors,Day 3,Wed Oct 14,1,,no,"6.3, 9, References",Check the facts the spec marks TBD: verify.,"Sentry free plan limits checked on sentry.io and cited
+PLAY-008,Verify the remaining vendor facts,To do,Vendors and email,spike,Sprint 1: Spec and vendors,Day 3,Wed Oct 14,1,,no,"6.3, 9, References",Check the facts the spec marks TBD: verify.,"Sentry free plan limits checked on sentry.io and cited
 Sign-in code lifetime read from the production Auth settings and matched in the email text
 Each result written into the spec with its source"
 PLAY-009,Tag chie-launch on Chi è? main,To do,Repo merge,chore,Sprint 2: Fork point,Day 5,Thu Oct 29,1,,no,"5.1, D20","Mark the exact commit Chi è? launched from, the fork point of the new repo.","Tag chie-launch on the commit deployed to chie.parlaplay.games
@@ -94,7 +94,7 @@ Chinese shows Show pinyin at Level 2"
 PLAY-030,Write the shared privacy note,To do,Picker and shared screens,task,Sprint 3: Merged site on staging,Day 11,Fri Nov 6,1,,no,"8.1, 9, 6.3",One note for the whole site at /privacy.,"Says one account covers every language and deleting it deletes every language's progress
 Gives privacy@parlaplay.games and lists Supabase, Cloudflare, AWS SES and Sentry
 Says guest data can be cleared by Safari"
-PLAY-031,Switch the sign-in email to parlaplay,To do,"Domain, email and vendors",chore,Sprint 3: Merged site on staging,Day 9,Wed Nov 4,1,"PLAY-002, PLAY-022",no,"6.3, D19","The neutral template and subject on staging, ready for production.","Subject Your parlaplay sign-in code
+PLAY-031,Switch the sign-in email to parlaplay,To do,Vendors and email,chore,Sprint 3: Merged site on staging,Day 9,Wed Nov 4,1,"PLAY-002, PLAY-022",no,"6.3, D19","The neutral template and subject on staging, ready for production.","Subject Your parlaplay sign-in code
 Body matches the spec 6.3 template
 Template committed to supabase/templates and applied to staging"
 PLAY-032,Point previews at parlaplay-staging,To do,Database and sync,chore,Sprint 3: Merged site on staging,Day 9,Wed Nov 4,1,"PLAY-022, PLAY-014",no,"6, 9",Workers Builds preview builds use the staging URL and publishable key.,"A pull request preview signs in against parlaplay-staging

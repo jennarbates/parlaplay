@@ -750,5 +750,5 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 ## Changelog
 
 - 2026-10-07: v0 draft.
-- 2026-10-07: v0.2. The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
+- 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).

@@ -1,0 +1,618 @@
+{
+ "labels": [
+  "type: story",
+  "type: task",
+  "type: test",
+  "type: chore",
+  "type: spike",
+  "waits on others",
+  "epic",
+  "epic: Spec sign-off",
+  "epic: Vendors and email",
+  "epic: Repo merge",
+  "epic: Shell and routing",
+  "epic: Accounts and storage",
+  "epic: Database and sync",
+  "epic: Picker and shared screens",
+  "epic: Handoff and redirects",
+  "epic: Quality and performance",
+  "epic: Playtest and fixes",
+  "epic: Launch and cleanup"
+ ],
+ "milestones": {
+  "S1": 1,
+  "S2": 2,
+  "S3": 3,
+  "S4": 4,
+  "S5": 5
+ },
+ "issues": {
+  "E0": {
+   "number": 1,
+   "id": 5751489159,
+   "url": "https://github.com/jennarbates/parlaplay/issues/1"
+  },
+  "E1": {
+   "number": 2,
+   "id": 5751489682,
+   "url": "https://github.com/jennarbates/parlaplay/issues/2"
+  },
+  "E2": {
+   "number": 3,
+   "id": 5751490074,
+   "url": "https://github.com/jennarbates/parlaplay/issues/3"
+  },
+  "E3": {
+   "number": 4,
+   "id": 5751490430,
+   "url": "https://github.com/jennarbates/parlaplay/issues/4"
+  },
+  "E4": {
+   "number": 5,
+   "id": 5751490777,
+   "url": "https://github.com/jennarbates/parlaplay/issues/5"
+  },
+  "E5": {
+   "number": 6,
+   "id": 5751491086,
+   "url": "https://github.com/jennarbates/parlaplay/issues/6"
+  },
+  "E6": {
+   "number": 7,
+   "id": 5751491403,
+   "url": "https://github.com/jennarbates/parlaplay/issues/7"
+  },
+  "E7": {
+   "number": 8,
+   "id": 5751491866,
+   "url": "https://github.com/jennarbates/parlaplay/issues/8"
+  },
+  "E8": {
+   "number": 9,
+   "id": 5751492188,
+   "url": "https://github.com/jennarbates/parlaplay/issues/9"
+  },
+  "E9": {
+   "number": 10,
+   "id": 5751492553,
+   "url": "https://github.com/jennarbates/parlaplay/issues/10"
+  },
+  "E10": {
+   "number": 11,
+   "id": 5751492897,
+   "url": "https://github.com/jennarbates/parlaplay/issues/11"
+  },
+  "PLAY-001": {
+   "number": 12,
+   "id": 5751493199,
+   "url": "https://github.com/jennarbates/parlaplay/issues/12"
+  },
+  "PLAY-002": {
+   "number": 13,
+   "id": 5751493593,
+   "url": "https://github.com/jennarbates/parlaplay/issues/13"
+  },
+  "PLAY-056": {
+   "number": 14,
+   "id": 5751494166,
+   "url": "https://github.com/jennarbates/parlaplay/issues/14"
+  },
+  "PLAY-003": {
+   "number": 15,
+   "id": 5751494573,
+   "url": "https://github.com/jennarbates/parlaplay/issues/15"
+  },
+  "PLAY-004": {
+   "number": 16,
+   "id": 5751495031,
+   "url": "https://github.com/jennarbates/parlaplay/issues/16"
+  },
+  "PLAY-005": {
+   "number": 17,
+   "id": 5751495430,
+   "url": "https://github.com/jennarbates/parlaplay/issues/17"
+  },
+  "PLAY-006": {
+   "number": 18,
+   "id": 5751496031,
+   "url": "https://github.com/jennarbates/parlaplay/issues/18"
+  },
+  "PLAY-007": {
+   "number": 19,
+   "id": 5751496445,
+   "url": "https://github.com/jennarbates/parlaplay/issues/19"
+  },
+  "PLAY-008": {
+   "number": 20,
+   "id": 5751496829,
+   "url": "https://github.com/jennarbates/parlaplay/issues/20"
+  },
+  "PLAY-009": {
+   "number": 21,
+   "id": 5751497255,
+   "url": "https://github.com/jennarbates/parlaplay/issues/21"
+  },
+  "PLAY-010": {
+   "number": 22,
+   "id": 5751497678,
+   "url": "https://github.com/jennarbates/parlaplay/issues/22"
+  },
+  "PLAY-011": {
+   "number": 23,
+   "id": 5751498229,
+   "url": "https://github.com/jennarbates/parlaplay/issues/23"
+  },
+  "PLAY-012": {
+   "number": 24,
+   "id": 5751498637,
+   "url": "https://github.com/jennarbates/parlaplay/issues/24"
+  },
+  "PLAY-013": {
+   "number": 25,
+   "id": 5751499128,
+   "url": "https://github.com/jennarbates/parlaplay/issues/25"
+  },
+  "PLAY-014": {
+   "number": 26,
+   "id": 5751499555,
+   "url": "https://github.com/jennarbates/parlaplay/issues/26"
+  },
+  "PLAY-015": {
+   "number": 27,
+   "id": 5751500062,
+   "url": "https://github.com/jennarbates/parlaplay/issues/27"
+  },
+  "PLAY-016": {
+   "number": 28,
+   "id": 5751500496,
+   "url": "https://github.com/jennarbates/parlaplay/issues/28"
+  },
+  "PLAY-017": {
+   "number": 29,
+   "id": 5751500964,
+   "url": "https://github.com/jennarbates/parlaplay/issues/29"
+  },
+  "PLAY-018": {
+   "number": 30,
+   "id": 5751501335,
+   "url": "https://github.com/jennarbates/parlaplay/issues/30"
+  },
+  "PLAY-019": {
+   "number": 31,
+   "id": 5751501766,
+   "url": "https://github.com/jennarbates/parlaplay/issues/31"
+  },
+  "PLAY-020": {
+   "number": 32,
+   "id": 5751502187,
+   "url": "https://github.com/jennarbates/parlaplay/issues/32"
+  },
+  "PLAY-021": {
+   "number": 33,
+   "id": 5751502650,
+   "url": "https://github.com/jennarbates/parlaplay/issues/33"
+  },
+  "PLAY-022": {
+   "number": 34,
+   "id": 5751503085,
+   "url": "https://github.com/jennarbates/parlaplay/issues/34"
+  },
+  "PLAY-023": {
+   "number": 35,
+   "id": 5751503501,
+   "url": "https://github.com/jennarbates/parlaplay/issues/35"
+  },
+  "PLAY-024": {
+   "number": 36,
+   "id": 5751504051,
+   "url": "https://github.com/jennarbates/parlaplay/issues/36"
+  },
+  "PLAY-025": {
+   "number": 37,
+   "id": 5751504468,
+   "url": "https://github.com/jennarbates/parlaplay/issues/37"
+  },
+  "PLAY-026": {
+   "number": 38,
+   "id": 5751504889,
+   "url": "https://github.com/jennarbates/parlaplay/issues/38"
+  },
+  "PLAY-027": {
+   "number": 39,
+   "id": 5751505250,
+   "url": "https://github.com/jennarbates/parlaplay/issues/39"
+  },
+  "PLAY-028": {
+   "number": 40,
+   "id": 5751505822,
+   "url": "https://github.com/jennarbates/parlaplay/issues/40"
+  },
+  "PLAY-029": {
+   "number": 41,
+   "id": 5751506281,
+   "url": "https://github.com/jennarbates/parlaplay/issues/41"
+  },
+  "PLAY-030": {
+   "number": 42,
+   "id": 5751506730,
+   "url": "https://github.com/jennarbates/parlaplay/issues/42"
+  },
+  "PLAY-031": {
+   "number": 43,
+   "id": 5751507340,
+   "url": "https://github.com/jennarbates/parlaplay/issues/43"
+  },
+  "PLAY-032": {
+   "number": 44,
+   "id": 5751508044,
+   "url": "https://github.com/jennarbates/parlaplay/issues/44"
+  },
+  "PLAY-033": {
+   "number": 45,
+   "id": 5751508507,
+   "url": "https://github.com/jennarbates/parlaplay/issues/45"
+  },
+  "PLAY-034": {
+   "number": 46,
+   "id": 5751508943,
+   "url": "https://github.com/jennarbates/parlaplay/issues/46"
+  },
+  "PLAY-035": {
+   "number": 47,
+   "id": 5751509534,
+   "url": "https://github.com/jennarbates/parlaplay/issues/47"
+  },
+  "PLAY-036": {
+   "number": 48,
+   "id": 5751510021,
+   "url": "https://github.com/jennarbates/parlaplay/issues/48"
+  },
+  "PLAY-037": {
+   "number": 49,
+   "id": 5751510651,
+   "url": "https://github.com/jennarbates/parlaplay/issues/49"
+  },
+  "PLAY-038": {
+   "number": 50,
+   "id": 5751511255,
+   "url": "https://github.com/jennarbates/parlaplay/issues/50"
+  },
+  "PLAY-039": {
+   "number": 51,
+   "id": 5751511653,
+   "url": "https://github.com/jennarbates/parlaplay/issues/51"
+  },
+  "PLAY-040": {
+   "number": 52,
+   "id": 5751512169,
+   "url": "https://github.com/jennarbates/parlaplay/issues/52"
+  },
+  "PLAY-041": {
+   "number": 53,
+   "id": 5751512547,
+   "url": "https://github.com/jennarbates/parlaplay/issues/53"
+  },
+  "PLAY-042": {
+   "number": 54,
+   "id": 5751513195,
+   "url": "https://github.com/jennarbates/parlaplay/issues/54"
+  },
+  "PLAY-043": {
+   "number": 55,
+   "id": 5751513630,
+   "url": "https://github.com/jennarbates/parlaplay/issues/55"
+  },
+  "PLAY-044": {
+   "number": 56,
+   "id": 5751514201,
+   "url": "https://github.com/jennarbates/parlaplay/issues/56"
+  },
+  "PLAY-045": {
+   "number": 57,
+   "id": 5751514665,
+   "url": "https://github.com/jennarbates/parlaplay/issues/57"
+  },
+  "PLAY-046": {
+   "number": 58,
+   "id": 5751515127,
+   "url": "https://github.com/jennarbates/parlaplay/issues/58"
+  },
+  "PLAY-047": {
+   "number": 59,
+   "id": 5751515546,
+   "url": "https://github.com/jennarbates/parlaplay/issues/59"
+  },
+  "PLAY-048": {
+   "number": 60,
+   "id": 5751516167,
+   "url": "https://github.com/jennarbates/parlaplay/issues/60"
+  },
+  "PLAY-049": {
+   "number": 61,
+   "id": 5751516590,
+   "url": "https://github.com/jennarbates/parlaplay/issues/61"
+  },
+  "PLAY-050": {
+   "number": 62,
+   "id": 5751516991,
+   "url": "https://github.com/jennarbates/parlaplay/issues/62"
+  },
+  "PLAY-051": {
+   "number": 63,
+   "id": 5751517560,
+   "url": "https://github.com/jennarbates/parlaplay/issues/63"
+  },
+  "PLAY-052": {
+   "number": 64,
+   "id": 5751517986,
+   "url": "https://github.com/jennarbates/parlaplay/issues/64"
+  },
+  "PLAY-053": {
+   "number": 65,
+   "id": 5751518320,
+   "url": "https://github.com/jennarbates/parlaplay/issues/65"
+  },
+  "PLAY-054": {
+   "number": 66,
+   "id": 5751518798,
+   "url": "https://github.com/jennarbates/parlaplay/issues/66"
+  },
+  "PLAY-055": {
+   "number": 67,
+   "id": 5751519315,
+   "url": "https://github.com/jennarbates/parlaplay/issues/67"
+  }
+ },
+ "subissues": [
+  "PLAY-001",
+  "PLAY-002",
+  "PLAY-056",
+  "PLAY-003",
+  "PLAY-004",
+  "PLAY-005",
+  "PLAY-006",
+  "PLAY-007",
+  "PLAY-008",
+  "PLAY-009",
+  "PLAY-010",
+  "PLAY-011",
+  "PLAY-012",
+  "PLAY-013",
+  "PLAY-014",
+  "PLAY-015",
+  "PLAY-016",
+  "PLAY-017",
+  "PLAY-018",
+  "PLAY-019",
+  "PLAY-020",
+  "PLAY-021",
+  "PLAY-022",
+  "PLAY-023",
+  "PLAY-024",
+  "PLAY-025",
+  "PLAY-026",
+  "PLAY-027",
+  "PLAY-028",
+  "PLAY-029",
+  "PLAY-030",
+  "PLAY-031",
+  "PLAY-032",
+  "PLAY-033",
+  "PLAY-034",
+  "PLAY-035",
+  "PLAY-036",
+  "PLAY-037",
+  "PLAY-038",
+  "PLAY-039",
+  "PLAY-040",
+  "PLAY-041",
+  "PLAY-042",
+  "PLAY-043",
+  "PLAY-044",
+  "PLAY-045",
+  "PLAY-046",
+  "PLAY-047",
+  "PLAY-048",
+  "PLAY-049",
+  "PLAY-050",
+  "PLAY-051",
+  "PLAY-052",
+  "PLAY-053",
+  "PLAY-054",
+  "PLAY-055"
+ ],
+ "blocked": [
+  "PLAY-007<PLAY-003",
+  "PLAY-007<PLAY-004",
+  "PLAY-007<PLAY-005",
+  "PLAY-007<PLAY-006",
+  "PLAY-010<PLAY-007",
+  "PLAY-010<PLAY-009",
+  "PLAY-010<PLAY-056",
+  "PLAY-011<PLAY-010",
+  "PLAY-012<PLAY-011",
+  "PLAY-013<PLAY-012",
+  "PLAY-014<PLAY-010",
+  "PLAY-015<PLAY-013",
+  "PLAY-016<PLAY-015",
+  "PLAY-017<PLAY-015",
+  "PLAY-018<PLAY-017",
+  "PLAY-019<PLAY-016",
+  "PLAY-020<PLAY-016",
+  "PLAY-021<PLAY-013",
+  "PLAY-022<PLAY-021",
+  "PLAY-023<PLAY-020",
+  "PLAY-023<PLAY-021",
+  "PLAY-024<PLAY-021",
+  "PLAY-025<PLAY-017",
+  "PLAY-025<PLAY-023",
+  "PLAY-026<PLAY-023",
+  "PLAY-027<PLAY-017",
+  "PLAY-027<PLAY-016",
+  "PLAY-028<PLAY-027",
+  "PLAY-029<PLAY-023",
+  "PLAY-031<PLAY-002",
+  "PLAY-031<PLAY-022",
+  "PLAY-032<PLAY-022",
+  "PLAY-032<PLAY-014",
+  "PLAY-033<PLAY-017",
+  "PLAY-034<PLAY-016",
+  "PLAY-035<PLAY-020",
+  "PLAY-035<PLAY-006",
+  "PLAY-036<PLAY-035",
+  "PLAY-037<PLAY-036",
+  "PLAY-038<PLAY-025",
+  "PLAY-038<PLAY-027",
+  "PLAY-038<PLAY-028",
+  "PLAY-038<PLAY-033",
+  "PLAY-039<PLAY-027",
+  "PLAY-039<PLAY-035",
+  "PLAY-040<PLAY-038",
+  "PLAY-040<PLAY-032",
+  "PLAY-041<PLAY-040",
+  "PLAY-042<PLAY-041",
+  "PLAY-043<PLAY-042",
+  "PLAY-044<PLAY-043",
+  "PLAY-045<PLAY-044",
+  "PLAY-046<PLAY-022",
+  "PLAY-047<PLAY-022",
+  "PLAY-047<PLAY-046",
+  "PLAY-048<PLAY-016",
+  "PLAY-049<PLAY-045",
+  "PLAY-049<PLAY-047",
+  "PLAY-049<PLAY-048",
+  "PLAY-050<PLAY-047",
+  "PLAY-050<PLAY-049",
+  "PLAY-051<PLAY-050",
+  "PLAY-051<PLAY-036",
+  "PLAY-052<PLAY-051",
+  "PLAY-052<PLAY-031",
+  "PLAY-052<PLAY-001",
+  "PLAY-053<PLAY-052",
+  "PLAY-054<PLAY-050",
+  "PLAY-055<PLAY-051"
+ ],
+ "blocked_unsupported": false,
+ "project": {
+  "number": 2,
+  "id": "PVT_kwHOApTEl84BmHhY",
+  "url": "https://github.com/users/jennarbates/projects/2"
+ },
+ "fields": {},
+ "items": {
+  "PLAY-001": "PVTI_lAHOApTEl84BmHhYzg_PO1k",
+  "PLAY-002": "PVTI_lAHOApTEl84BmHhYzg_PO6s",
+  "PLAY-056": "PVTI_lAHOApTEl84BmHhYzg_PO_k",
+  "PLAY-003": "PVTI_lAHOApTEl84BmHhYzg_PPDA",
+  "PLAY-004": "PVTI_lAHOApTEl84BmHhYzg_PPHg",
+  "PLAY-005": "PVTI_lAHOApTEl84BmHhYzg_PPMI",
+  "PLAY-006": "PVTI_lAHOApTEl84BmHhYzg_PPQM",
+  "PLAY-007": "PVTI_lAHOApTEl84BmHhYzg_PPVU",
+  "PLAY-008": "PVTI_lAHOApTEl84BmHhYzg_PPZk",
+  "PLAY-009": "PVTI_lAHOApTEl84BmHhYzg_PPdY",
+  "PLAY-010": "PVTI_lAHOApTEl84BmHhYzg_PPiM",
+  "PLAY-011": "PVTI_lAHOApTEl84BmHhYzg_PPns",
+  "PLAY-012": "PVTI_lAHOApTEl84BmHhYzg_PPsg",
+  "PLAY-013": "PVTI_lAHOApTEl84BmHhYzg_PP1E",
+  "PLAY-014": "PVTI_lAHOApTEl84BmHhYzg_PP-4",
+  "PLAY-015": "PVTI_lAHOApTEl84BmHhYzg_PQJM",
+  "PLAY-016": "PVTI_lAHOApTEl84BmHhYzg_PQTM",
+  "PLAY-017": "PVTI_lAHOApTEl84BmHhYzg_PQcc",
+  "PLAY-018": "PVTI_lAHOApTEl84BmHhYzg_PQh0",
+  "PLAY-019": "PVTI_lAHOApTEl84BmHhYzg_PQms",
+  "PLAY-020": "PVTI_lAHOApTEl84BmHhYzg_PQsE",
+  "PLAY-021": "PVTI_lAHOApTEl84BmHhYzg_PQyE",
+  "PLAY-022": "PVTI_lAHOApTEl84BmHhYzg_PQ4A",
+  "PLAY-023": "PVTI_lAHOApTEl84BmHhYzg_PQ9E",
+  "PLAY-024": "PVTI_lAHOApTEl84BmHhYzg_PRC0",
+  "PLAY-025": "PVTI_lAHOApTEl84BmHhYzg_PRH4",
+  "PLAY-026": "PVTI_lAHOApTEl84BmHhYzg_PRMw",
+  "PLAY-027": "PVTI_lAHOApTEl84BmHhYzg_PRR0",
+  "PLAY-028": "PVTI_lAHOApTEl84BmHhYzg_PRW4",
+  "PLAY-029": "PVTI_lAHOApTEl84BmHhYzg_PRb0",
+  "PLAY-030": "PVTI_lAHOApTEl84BmHhYzg_PRhU",
+  "PLAY-031": "PVTI_lAHOApTEl84BmHhYzg_PRmw",
+  "PLAY-032": "PVTI_lAHOApTEl84BmHhYzg_PRrc",
+  "PLAY-033": "PVTI_lAHOApTEl84BmHhYzg_PRwo",
+  "PLAY-034": "PVTI_lAHOApTEl84BmHhYzg_PR00",
+  "PLAY-035": "PVTI_lAHOApTEl84BmHhYzg_PR6s",
+  "PLAY-036": "PVTI_lAHOApTEl84BmHhYzg_PR-Y",
+  "PLAY-037": "PVTI_lAHOApTEl84BmHhYzg_PSCw",
+  "PLAY-038": "PVTI_lAHOApTEl84BmHhYzg_PSH4",
+  "PLAY-039": "PVTI_lAHOApTEl84BmHhYzg_PSMs",
+  "PLAY-040": "PVTI_lAHOApTEl84BmHhYzg_PSRM",
+  "PLAY-041": "PVTI_lAHOApTEl84BmHhYzg_PSUo",
+  "PLAY-042": "PVTI_lAHOApTEl84BmHhYzg_PSYw",
+  "PLAY-043": "PVTI_lAHOApTEl84BmHhYzg_PSdU",
+  "PLAY-044": "PVTI_lAHOApTEl84BmHhYzg_PSh0",
+  "PLAY-045": "PVTI_lAHOApTEl84BmHhYzg_PSmQ",
+  "PLAY-046": "PVTI_lAHOApTEl84BmHhYzg_PSqM",
+  "PLAY-047": "PVTI_lAHOApTEl84BmHhYzg_PSt8",
+  "PLAY-048": "PVTI_lAHOApTEl84BmHhYzg_PSx0",
+  "PLAY-049": "PVTI_lAHOApTEl84BmHhYzg_PS1w",
+  "PLAY-050": "PVTI_lAHOApTEl84BmHhYzg_PS5A",
+  "PLAY-051": "PVTI_lAHOApTEl84BmHhYzg_PS8Y",
+  "PLAY-052": "PVTI_lAHOApTEl84BmHhYzg_PS_U",
+  "PLAY-053": "PVTI_lAHOApTEl84BmHhYzg_PTC4",
+  "PLAY-054": "PVTI_lAHOApTEl84BmHhYzg_PTIg",
+  "PLAY-055": "PVTI_lAHOApTEl84BmHhYzg_PTMg"
+ },
+ "edited": [
+  "PLAY-001",
+  "PLAY-002",
+  "PLAY-056",
+  "PLAY-003",
+  "PLAY-004",
+  "PLAY-005",
+  "PLAY-006",
+  "PLAY-007",
+  "PLAY-008",
+  "PLAY-009",
+  "PLAY-010",
+  "PLAY-011",
+  "PLAY-012",
+  "PLAY-013",
+  "PLAY-014",
+  "PLAY-015",
+  "PLAY-016",
+  "PLAY-017",
+  "PLAY-018",
+  "PLAY-019",
+  "PLAY-020",
+  "PLAY-021",
+  "PLAY-022",
+  "PLAY-023",
+  "PLAY-024",
+  "PLAY-025",
+  "PLAY-026",
+  "PLAY-027",
+  "PLAY-028",
+  "PLAY-029",
+  "PLAY-030",
+  "PLAY-031",
+  "PLAY-032",
+  "PLAY-033",
+  "PLAY-034",
+  "PLAY-035",
+  "PLAY-036",
+  "PLAY-037",
+  "PLAY-038",
+  "PLAY-039",
+  "PLAY-040",
+  "PLAY-041",
+  "PLAY-042",
+  "PLAY-043",
+  "PLAY-044",
+  "PLAY-045",
+  "PLAY-046",
+  "PLAY-047",
+  "PLAY-048",
+  "PLAY-049",
+  "PLAY-050",
+  "PLAY-051",
+  "PLAY-052",
+  "PLAY-053",
+  "PLAY-054",
+  "PLAY-055"
+ ]
+}
