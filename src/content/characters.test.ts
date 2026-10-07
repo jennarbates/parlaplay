@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import charactersJson from "./characters.json";
-import { checkInvariants } from "./invariants.ts";
+import { checkInvariants, tonelessId } from "./invariants.ts";
 import lexiconJson from "./lexicon.json";
 import { contentFiles } from "./schemas.ts";
 
@@ -11,24 +11,28 @@ test("passes every spec 3.2 invariant", () => {
   expect(checkInvariants(characters)).toEqual([]);
 });
 
-test("ids are c.<name in lowercase> and unique", () => {
-  for (const c of characters) expect(c.id).toBe(`c.${c.name.toLowerCase()}`);
+test("ids are c. + the toneless pinyin of the name, and unique (invariant 6)", () => {
+  for (const c of characters) expect(c.id).toBe(tonelessId(c.namePinyin));
   expect(new Set(characters.map((c) => c.id)).size).toBe(24);
 });
 
-test("names are unique, capitalized, and not words from the game", () => {
-  const words = new Set(
-    lexicon.flatMap((e) =>
-      e.pos === "adj" ? Object.values(e.forms) : e.pos === "noun" ? [e.text] : [],
-    ),
-  );
+test("tonelessId writes ü as v", () => {
+  expect(tonelessId("Lǚ Lì")).toBe("c.lvli");
+  expect(tonelessId("Wáng Míng")).toBe("c.wangming");
+});
+
+test("names are two or three characters, unique, and not words from the game", () => {
+  const words = new Set(lexicon.map((e) => e.hanzi));
   expect(new Set(characters.map((c) => c.name)).size).toBe(24);
   for (const c of characters) {
-    expect(c.name).toMatch(/^[A-Z][a-z]+$/);
-    expect(words.has(c.name.toLowerCase()), c.name).toBe(false);
+    expect(c.name).toMatch(/^\p{Script=Han}{2,3}$/u);
+    expect(words.has(c.name), c.name).toBe(false);
   }
 });
 
-test("skins are the five face layers", () => {
-  for (const c of characters) expect(["s1", "s2", "s3", "s4", "s5"]).toContain(c.skin);
+test("name pinyin: surname and given name apart, each capitalised (GB/T 16159-2012)", () => {
+  for (const c of characters) {
+    expect(c.namePinyin, c.id).toMatch(/^\p{Lu}\p{Ll}+ \p{Lu}\p{Ll}+$/u);
+    expect(c.namePinyin.split(" "), c.id).toHaveLength(2);
+  }
 });

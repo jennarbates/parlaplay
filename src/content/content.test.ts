@@ -1,21 +1,23 @@
-// CHI-026, spec 3.6 and 10.2: content tests across files.
+// Spec 3 and 10.2: content tests across files.
 import { describe, expect, test } from "vitest";
+import hsk1Json from "./hsk1.json";
 import { allIds, content, contentVersion, missingReleasedIds, releasedIds } from "./index.ts";
-import { checkInvariants, maxYes, minYes, questions, yesCount, attrsKey } from "./invariants.ts";
-import { contentFiles, type Adjective, type Noun } from "./schemas.ts";
+import { attrsKey, checkInvariants, questions, thingCount, yesCount } from "./invariants.ts";
+import { contentFiles, type Noun } from "./schemas.ts";
 
-const { characters, lexicon, templates, messages } = content;
+const { characters, lexicon, grammar, messages } = content;
+const hsk1 = contentFiles["hsk1.json"].parse(hsk1Json);
 const byId = new Map(lexicon.map((e) => [e.id, e]));
 const nouns = lexicon.filter((e): e is Noun => e.pos === "noun");
-const adjectives = lexicon.filter((e): e is Adjective => e.pos === "adj");
-const templateIds = new Set(templates.map((t) => t.id));
+const han = (text: string) => [...text.matchAll(/\p{Script=Han}/gu)].map((m) => m[0]);
 
 describe("every file passes its schema", () => {
   test.each([
     ["characters.json", characters],
     ["lexicon.json", lexicon],
-    ["templates.json", templates],
+    ["grammar.json", grammar],
     ["messages.json", messages],
+    ["hsk1.json", hsk1],
     ["version.json", { contentVersion }],
     ["released-ids.json", releasedIds],
   ] as const)("%s", (file, data) => {
@@ -28,28 +30,64 @@ describe("spec 3.2 invariants on the committed characters", () => {
     expect(new Set(characters.map((c) => attrsKey(c.attrs))).size).toBe(characters.length);
   });
 
-  test("women have no beard and no mustache", () => {
-    for (const c of characters.filter((c) => c.attrs.gender === "n.donna")) {
-      expect([c.attrs.beard, c.attrs.mustache], c.id).toEqual([false, false]);
-    }
-  });
-
   test("12 men, 12 women", () => {
-    expect(characters.filter((c) => c.attrs.gender === "n.uomo")).toHaveLength(12);
-    expect(characters.filter((c) => c.attrs.gender === "n.donna")).toHaveLength(12);
+    expect(characters.filter((c) => c.attrs.gender === "n.nande")).toHaveLength(12);
+    expect(characters.filter((c) => c.attrs.gender === "n.nvde")).toHaveLength(12);
   });
 
-  test.each(questions.map((q) => [q.label, q] as const))(
-    `%s gets yes from ${minYes} to ${maxYes} characters`,
-    (_, q) => {
-      const n = yesCount(characters, q);
-      expect(n).toBeGreaterThanOrEqual(minYes);
-      expect(n).toBeLessThanOrEqual(maxYes);
-    },
-  );
+  test.each(questions.map((q) => [q.label, q] as const))("%s is within its range", (_, q) => {
+    const n = yesCount(characters, q);
+    if (q.attr === "job") expect(n >= 7 && n <= 9, `${n}`).toBe(true);
+    else if (q.attr === "place") expect(n).toBe(6);
+    else if (q.attr !== "gender") expect(n >= 5 && n <= 14, `${n}`).toBe(true);
+  });
+
+  test("each character has 1 to 3 pets and things", () => {
+    for (const c of characters) expect([1, 2, 3], c.id).toContain(thingCount(c.attrs));
+  });
 
   test("and the shared checker agrees", () => {
     expect(checkInvariants(characters)).toEqual([]);
+  });
+});
+
+describe("HSK 1 (spec 3.3, D4)", () => {
+  const words = new Set(hsk1.words);
+  const chars = new Set(hsk1.words.flatMap(han));
+
+  test("the list has 300 unique headwords", () => {
+    expect(hsk1.words).toHaveLength(300);
+    expect(words.size).toBe(300);
+  });
+
+  test.each(lexicon.filter((e) => !e.retired).map((e) => [e.id, e] as const))(
+    "%s is covered by HSK 1 headwords",
+    (_, e) => {
+      for (const w of e.hsk) expect(words.has(w), w).toBe(true);
+      // The headwords cover every character the entry shows.
+      for (const c of han(e.hanzi)) expect(han(e.hsk.join("")), c).toContain(c);
+    },
+  );
+
+  test("every character in messages and grammar points is in some HSK 1 headword", () => {
+    const text = [...Object.values(messages), ...grammar.flatMap((g) => [g.title, g.explain])].join(
+      "",
+    );
+    for (const c of han(text)) expect(chars.has(c), c).toBe(true);
+  });
+
+  test("谁, the game's name, is HSK 1 (D25)", () => {
+    expect(words.has("谁")).toBe(true);
+  });
+});
+
+describe("pinyin uses tone marks only (spec 3.3 conventions)", () => {
+  test.each([
+    ...lexicon.map((e) => [e.id, e.pinyin] as const),
+    ...characters.map((c) => [c.id, c.namePinyin] as const),
+  ])("%s", (_, pinyin) => {
+    expect(pinyin).not.toMatch(/\d/);
+    expect(pinyin).toMatch(/^[\p{Script=Latin}\s]+$/u);
   });
 });
 
@@ -59,74 +97,81 @@ describe("every referenced id and message key exists", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  test("character attribute values are lexicon entries", () => {
+  test("character attribute values are nouns of the right category", () => {
     for (const c of characters) {
-      for (const key of ["gender", "hairColor", "hairLength", "eyeColor"] as const) {
-        expect(byId.has(c.attrs[key]), `${c.id} ${key}`).toBe(true);
+      for (const key of ["gender", "job", "place"] as const) {
+        const noun = byId.get(c.attrs[key]);
+        expect(noun?.pos === "noun" && noun.category, `${c.id} ${key}`).toBe(key);
       }
     }
   });
 
-  test.each(nouns.map((n) => [n.id, n] as const))("%s", (_, n) => {
-    expect(byId.get(n.defArt)?.pos).toBe("article");
-    if (n.indefArt) expect(byId.get(n.indefArt)?.pos).toBe("article");
-    expect(templateIds.has(n.template)).toBe(true);
-    expect(messages[n.artRule]).toBeDefined();
-    const describable = new Set(adjectives.map((a) => a.attr));
-    for (const attr of n.adjAttrs ?? []) expect(describable.has(attr), attr).toBe(true);
-    if (n.attr) expect(["glasses", "hat", "beard", "mustache"]).toContain(n.attr);
-  });
-
-  test.each(adjectives.map((a) => [a.id, a] as const))("%s", (_, a) => {
-    for (const m of a.alsoMeans ?? []) expect(byId.get(m.value)?.pos).toBe("adj");
-    for (const w of a.wordChoice ?? []) {
-      expect(byId.get(w.noun)?.pos).toBe("noun");
-      expect(byId.get(w.use)?.pos).toBe("adj");
+  test("verbs name their yes and no answers", () => {
+    for (const e of lexicon) {
+      if (e.pos !== "verb") continue;
+      for (const [id, polarity] of [
+        [e.yes, true],
+        [e.no, false],
+      ] as const) {
+        const a = byId.get(id);
+        expect(a?.pos === "answer" && a.verb === e.id && a.polarity === polarity, id).toBe(true);
+      }
     }
   });
 
-  test("template verbs are lexicon verbs", () => {
-    for (const t of templates) expect(byId.get(t.verb)?.pos, t.id).toBe("verb");
+  test("nouns name real verbs", () => {
+    for (const n of nouns)
+      for (const v of [n.verb, ...(n.offBoardVerbs ?? [])])
+        expect(byId.get(v)?.pos, `${n.id} ${v}`).toBe("verb");
   });
 
   test("every rule the engine reports has a message", () => {
-    const rules = new Set(nouns.map((n) => n.artRule));
     for (const key of [
-      "verb.avere",
-      "verb.essere",
-      "agreement",
-      "meaning.mismatch",
-      "meaning.wordChoice",
-      "duplicate",
+      "verb.shi",
+      "verb.you",
+      "verb.zai",
+      "offBoard.youJob",
       "answer.wrong",
+      "duplicate",
+      "shape.empty",
+      "shape.noPron",
       "shape.noVerb",
-      "shape.noArt",
-      "shape.noNoun",
-      "shape.needsAdj",
-      "shape.noAdjAllowed",
-      ...rules,
+      "shape.noObj",
+      "shape.extra",
+      ...grammar.map((g) => g.id),
     ]) {
       expect(messages[key], key).toBeDefined();
     }
   });
+
+  test("the six grammar points of spec 3.6", () => {
+    expect(grammar.map((g) => g.id)).toEqual([
+      "gp.ma",
+      "gp.order",
+      "gp.pron.you",
+      "gp.pron.gender",
+      "gp.answer.verb",
+      "gp.neg.mei",
+    ]);
+  });
 });
 
-describe("released ids (spec 3.6)", () => {
+describe("released ids (spec 3.7)", () => {
   test("every id in released-ids.json still exists", () => {
     expect(missingReleasedIds(releasedIds, content)).toEqual([]);
   });
 
   test("a released id that disappears is reported", () => {
-    const withoutGiulia = { ...content, characters: characters.filter((c) => c.id !== "c.giulia") };
-    expect(missingReleasedIds(["c.giulia", "n.capelli"], withoutGiulia)).toEqual(["c.giulia"]);
+    const withoutLili = { ...content, characters: characters.filter((c) => c.id !== "c.lili") };
+    expect(missingReleasedIds(["c.lili", "n.gou"], withoutLili)).toEqual(["c.lili"]);
   });
 
   test("retiring a word keeps its id, so it is not missing", () => {
     const retired = {
       ...content,
-      lexicon: lexicon.map((e) => (e.id === "adj.rosso" ? { ...e, retired: true } : e)),
+      lexicon: lexicon.map((e) => (e.id === "n.mao" ? { ...e, retired: true } : e)),
     };
-    expect(missingReleasedIds(["adj.rosso"], retired)).toEqual([]);
+    expect(missingReleasedIds(["n.mao"], retired)).toEqual([]);
   });
 
   test("released ids are unique", () => {

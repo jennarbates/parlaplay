@@ -6,9 +6,9 @@ import { artDir, placeholderArt } from "./generate-placeholder-art.ts";
 const generated = placeholderArt();
 const committed = readdirSync(artDir).filter((f) => f.endsWith(".svg"));
 
-test("the manifest has the 33 files from spec 3.5", () => {
-  expect(artFiles).toHaveLength(33);
-  expect(new Set(artFiles).size).toBe(33);
+test("the manifest has the 26 files from spec 3.5", () => {
+  expect(artFiles).toHaveLength(26);
+  expect(new Set(artFiles).size).toBe(26);
 });
 
 test("public/art/ has exactly the manifest files", () => {
@@ -37,19 +37,8 @@ describe.each(artFiles.map((f) => [f] as const))("%s", (file) => {
 });
 
 test("every variant of a layer looks different", () => {
-  const groups = ["face-", "eyes-", "beard-", "mustache-", "hair-", "body-"];
-  for (const g of groups) {
+  for (const g of ["bg-", "body-", "face-", "hair-"]) {
     const texts = artFiles.filter((f) => f.startsWith(g)).map((f) => generated[f]);
     expect(new Set(texts).size, g).toBe(texts.length);
   }
-});
-
-test("the hat sits above the hairline, so short hair shows below it (spec 3.5)", () => {
-  const brimBottom = Math.max(
-    ...[
-      ...(generated["hat.svg"] ?? "").matchAll(/y="([\d.]+)" width="[\d.]+" height="([\d.]+)"/g),
-    ].map((m) => Number(m[1]) + Number(m[2])),
-  );
-  // The short-hair cap starts at y 24 and runs down to about y 36 at the forehead.
-  expect(brimBottom).toBeLessThanOrEqual(26);
 });

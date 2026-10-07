@@ -1,102 +1,98 @@
-// Spec 3: every piece of Italian is data, checked by these schemas when the app
-// builds (see validate.ts and the content plugin in vite.config.ts). Objects are
-// strict, so a misspelled key in a JSON file fails the build instead of being
-// silently dropped.
+// Spec 3: every piece of Chinese is data, checked by these schemas when the app
+// builds (the content plugin in vite.config.ts). Objects are strict, so a
+// misspelled key in a JSON file fails the build instead of being silently dropped.
 import { z } from "zod";
 
-const level = z.enum(["A1", "A2"]);
+// 3.1 Attributes
+
+export const genders = ["n.nande", "n.nvde"] as const;
+export const jobs = ["n.laoshi", "n.xuesheng", "n.yisheng"] as const;
+export const places = ["n.jia", "n.xuexiao", "n.yiyuan", "n.fandian"] as const;
+export const things = ["dog", "cat", "phone", "book", "computer"] as const;
+export const skins = ["s1", "s2", "s3", "s4", "s5"] as const;
+export const hairStyles = ["h1", "h2", "h3"] as const;
 
 // 3.2 Characters
 
 export const Character = z.strictObject({
-  id: z.string(), // "c.giulia"
-  name: z.string(), // "Giulia"
+  id: z.string(), // "c.lili": "c." + toneless pinyin of the name
+  name: z.string(), // "李丽"
+  namePinyin: z.string(), // "Lǐ Lì"
   attrs: z.strictObject({
-    gender: z.enum(["n.uomo", "n.donna"]),
-    hairColor: z.enum(["adj.biondo", "adj.castano", "adj.nero", "adj.rosso", "adj.bianco"]),
-    hairLength: z.enum(["adj.corto", "adj.lungo"]),
-    eyeColor: z.enum(["adj.azzurro", "adj.marrone", "adj.verde"]),
-    glasses: z.boolean(),
-    hat: z.boolean(),
-    beard: z.boolean(),
-    mustache: z.boolean(),
+    gender: z.enum(genders),
+    job: z.enum(jobs),
+    place: z.enum(places),
+    dog: z.boolean(),
+    cat: z.boolean(),
+    phone: z.boolean(),
+    book: z.boolean(),
+    computer: z.boolean(),
   }),
-  skin: z.string(), // art layer only, never asked
+  skin: z.enum(skins), // art only, never asked
+  hairStyle: z.enum(hairStyles), // art only, never asked
 });
 
 // 3.3 Lexicon
 
-export const Article = z.strictObject({
-  id: z.string(), // "art.i"
-  pos: z.literal("article"),
-  text: z.string(), // "i"
+const verbId = z.enum(["v.shi", "v.you", "v.zai"]);
+
+const Base = {
+  id: z.string(),
+  hanzi: z.string(), // "没有"
+  pinyin: z.string(), // "méiyǒu", as spoken in this game (3.4)
+  gloss: z.string(), // English, used in Level 1 hints and the Progress screen
+  hsk: z.array(z.string()).min(1), // HSK 1 headwords that cover it: ["男", "的"] for 男的
+  retired: z.boolean().optional(), // see 3.7
+};
+
+export const Noun = z.strictObject({
+  ...Base,
+  pos: z.literal("noun"),
+  category: z.enum(["gender", "job", "place", "pet", "thing"]),
+  verb: verbId, // the verb this noun is asked with
+  en: z.string(), // the noun as it reads in an English question: "a doctor", "at home"
+  attr: z.enum(things).optional(), // pets and things only
+  offBoardVerbs: z.array(verbId).optional(), // real Chinese the board can't answer
 });
 
 export const Verb = z.strictObject({
-  id: z.string(), // "v.ha"
+  ...Base,
   pos: z.literal("verb"),
-  text: z.string(), // "ha"
+  yes: z.string(), // answer id: "a.you"
+  no: z.string(), // answer id: "a.meiyou"
 });
 
-export const Noun = z.strictObject({
-  id: z.string(), // "n.capelli"
-  pos: z.literal("noun"),
-  text: z.string(), // "capelli"
-  gloss: z.string(), // "hair"
-  gender: z.enum(["m", "f"]),
-  number: z.enum(["sg", "pl"]),
-  defArt: z.string(), // "art.i"
-  indefArt: z.string().optional(), // "art.un" (only nouns used with essere)
-  template: z.string(), // which template this noun is asked with
-  artRule: z.string(), // feedback message key for its article (3.7)
-  attr: z.string().optional(), // boolean attribute it tests ("glasses")
-  adjAttrs: z.array(z.string()).optional(), // attributes its adjectives may describe
-  level,
-  retired: z.boolean().optional(), // see 3.6
+export const Pronoun = z.strictObject({
+  ...Base,
+  pos: z.literal("pronoun"),
+  gender: z.enum(["m", "f"]).optional(), // none for 你
 });
 
-export const Adjective = z.strictObject({
-  id: z.string(), // "adj.biondo"
-  pos: z.literal("adj"),
-  gloss: z.string(), // "blond"
-  attr: z.string(), // "hairColor"
-  alsoMeans: z
-    .array(
-      z.strictObject({
-        attr: z.string(), // "eyeColor"
-        value: z.string(), // "adj.marrone"
-      }),
-    )
-    .optional(),
-  wordChoice: z
-    .array(
-      z.strictObject({
-        noun: z.string(), // "n.capelli"
-        use: z.string(), // "adj.castano"
-      }),
-    )
-    .optional(),
-  forms: z.strictObject({ ms: z.string(), fs: z.string(), mp: z.string(), fp: z.string() }),
-  level,
-  retired: z.boolean().optional(),
+export const Particle = z.strictObject({ ...Base, pos: z.literal("particle") });
+
+export const Answer = z.strictObject({
+  ...Base,
+  pos: z.literal("answer"),
+  verb: verbId,
+  polarity: z.boolean(), // true = yes
+  valid: z.boolean(), // false only for 不有
 });
 
-export const LexiconEntry = z.discriminatedUnion("pos", [Article, Verb, Noun, Adjective]);
+export const LexiconEntry = z.discriminatedUnion("pos", [Noun, Verb, Pronoun, Particle, Answer]);
 
-// 3.4 Question templates
+// 3.6 Grammar points and messages
 
-export const Template = z.strictObject({
-  id: z.string(),
-  pattern: z.string(), // "Ha {art} {noun} {adj}?"
-  verb: z.enum(["v.ha", "v.e"]),
-  article: z.enum(["def", "indef"]),
-  needsAdj: z.boolean(),
-  predicate: z.enum(["hasFeature", "featureIs", "genderIs"]),
+export const GrammarPoint = z.strictObject({
+  id: z.string(), // "gp.neg.mei"
+  title: z.string(), // "没有, not 不有"
+  explain: z.string(), // one sentence, shown in the Mistakes tab
 });
-
-// 3.6 and 3.7
 
 export const Messages = z.record(z.string(), z.string()); // rule id → message with {placeholders}
+
+// 3.3 HSK check and 3.7 versions
+
+export const Hsk1 = z.strictObject({ source: z.string(), words: z.array(z.string()) });
 export const Version = z.strictObject({ contentVersion: z.int().positive() });
 export const ReleasedIds = z.array(z.string());
 
@@ -104,8 +100,9 @@ export const ReleasedIds = z.array(z.string());
 export const contentFiles = {
   "characters.json": z.array(Character),
   "lexicon.json": z.array(LexiconEntry),
-  "templates.json": z.array(Template),
+  "grammar.json": z.array(GrammarPoint),
   "messages.json": Messages,
+  "hsk1.json": Hsk1,
   "version.json": Version,
   "released-ids.json": ReleasedIds,
 } as const;
@@ -114,10 +111,14 @@ export type ContentFile = keyof typeof contentFiles;
 
 export type Character = z.infer<typeof Character>;
 export type Attrs = Character["attrs"];
-export type Article = z.infer<typeof Article>;
-export type Verb = z.infer<typeof Verb>;
+export type Thing = (typeof things)[number];
+export type VerbId = z.infer<typeof verbId>;
 export type Noun = z.infer<typeof Noun>;
-export type Adjective = z.infer<typeof Adjective>;
+export type Verb = z.infer<typeof Verb>;
+export type Pronoun = z.infer<typeof Pronoun>;
+export type Particle = z.infer<typeof Particle>;
+export type Answer = z.infer<typeof Answer>;
 export type LexiconEntry = z.infer<typeof LexiconEntry>;
-export type Template = z.infer<typeof Template>;
+export type GrammarPoint = z.infer<typeof GrammarPoint>;
 export type Messages = z.infer<typeof Messages>;
+export type Hsk1 = z.infer<typeof Hsk1>;

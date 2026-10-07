@@ -28,8 +28,9 @@ describe("validateContentDir", () => {
     expect(validateContentDir(dir)).toEqual([
       "characters.json: missing",
       "lexicon.json: missing",
-      "templates.json: missing",
+      "grammar.json: missing",
       "messages.json: missing",
+      "hsk1.json: missing",
       "released-ids.json: missing",
     ]);
   });
@@ -37,20 +38,20 @@ describe("validateContentDir", () => {
   test("valid files pass", () => {
     const dir = contentFolder({
       "version.json": '{ "contentVersion": 1 }',
-      "templates.json":
-        '[{ "id": "t.have", "pattern": "Ha {art} {noun}?", "verb": "v.ha", "article": "def", "needsAdj": false, "predicate": "hasFeature" }]',
+      "grammar.json":
+        '[{ "id": "gp.ma", "title": "吗 questions", "explain": "Put 吗 at the end." }]',
     });
     expect(validateContentDir(dir, partial)).toEqual([]);
   });
 
   test("names the file and the path of each problem", () => {
     const dir = contentFolder({
-      "templates.json":
-        '[{ "id": "t.have", "pattern": "Ha {art} {noun}?", "verb": "v.sono", "article": "def", "needsAdj": false, "predicate": "hasFeature" }]',
+      "lexicon.json":
+        '[{ "id": "n.gou", "pos": "noun", "hanzi": "狗", "pinyin": "gǒu", "gloss": "dog", "hsk": ["狗"], "category": "pet", "verb": "v.shi.", "en": "a dog" }]',
     });
     const problems = validateContentDir(dir, partial);
     expect(problems).toHaveLength(1);
-    expect(problems[0]).toMatch(/^templates\.json: 0\.verb: /);
+    expect(problems[0]).toMatch(/^lexicon\.json: 0\.verb: /);
   });
 
   test("broken JSON", () => {

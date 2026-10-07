@@ -1,8 +1,8 @@
 import fc from "fast-check";
 import { describe, expect, test } from "vitest";
-import { checkInvariants } from "../src/content/invariants.ts";
+import { checkInvariants, tonelessId } from "../src/content/invariants.ts";
 import { Character } from "../src/content/schemas.ts";
-import { generateCharacters, rng, skins } from "./generate-characters.ts";
+import { generateCharacters, men, rng, women } from "./generate-characters.ts";
 
 describe("generateCharacters", () => {
   test("same seed gives the same 24 characters", () => {
@@ -19,17 +19,18 @@ describe("generateCharacters", () => {
         const { characters } = generateCharacters(seed);
         expect(checkInvariants(characters)).toEqual([]);
         for (const c of characters) Character.parse(c);
-        for (const c of characters) expect(skins).toContain(c.skin);
+        for (const c of characters) expect(c.id).toBe(tonelessId(c.namePinyin));
         expect(new Set(characters.map((c) => c.id)).size).toBe(24);
       }),
       { numRuns: 200 },
     );
   });
 
-  test("men come first, so naming is easy", () => {
-    const genders = generateCharacters(7).characters.map((c) => c.attrs.gender);
-    expect(genders.slice(0, 12).every((g) => g === "n.uomo")).toBe(true);
-    expect(genders.slice(12).every((g) => g === "n.donna")).toBe(true);
+  test("names come from the spec 3.2 list, men first and with the right gender", () => {
+    const { characters } = generateCharacters(7);
+    expect(characters.map((c) => [c.name, c.namePinyin])).toEqual([...men, ...women]);
+    expect(characters.slice(0, 12).every((c) => c.attrs.gender === "n.nande")).toBe(true);
+    expect(characters.slice(12).every((c) => c.attrs.gender === "n.nvde")).toBe(true);
   });
 });
 

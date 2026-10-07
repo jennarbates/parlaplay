@@ -1,362 +1,410 @@
 [
   {
-    "id": "c.anna",
-    "name": "Anna",
+    "id": "c.wangming",
+    "name": "王明",
+    "namePinyin": "Wáng Míng",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.rosso",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.xuexiao",
+      "dog": true,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
     },
-    "skin": "s1"
+    "skin": "s4",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.chiara",
-    "name": "Chiara",
+    "id": "c.zhangwei",
+    "name": "张伟",
+    "namePinyin": "Zhāng Wěi",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.nero",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.verde",
-      "glasses": true,
-      "hat": true,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.fandian",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": true
     },
-    "skin": "s3"
+    "skin": "s2",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.davide",
-    "name": "Davide",
+    "id": "c.liqiang",
+    "name": "李强",
+    "namePinyin": "Lǐ Qiáng",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.nero",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.marrone",
-      "glasses": false,
-      "hat": true,
-      "beard": true,
-      "mustache": true
+      "gender": "n.nande",
+      "job": "n.xuesheng",
+      "place": "n.yiyuan",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s2"
+    "skin": "s1",
+    "hairStyle": "h3"
   },
   {
-    "id": "c.elena",
-    "name": "Elena",
+    "id": "c.liuyang",
+    "name": "刘洋",
+    "namePinyin": "Liú Yáng",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.castano",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.azzurro",
-      "glasses": false,
-      "hat": true,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
     },
-    "skin": "s4"
+    "skin": "s3",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.enzo",
-    "name": "Enzo",
+    "id": "c.chenjie",
+    "name": "陈杰",
+    "namePinyin": "Chén Jié",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.castano",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": false,
-      "beard": true,
-      "mustache": true
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": true,
+      "cat": true,
+      "phone": false,
+      "book": true,
+      "computer": false
     },
-    "skin": "s3"
+    "skin": "s4",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.francesca",
-    "name": "Francesca",
+    "id": "c.yangjun",
+    "name": "杨军",
+    "namePinyin": "Yáng Jūn",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.biondo",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.marrone",
-      "glasses": true,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.xuexiao",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s5"
+    "skin": "s1",
+    "hairStyle": "h3"
   },
   {
-    "id": "c.franco",
-    "name": "Franco",
+    "id": "c.zhaolei",
+    "name": "赵磊",
+    "namePinyin": "Zhào Lěi",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.bianco",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": true,
-      "beard": true,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.xuesheng",
+      "place": "n.fandian",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": true
     },
-    "skin": "s5"
+    "skin": "s1",
+    "hairStyle": "h3"
   },
   {
-    "id": "c.giorgio",
-    "name": "Giorgio",
+    "id": "c.huangtao",
+    "name": "黄涛",
+    "namePinyin": "Huáng Tāo",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.bianco",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.marrone",
-      "glasses": false,
-      "hat": true,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s4"
+    "skin": "s2",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.giulia",
-    "name": "Giulia",
+    "id": "c.zhoubin",
+    "name": "周斌",
+    "namePinyin": "Zhōu Bīn",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.rosso",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.yiyuan",
+      "dog": false,
+      "cat": false,
+      "phone": true,
+      "book": false,
+      "computer": true
     },
-    "skin": "s5"
+    "skin": "s2",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.laura",
-    "name": "Laura",
+    "id": "c.wugang",
+    "name": "吴刚",
+    "namePinyin": "Wú Gāng",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.nero",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.marrone",
-      "glasses": false,
-      "hat": true,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
     },
-    "skin": "s5"
+    "skin": "s5",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.lorenzo",
-    "name": "Lorenzo",
+    "id": "c.xuliang",
+    "name": "徐亮",
+    "namePinyin": "Xú Liàng",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.castano",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.azzurro",
-      "glasses": true,
-      "hat": true,
-      "beard": false,
-      "mustache": true
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.jia",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
     },
-    "skin": "s5"
+    "skin": "s1",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.luca",
-    "name": "Luca",
+    "id": "c.sunhao",
+    "name": "孙浩",
+    "namePinyin": "Sūn Hào",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.nero",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.azzurro",
-      "glasses": false,
-      "hat": false,
-      "beard": true,
-      "mustache": false
+      "gender": "n.nande",
+      "job": "n.xuesheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": true,
+      "computer": true
     },
-    "skin": "s3"
+    "skin": "s4",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.lucia",
-    "name": "Lucia",
+    "id": "c.lili",
+    "name": "李丽",
+    "namePinyin": "Lǐ Lì",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.biondo",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.yisheng",
+      "place": "n.yiyuan",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s5"
+    "skin": "s3",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.marco",
-    "name": "Marco",
+    "id": "c.wangfang",
+    "name": "王芳",
+    "namePinyin": "Wáng Fāng",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.nero",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.verde",
-      "glasses": true,
-      "hat": false,
-      "beard": true,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.yisheng",
+      "place": "n.fandian",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s1"
+    "skin": "s4",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.marta",
-    "name": "Marta",
+    "id": "c.zhangjing",
+    "name": "张静",
+    "namePinyin": "Zhāng Jìng",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.biondo",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.yiyuan",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s4"
+    "skin": "s1",
+    "hairStyle": "h3"
   },
   {
-    "id": "c.matteo",
-    "name": "Matteo",
+    "id": "c.liuna",
+    "name": "刘娜",
+    "namePinyin": "Liú Nà",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.rosso",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.azzurro",
-      "glasses": false,
-      "hat": false,
-      "beard": false,
-      "mustache": true
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": false,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
     },
-    "skin": "s4"
+    "skin": "s5",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.paolo",
-    "name": "Paolo",
+    "id": "c.chenhong",
+    "name": "陈红",
+    "namePinyin": "Chén Hóng",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.nero",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.verde",
-      "glasses": false,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.yiyuan",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
     },
-    "skin": "s1"
+    "skin": "s5",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.pietro",
-    "name": "Pietro",
+    "id": "c.yangxue",
+    "name": "杨雪",
+    "namePinyin": "Yáng Xuě",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.castano",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.azzurro",
-      "glasses": false,
-      "hat": false,
-      "beard": true,
-      "mustache": true
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.fandian",
+      "dog": false,
+      "cat": false,
+      "phone": true,
+      "book": false,
+      "computer": false
     },
-    "skin": "s1"
+    "skin": "s2",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.roberto",
-    "name": "Roberto",
+    "id": "c.zhaomin",
+    "name": "赵敏",
+    "namePinyin": "Zhào Mǐn",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.castano",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.marrone",
-      "glasses": true,
-      "hat": false,
-      "beard": false,
-      "mustache": true
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": true
     },
-    "skin": "s2"
+    "skin": "s3",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.sara",
-    "name": "Sara",
+    "id": "c.huangmei",
+    "name": "黄梅",
+    "namePinyin": "Huáng Méi",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.biondo",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.verde",
-      "glasses": true,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.fandian",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
     },
-    "skin": "s1"
+    "skin": "s4",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.sofia",
-    "name": "Sofia",
+    "id": "c.zhouying",
+    "name": "周颖",
+    "namePinyin": "Zhōu Yǐng",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.rosso",
-      "hairLength": "adj.lungo",
-      "eyeColor": "adj.azzurro",
-      "glasses": true,
-      "hat": true,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.fandian",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
     },
-    "skin": "s3"
+    "skin": "s2",
+    "hairStyle": "h3"
   },
   {
-    "id": "c.stefano",
-    "name": "Stefano",
+    "id": "c.wulin",
+    "name": "吴琳",
+    "namePinyin": "Wú Lín",
     "attrs": {
-      "gender": "n.uomo",
-      "hairColor": "adj.biondo",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.marrone",
-      "glasses": true,
-      "hat": true,
-      "beard": true,
-      "mustache": true
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
     },
-    "skin": "s2"
+    "skin": "s4",
+    "hairStyle": "h2"
   },
   {
-    "id": "c.teresa",
-    "name": "Teresa",
+    "id": "c.xuhui",
+    "name": "徐慧",
+    "namePinyin": "Xú Huì",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.bianco",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.marrone",
-      "glasses": true,
-      "hat": true,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.jia",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
     },
-    "skin": "s4"
+    "skin": "s1",
+    "hairStyle": "h1"
   },
   {
-    "id": "c.valentina",
-    "name": "Valentina",
+    "id": "c.sunyue",
+    "name": "孙月",
+    "namePinyin": "Sūn Yuè",
     "attrs": {
-      "gender": "n.donna",
-      "hairColor": "adj.castano",
-      "hairLength": "adj.corto",
-      "eyeColor": "adj.marrone",
-      "glasses": true,
-      "hat": false,
-      "beard": false,
-      "mustache": false
+      "gender": "n.nvde",
+      "job": "n.yisheng",
+      "place": "n.yiyuan",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": true
     },
-    "skin": "s2"
+    "skin": "s4",
+    "hairStyle": "h1"
   }
 ]

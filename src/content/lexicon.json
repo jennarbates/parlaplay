@@ -1,293 +1,305 @@
 [
   {
-    "id": "art.il",
-    "pos": "article",
-    "text": "il"
+    "id": "n.nande",
+    "pos": "noun",
+    "hanzi": "男的",
+    "pinyin": "nán de",
+    "gloss": "male (person)",
+    "hsk": ["男", "的"],
+    "category": "gender",
+    "verb": "v.shi",
+    "en": "a man"
   },
   {
-    "id": "art.la",
-    "pos": "article",
-    "text": "la"
+    "id": "n.nvde",
+    "pos": "noun",
+    "hanzi": "女的",
+    "pinyin": "nǚ de",
+    "gloss": "female (person)",
+    "hsk": ["女", "的"],
+    "category": "gender",
+    "verb": "v.shi",
+    "en": "a woman"
   },
   {
-    "id": "art.l",
-    "pos": "article",
-    "text": "l'"
+    "id": "n.laoshi",
+    "pos": "noun",
+    "hanzi": "老师",
+    "pinyin": "lǎoshī",
+    "gloss": "teacher",
+    "hsk": ["老师"],
+    "category": "job",
+    "verb": "v.shi",
+    "en": "a teacher",
+    "offBoardVerbs": ["v.you"]
   },
   {
-    "id": "art.i",
-    "pos": "article",
-    "text": "i"
+    "id": "n.xuesheng",
+    "pos": "noun",
+    "hanzi": "学生",
+    "pinyin": "xuéshēng",
+    "gloss": "student",
+    "hsk": ["学生"],
+    "category": "job",
+    "verb": "v.shi",
+    "en": "a student",
+    "offBoardVerbs": ["v.you"]
   },
   {
-    "id": "art.gli",
-    "pos": "article",
-    "text": "gli"
+    "id": "n.yisheng",
+    "pos": "noun",
+    "hanzi": "医生",
+    "pinyin": "yīshēng",
+    "gloss": "doctor",
+    "hsk": ["医生"],
+    "category": "job",
+    "verb": "v.shi",
+    "en": "a doctor",
+    "offBoardVerbs": ["v.you"]
   },
   {
-    "id": "art.un",
-    "pos": "article",
-    "text": "un"
+    "id": "n.gou",
+    "pos": "noun",
+    "hanzi": "狗",
+    "pinyin": "gǒu",
+    "gloss": "dog",
+    "hsk": ["狗"],
+    "category": "pet",
+    "verb": "v.you",
+    "en": "a dog",
+    "attr": "dog"
   },
   {
-    "id": "art.una",
-    "pos": "article",
-    "text": "una"
+    "id": "n.mao",
+    "pos": "noun",
+    "hanzi": "猫",
+    "pinyin": "māo",
+    "gloss": "cat",
+    "hsk": ["猫"],
+    "category": "pet",
+    "verb": "v.you",
+    "en": "a cat",
+    "attr": "cat"
   },
   {
-    "id": "v.ha",
+    "id": "n.shouji",
+    "pos": "noun",
+    "hanzi": "手机",
+    "pinyin": "shǒujī",
+    "gloss": "mobile phone",
+    "hsk": ["手机"],
+    "category": "thing",
+    "verb": "v.you",
+    "en": "a phone",
+    "attr": "phone"
+  },
+  {
+    "id": "n.shu",
+    "pos": "noun",
+    "hanzi": "书",
+    "pinyin": "shū",
+    "gloss": "book",
+    "hsk": ["书"],
+    "category": "thing",
+    "verb": "v.you",
+    "en": "a book",
+    "attr": "book"
+  },
+  {
+    "id": "n.diannao",
+    "pos": "noun",
+    "hanzi": "电脑",
+    "pinyin": "diànnǎo",
+    "gloss": "computer",
+    "hsk": ["电脑"],
+    "category": "thing",
+    "verb": "v.you",
+    "en": "a computer",
+    "attr": "computer"
+  },
+  {
+    "id": "n.jia",
+    "pos": "noun",
+    "hanzi": "家",
+    "pinyin": "jiā",
+    "gloss": "home",
+    "hsk": ["家"],
+    "category": "place",
+    "verb": "v.zai",
+    "en": "at home"
+  },
+  {
+    "id": "n.xuexiao",
+    "pos": "noun",
+    "hanzi": "学校",
+    "pinyin": "xuéxiào",
+    "gloss": "school",
+    "hsk": ["学校"],
+    "category": "place",
+    "verb": "v.zai",
+    "en": "at school"
+  },
+  {
+    "id": "n.yiyuan",
+    "pos": "noun",
+    "hanzi": "医院",
+    "pinyin": "yīyuàn",
+    "gloss": "hospital",
+    "hsk": ["医院"],
+    "category": "place",
+    "verb": "v.zai",
+    "en": "at the hospital"
+  },
+  {
+    "id": "n.fandian",
+    "pos": "noun",
+    "hanzi": "饭店",
+    "pinyin": "fàndiàn",
+    "gloss": "restaurant",
+    "hsk": ["饭店"],
+    "category": "place",
+    "verb": "v.zai",
+    "en": "at a restaurant"
+  },
+  {
+    "id": "v.shi",
     "pos": "verb",
-    "text": "ha"
+    "hanzi": "是",
+    "pinyin": "shì",
+    "gloss": "to be",
+    "hsk": ["是"],
+    "yes": "a.shi",
+    "no": "a.bushi"
   },
   {
-    "id": "v.e",
+    "id": "v.you",
     "pos": "verb",
-    "text": "è"
+    "hanzi": "有",
+    "pinyin": "yǒu",
+    "gloss": "to have",
+    "hsk": ["有"],
+    "yes": "a.you",
+    "no": "a.meiyou"
   },
   {
-    "id": "n.capelli",
-    "pos": "noun",
-    "text": "capelli",
-    "gloss": "hair",
-    "gender": "m",
-    "number": "pl",
-    "defArt": "art.i",
-    "template": "t.have.adj",
-    "artRule": "art.mpl.consonant",
-    "adjAttrs": ["hairColor", "hairLength"],
-    "level": "A1"
+    "id": "v.zai",
+    "pos": "verb",
+    "hanzi": "在",
+    "pinyin": "zài",
+    "gloss": "to be at",
+    "hsk": ["在"],
+    "yes": "a.zai",
+    "no": "a.buzai"
   },
   {
-    "id": "n.occhi",
-    "pos": "noun",
-    "text": "occhi",
-    "gloss": "eyes",
-    "gender": "m",
-    "number": "pl",
-    "defArt": "art.gli",
-    "template": "t.have.adj",
-    "artRule": "art.mpl.vowel",
-    "adjAttrs": ["eyeColor"],
-    "level": "A1"
+    "id": "pr.ta.m",
+    "pos": "pronoun",
+    "hanzi": "他",
+    "pinyin": "tā",
+    "gloss": "he",
+    "hsk": ["他"],
+    "gender": "m"
   },
   {
-    "id": "n.occhiali",
-    "pos": "noun",
-    "text": "occhiali",
-    "gloss": "glasses",
-    "gender": "m",
-    "number": "pl",
-    "defArt": "art.gli",
-    "template": "t.have",
-    "artRule": "art.mpl.vowel",
-    "attr": "glasses",
-    "level": "A1"
+    "id": "pr.ta.f",
+    "pos": "pronoun",
+    "hanzi": "她",
+    "pinyin": "tā",
+    "gloss": "she",
+    "hsk": ["她"],
+    "gender": "f"
   },
   {
-    "id": "n.cappello",
-    "pos": "noun",
-    "text": "cappello",
-    "gloss": "hat",
-    "gender": "m",
-    "number": "sg",
-    "defArt": "art.il",
-    "template": "t.have",
-    "artRule": "art.msg.consonant",
-    "attr": "hat",
-    "level": "A1"
+    "id": "pr.ni",
+    "pos": "pronoun",
+    "hanzi": "你",
+    "pinyin": "nǐ",
+    "gloss": "you",
+    "hsk": ["你"]
   },
   {
-    "id": "n.barba",
-    "pos": "noun",
-    "text": "barba",
-    "gloss": "beard",
-    "gender": "f",
-    "number": "sg",
-    "defArt": "art.la",
-    "template": "t.have",
-    "artRule": "art.fsg",
-    "attr": "beard",
-    "level": "A1"
+    "id": "pt.ma",
+    "pos": "particle",
+    "hanzi": "吗",
+    "pinyin": "ma",
+    "gloss": "(yes/no question)",
+    "hsk": ["吗"]
   },
   {
-    "id": "n.baffi",
-    "pos": "noun",
-    "text": "baffi",
-    "gloss": "mustache",
-    "gender": "m",
-    "number": "pl",
-    "defArt": "art.i",
-    "template": "t.have",
-    "artRule": "art.mpl.consonant",
-    "attr": "mustache",
-    "level": "A1"
+    "id": "a.shi",
+    "pos": "answer",
+    "hanzi": "是",
+    "pinyin": "shì",
+    "gloss": "yes (is)",
+    "hsk": ["是"],
+    "verb": "v.shi",
+    "polarity": true,
+    "valid": true
   },
   {
-    "id": "n.uomo",
-    "pos": "noun",
-    "text": "uomo",
-    "gloss": "man",
-    "gender": "m",
-    "number": "sg",
-    "defArt": "art.l",
-    "indefArt": "art.un",
-    "template": "t.be",
-    "artRule": "art.indef.m",
-    "level": "A1"
+    "id": "a.bushi",
+    "pos": "answer",
+    "hanzi": "不是",
+    "pinyin": "bú shì",
+    "gloss": "no (is not)",
+    "hsk": ["不", "是"],
+    "verb": "v.shi",
+    "polarity": false,
+    "valid": true
   },
   {
-    "id": "n.donna",
-    "pos": "noun",
-    "text": "donna",
-    "gloss": "woman",
-    "gender": "f",
-    "number": "sg",
-    "defArt": "art.la",
-    "indefArt": "art.una",
-    "template": "t.be",
-    "artRule": "art.indef.f",
-    "level": "A1"
+    "id": "a.you",
+    "pos": "answer",
+    "hanzi": "有",
+    "pinyin": "yǒu",
+    "gloss": "yes (has)",
+    "hsk": ["有"],
+    "verb": "v.you",
+    "polarity": true,
+    "valid": true
   },
   {
-    "id": "adj.biondo",
-    "pos": "adj",
-    "gloss": "blond",
-    "attr": "hairColor",
-    "forms": {
-      "ms": "biondo",
-      "fs": "bionda",
-      "mp": "biondi",
-      "fp": "bionde"
-    },
-    "level": "A1"
+    "id": "a.meiyou",
+    "pos": "answer",
+    "hanzi": "没有",
+    "pinyin": "méiyǒu",
+    "gloss": "no (does not have)",
+    "hsk": ["没有"],
+    "verb": "v.you",
+    "polarity": false,
+    "valid": true
   },
   {
-    "id": "adj.castano",
-    "pos": "adj",
-    "gloss": "brown (hair, eyes)",
-    "attr": "hairColor",
-    "alsoMeans": [
-      {
-        "attr": "eyeColor",
-        "value": "adj.marrone"
-      }
-    ],
-    "forms": {
-      "ms": "castano",
-      "fs": "castana",
-      "mp": "castani",
-      "fp": "castane"
-    },
-    "level": "A1"
+    "id": "a.buyou",
+    "pos": "answer",
+    "hanzi": "不有",
+    "pinyin": "bù yǒu",
+    "gloss": "(wrong: use 没有)",
+    "hsk": ["不", "有"],
+    "verb": "v.you",
+    "polarity": false,
+    "valid": false
   },
   {
-    "id": "adj.nero",
-    "pos": "adj",
-    "gloss": "black",
-    "attr": "hairColor",
-    "forms": {
-      "ms": "nero",
-      "fs": "nera",
-      "mp": "neri",
-      "fp": "nere"
-    },
-    "level": "A1"
+    "id": "a.zai",
+    "pos": "answer",
+    "hanzi": "在",
+    "pinyin": "zài",
+    "gloss": "yes (is at)",
+    "hsk": ["在"],
+    "verb": "v.zai",
+    "polarity": true,
+    "valid": true
   },
   {
-    "id": "adj.rosso",
-    "pos": "adj",
-    "gloss": "red",
-    "attr": "hairColor",
-    "forms": {
-      "ms": "rosso",
-      "fs": "rossa",
-      "mp": "rossi",
-      "fp": "rosse"
-    },
-    "level": "A1"
-  },
-  {
-    "id": "adj.bianco",
-    "pos": "adj",
-    "gloss": "white",
-    "attr": "hairColor",
-    "forms": {
-      "ms": "bianco",
-      "fs": "bianca",
-      "mp": "bianchi",
-      "fp": "bianche"
-    },
-    "level": "A1"
-  },
-  {
-    "id": "adj.corto",
-    "pos": "adj",
-    "gloss": "short",
-    "attr": "hairLength",
-    "forms": {
-      "ms": "corto",
-      "fs": "corta",
-      "mp": "corti",
-      "fp": "corte"
-    },
-    "level": "A1"
-  },
-  {
-    "id": "adj.lungo",
-    "pos": "adj",
-    "gloss": "long",
-    "attr": "hairLength",
-    "forms": {
-      "ms": "lungo",
-      "fs": "lunga",
-      "mp": "lunghi",
-      "fp": "lunghe"
-    },
-    "level": "A1"
-  },
-  {
-    "id": "adj.azzurro",
-    "pos": "adj",
-    "gloss": "blue",
-    "attr": "eyeColor",
-    "forms": {
-      "ms": "azzurro",
-      "fs": "azzurra",
-      "mp": "azzurri",
-      "fp": "azzurre"
-    },
-    "level": "A1"
-  },
-  {
-    "id": "adj.marrone",
-    "pos": "adj",
-    "gloss": "brown (eyes)",
-    "attr": "eyeColor",
-    "wordChoice": [
-      {
-        "noun": "n.capelli",
-        "use": "adj.castano"
-      }
-    ],
-    "forms": {
-      "ms": "marrone",
-      "fs": "marrone",
-      "mp": "marroni",
-      "fp": "marroni"
-    },
-    "level": "A1"
-  },
-  {
-    "id": "adj.verde",
-    "pos": "adj",
-    "gloss": "green",
-    "attr": "eyeColor",
-    "forms": {
-      "ms": "verde",
-      "fs": "verde",
-      "mp": "verdi",
-      "fp": "verdi"
-    },
-    "level": "A1"
+    "id": "a.buzai",
+    "pos": "answer",
+    "hanzi": "不在",
+    "pinyin": "bú zài",
+    "gloss": "no (not at)",
+    "hsk": ["不", "在"],
+    "verb": "v.zai",
+    "polarity": false,
+    "valid": true
   }
 ]
