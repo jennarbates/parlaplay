@@ -10,9 +10,9 @@ Building started on October 7, 2026, and it's live at [chie.parlaplay.games](htt
 
 I'm running this like a team project even though it's just me, partly to keep the scope under control and partly because I wanted to practice the process properly. All of it is public:
 
-- [spec.md](spec.md): the full spec. Rules, content model, engine, data, tests and the definition of done. It went through five drafts before any code (changelog at the bottom).
-- [Decision log](spec.md#112-decision-log): every real decision and why I made it.
-- [backlog.md](backlog.md): 85 cards, each with acceptance criteria, points, dependencies and the spec section it comes from.
+- [docs/games/it.md](docs/games/it.md): the full spec. Rules, content model, engine, data, tests and the definition of done. It went through five drafts before any code (changelog at the bottom).
+- [Decision log](docs/games/it.md#112-decision-log): every real decision and why I made it.
+- [docs/games/it/backlog.md](docs/games/it/backlog.md): 85 cards, each with acceptance criteria, points, dependencies and the spec section it comes from.
 - [Issues](https://github.com/jennarbates/Italian/issues), [milestones](https://github.com/jennarbates/Italian/milestones) and the [project board](https://github.com/jennarbates/Italian/projects): the same backlog in GitHub. Each sprint is a milestone, and each card is a sub-issue of its epic.
 - [docs/process.md](docs/process.md): how I work. Definition of ready and done, estimating, branches.
 - [docs/sprints](docs/sprints/): a review and retro at the end of every sprint.
@@ -36,11 +36,11 @@ Sprint 2 is the heavy one. Once I know my real velocity from Sprint 1, I'll repl
 
 "Done so far" counts the points of closed cards, as of October 7. Sprint 2 and most of Sprint 3 were built early, during Sprint 1; what's left in Sprints 1 and 3 waits on reviewers, AWS, Sentry and playtesters.
 
-If something isn't in the spec's scope table, it's not in the MVP. New ideas go in [future work](spec.md#111-future-work).
+If something isn't in the spec's scope table, it's not in the MVP. New ideas go in [future work](docs/games/it.md#111-future-work).
 
 ## Stack
 
-React, TypeScript, Vite, Tailwind, Zustand, Zod, Supabase, `ts-fsrs` for spaced repetition, and Sentry. Tests use Vitest, fast-check and Playwright. It's hosted on Cloudflare. My reasons for each choice are in [section 9 of the spec](spec.md#9-non-functional).
+React, TypeScript, Vite, Tailwind, Zustand, Zod, Supabase, `ts-fsrs` for spaced repetition, and Sentry. Tests use Vitest, fast-check and Playwright. It's hosted on Cloudflare. My reasons for each choice are in [section 9 of the spec](docs/games/it.md#9-non-functional).
 
 ## Running it
 
@@ -65,14 +65,13 @@ How the code is laid out:
 
 | Folder | What's in it |
 |---|---|
-| `src/engine/` | The game, as pure TypeScript: `step(state, action, content)` (spec 4), the CPU (spec 5). No React, DOM or time. |
-| `src/content/` | Every word, character and message as JSON, with Zod schemas checked when the app builds (spec 3) |
-| `src/services/` | IndexedDB storage, spaced repetition (FSRS replay), Supabase and sync |
-| `src/store/` | Zustand stores: the round, progress, sign-in, the default level |
-| `src/ui/` | React screens |
-| `public/art/` | The SVG layers each face is built from (spec 3.5) |
-| `scripts/` | The character and art generators, the content and bundle checks, the CPU simulation |
+| `src/core/` | Shared by every language: the language registry, the shell reducer (`state/`), services (IndexedDB storage, FSRS replay, Supabase, sync, errors), stores (account, sign-in, progress, level) and shared screens (layout, settings, sign-in, privacy) |
+| `src/languages/it/` | Chi è?: `engine/` (pure TypeScript `step(state, action, content)` and the CPU, no React, DOM or time), `content/` (every word, character and message as JSON with Zod schemas), `ui/` (game screens), `store/` (the round) |
+| `src/languages/zh/` | Shéi, laid out the same way |
+| `public/art/{code}/` | The SVG layers each face is built from, per language |
+| `scripts/` | Shared checks (content, bundle, engine purity, database); `scripts/{code}/` holds each game's character and art generators and its CPU simulation |
 | `supabase/` | Migrations (tables and Row Level Security) and the sign-in email template |
+| `docs/` | `spec.md` (the platform spec), `games/{code}.md` (each game's spec) and `games/{code}/` (its backlog) |
 
 ## Testing
 
@@ -88,20 +87,20 @@ The first time, install the Playwright browsers with `pnpm exec playwright insta
 
 Tests that need a real Supabase (sign-in, sync, and `scripts/sync.integration.test.ts`) are skipped without one. CI starts a local Supabase and runs them all; [e2e/README.md](e2e/README.md) shows how to run them locally and what each end-to-end test covers.
 
-`node scripts/simulate.ts` plays 1,000 games against the CPU and prints how many questions it needs.
+`node scripts/it/simulate.ts` plays 1,000 games against the CPU and prints how many questions it needs.
 
 ## Adding a character
 
 Characters are data. Nothing in the code names them.
 
-1. Add an entry to [src/content/characters.json](src/content/characters.json): a permanent `id` (`c.` plus the lowercase name; ids are never reused, spec 3.6), an Italian `name`, the eight `attrs`, and a `skin` (`s1` to `s5`).
-2. Keep the deck fair. `pnpm test` checks the spec 3.2 rules: no two characters with the same eight attributes, as many men as women, no beard or mustache on women, and every question answered "yes" by 3 to 15 characters. With a new character added, the 12/12 and 24 counts in `src/content/invariants.ts` need updating too.
-3. Bump `contentVersion` in [src/content/version.json](src/content/version.json), so saved rounds from the old deck are discarded instead of resumed.
+1. Add an entry to [src/languages/it/content/characters.json](src/languages/it/content/characters.json): a permanent `id` (`c.` plus the lowercase name; ids are never reused, spec 3.6), an Italian `name`, the eight `attrs`, and a `skin` (`s1` to `s5`).
+2. Keep the deck fair. `pnpm test` checks the spec 3.2 rules: no two characters with the same eight attributes, as many men as women, no beard or mustache on women, and every question answered "yes" by 3 to 15 characters. With a new character added, the 12/12 and 24 counts in `src/languages/it/content/invariants.ts` need updating too.
+3. Bump `contentVersion` in [src/languages/it/content/version.json](src/languages/it/content/version.json), so saved rounds from the old deck are discarded instead of resumed.
 4. Run `pnpm dev` and check the face: the art is picked from the attributes, so there's nothing to draw. Long-press the card to check it large.
 
-To make a whole new deck, `node scripts/generate-characters.ts --seed <n>` draws 24 that pass every rule; review it, name them, and replace the file.
+To make a whole new deck, `node scripts/it/generate-characters.ts --seed <n>` draws 24 that pass every rule; review it, name them, and replace the file.
 
-To change the art, replace files in `public/art/` with new SVGs of the same names on the same 100 × 120 canvas. `node scripts/generate-placeholder-art.ts` rewrites the placeholders, and the tests check the files match it, so update or remove that test when the final art lands.
+To change the art, replace files in `public/art/it/` with new SVGs of the same names on the same 100 × 120 canvas. `node scripts/it/generate-placeholder-art.ts` rewrites the placeholders, and the tests check the files match it, so update or remove that test when the final art lands.
 
 ## Deploying
 

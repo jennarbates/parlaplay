@@ -1,0 +1,410 @@
+[
+  {
+    "id": "c.wangming",
+    "name": "王明",
+    "namePinyin": "Wáng Míng",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.xuexiao",
+      "dog": true,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s4",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.zhangwei",
+    "name": "张伟",
+    "namePinyin": "Zhāng Wěi",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.fandian",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": true
+    },
+    "skin": "s2",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.liqiang",
+    "name": "李强",
+    "namePinyin": "Lǐ Qiáng",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.xuesheng",
+      "place": "n.yiyuan",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s1",
+    "hairStyle": "h3"
+  },
+  {
+    "id": "c.liuyang",
+    "name": "刘洋",
+    "namePinyin": "Liú Yáng",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s3",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.chenjie",
+    "name": "陈杰",
+    "namePinyin": "Chén Jié",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": true,
+      "cat": true,
+      "phone": false,
+      "book": true,
+      "computer": false
+    },
+    "skin": "s4",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.yangjun",
+    "name": "杨军",
+    "namePinyin": "Yáng Jūn",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.xuexiao",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s1",
+    "hairStyle": "h3"
+  },
+  {
+    "id": "c.zhaolei",
+    "name": "赵磊",
+    "namePinyin": "Zhào Lěi",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.xuesheng",
+      "place": "n.fandian",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": true
+    },
+    "skin": "s1",
+    "hairStyle": "h3"
+  },
+  {
+    "id": "c.huangtao",
+    "name": "黄涛",
+    "namePinyin": "Huáng Tāo",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s2",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.zhoubin",
+    "name": "周斌",
+    "namePinyin": "Zhōu Bīn",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.yiyuan",
+      "dog": false,
+      "cat": false,
+      "phone": true,
+      "book": false,
+      "computer": true
+    },
+    "skin": "s2",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.wugang",
+    "name": "吴刚",
+    "namePinyin": "Wú Gāng",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.yisheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
+    },
+    "skin": "s5",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.xuliang",
+    "name": "徐亮",
+    "namePinyin": "Xú Liàng",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.laoshi",
+      "place": "n.jia",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
+    },
+    "skin": "s1",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.sunhao",
+    "name": "孙浩",
+    "namePinyin": "Sūn Hào",
+    "attrs": {
+      "gender": "n.nande",
+      "job": "n.xuesheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": true,
+      "computer": true
+    },
+    "skin": "s4",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.lili",
+    "name": "李丽",
+    "namePinyin": "Lǐ Lì",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.yisheng",
+      "place": "n.yiyuan",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s3",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.wangfang",
+    "name": "王芳",
+    "namePinyin": "Wáng Fāng",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.yisheng",
+      "place": "n.fandian",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s4",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.zhangjing",
+    "name": "张静",
+    "namePinyin": "Zhāng Jìng",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.yiyuan",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s1",
+    "hairStyle": "h3"
+  },
+  {
+    "id": "c.liuna",
+    "name": "刘娜",
+    "namePinyin": "Liú Nà",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": false,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
+    },
+    "skin": "s5",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.chenhong",
+    "name": "陈红",
+    "namePinyin": "Chén Hóng",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.yiyuan",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
+    },
+    "skin": "s5",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.yangxue",
+    "name": "杨雪",
+    "namePinyin": "Yáng Xuě",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.fandian",
+      "dog": false,
+      "cat": false,
+      "phone": true,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s2",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.zhaomin",
+    "name": "赵敏",
+    "namePinyin": "Zhào Mǐn",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.jia",
+      "dog": false,
+      "cat": false,
+      "phone": false,
+      "book": false,
+      "computer": true
+    },
+    "skin": "s3",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.huangmei",
+    "name": "黄梅",
+    "namePinyin": "Huáng Méi",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.fandian",
+      "dog": false,
+      "cat": true,
+      "phone": false,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s4",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.zhouying",
+    "name": "周颖",
+    "namePinyin": "Zhōu Yǐng",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.xuesheng",
+      "place": "n.fandian",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s2",
+    "hairStyle": "h3"
+  },
+  {
+    "id": "c.wulin",
+    "name": "吴琳",
+    "namePinyin": "Wú Lín",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.xuexiao",
+      "dog": true,
+      "cat": false,
+      "phone": false,
+      "book": true,
+      "computer": false
+    },
+    "skin": "s4",
+    "hairStyle": "h2"
+  },
+  {
+    "id": "c.xuhui",
+    "name": "徐慧",
+    "namePinyin": "Xú Huì",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.laoshi",
+      "place": "n.jia",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": false
+    },
+    "skin": "s1",
+    "hairStyle": "h1"
+  },
+  {
+    "id": "c.sunyue",
+    "name": "孙月",
+    "namePinyin": "Sūn Yuè",
+    "attrs": {
+      "gender": "n.nvde",
+      "job": "n.yisheng",
+      "place": "n.yiyuan",
+      "dog": false,
+      "cat": true,
+      "phone": true,
+      "book": false,
+      "computer": true
+    },
+    "skin": "s4",
+    "hairStyle": "h1"
+  }
+]

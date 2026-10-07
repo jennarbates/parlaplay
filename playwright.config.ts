@@ -17,6 +17,11 @@ const phoneOnly = [
   "states.spec.ts",
 ];
 
+// Shéi's specs (e2e/zh/) are from its own repo, where it was served at /. They
+// run again once /zh is routed (PLAY-017, PLAY-019) and the platform suite
+// (PLAY-038) points them there.
+const shei = "**/zh/**";
+
 export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
@@ -28,17 +33,17 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Pixel 7"] }, testIgnore: "desktop.spec.ts" },
-    { name: "webkit", use: { ...devices["iPhone 15"] }, testIgnore: "desktop.spec.ts" },
+    { name: "chromium", use: { ...devices["Pixel 7"] }, testIgnore: ["desktop.spec.ts", shei] },
+    { name: "webkit", use: { ...devices["iPhone 15"] }, testIgnore: ["desktop.spec.ts", shei] },
     {
       name: "desktop-chromium",
       use: { ...devices["Desktop Chrome"], viewport: desktop },
-      testIgnore: phoneOnly,
+      testIgnore: [...phoneOnly, shei],
     },
     {
       name: "desktop-webkit",
       use: { ...devices["Desktop Safari"], viewport: desktop },
-      testIgnore: phoneOnly,
+      testIgnore: [...phoneOnly, shei],
     },
   ],
   // Test the production build, not the dev server.

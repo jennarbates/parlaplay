@@ -4,11 +4,11 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
 import "./index.css";
 import { router } from "./routes.tsx";
-import { initErrors } from "./services/errors.ts";
-import { startAccountSync } from "./store/account.ts";
-import { useAuthStore } from "./store/authStore.ts";
-import { useGameStore } from "./store/gameStore.ts";
-import { useProgressStore } from "./store/progressStore.ts";
+import { initErrors } from "./core/services/errors.ts";
+import { startAccountSync } from "./core/store/account.ts";
+import { useAuthStore } from "./core/store/authStore.ts";
+import { useGameStore } from "./languages/it/store/gameStore.ts";
+import { useProgressStore } from "./core/store/progressStore.ts";
 
 // Before anything renders, so startup errors are caught too.
 const reporting = initErrors();

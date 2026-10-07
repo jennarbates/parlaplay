@@ -1,11 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
-import { startGame } from "../src/engine/start.ts";
-import { localDay } from "../src/services/localDay.ts";
-import type { GuestData, ReviewLogRow } from "../src/store/progressStore.ts";
-import { progressStats } from "../src/ui/progressStats.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions } from "../src/languages/it/engine/index.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
+import { localDay } from "../src/core/services/localDay.ts";
+import type { GuestData, ReviewLogRow } from "../src/core/store/progressStore.ts";
+import { progressStats } from "../src/languages/it/ui/progressStats.ts";
 import { hasSupabase } from "./inbox.ts";
 
 // Desktop spec DS 13.3: the desktop layout, run by the desktop-chromium and

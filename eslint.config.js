@@ -19,8 +19,8 @@ export default tseslint.config(
   },
   // engine/ stays pure: no React, DOM or app code (spec section 4)
   {
-    files: ["src/engine/**/*.ts"],
-    ignores: ["src/engine/**/*.test.ts"], // tests may time things
+    files: ["src/languages/*/engine/**/*.ts"],
+    ignores: ["src/languages/*/engine/**/*.test.ts"], // tests may time things
     languageOptions: { globals: {} },
     rules: {
       "no-restricted-imports": [
@@ -83,7 +83,7 @@ export default tseslint.config(
   // The shortcut logic is pure too (desktop spec DS 4.6): only type imports, and
   // no DOM, timers or clock.
   {
-    files: ["src/ui/game/shortcuts.ts"],
+    files: ["src/languages/*/ui/game/shortcuts.ts"],
     languageOptions: { globals: {} },
     rules: {
       "@typescript-eslint/no-restricted-imports": [
