@@ -3,7 +3,7 @@
 // catches its own errors, so a full disk or a private window never stops play.
 import { openDB, type IDBPDatabase } from "idb";
 
-const dbName = "chi-e";
+const dbName = "shei";
 const storeName = "kv";
 
 // Guest data lives under "guest" (spec 7.3) and the round in progress under

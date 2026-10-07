@@ -5,16 +5,16 @@ import { scrubBreadcrumb, scrubEvent, scrubUrl } from "./errors.ts";
 
 describe("scrubUrl", () => {
   test.each([
-    ["https://chie.parlaplay.games/play?code=123456", "https://chie.parlaplay.games/play"],
+    ["https://shei.parlaplay.games/play?code=123456", "https://shei.parlaplay.games/play"],
     [
-      "https://chie.parlaplay.games/#access_token=abc&type=magiclink",
-      "https://chie.parlaplay.games/",
+      "https://shei.parlaplay.games/#access_token=abc&type=magiclink",
+      "https://shei.parlaplay.games/",
     ],
     ["/progress?tab=words#top", "/progress"],
     ["https://x.supabase.co/auth/v1/verify?token=abc#frag", "https://x.supabase.co/auth/v1/verify"],
     [
-      "https://chie.parlaplay.games/assets/index-abc.js",
-      "https://chie.parlaplay.games/assets/index-abc.js",
+      "https://shei.parlaplay.games/assets/index-abc.js",
+      "https://shei.parlaplay.games/assets/index-abc.js",
     ],
     ["", ""],
   ])("%s", (url, expected) => {
@@ -78,10 +78,10 @@ describe("scrubEvent", () => {
     type: undefined,
     user: { email: "learner@example.com", ip_address: "{{auto}}", id: "u1" },
     request: {
-      url: "https://chie.parlaplay.games/play?code=123456#t",
+      url: "https://shei.parlaplay.games/play?code=123456#t",
       method: "GET",
       query_string: "code=123456",
-      headers: { Referer: "https://chie.parlaplay.games/?code=1", "User-Agent": "x" },
+      headers: { Referer: "https://shei.parlaplay.games/?code=1", "User-Agent": "x" },
       cookies: { sb: "token" },
     },
     breadcrumbs: [{ category: "navigation", data: { from: "/?code=1", to: "/play" } }],
@@ -93,8 +93,8 @@ describe("scrubEvent", () => {
           stacktrace: {
             frames: [
               {
-                filename: "https://chie.parlaplay.games/assets/index.js?v=1",
-                abs_path: "https://chie.parlaplay.games/assets/index.js?v=1#L1",
+                filename: "https://shei.parlaplay.games/assets/index.js?v=1",
+                abs_path: "https://shei.parlaplay.games/assets/index.js?v=1#L1",
                 lineno: 1,
               },
             ],
@@ -111,14 +111,14 @@ describe("scrubEvent", () => {
   });
 
   test("keeps only a scrubbed url and the method from the request", () => {
-    expect(scrubbed.request).toEqual({ url: "https://chie.parlaplay.games/play", method: "GET" });
+    expect(scrubbed.request).toEqual({ url: "https://shei.parlaplay.games/play", method: "GET" });
   });
 
   test("scrubs breadcrumbs and stack frames", () => {
     expect(scrubbed.breadcrumbs?.[0]?.data).toEqual({ from: "/", to: "/play" });
     expect(scrubbed.exception?.values?.[0]?.stacktrace?.frames?.[0]).toEqual({
-      filename: "https://chie.parlaplay.games/assets/index.js",
-      abs_path: "https://chie.parlaplay.games/assets/index.js",
+      filename: "https://shei.parlaplay.games/assets/index.js",
+      abs_path: "https://shei.parlaplay.games/assets/index.js",
       lineno: 1,
     });
   });

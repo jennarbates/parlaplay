@@ -129,7 +129,7 @@ test.describe("round end (CHI-060)", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }).click();
     await expect(page.getByText("None. Nicely done.")).toBeVisible();
     await page.getByRole("link", { name: "Home" }).click();
-    await expect(page.getByRole("heading", { name: "Chi è?" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Continue round" })).toHaveCount(0);
   });
@@ -181,7 +181,7 @@ test.describe("quit and continue (CHI-061)", () => {
     await page.getByRole("button", { name: "Menu" }).click();
     await page.getByRole("menuitem", { name: "Quit round" }).click();
     await dialog.getByRole("button", { name: "Quit round" }).click();
-    await expect(page.getByRole("heading", { name: "Chi è?" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Continue round" })).toHaveCount(0);
     await expect
       .poll(async () => (await savedGames(page)).map((g) => g.result))

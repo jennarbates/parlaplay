@@ -17,7 +17,7 @@ async function mistakeAndQuit(page: Page, art: string, noun: string) {
   await page.getByRole("button", { name: "Menu" }).click();
   await page.getByRole("menuitem", { name: "Quit round" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Quit round" }).click();
-  await expect(page.getByRole("heading", { name: "Chi è?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
 }
 
 test("a mistake made on one device shows on the other", async ({ browser }) => {

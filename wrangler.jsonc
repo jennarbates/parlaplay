@@ -3,14 +3,14 @@
 // deploys main to production and uploads every other branch as a preview version.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "italian",
+  "name": "shei",
   "compatibility_date": "2026-10-06",
   "assets": {
     "directory": "./dist/",
     // Deep links such as /play get index.html instead of a 404.
     "not_found_handling": "single-page-application",
   },
-  "routes": [{ "pattern": "chie.parlaplay.games", "custom_domain": true }],
+  "routes": [{ "pattern": "shei.parlaplay.games", "custom_domain": true }],
   // Production lives only on the custom domain. Preview URLs are on workers.dev,
   // so they stay on while the workers.dev route for production is off.
   "workers_dev": false,

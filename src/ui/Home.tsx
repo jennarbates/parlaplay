@@ -29,7 +29,14 @@ export function Home() {
   return (
     <section className="flex flex-col gap-6 p-4">
       <header className="flex items-baseline justify-between pt-2">
-        <h1 className="text-4xl font-bold">Chi è?</h1>
+        <div>
+          <h1 lang="zh-Hans" className="text-4xl font-bold">
+            谁？
+          </h1>
+          <p lang="zh-Latn-pinyin" className="text-stone-600">
+            Shéi?
+          </p>
+        </div>
         <p className="text-sm text-stone-600">
           {auth.status === "signedIn" ? (
             <Link to="/settings" className="inline-flex min-h-11 items-center underline">

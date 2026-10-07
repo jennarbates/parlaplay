@@ -4,7 +4,7 @@ import { create } from "zustand";
 import type { Level } from "../engine/index.ts";
 import { supabase } from "../services/supabase.ts";
 
-const key = "chie.level";
+const key = "shei.level";
 
 function savedLevel(): Level {
   try {

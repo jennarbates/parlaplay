@@ -42,7 +42,7 @@ describe("default level (CHI-089)", () => {
   test("saved on the device", async () => {
     await usePrefs.getState().setLevel(2);
     expect(usePrefs.getState().level).toBe(2);
-    expect(storage.get("chie.level")).toBe("2");
+    expect(storage.get("shei.level")).toBe("2");
   });
 
   test("signed in, also saved to the profile", async () => {
@@ -54,7 +54,7 @@ describe("default level (CHI-089)", () => {
     profiles.set("u1", { level: 2 });
     await usePrefs.getState().loadFromProfile("u1");
     expect(usePrefs.getState().level).toBe(2);
-    expect(storage.get("chie.level")).toBe("2");
+    expect(storage.get("shei.level")).toBe("2");
   });
 
   test("offline, nothing throws and the device keeps its level", async () => {

@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "chi-e"
+project_id = "shei"
 
 [api]
 enabled = true
@@ -247,11 +247,11 @@ otp_expiry = 3600
 # Spec 7.3: sign-in emails carry a 6-digit code and no link. New and returning
 # users get the same template.
 [auth.email.template.magic_link]
-subject = "Your Chi è? sign-in code"
+subject = "Your Shéi sign-in code"
 content_path = "./supabase/templates/sign-in-code.html"
 
 [auth.email.template.confirmation]
-subject = "Your Chi è? sign-in code"
+subject = "Your Shéi sign-in code"
 content_path = "./supabase/templates/sign-in-code.html"
 
 # Uncomment to customize email template

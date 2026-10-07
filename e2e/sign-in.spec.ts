@@ -42,7 +42,7 @@ test("the email shows the code and has no link (spec 7.3)", async ({ page }) => 
   await requestCode(page, email);
   const [message] = await emailsTo(email);
   if (!message) throw new Error("no email");
-  expect(message.Subject).toBe("Your Chi è? sign-in code");
+  expect(message.Subject).toBe("Your Shéi sign-in code");
   expect(codeIn(message)).toMatch(/^\d{6}$/);
   expect(message.HTML).not.toMatch(/<a\s/i);
   expect(message.Text).not.toMatch(/https?:\/\//);

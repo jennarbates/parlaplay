@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("home page loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Chi è?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
 });
 
 test("/play loads directly", async ({ page }) => {
