@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
-import { startGame } from "../src/engine/start.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions } from "../src/languages/it/engine/index.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
 
 // CHI-090: WCAG 2.2 AA basics. Screen reader names in Italian, a whole round by
 // keyboard with visible focus, and 44 × 44 px touch targets.

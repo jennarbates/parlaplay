@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions, questionByKey } from "../src/engine/index.ts";
-import { startGame } from "../src/engine/start.ts";
-import { evaluate } from "../src/engine/meaning.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions, questionByKey } from "../src/languages/it/engine/index.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
 
 // CHI-055, CHI-057, CHI-058, CHI-059: a whole Level 1 round in the browser. The
 // engine runs here too, so the test knows the secrets and the true answers.

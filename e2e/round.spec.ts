@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
-import { startGame } from "../src/engine/start.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions } from "../src/languages/it/engine/index.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
 
 // CHI-060, CHI-061, CHI-062: round end, quit and continue, and Home.
 

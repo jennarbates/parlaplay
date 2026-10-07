@@ -1,10 +1,10 @@
 import { createBrowserRouter } from "react-router";
-import { Game } from "./ui/Game.tsx";
-import { Home } from "./ui/Home.tsx";
-import { Layout } from "./ui/Layout.tsx";
-import { Privacy } from "./ui/Privacy.tsx";
-import { Progress } from "./ui/Progress.tsx";
-import { Settings } from "./ui/Settings.tsx";
+import { Game } from "./languages/it/ui/Game.tsx";
+import { Home } from "./languages/it/ui/Home.tsx";
+import { Layout } from "./core/ui/Layout.tsx";
+import { Privacy } from "./core/ui/Privacy.tsx";
+import { Progress } from "./languages/it/ui/Progress.tsx";
+import { Settings } from "./core/ui/Settings.tsx";
 
 // Routes from spec 8.1. Sign-in is a sheet, not a route.
 export const router = createBrowserRouter([

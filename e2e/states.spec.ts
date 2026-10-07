@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { startGame } from "../src/engine/start.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
 
 // CHI-091: the states in spec 8.2 that are not covered elsewhere.
 

@@ -4,7 +4,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Plugin } from "vite";
-import { contentFiles, type ContentFile } from "../src/content/schemas.ts";
+import { contentFiles, type ContentFile } from "../src/languages/it/content/schemas.ts";
 import { RegistryFile } from "../src/core/languages.ts";
 
 export function validateContentDir(dir: string, { requireAll = true } = {}): string[] {
@@ -43,7 +43,7 @@ function formatPath(path: PropertyKey[]): string {
   return path.length ? `${path.map(String).join(".")}: ` : "";
 }
 
-export const contentDir = new URL("../src/content/", import.meta.url).pathname;
+export const contentDir = new URL("../src/languages/it/content/", import.meta.url).pathname;
 
 // Spec 3.1: the language registry is checked like content.
 export function validateRegistryFile(file: string): string[] {

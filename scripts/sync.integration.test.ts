@@ -5,13 +5,17 @@ import "fake-indexeddb/auto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { content } from "../src/content/index.ts";
-import { resetForTests } from "../src/services/storage.ts";
-import { setClientForTests } from "../src/services/supabase.ts";
-import { pull, useSyncStore } from "../src/services/sync.ts";
-import { adoptGuestData, syncNow } from "../src/store/account.ts";
-import { useProgressStore, type GameRow, type ReviewLogRow } from "../src/store/progressStore.ts";
-import { write } from "../src/services/storage.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { resetForTests } from "../src/core/services/storage.ts";
+import { setClientForTests } from "../src/core/services/supabase.ts";
+import { pull, useSyncStore } from "../src/core/services/sync.ts";
+import { adoptGuestData, syncNow } from "../src/core/store/account.ts";
+import {
+  useProgressStore,
+  type GameRow,
+  type ReviewLogRow,
+} from "../src/core/store/progressStore.ts";
+import { write } from "../src/core/services/storage.ts";
 
 const url = process.env.VITE_SUPABASE_URL;
 const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;

@@ -11,10 +11,10 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      // Spec 10.3: engine/ line coverage at or above 90%, or the test run fails.
-      include: ["src/engine/**/*.ts"],
+      // Spec 10.3: engine/ line coverage, in every language, at or above 90%, or the test run fails.
+      include: ["src/languages/*/engine/**/*.ts"],
       thresholds: { lines: 90 },
-      exclude: ["src/engine/**/*.test.ts"],
+      exclude: ["src/languages/*/engine/**/*.test.ts"],
       reporter: ["text", "html", "lcov"],
     },
   },

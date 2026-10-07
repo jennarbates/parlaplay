@@ -15,7 +15,7 @@ type PureDir = {
 const pureDirs: PureDir[] = [
   {
     name: "engine/",
-    dir: new URL("../src/engine/", import.meta.url).pathname,
+    dir: new URL("../src/languages/it/engine/", import.meta.url).pathname,
     allowed: (from, statement) =>
       from.startsWith("../content/") && statement.startsWith("import type"),
   },
