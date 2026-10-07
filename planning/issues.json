@@ -1,0 +1,1136 @@
+{
+ "repo": "jennarbates/parlaplay",
+ "owner": "jennarbates",
+ "project_title": "parlaplay platform",
+ "labels": [
+  {
+   "name": "type: story",
+   "color": "1f6feb",
+   "description": "Backlog card type: story"
+  },
+  {
+   "name": "type: task",
+   "color": "8250df",
+   "description": "Backlog card type: task"
+  },
+  {
+   "name": "type: test",
+   "color": "bf3989",
+   "description": "Backlog card type: test"
+  },
+  {
+   "name": "type: chore",
+   "color": "6e7781",
+   "description": "Backlog card type: chore"
+  },
+  {
+   "name": "type: spike",
+   "color": "d4a72c",
+   "description": "Backlog card type: spike"
+  },
+  {
+   "name": "waits on others",
+   "color": "cf3a24",
+   "description": "Depends on someone outside the build. Start early."
+  },
+  {
+   "name": "epic",
+   "color": "3d2c8d",
+   "description": "Parent issue grouping related backlog cards"
+  },
+  {
+   "name": "epic: Spec sign-off",
+   "color": "a14dcb",
+   "description": "Card belongs to the Spec sign-off epic"
+  },
+  {
+   "name": "epic: Domain, email and vendors",
+   "color": "cf7a24",
+   "description": "Card belongs to the Domain, email and vendors epic"
+  },
+  {
+   "name": "epic: Repo merge",
+   "color": "4d8ccb",
+   "description": "Card belongs to the Repo merge epic"
+  },
+  {
+   "name": "epic: Shell and routing",
+   "color": "4d57cb",
+   "description": "Card belongs to the Shell and routing epic"
+  },
+  {
+   "name": "epic: Accounts and storage",
+   "color": "4db6cb",
+   "description": "Card belongs to the Accounts and storage epic"
+  },
+  {
+   "name": "epic: Database and sync",
+   "color": "4dcba1",
+   "description": "Card belongs to the Database and sync epic"
+  },
+  {
+   "name": "epic: Picker and shared screens",
+   "color": "8bcb4d",
+   "description": "Card belongs to the Picker and shared screens epic"
+  },
+  {
+   "name": "epic: Handoff and redirects",
+   "color": "cb4d6e",
+   "description": "Card belongs to the Handoff and redirects epic"
+  },
+  {
+   "name": "epic: Quality and performance",
+   "color": "cbaa4d",
+   "description": "Card belongs to the Quality and performance epic"
+  },
+  {
+   "name": "epic: Playtest and fixes",
+   "color": "6e7781",
+   "description": "Card belongs to the Playtest and fixes epic"
+  },
+  {
+   "name": "epic: Launch and cleanup",
+   "color": "3d8b3d",
+   "description": "Card belongs to the Launch and cleanup epic"
+  }
+ ],
+ "milestones": [
+  {
+   "key": "S1",
+   "title": "Sprint 1: Spec and vendors",
+   "description": "Thu Oct 8 to Wed Oct 14. Goal: Spec tagged v1, the handoff size limit measured, and every vendor step that waits on others started.",
+   "due_on": "2026-10-16T23:59:59Z"
+  },
+  {
+   "key": "S2",
+   "title": "Sprint 2: Fork point",
+   "description": "Thu Oct 29 to Fri Oct 30. Goal: Chi è? launched and tagged, and the new repo holds both games in the new layout with CI green.",
+   "due_on": "2026-10-30T23:59:59Z"
+  },
+  {
+   "key": "S3",
+   "title": "Sprint 3: Merged site on staging",
+   "description": "Mon Nov 2 to Fri Nov 6. Goal: One login and the language picker work on staging with both games, the handoff is built, and the playtest has run.",
+   "due_on": "2026-11-06T23:59:59Z"
+  },
+  {
+   "key": "S4",
+   "title": "Sprint 4: Fix and launch",
+   "description": "Mon Nov 9 to Fri Nov 13. Goal: Must-fix findings closed, migration rehearsed, and parlaplay.games live with redirects and the handoff.",
+   "due_on": "2026-11-13T23:59:59Z"
+  },
+  {
+   "key": "S5",
+   "title": "Sprint 5: Cleanup",
+   "description": "Fri Nov 27 to Fri Nov 27. Goal: Compatibility defaults removed and the old repos archived.",
+   "due_on": "2026-11-27T23:59:59Z"
+  }
+ ],
+ "epics": [
+  {
+   "key": "E0",
+   "title": "Epic: Spec sign-off",
+   "body": "Epic for the parlaplay platform. 4 cards, 6 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Spec sign-off"
+   ]
+  },
+  {
+   "key": "E1",
+   "title": "Epic: Domain, email and vendors",
+   "body": "Epic for the parlaplay platform. 4 cards, 4 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Domain, email and vendors"
+   ]
+  },
+  {
+   "key": "E2",
+   "title": "Epic: Repo merge",
+   "body": "Epic for the parlaplay platform. 7 cards, 14 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Repo merge"
+   ]
+  },
+  {
+   "key": "E3",
+   "title": "Epic: Shell and routing",
+   "body": "Epic for the parlaplay platform. 4 cards, 10 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Shell and routing"
+   ]
+  },
+  {
+   "key": "E4",
+   "title": "Epic: Accounts and storage",
+   "body": "Epic for the parlaplay platform. 2 cards, 4 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Accounts and storage"
+   ]
+  },
+  {
+   "key": "E5",
+   "title": "Epic: Database and sync",
+   "body": "Epic for the parlaplay platform. 5 cards, 10 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Database and sync"
+   ]
+  },
+  {
+   "key": "E6",
+   "title": "Epic: Picker and shared screens",
+   "body": "Epic for the parlaplay platform. 5 cards, 9 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Picker and shared screens"
+   ]
+  },
+  {
+   "key": "E7",
+   "title": "Epic: Handoff and redirects",
+   "body": "Epic for the parlaplay platform. 4 cards, 10 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Handoff and redirects"
+   ]
+  },
+  {
+   "key": "E8",
+   "title": "Epic: Quality and performance",
+   "body": "Epic for the parlaplay platform. 5 cards, 10 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Quality and performance"
+   ]
+  },
+  {
+   "key": "E9",
+   "title": "Epic: Playtest and fixes",
+   "body": "Epic for the parlaplay platform. 6 cards, 17 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Playtest and fixes"
+   ]
+  },
+  {
+   "key": "E10",
+   "title": "Epic: Launch and cleanup",
+   "body": "Epic for the parlaplay platform. 10 cards, 16 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Launch and cleanup"
+   ]
+  }
+ ],
+ "cards": [
+  {
+   "key": "PLAY-001",
+   "title": "PLAY-001 Confirm parlaplay.games root is ours and unused",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · chore\nEpic: {{E1}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nCheck the root domain before anything is built on it.\n\n### Acceptance criteria\n\n- [ ] parlaplay.games is a zone in the Cloudflare account that holds chie.parlaplay.games\n- [ ] The root and www have no records serving anything else\n- [ ] Result written into the spec's day 1 row\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones) · [D1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Domain, email and vendors",
+    "waits on others"
+   ],
+   "milestone": "S1",
+   "epic": "E1",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-002",
+   "title": "PLAY-002 Create the SES domain identity for parlaplay.games",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · chore\nEpic: {{E1}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nAdd parlaplay.games as an SES identity in the Region Chi è? already uses.\n\n### Acceptance criteria\n\n- [ ] SES domain identity parlaplay.games created in the same account and Region as chie.parlaplay.games\n- [ ] SPF, DKIM and DMARC records added in Cloudflare DNS\n- [ ] Identity shows Verified\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [D19](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Domain, email and vendors",
+    "waits on others"
+   ],
+   "milestone": "S1",
+   "epic": "E1",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-056",
+   "title": "PLAY-056 Create jennarbates/parlaplay with the spec and backlog",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · chore\nEpic: {{E2}}\n\nDone Wed Oct 7: the repo exists early so issues can link to the spec.\n\n### Acceptance criteria\n\n- [ ] jennarbates/parlaplay main is Chi è? main with its history plus docs/spec.md and planning/\n- [ ] Spec links in the issues open the right headings\n\n### Spec\n\n[5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#51-repository) · [D4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Repo merge"
+   ],
+   "milestone": "S1",
+   "epic": "E2",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-003",
+   "title": "PLAY-003 Request owner review of the platform spec",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · task\nEpic: {{E0}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nBook a read of the whole spec with a return date of Wed Oct 14.\n\n### Acceptance criteria\n\n- [ ] Spec sent with a return date of Wed Oct 14\n- [ ] Comments collected in one place\n\n### Spec\n\n[10.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#101-spec-sign-off-before-building)",
+   "labels": [
+    "type: task",
+    "epic: Spec sign-off",
+    "waits on others"
+   ],
+   "milestone": "S1",
+   "epic": "E0",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-004",
+   "title": "PLAY-004 Find a developer reviewer for sections 4 to 6",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · task\nEpic: {{E0}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nAsk a developer to review the shell contract, the merge plan and the data model.\n\n### Acceptance criteria\n\n- [ ] Sections 4, 5 and 6 sent with a return date of Wed Oct 14\n- [ ] If nobody is available by Fri Oct 9, the owner's second paper trace is booked instead\n\n### Spec\n\n[10.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#101-spec-sign-off-before-building) · [4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#4-shell-contract) · [5](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#5-merging-the-two-games) · [6](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#6-data-and-backend)",
+   "labels": [
+    "type: task",
+    "epic: Spec sign-off",
+    "waits on others"
+   ],
+   "milestone": "S1",
+   "epic": "E0",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-005",
+   "title": "PLAY-005 Paper-trace both journeys in spec 10.1",
+   "body": "**Sprint 1: Spec and vendors** · Day 2, Fri Oct 9 · **2 points** · spike\nEpic: {{E0}}\n\nWalk the new-guest journey and the Chi è? handoff journey using only the specs.\n\n### Acceptance criteria\n\n- [ ] Journey 1 traced: guest plays zh then it, signs in, second device, signs out\n- [ ] Journey 2 traced: an October Chi è? guest arrives through the handoff\n- [ ] Every guess logged as a fix or a TBD\n\n### Spec\n\n[10.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#101-spec-sign-off-before-building) · [2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#2-platform-behavior) · [4.5](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#45-traced-example) · [5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#53-guest-handoff-from-chieparlaplaygames)",
+   "labels": [
+    "type: spike",
+    "epic: Spec sign-off"
+   ],
+   "milestone": "S1",
+   "epic": "E0",
+   "deps": [],
+   "points": 2,
+   "target_date": "2026-10-09"
+  },
+  {
+   "key": "PLAY-006",
+   "title": "PLAY-006 Measure the largest handoff fragment on phones",
+   "body": "**Sprint 1: Spec and vendors** · Day 2, Fri Oct 9 · **2 points** · spike\nEpic: {{E7}}\n\nFind how much data a URL fragment can carry in a navigation on real phones.\n\n### Acceptance criteria\n\n- [ ] A test page navigates with 100 KB, 500 KB, 1 MB and 2 MB fragments\n- [ ] Tried on Safari on a real iPhone and Chrome on a real Android phone\n- [ ] The largest size that arrives intact is written into spec 5.3\n- [ ] If it is under 500 KB, spec 5.3 gets a decision (compress or split) and a decision log entry\n\n### Spec\n\n[5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#53-guest-handoff-from-chieparlaplaygames)",
+   "labels": [
+    "type: spike",
+    "epic: Handoff and redirects"
+   ],
+   "milestone": "S1",
+   "epic": "E7",
+   "deps": [],
+   "points": 2,
+   "target_date": "2026-10-09"
+  },
+  {
+   "key": "PLAY-007",
+   "title": "PLAY-007 Fold in the reviews and tag the spec v1",
+   "body": "**Sprint 1: Spec and vendors** · Day 3, Wed Oct 14 · **2 points** · task\nEpic: {{E0}}\n\nApply every review comment, resolve or move each TBD, and tag v1.\n\n### Acceptance criteria\n\n- [ ] Every review comment applied or answered\n- [ ] Every TBD resolved or moved to section 11\n- [ ] Changelog line added and the spec tagged v1\n\n### Depends on\n\n- {{PLAY-003}}\n- {{PLAY-004}}\n- {{PLAY-005}}\n- {{PLAY-006}}\n\n### Spec\n\n[10.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#101-spec-sign-off-before-building) · [1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#1-scope-and-non-goals)",
+   "labels": [
+    "type: task",
+    "epic: Spec sign-off"
+   ],
+   "milestone": "S1",
+   "epic": "E0",
+   "deps": [
+    "PLAY-003",
+    "PLAY-004",
+    "PLAY-005",
+    "PLAY-006"
+   ],
+   "points": 2,
+   "target_date": "2026-10-14"
+  },
+  {
+   "key": "PLAY-008",
+   "title": "PLAY-008 Verify the remaining vendor facts",
+   "body": "**Sprint 1: Spec and vendors** · Day 3, Wed Oct 14 · **1 point** · spike\nEpic: {{E1}}\n\nCheck the facts the spec marks TBD: verify.\n\n### Acceptance criteria\n\n- [ ] Sentry free plan limits checked on sentry.io and cited\n- [ ] Sign-in code lifetime read from the production Auth settings and matched in the email text\n- [ ] Each result written into the spec with its source\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [References](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#references)",
+   "labels": [
+    "type: spike",
+    "epic: Domain, email and vendors"
+   ],
+   "milestone": "S1",
+   "epic": "E1",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-14"
+  },
+  {
+   "key": "PLAY-009",
+   "title": "PLAY-009 Tag chie-launch on Chi è? main",
+   "body": "**Sprint 2: Fork point** · Day 5, Thu Oct 29 · **1 point** · chore\nEpic: {{E2}}\n\nMark the exact commit Chi è? launched from, the fork point of the new repo.\n\n### Acceptance criteria\n\n- [ ] Tag chie-launch on the commit deployed to chie.parlaplay.games\n- [ ] Tag pushed to jennarbates/Italian\n\n### Spec\n\n[5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#51-repository) · [D20](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Repo merge"
+   ],
+   "milestone": "S2",
+   "epic": "E2",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-29"
+  },
+  {
+   "key": "PLAY-010",
+   "title": "PLAY-010 Merge chie-launch into jennarbates/parlaplay",
+   "body": "**Sprint 2: Fork point** · Day 6, Fri Oct 30 · **2 points** · chore\nEpic: {{E2}}\n\nBring Chi è? as launched into the new repo with a normal merge.\n\n### Acceptance criteria\n\n- [ ] main contains the chie-launch commit and git log shows Chi è? history\n- [ ] main is protected and needs green CI to merge\n- [ ] docs/games/it.md is the Chi è? spec; docs/spec.md is still this spec\n\n### Depends on\n\n- {{PLAY-007}}\n- {{PLAY-009}}\n- {{PLAY-056}}\n\n### Spec\n\n[5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#51-repository) · [D4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Repo merge"
+   ],
+   "milestone": "S2",
+   "epic": "E2",
+   "deps": [
+    "PLAY-007",
+    "PLAY-009",
+    "PLAY-056"
+   ],
+   "points": 2,
+   "target_date": "2026-10-30"
+  },
+  {
+   "key": "PLAY-011",
+   "title": "PLAY-011 Move Italian into src/languages/it and shared code into src/core",
+   "body": "**Sprint 2: Fork point** · Day 6, Fri Oct 30 · **3 points** · task\nEpic: {{E2}}\n\nRestructure with git mv so history follows every file.\n\n### Acceptance criteria\n\n- [ ] Folder structure matches spec 9\n- [ ] git log --follow shows Chi è? history for moved files\n- [ ] Every Chi è? unit and e2e test passes in the new layout\n\n### Depends on\n\n- {{PLAY-010}}\n\n### Spec\n\n[5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#51-repository) · [7](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#7-languages-at-launch) · [9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional)",
+   "labels": [
+    "type: task",
+    "epic: Repo merge"
+   ],
+   "milestone": "S2",
+   "epic": "E2",
+   "deps": [
+    "PLAY-010"
+   ],
+   "points": 3,
+   "target_date": "2026-10-30"
+  },
+  {
+   "key": "PLAY-012",
+   "title": "PLAY-012 Import Shéi with its history into src/languages/zh",
+   "body": "**Sprint 2: Fork point** · Day 6, Fri Oct 30 · **3 points** · task\nEpic: {{E2}}\n\nBring in Shéi's engine, content, screens and art as spec 5.1 step 3 describes.\n\n### Acceptance criteria\n\n- [ ] The merge commit has jennarbates/Chinese main as a parent\n- [ ] Shéi files live under src/languages/zh and git log --follow shows their history\n- [ ] docs/games/zh.md is the Shéi spec; docs/reviews holds the golden strings file\n- [ ] Every Shéi unit test passes in the new layout\n\n### Depends on\n\n- {{PLAY-011}}\n\n### Spec\n\n[5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#51-repository) · [7](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#7-languages-at-launch)",
+   "labels": [
+    "type: task",
+    "epic: Repo merge"
+   ],
+   "milestone": "S2",
+   "epic": "E2",
+   "deps": [
+    "PLAY-011"
+   ],
+   "points": 3,
+   "target_date": "2026-10-30"
+  },
+  {
+   "key": "PLAY-013",
+   "title": "PLAY-013 Reconcile the shared code Shéi changed",
+   "body": "**Sprint 2: Fork point** · Day 6, Fri Oct 30 · **2 points** · task\nEpic: {{E2}}\n\nStorage keys, prefs, slip rows and the SRS card list become module hooks instead of forks.\n\n### Acceptance criteria\n\n- [ ] src/core has one copy of storage, sync, srs, prefs and progress\n- [ ] Language differences come only through the LanguageModule fields of spec 3.2\n- [ ] Both games' unit tests pass\n\n### Depends on\n\n- {{PLAY-012}}\n\n### Spec\n\n[5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#51-repository) · [3.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#32-language-module-contract)",
+   "labels": [
+    "type: task",
+    "epic: Repo merge"
+   ],
+   "milestone": "S2",
+   "epic": "E2",
+   "deps": [
+    "PLAY-012"
+   ],
+   "points": 2,
+   "target_date": "2026-10-30"
+  },
+  {
+   "key": "PLAY-014",
+   "title": "PLAY-014 Set up CI and Workers Builds for the new repo",
+   "body": "**Sprint 2: Fork point** · Day 6, Fri Oct 30 · **2 points** · chore\nEpic: {{E2}}\n\nTypecheck, lint, Vitest and Playwright on every push, previews per pull request.\n\n### Acceptance criteria\n\n- [ ] GitHub Actions runs typecheck, lint, Vitest and Playwright (Chromium, WebKit) with a local Supabase\n- [ ] Cloudflare Workers Builds builds each pull request to a preview URL\n- [ ] Both games' test suites run in CI and pass\n\n### Depends on\n\n- {{PLAY-010}}\n\n### Spec\n\n[9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [10.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#103-definition-of-done)",
+   "labels": [
+    "type: chore",
+    "epic: Repo merge"
+   ],
+   "milestone": "S2",
+   "epic": "E2",
+   "deps": [
+    "PLAY-010"
+   ],
+   "points": 2,
+   "target_date": "2026-10-30"
+  },
+  {
+   "key": "PLAY-015",
+   "title": "PLAY-015 Add the language registry with Zod validation",
+   "body": "**Sprint 3: Merged site on staging** · Day 7, Mon Nov 2 · **1 point** · task\nEpic: {{E3}}\n\nsrc/core/languages.json with the two entries of spec 3.1, checked at build time.\n\n### Acceptance criteria\n\n- [ ] languages.json matches the spec 3.1 example\n- [ ] The content check plugin fails the build on an invalid entry\n- [ ] A test checks every code has a module folder and every folder a code (3.4.5)\n\n### Depends on\n\n- {{PLAY-013}}\n\n### Spec\n\n[3.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#31-language-registry) · [3.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#34-invariants-each-checked-by-a-test)",
+   "labels": [
+    "type: task",
+    "epic: Shell and routing"
+   ],
+   "milestone": "S3",
+   "epic": "E3",
+   "deps": [
+    "PLAY-013"
+   ],
+   "points": 1,
+   "target_date": "2026-11-02"
+  },
+  {
+   "key": "PLAY-016",
+   "title": "PLAY-016 Define the LanguageModule contract and both modules",
+   "body": "**Sprint 3: Merged site on staging** · Day 7, Mon Nov 2 · **3 points** · task\nEpic: {{E3}}\n\nEach language exports one LanguageModule; the shell knows nothing else about a language.\n\n### Acceptance criteria\n\n- [ ] src/languages/it/index.ts and src/languages/zh/index.ts export the type of spec 3.2\n- [ ] Routes /{code}, /{code}/play and /{code}/progress come from the module\n- [ ] A test checks lexicon ids are disjoint across languages (3.4.3)\n\n### Depends on\n\n- {{PLAY-015}}\n\n### Spec\n\n[3.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#32-language-module-contract) · [3.5](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#35-content-and-ids) · [D17](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Shell and routing"
+   ],
+   "milestone": "S3",
+   "epic": "E3",
+   "deps": [
+    "PLAY-015"
+   ],
+   "points": 3,
+   "target_date": "2026-11-02"
+  },
+  {
+   "key": "PLAY-017",
+   "title": "PLAY-017 Build the pure shell reducer and routing rules",
+   "body": "**Sprint 3: Merged site on staging** · Day 7, Mon Nov 2 · **3 points** · task\nEpic: {{E3}}\n\nreduce(state, action, registry) in src/core/state, with no React, DOM, network or clock.\n\n### Acceptance criteria\n\n- [ ] Types match spec 4.1\n- [ ] Routing follows the order of spec 4.3\n- [ ] The engine purity lint rule and test cover src/core/state\n\n### Depends on\n\n- {{PLAY-015}}\n\n### Spec\n\n[4.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#41-types) · [4.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#42-transition-table) · [4.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#43-routing-order-for-open) · [D13](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [D14](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Shell and routing"
+   ],
+   "milestone": "S3",
+   "epic": "E3",
+   "deps": [
+    "PLAY-015"
+   ],
+   "points": 3,
+   "target_date": "2026-11-02"
+  },
+  {
+   "key": "PLAY-018",
+   "title": "PLAY-018 Test the shell reducer",
+   "body": "**Sprint 3: Merged site on staging** · Day 7, Mon Nov 2 · **3 points** · test\nEpic: {{E3}}\n\nUnit and property tests for the shell contract.\n\n### Acceptance criteria\n\n- [ ] Every cell of the 4.2 table is a test\n- [ ] Each 4.3 routing rule is tested as the first match\n- [ ] fast-check sequences keep every 4.4 invariant\n- [ ] The 4.5 traced example and both variants pass\n\n### Depends on\n\n- {{PLAY-017}}\n\n### Spec\n\n[4.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#42-transition-table) · [4.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#44-invariants-each-a-test) · [4.5](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#45-traced-example) · [10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Shell and routing"
+   ],
+   "milestone": "S3",
+   "epic": "E3",
+   "deps": [
+    "PLAY-017"
+   ],
+   "points": 3,
+   "target_date": "2026-11-02"
+  },
+  {
+   "key": "PLAY-019",
+   "title": "PLAY-019 Lazy-load language modules and extend the bundle check",
+   "body": "**Sprint 3: Merged site on staging** · Day 7, Mon Nov 2 · **2 points** · task\nEpic: {{E8}}\n\nEach module loads with import() on first visit; the bundle check enforces the budgets.\n\n### Acceptance criteria\n\n- [ ] /languages initial JS is under 150 KB gzipped\n- [ ] /it and /zh are each under 250 KB gzipped with one module\n- [ ] The check fails if /zh loads the it module or /languages loads either\n\n### Depends on\n\n- {{PLAY-016}}\n\n### Spec\n\n[9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [D17](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Quality and performance"
+   ],
+   "milestone": "S3",
+   "epic": "E8",
+   "deps": [
+    "PLAY-016"
+   ],
+   "points": 2,
+   "target_date": "2026-11-02"
+  },
+  {
+   "key": "PLAY-020",
+   "title": "PLAY-020 Namespace device storage keys by language",
+   "body": "**Sprint 3: Merged site on staging** · Day 8, Tue Nov 3 · **2 points** · task\nEpic: {{E4}}\n\nIndexedDB database parlaplay with the keys of spec 3.3.\n\n### Acceptance criteria\n\n- [ ] Every key matches a pattern in the spec 3.3 table\n- [ ] The level before sign-in uses localStorage key parlaplay.level.{code}\n- [ ] A test checks every write by a language uses its own code (3.4.6)\n\n### Depends on\n\n- {{PLAY-016}}\n\n### Spec\n\n[3.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#33-device-storage) · [3.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#34-invariants-each-checked-by-a-test)",
+   "labels": [
+    "type: task",
+    "epic: Accounts and storage"
+   ],
+   "milestone": "S3",
+   "epic": "E4",
+   "deps": [
+    "PLAY-016"
+   ],
+   "points": 2,
+   "target_date": "2026-11-03"
+  },
+  {
+   "key": "PLAY-021",
+   "title": "PLAY-021 Write migration 1 and its migration test",
+   "body": "**Sprint 3: Merged site on staging** · Day 8, Tue Nov 3 · **3 points** · task\nEpic: {{E5}}\n\nsupabase/migrations/20261103000000_languages.sql exactly as spec 6.2.\n\n### Acceptance criteria\n\n- [ ] The migration file matches spec 6.2\n- [ ] On a database seeded with init.sql data every old row becomes it and row counts are unchanged\n- [ ] language_settings holds one it row per profile with the profile's level\n- [ ] RLS refuses a review_log row whose game has the other language\n\n### Depends on\n\n- {{PLAY-013}}\n\n### Spec\n\n[6.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#61-tables-after-migration-1) · [6.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#62-migrations) · [D5](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [D8](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Database and sync"
+   ],
+   "milestone": "S3",
+   "epic": "E5",
+   "deps": [
+    "PLAY-013"
+   ],
+   "points": 3,
+   "target_date": "2026-11-03"
+  },
+  {
+   "key": "PLAY-022",
+   "title": "PLAY-022 Apply migration 1 to staging",
+   "body": "**Sprint 3: Merged site on staging** · Day 8, Tue Nov 3 · **1 point** · chore\nEpic: {{E5}}\n\nRun migration 1 on parlaplay-staging with the Supabase CLI.\n\n### Acceptance criteria\n\n- [ ] supabase db push applies migration 1 to staging without errors\n- [ ] The staging projects are renamed parlaplay-staging and parlaplay-prod in the dashboard\n\n### Depends on\n\n- {{PLAY-021}}\n\n### Spec\n\n[6.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#62-migrations)",
+   "labels": [
+    "type: chore",
+    "epic: Database and sync"
+   ],
+   "milestone": "S3",
+   "epic": "E5",
+   "deps": [
+    "PLAY-021"
+   ],
+   "points": 1,
+   "target_date": "2026-11-03"
+  },
+  {
+   "key": "PLAY-023",
+   "title": "PLAY-023 Make sync, replay and settings language-aware",
+   "body": "**Sprint 3: Merged site on staging** · Day 8, Tue Nov 3 · **3 points** · task\nEpic: {{E5}}\n\nRows carry language; each language replays and upserts only its own cards.\n\n### Acceptance criteria\n\n- [ ] The outbox flushes games before review_log across all languages\n- [ ] A pull splits rows into user:{userId}:{code}\n- [ ] cards upserts set log_count to that language's row count\n- [ ] Level reads and upserts language_settings on (user_id, language)\n\n### Depends on\n\n- {{PLAY-020}}\n- {{PLAY-021}}\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [D12](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Database and sync"
+   ],
+   "milestone": "S3",
+   "epic": "E5",
+   "deps": [
+    "PLAY-020",
+    "PLAY-021"
+   ],
+   "points": 3,
+   "target_date": "2026-11-03"
+  },
+  {
+   "key": "PLAY-024",
+   "title": "PLAY-024 Add the Chi è? compatibility test",
+   "body": "**Sprint 3: Merged site on staging** · Day 8, Tue Nov 3 · **2 points** · test\nEpic: {{E5}}\n\nChi è?'s chie-launch sync code runs against the migrated schema in CI.\n\n### Acceptance criteria\n\n- [ ] A pinned copy of the chie-launch sync code lives in e2e/compat\n- [ ] It uploads games and review_log, pulls, and upserts cards without errors\n- [ ] The test runs in CI on every push\n\n### Depends on\n\n- {{PLAY-021}}\n\n### Spec\n\n[5.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#52-database-migration) · [10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Database and sync"
+   ],
+   "milestone": "S3",
+   "epic": "E5",
+   "deps": [
+    "PLAY-021"
+   ],
+   "points": 2,
+   "target_date": "2026-11-03"
+  },
+  {
+   "key": "PLAY-025",
+   "title": "PLAY-025 Combine the save-guest prompt and multi-language sign-out",
+   "body": "**Sprint 3: Merged site on staging** · Day 8, Tue Nov 3 · **2 points** · story\nEpic: {{E4}}\n\nAs a guest who played both games, I decide once whether to keep my progress.\n\n### Acceptance criteria\n\n- [ ] With guest data in both: Save your Italian and Chinese progress to this account?\n- [ ] With one: Save your Italian progress to this account? or Save your Chinese progress to this account?\n- [ ] Sign-out clears user:{userId}:* for every language and keeps settings:* and app\n- [ ] The unsynced warning counts queued rows of every language\n\n### Depends on\n\n- {{PLAY-017}}\n- {{PLAY-023}}\n\n### Spec\n\n[2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#2-platform-behavior) · [6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [D15](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [D16](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Accounts and storage"
+   ],
+   "milestone": "S3",
+   "epic": "E4",
+   "deps": [
+    "PLAY-017",
+    "PLAY-023"
+   ],
+   "points": 2,
+   "target_date": "2026-11-03"
+  },
+  {
+   "key": "PLAY-026",
+   "title": "PLAY-026 Test separation across storage, sync and Progress",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **2 points** · test\nEpic: {{E8}}\n\nMixed it and zh rows never reach the other language.\n\n### Acceptance criteria\n\n- [ ] fast-check runs mixed rows through storage, sync merge, replay and Progress selectors\n- [ ] Each language sees only its own rows (3.4.1)\n- [ ] Every review_log row points at a game of its language (3.4.2)\n\n### Depends on\n\n- {{PLAY-023}}\n\n### Spec\n\n[3.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#34-invariants-each-checked-by-a-test) · [10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Quality and performance"
+   ],
+   "milestone": "S3",
+   "epic": "E8",
+   "deps": [
+    "PLAY-023"
+   ],
+   "points": 2,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-027",
+   "title": "PLAY-027 Build the language picker at /languages",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **3 points** · story\nEpic: {{E6}}\n\nAs a new visitor, I choose which language to play.\n\n### Acceptance criteria\n\n- [ ] Heading Choose a language and one card per registry entry in registry order\n- [ ] Each card shows the title with its lang, pinyin under 谁？, the English name, level and blurb\n- [ ] A language with a saved round shows Continue round on its card\n- [ ] Fits 360 × 560 with no scroll; side by side from 1024 px, at most 480 px each\n\n### Depends on\n\n- {{PLAY-017}}\n- {{PLAY-016}}\n\n### Spec\n\n[2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#2-platform-behavior) · [8.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#81-screens-and-flow) · [8.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#83-layout)",
+   "labels": [
+    "type: story",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S3",
+   "epic": "E6",
+   "deps": [
+    "PLAY-017",
+    "PLAY-016"
+   ],
+   "points": 3,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-028",
+   "title": "PLAY-028 Add Change language and the Progress language switch",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **2 points** · story\nEpic: {{E6}}\n\nAs a learner of both languages, I move between them from Home and Progress.\n\n### Acceptance criteria\n\n- [ ] Every language Home shows Change language linking to /languages and the English name under the title\n- [ ] Progress shows one segmented button per language, the current one pressed\n- [ ] Switching navigates to /{other}/progress\n\n### Depends on\n\n- {{PLAY-027}}\n\n### Spec\n\n[8.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#81-screens-and-flow) · [2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#2-platform-behavior)",
+   "labels": [
+    "type: story",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S3",
+   "epic": "E6",
+   "deps": [
+    "PLAY-027"
+   ],
+   "points": 2,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-029",
+   "title": "PLAY-029 Merge Settings into one page with per-language sections",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **2 points** · story\nEpic: {{E6}}\n\nAs a learner, I set each language's level and options in one place.\n\n### Acceptance criteria\n\n- [ ] Account section first, then one section per language, then the privacy link\n- [ ] Each language section shows its level and its device settings\n- [ ] Chinese shows Show pinyin at Level 2\n\n### Depends on\n\n- {{PLAY-023}}\n\n### Spec\n\n[8.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#81-screens-and-flow) · [D12](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S3",
+   "epic": "E6",
+   "deps": [
+    "PLAY-023"
+   ],
+   "points": 2,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-030",
+   "title": "PLAY-030 Write the shared privacy note",
+   "body": "**Sprint 3: Merged site on staging** · Day 11, Fri Nov 6 · **1 point** · task\nEpic: {{E6}}\n\nOne note for the whole site at /privacy.\n\n### Acceptance criteria\n\n- [ ] Says one account covers every language and deleting it deletes every language's progress\n- [ ] Gives privacy@parlaplay.games and lists Supabase, Cloudflare, AWS SES and Sentry\n- [ ] Says guest data can be cleared by Safari\n\n### Spec\n\n[8.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#81-screens-and-flow) · [9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync)",
+   "labels": [
+    "type: task",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S3",
+   "epic": "E6",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-11-06"
+  },
+  {
+   "key": "PLAY-031",
+   "title": "PLAY-031 Switch the sign-in email to parlaplay",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **1 point** · chore\nEpic: {{E1}}\n\nThe neutral template and subject on staging, ready for production.\n\n### Acceptance criteria\n\n- [ ] Subject Your parlaplay sign-in code\n- [ ] Body matches the spec 6.3 template\n- [ ] Template committed to supabase/templates and applied to staging\n\n### Depends on\n\n- {{PLAY-002}}\n- {{PLAY-022}}\n\n### Spec\n\n[6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync) · [D19](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Domain, email and vendors"
+   ],
+   "milestone": "S3",
+   "epic": "E1",
+   "deps": [
+    "PLAY-002",
+    "PLAY-022"
+   ],
+   "points": 1,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-032",
+   "title": "PLAY-032 Point previews at parlaplay-staging",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **1 point** · chore\nEpic: {{E5}}\n\nWorkers Builds preview builds use the staging URL and publishable key.\n\n### Acceptance criteria\n\n- [ ] A pull request preview signs in against parlaplay-staging\n- [ ] No preview build contains production settings\n\n### Depends on\n\n- {{PLAY-022}}\n- {{PLAY-014}}\n\n### Spec\n\n[6](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#6-data-and-backend) · [9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional)",
+   "labels": [
+    "type: chore",
+    "epic: Database and sync"
+   ],
+   "milestone": "S3",
+   "epic": "E5",
+   "deps": [
+    "PLAY-022",
+    "PLAY-014"
+   ],
+   "points": 1,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-033",
+   "title": "PLAY-033 Add the not-found screens",
+   "body": "**Sprint 3: Merged site on staging** · Day 9, Wed Nov 4 · **1 point** · story\nEpic: {{E6}}\n\nAs a visitor on a wrong link, I find my way back.\n\n### Acceptance criteria\n\n- [ ] /fr shows We don't have that language yet. with Choose a language\n- [ ] Any other unknown path shows Page not found. with Go home\n\n### Depends on\n\n- {{PLAY-017}}\n\n### Spec\n\n[2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#2-platform-behavior) · [8.1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#81-screens-and-flow)",
+   "labels": [
+    "type: story",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S3",
+   "epic": "E6",
+   "deps": [
+    "PLAY-017"
+   ],
+   "points": 1,
+   "target_date": "2026-11-04"
+  },
+  {
+   "key": "PLAY-034",
+   "title": "PLAY-034 Create the parlaplay Sentry project with language tags",
+   "body": "**Sprint 3: Merged site on staging** · Day 11, Fri Nov 6 · **1 point** · chore\nEpic: {{E8}}\n\nOne Sentry project replaces the two game projects.\n\n### Acceptance criteria\n\n- [ ] Every event has a language tag of it, zh or none\n- [ ] URLs are scrubbed of query strings and fragments\n- [ ] The setting that prevents storing IP addresses is on\n\n### Depends on\n\n- {{PLAY-016}}\n\n### Spec\n\n[9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [D18](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Quality and performance"
+   ],
+   "milestone": "S3",
+   "epic": "E8",
+   "deps": [
+    "PLAY-016"
+   ],
+   "points": 1,
+   "target_date": "2026-11-06"
+  },
+  {
+   "key": "PLAY-035",
+   "title": "PLAY-035 Build /import with validation and merge",
+   "body": "**Sprint 3: Merged site on staging** · Day 10, Thu Nov 5 · **3 points** · story\nEpic: {{E7}}\n\nAs a Chi è? guest arriving from the old address, my progress is waiting for me.\n\n### Acceptance criteria\n\n- [ ] The fragment is removed from the address bar before anything else\n- [ ] Data is validated with Zod and every row gets language it\n- [ ] Rows merge into guest:it by id; a second import adds nothing\n- [ ] Outbox rows flush only when the same user signs in\n- [ ] Failure shows We couldn't bring your progress over. with Try again and Start fresh\n\n### Depends on\n\n- {{PLAY-020}}\n- {{PLAY-006}}\n\n### Spec\n\n[5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#53-guest-handoff-from-chieparlaplaygames) · [D9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Handoff and redirects"
+   ],
+   "milestone": "S3",
+   "epic": "E7",
+   "deps": [
+    "PLAY-020",
+    "PLAY-006"
+   ],
+   "points": 3,
+   "target_date": "2026-11-05"
+  },
+  {
+   "key": "PLAY-036",
+   "title": "PLAY-036 Build the chie handoff page Worker",
+   "body": "**Sprint 3: Merged site on staging** · Day 10, Thu Nov 5 · **3 points** · task\nEpic: {{E7}}\n\nhandoff/ serves only the move page at chie.parlaplay.games.\n\n### Acceptance criteria\n\n- [ ] With no Chi è? data it redirects to parlaplay.games/it plus the mapped path\n- [ ] With data it shows Chi è? has moved to parlaplay.games. Bringing your progress… and navigates to /import\n- [ ] It never reads the Supabase session and never deletes Chi è? data\n\n### Depends on\n\n- {{PLAY-035}}\n\n### Spec\n\n[5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#53-guest-handoff-from-chieparlaplaygames) · [5.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#54-redirects) · [D10](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Handoff and redirects"
+   ],
+   "milestone": "S3",
+   "epic": "E7",
+   "deps": [
+    "PLAY-035"
+   ],
+   "points": 3,
+   "target_date": "2026-11-05"
+  },
+  {
+   "key": "PLAY-037",
+   "title": "PLAY-037 Test the handoff end to end",
+   "body": "**Sprint 3: Merged site on staging** · Day 10, Thu Nov 5 · **2 points** · test\nEpic: {{E7}}\n\nPlaywright with a seeded chi-e database at a second origin.\n\n### Acceptance criteria\n\n- [ ] Seeded rows appear in /it/progress after the handoff\n- [ ] A 500 KB payload works in Chromium and WebKit\n- [ ] Damaged data shows the failure screen and saves nothing\n\n### Depends on\n\n- {{PLAY-036}}\n\n### Spec\n\n[5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#53-guest-handoff-from-chieparlaplaygames) · [10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Handoff and redirects"
+   ],
+   "milestone": "S3",
+   "epic": "E7",
+   "deps": [
+    "PLAY-036"
+   ],
+   "points": 2,
+   "target_date": "2026-11-05"
+  },
+  {
+   "key": "PLAY-038",
+   "title": "PLAY-038 Write the platform e2e suite",
+   "body": "**Sprint 3: Merged site on staging** · Day 10, Thu Nov 5 · **3 points** · test\nEpic: {{E8}}\n\nThe E2E row of spec 10.2 for the platform.\n\n### Acceptance criteria\n\n- [ ] First visit to / shows the picker; choosing zh then reloading / opens /zh\n- [ ] A full round in each language; both saved rounds survive switching\n- [ ] Sign-in with guest data in both languages shows the combined prompt and uploads both\n- [ ] Sign-out clears both; /fr shows the not-found screen\n\n### Depends on\n\n- {{PLAY-025}}\n- {{PLAY-027}}\n- {{PLAY-028}}\n- {{PLAY-033}}\n\n### Spec\n\n[10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Quality and performance"
+   ],
+   "milestone": "S3",
+   "epic": "E8",
+   "deps": [
+    "PLAY-025",
+    "PLAY-027",
+    "PLAY-028",
+    "PLAY-033"
+   ],
+   "points": 3,
+   "target_date": "2026-11-05"
+  },
+  {
+   "key": "PLAY-039",
+   "title": "PLAY-039 Run the accessibility and real-device pass",
+   "body": "**Sprint 3: Merged site on staging** · Day 11, Fri Nov 6 · **2 points** · test\nEpic: {{E8}}\n\nThe Manual row of spec 10.2 for the platform screens.\n\n### Acceptance criteria\n\n- [ ] Picker fits 360 × 560 on a real iPhone and Android phone\n- [ ] Touch targets at least 44 × 44 px on the picker, Settings and /import\n- [ ] LCP under 2.5 s on Lighthouse mobile for /languages, /it and /zh\n\n### Depends on\n\n- {{PLAY-027}}\n- {{PLAY-035}}\n\n### Spec\n\n[9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional) · [10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests) · [8.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#83-layout)",
+   "labels": [
+    "type: test",
+    "epic: Quality and performance"
+   ],
+   "milestone": "S3",
+   "epic": "E8",
+   "deps": [
+    "PLAY-027",
+    "PLAY-035"
+   ],
+   "points": 2,
+   "target_date": "2026-11-06"
+  },
+  {
+   "key": "PLAY-040",
+   "title": "PLAY-040 Deploy the playtest build to staging",
+   "body": "**Sprint 3: Merged site on staging** · Day 10, Thu Nov 5 · **1 point** · chore\nEpic: {{E9}}\n\nA stable staging build for Friday's playtests.\n\n### Acceptance criteria\n\n- [ ] main deployed to the staging preview URL\n- [ ] Both games and sign-in work there\n\n### Depends on\n\n- {{PLAY-038}}\n- {{PLAY-032}}\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
+   "labels": [
+    "type: chore",
+    "epic: Playtest and fixes"
+   ],
+   "milestone": "S3",
+   "epic": "E9",
+   "deps": [
+    "PLAY-038",
+    "PLAY-032"
+   ],
+   "points": 1,
+   "target_date": "2026-11-05"
+  },
+  {
+   "key": "PLAY-041",
+   "title": "PLAY-041 Run the playtests on staging",
+   "body": "**Sprint 3: Merged site on staging** · Day 11, Fri Nov 6 · **3 points** · test\nEpic: {{E9}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nShéi's planned playtest plus one Chi è? player, on the merged site.\n\n### Acceptance criteria\n\n- [ ] 3 or more HSK 1 learners play as Shéi spec 10.2 says\n- [ ] One Chi è? player plays a round and confirms nothing regressed\n- [ ] Every confusing string and bug logged\n\n### Depends on\n\n- {{PLAY-040}}\n\n### Spec\n\n[10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Playtest and fixes",
+    "waits on others"
+   ],
+   "milestone": "S3",
+   "epic": "E9",
+   "deps": [
+    "PLAY-040"
+   ],
+   "points": 3,
+   "target_date": "2026-11-06"
+  },
+  {
+   "key": "PLAY-042",
+   "title": "PLAY-042 Triage the playtest findings",
+   "body": "**Sprint 3: Merged site on staging** · Day 11, Fri Nov 6 · **1 point** · task\nEpic: {{E9}}\n\nSort findings into must-fix and later.\n\n### Acceptance criteria\n\n- [ ] Each finding is must-fix or moved to section 11 of the right spec\n- [ ] Each must-fix finding is an issue in the Sprint 4 milestone\n\n### Depends on\n\n- {{PLAY-041}}\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
+   "labels": [
+    "type: task",
+    "epic: Playtest and fixes"
+   ],
+   "milestone": "S3",
+   "epic": "E9",
+   "deps": [
+    "PLAY-041"
+   ],
+   "points": 1,
+   "target_date": "2026-11-06"
+  },
+  {
+   "key": "PLAY-043",
+   "title": "PLAY-043 Fix the first must-fix findings",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **5 points** · task\nEpic: {{E9}}\n\nWork the must-fix list from the top.\n\n### Acceptance criteria\n\n- [ ] The highest-priority must-fix findings fixed with tests\n- [ ] CI green\n\n### Depends on\n\n- {{PLAY-042}}\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
+   "labels": [
+    "type: task",
+    "epic: Playtest and fixes"
+   ],
+   "milestone": "S4",
+   "epic": "E9",
+   "deps": [
+    "PLAY-042"
+   ],
+   "points": 5,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-044",
+   "title": "PLAY-044 Fix the remaining must-fix findings",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **5 points** · task\nEpic: {{E9}}\n\nFinish the must-fix list.\n\n### Acceptance criteria\n\n- [ ] Every must-fix finding closed\n- [ ] CI green\n\n### Depends on\n\n- {{PLAY-043}}\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
+   "labels": [
+    "type: task",
+    "epic: Playtest and fixes"
+   ],
+   "milestone": "S4",
+   "epic": "E9",
+   "deps": [
+    "PLAY-043"
+   ],
+   "points": 5,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-045",
+   "title": "PLAY-045 Retest fixes on real phones",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **2 points** · test\nEpic: {{E9}}\n\nRepeat the manual pass for every screen a fix touched.\n\n### Acceptance criteria\n\n- [ ] Each fix checked on a real iPhone and Android phone\n- [ ] Results logged\n\n### Depends on\n\n- {{PLAY-044}}\n\n### Spec\n\n[10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#102-tests)",
+   "labels": [
+    "type: test",
+    "epic: Playtest and fixes"
+   ],
+   "milestone": "S4",
+   "epic": "E9",
+   "deps": [
+    "PLAY-044"
+   ],
+   "points": 2,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-046",
+   "title": "PLAY-046 Write the launch-hour runbook",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **2 points** · task\nEpic: {{E10}}\n\nEvery launch step in order, with the check after each and how to roll back.\n\n### Acceptance criteria\n\n- [ ] Steps match spec 10.4 day 16 in order\n- [ ] Each step names its check and its rollback\n- [ ] Rollback restores chie.parlaplay.games to Chi è? within 10 minutes\n\n### Depends on\n\n- {{PLAY-022}}\n\n### Spec\n\n[5.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#52-database-migration) · [10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
+   "labels": [
+    "type: task",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-022"
+   ],
+   "points": 2,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-047",
+   "title": "PLAY-047 Rehearse migration 1 on a copy of production",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **3 points** · test\nEpic: {{E10}}\n\nLoad a production dump into staging and run migration 1 there.\n\n### Acceptance criteria\n\n- [ ] Row counts before and after match for profiles, games, review_log and cards\n- [ ] Every row has language it\n- [ ] The compatibility test passes against the rehearsed database\n- [ ] The dump is deleted from every machine afterwards\n\n### Depends on\n\n- {{PLAY-022}}\n- {{PLAY-046}}\n\n### Spec\n\n[6.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#62-migrations) · [10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
+   "labels": [
+    "type: test",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-022",
+    "PLAY-046"
+   ],
+   "points": 3,
+   "target_date": "2026-11-12"
+  },
+  {
+   "key": "PLAY-048",
+   "title": "PLAY-048 Write the README",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **2 points** · task\nEpic: {{E10}}\n\nHow to run, test, deploy, add a language and apply migrations.\n\n### Acceptance criteria\n\n- [ ] Covers run, test, deploy and the migration order local, staging, production\n- [ ] Adding a language: registry entry, module folder, one languages row\n\n### Depends on\n\n- {{PLAY-016}}\n\n### Spec\n\n[10.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#103-definition-of-done)",
+   "labels": [
+    "type: task",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-016"
+   ],
+   "points": 2,
+   "target_date": "2026-11-12"
+  },
+  {
+   "key": "PLAY-049",
+   "title": "PLAY-049 Sweep the definition of done",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **1 point** · task\nEpic: {{E10}}\n\nCheck every 10.3 box that can be checked before launch.\n\n### Acceptance criteria\n\n- [ ] Every pre-launch 10.3 item checked with a link to its evidence\n- [ ] Launch-day items listed in the runbook\n\n### Depends on\n\n- {{PLAY-045}}\n- {{PLAY-047}}\n- {{PLAY-048}}\n\n### Spec\n\n[10.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#103-definition-of-done)",
+   "labels": [
+    "type: task",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-045",
+    "PLAY-047",
+    "PLAY-048"
+   ],
+   "points": 1,
+   "target_date": "2026-11-12"
+  },
+  {
+   "key": "PLAY-050",
+   "title": "PLAY-050 Apply migration 1 to production",
+   "body": "**Sprint 4: Fix and launch** · Day 16, Fri Nov 13 · **1 point** · chore\nEpic: {{E10}}\n\nFirst step of the launch hour.\n\n### Acceptance criteria\n\n- [ ] supabase db push applies migration 1 to parlaplay-prod\n- [ ] Row counts match the rehearsal's checks\n\n### Depends on\n\n- {{PLAY-047}}\n- {{PLAY-049}}\n\n### Spec\n\n[6.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#62-migrations) · [5.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#52-database-migration)",
+   "labels": [
+    "type: chore",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-047",
+    "PLAY-049"
+   ],
+   "points": 1,
+   "target_date": "2026-11-13"
+  },
+  {
+   "key": "PLAY-051",
+   "title": "PLAY-051 Deploy parlaplay.games and the handoff Worker",
+   "body": "**Sprint 4: Fix and launch** · Day 16, Fri Nov 13 · **2 points** · chore\nEpic: {{E10}}\n\nProduction deploy of main and of handoff/.\n\n### Acceptance criteria\n\n- [ ] parlaplay.games serves the picker, /it and /zh from main\n- [ ] chie.parlaplay.games serves only the handoff page\n\n### Depends on\n\n- {{PLAY-050}}\n- {{PLAY-036}}\n\n### Spec\n\n[5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#53-guest-handoff-from-chieparlaplaygames) · [9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#9-non-functional)",
+   "labels": [
+    "type: chore",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-050",
+    "PLAY-036"
+   ],
+   "points": 2,
+   "target_date": "2026-11-13"
+  },
+  {
+   "key": "PLAY-052",
+   "title": "PLAY-052 Turn on redirects and the parlaplay sender",
+   "body": "**Sprint 4: Fix and launch** · Day 16, Fri Nov 13 · **1 point** · chore\nEpic: {{E10}}\n\nRedirect rules and the production email settings.\n\n### Acceptance criteria\n\n- [ ] shei.parlaplay.games/* and www.parlaplay.games/* return 301 to the spec 5.4 targets\n- [ ] Production sends from hello@parlaplay.games with the parlaplay template\n- [ ] A sign-in code email reaches an address outside the team\n\n### Depends on\n\n- {{PLAY-051}}\n- {{PLAY-031}}\n- {{PLAY-001}}\n\n### Spec\n\n[5.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#54-redirects) · [6.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#63-auth-and-sync)",
+   "labels": [
+    "type: chore",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-051",
+    "PLAY-031",
+    "PLAY-001"
+   ],
+   "points": 1,
+   "target_date": "2026-11-13"
+  },
+  {
+   "key": "PLAY-053",
+   "title": "PLAY-053 Verify the launch on real phones",
+   "body": "**Sprint 4: Fix and launch** · Day 16, Fri Nov 13 · **1 point** · test\nEpic: {{E10}}\n\nThe launch-day checks of 10.3.\n\n### Acceptance criteria\n\n- [ ] A full round of each game on a real iPhone and Android phone\n- [ ] A real Chi è? guest's progress arrives through the handoff on Safari iOS\n- [ ] Sentry receives a test error tagged language with no fragment\n\n### Depends on\n\n- {{PLAY-052}}\n\n### Spec\n\n[10.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#103-definition-of-done)",
+   "labels": [
+    "type: test",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S4",
+   "epic": "E10",
+   "deps": [
+    "PLAY-052"
+   ],
+   "points": 1,
+   "target_date": "2026-11-13"
+  },
+  {
+   "key": "PLAY-054",
+   "title": "PLAY-054 Apply migration 2 after old clients stop",
+   "body": "**Sprint 5: Cleanup** · Day 17, Fri Nov 27 · **2 points** · chore\nEpic: {{E10}}\n\nRemove the compatibility defaults and profiles.level.\n\n### Acceptance criteria\n\n- [ ] Supabase logs show no chie-launch client sync for 7 days\n- [ ] Migration 2 applied local, staging, then production\n- [ ] The compatibility test is removed from CI in the same pull request\n\n### Depends on\n\n- {{PLAY-050}}\n\n### Spec\n\n[6.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#62-migrations) · [D8](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S5",
+   "epic": "E10",
+   "deps": [
+    "PLAY-050"
+   ],
+   "points": 2,
+   "target_date": "2026-11-27"
+  },
+  {
+   "key": "PLAY-055",
+   "title": "PLAY-055 Archive the Italian and Chinese repos",
+   "body": "**Sprint 5: Cleanup** · Day 17, Fri Nov 27 · **1 point** · chore\nEpic: {{E10}}\n\nPoint both old repos at the new one and archive them.\n\n### Acceptance criteria\n\n- [ ] Each README's first line points to jennarbates/parlaplay\n- [ ] Both repos archived on GitHub\n\n### Depends on\n\n- {{PLAY-051}}\n\n### Spec\n\n[10.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#103-definition-of-done) · [D4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Launch and cleanup"
+   ],
+   "milestone": "S5",
+   "epic": "E10",
+   "deps": [
+    "PLAY-051"
+   ],
+   "points": 1,
+   "target_date": "2026-11-27"
+  }
+ ]
+}
