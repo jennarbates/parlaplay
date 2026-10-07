@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | v0.2 draft, 2026-10-07. Becomes `v1` after the sign-off in section 10.1 |
+| Status | v0.3 draft, 2026-10-07. Becomes `v1` after the sign-off in section 10.1 |
 | Product name | **parlaplay**, written in lowercase everywhere, at `parlaplay.games`. The games keep their own names: **Chi è?** (Italian) and **谁？** (*Shéi?*, Chinese). Never use "Guess Who" or any Hasbro title in public branding, as in both game specs |
 | Scope of this document | The shared platform: one site, one login, language choice, and data kept apart by language. Each game's rules, content, engine and game screens stay in its own spec: `docs/games/it.md` (today `jennarbates/Italian` `spec.md`) and `docs/games/zh.md` (today `jennarbates/Chinese` `spec.md`) |
 | Audience | Whoever builds, reviews or tests the merged site |
@@ -76,7 +76,7 @@ Anything not in the left column is out. New ideas go to section 11, not into the
 | `/it/progress` for a player with no Italian data but some Chinese | Italian empty state from the game spec. The language switch still shows Chinese |
 | Content version of one language changes | Only that language's saved round is discarded (game spec 3.6 or 3.7). Other languages keep theirs |
 | Signed in on two devices, playing different languages at once | Independent: rows carry their language, sync is a union by id |
-| Guest data in Italian and Chinese, then sign-in | One prompt: `Save your Italian and Chinese progress to this account?` (section 6.3) |
+| Guest data in Italian and Chinese, then sign-in | One prompt: `Save your Italian and Chinese progress to this account?`, languages in registry order (section 6.3) |
 | Guest data in one language only, then sign-in | `Save your Italian progress to this account?` or `Save your Chinese progress to this account?` |
 | `profiles.last_language` differs from the device's last language | The device wins on that device. Choosing a language writes both |
 | Old link to `https://chie.parlaplay.games/play` | Handoff page, then `https://parlaplay.games/it/play` (section 5.3) |
@@ -109,6 +109,7 @@ const Language = z.strictObject({
   titlePinyin: z.string().optional(), // shown under the title when present
   blurb: z.string(),         // one English line on the picker card
   level: z.string(),         // the learner level the game targets
+  contentVersion: z.int().positive(), // copied from src/languages/{code}/content/version.json at build time
 });
 ```
 
@@ -122,7 +123,7 @@ const Language = z.strictObject({
 ]
 ```
 
-The registry lives in `src/core/languages.json`, validated with Zod at build time like all content.
+The registry lives in `src/core/languages.json`, validated with Zod at build time like all content. The `contentVersion` field is not written by hand: the build copies it from each language's `version.json`, and a test checks the two agree. It lets the picker check a saved round without loading the language (8.1).
 
 ### 3.2 Language module contract
 
@@ -194,7 +195,8 @@ const ReviewLogRow = z.strictObject({
 4. The registry's codes equal the rows of the database `languages` table (6.1), checked against the migration files.
 5. Every registry code has a module folder, and every module folder has a registry entry.
 6. Every storage key a language writes matches one of the per-language patterns in 3.3 with its own code.
-7. The sign-in prompt names exactly the languages with guest rows.
+7. The sign-in prompt names exactly the languages with guest rows, in registry order.
+8. Each registry `contentVersion` equals that language's `version.json`.
 
 ### 3.5 Content and ids
 
@@ -210,6 +212,7 @@ The shell is the code in `src/core/`: routing, language choice, account, storage
 
 ```ts
 type ShellState = {
+  hydrated: boolean;               // the app key has been read from IndexedDB
   language: LanguageCode | null;   // the language whose routes are open
   lastLanguage: LanguageCode | null;
   account: { kind: "guest" } | { kind: "signedIn"; userId: string };
@@ -218,6 +221,7 @@ type ShellState = {
 };
 
 type ShellAction =
+  | { type: "HYDRATED"; lastLanguage: LanguageCode | null } // the app key has been read
   | { type: "OPEN"; path: string }                         // any navigation, including the first load
   | { type: "CHOOSE"; code: LanguageCode }                 // a picker card
   | { type: "SIGNED_IN"; userId: string; serverLast: LanguageCode | null }
@@ -238,7 +242,7 @@ type ShellEffect =
 
 ### 4.2 Transition table
 
-`P` = the save-guest prompt is open. `U` = the unsynced sign-out prompt is open. `-` = ignored, no change, no effects.
+`P` = the save-guest prompt is open. `U` = the unsynced sign-out prompt is open. `-` = ignored, no change, no effects. HYDRATED is accepted once, in every state: it sets `hydrated` and `lastLanguage` and re-runs OPEN for the current path; a second HYDRATED is ignored.
 
 | State | OPEN | CHOOSE | SIGNED_IN | SAVE_GUEST | SIGN_OUT | CONFIRM_SIGN_OUT |
 |---|---|---|---|---|---|---|
@@ -251,6 +255,7 @@ type ShellEffect =
 
 The first rule that matches decides.
 
+0. Path is `/` and `hydrated` is false: render the skeleton and wait. HYDRATED sets `hydrated` and `lastLanguage`, then re-runs OPEN for the current path.
 1. Path is `/` and `lastLanguage` is set: `navigate /{lastLanguage}` with `replace: true`.
 2. Path is `/` and `lastLanguage` is null: `navigate /languages` with `replace: true`.
 3. Path is `/languages`, `/settings`, `/privacy` or `/import`: language becomes null; render that page.
@@ -269,7 +274,7 @@ The first rule that matches decides.
 
 Guest with Italian and Chinese guest data signs in on `/zh/progress`.
 
-1. State: `{ language: "zh", lastLanguage: "zh", account: guest, guestLanguages: ["it", "zh"], prompt: null }`.
+1. State: `{ hydrated: true, language: "zh", lastLanguage: "zh", account: guest, guestLanguages: ["it", "zh"], prompt: null }`.
 2. The sign-in sheet verifies the code; the shell dispatches `SIGNED_IN { userId: "u1", serverLast: "it" }`.
 3. Guest data exists, so the state becomes signed in with `prompt: { kind: "saveGuest", languages: ["it", "zh"] }`. The device's last language (`zh`) is kept over `serverLast` (section 2).
 4. The prompt reads `Save your Italian and Chinese progress to this account?`. The player taps `Save`.
@@ -319,12 +324,12 @@ The existing Chi è? Supabase projects (staging and production) become parlaplay
 
 1. Read the fragment, then remove it from the address bar with `history.replaceState`.
 2. Decode and validate with Zod: Chi è?'s `GameRow`, `ReviewLogRow` and saved round shapes. Add `language: "it"` to every row.
-3. Merge into `guest:it` by id (union). The saved round goes to `round:it` unless one exists that started later.
+3. Merge into `guest:it` by id (union). The saved round goes to `round:it` unless one already exists whose games row has a later `startedAt`; if either games row is missing, the existing round is kept.
 4. Outbox rows go to `outbox:pending-handoff`, keeping their `user_id`. They are flushed only when that same user signs in on `parlaplay.games`. If a different account signs in, they stay untouched; they are deleted when the `handoff` key is older than 30 days.
-5. Save `handoff`, then navigate to `next`.
+5. Save `handoff`, dispatch CHOOSE `it` (so `/` opens Italian next time), then navigate to `next`. `next` must be exactly `/it`, `/it/play` or `/it/progress`; any other value becomes `/it`, so a crafted link cannot redirect anywhere else.
 6. On any failure: `We couldn't bring your progress over.` with `Try again` (back to `https://chie.parlaplay.games/`) and `Start fresh` (to `/it`).
 
-**Size.** A heavy guest after two weeks has a few hundred log rows, about 100 KB of JSON. `TBD: verify` the largest fragment Safari on iOS accepts in a navigation; the CI handoff test uses a 500 KB payload in Chromium and WebKit.
+**Size.** A heavy guest after two weeks has a few hundred log rows, about 100 KB of JSON. Measured Wed Oct 7 (`planning/spikes/fragment/`): a cross-origin navigation carries a 1 MB fragment intact in desktop Chromium and WebKit, and both refuse 2 MB. To keep a wide margin, the handoff page gzips the JSON with the browser's built-in `CompressionStream` before base64url-encoding it, and `/import` decompresses it with `DecompressionStream`. If the encoded data is still over 900 KB, the handoff page does not navigate and shows `Your progress is too large to move automatically. Email privacy@parlaplay.games and we'll move it for you.` `TBD: verify` on a real iPhone (Safari) and Android phone (Chrome) with the spike page. The CI handoff test uses a 500 KB encoded payload in Chromium and WebKit.
 
 ### 5.4 Redirects
 
@@ -349,8 +354,8 @@ The existing Chi è? Supabase projects (staging and production) become parlaplay
 | Environment | Supabase | Used by |
 |---|---|---|
 | Local | Supabase CLI in Docker, local inbox for sign-in emails | Development, Vitest sync and compatibility tests, Playwright, CI |
-| Staging | The Chi è? staging project, renamed `parlaplay-staging` | Pull request previews of `jennarbates/parlaplay` |
-| Production | The Chi è? production project (Pro from Wed Oct 28), renamed `parlaplay-prod` | `main` at `parlaplay.games` |
+| Staging | The Chi è? staging project `chie-staging` (ref `advadzvwrdvdcjcyfpqn`, us-east-2), renamed `parlaplay-staging` | Pull request previews of `jennarbates/parlaplay` |
+| Production | The Chi è? production project `chie-production` (ref `oillflkmujmbmuosluup`, us-east-2, Pro from Wed Oct 28), renamed `parlaplay-prod` | `main` at `parlaplay.games` |
 
 No new projects are needed. The Supabase Free plan allows 2 active free projects and pauses them after a week without activity; Pro is $25 a month per organization with $10 of compute credit, which covers one Micro instance (References). Production is already on Pro for Chi è?, so the merge adds no cost.
 
@@ -504,11 +509,11 @@ As Chi è? spec 7.3 in full, with these changes.
   <p>It works for 1 hour. If you didn't ask for it, you can ignore this email.</p>
   ```
 
-  `TBD: verify` the code lifetime set in the production project's Auth settings and match the sentence to it.
-- **Guest to account.** One prompt for every language with guest data (section 2 strings). `Save` uploads all of them; `Don't save` deletes all of them. The upload sends every language's `games` rows, then every language's `review_log` rows, with `on conflict (id) do nothing`.
+  The local `supabase/config.toml` sets `otp_length = 6` and `otp_expiry = 3600` (1 hour). `TBD: verify` the production project's Email OTP Expiration is also 3600 seconds (dashboard: Authentication, Email provider); the CLI cannot read it.
+- **Guest to account.** One prompt for every language with guest data (section 2 strings), naming the languages in registry order. `Save` uploads all of them; `Don't save` deletes all of them and removes `round:{code}` for those languages, since a saved round's games row would never reach the server. The upload sends every language's `games` rows, then every language's `review_log` rows, with `on conflict (id) do nothing`.
 - **Sync.** Each row carries `language`. The outbox flushes `games` before `review_log` across all languages. A pull downloads the user's rows of every language (RLS allows it) and splits them into `user:{userId}:{code}`. Each language replays only its own rows and upserts its own `cards` with `log_count` set to that language's row count.
-- **Settings.** Level is read from `language_settings` for the open language (no row means level 1) and written with an upsert on `(user_id, language)`. `last_language` is written to `profiles` on CHOOSE (4.2).
-- **Sign-out.** Clears `user:{userId}:*` for every language and `outbox:{userId}`, after the unsynced warning if any row is queued in any language. Keeps `settings:*` and `app` (device settings, as Shéi 7.3).
+- **Settings.** Level is read from `language_settings` for the open language and written with an upsert on `(user_id, language)`. At sign-in, for each language with no row, the device's level (`parlaplay.level.{code}`, default 1) is upserted; where a row exists, the row wins and is copied to the device. `last_language` is written to `profiles` on CHOOSE (4.2).
+- **Sign-out.** Clears `user:{userId}:*` and `round:{code}` for every language, and `outbox:{userId}`, after the unsynced warning if any row is queued in any language. Keeps `settings:*` and `app` (device settings, as Shéi 7.3).
 - **Account deletion.** By email request to `privacy@parlaplay.games`, handled within one month. Deleting the auth user cascades to every language's rows. The privacy note says that deleting the account deletes progress in every language.
 
 ---
@@ -608,7 +613,7 @@ The engine purity lint rule and test cover `src/languages/*/engine/` and `src/co
 
 **Hosting.** Cloudflare Workers static assets at `parlaplay.games`, with `assets.not_found_handling = "single-page-application"` so deep links work. Requests to static assets are free and unlimited (References). Rejected alternatives as both game specs (Vercel's free plan is non-commercial; GitHub Pages forbids running a business and has no previews).
 
-**Error reporting.** One Sentry project, `parlaplay`, replacing the two game projects. Every event is tagged `language` (`it`, `zh` or `none`). Same privacy rules as Chi è? 9 (errors only, every data collection category off, URLs scrubbed of query strings and fragments, which matters more now because `/import` carries data in the fragment). The free Developer plan allows one user and 5,000 errors a month (References); `TBD: verify` on sentry.io/pricing before launch.
+**Error reporting.** One Sentry project, `parlaplay`, replacing the two game projects. Every event is tagged `language` (`it`, `zh` or `none`). Same privacy rules as Chi è? 9 (errors only, every data collection category off, URLs scrubbed of query strings and fragments, which matters more now because `/import` carries data in the fragment). The free Developer plan allows one user, 5,000 errors a month and a 30-day lookback, with unlimited projects; the quota is shared across the organization (References, checked Wed Oct 7). Spike Protection is turned on for the project, so a burst of one error cannot use up the month.
 
 **Privacy.** Guests' data never leaves the device, in any language. Accounts store email, profile, per-language settings, games, review log and cards. Third parties as both game specs: Supabase, Cloudflare, AWS SES, Sentry. No analytics.
 
@@ -637,7 +642,7 @@ The engine purity lint rule and test cover `src/languages/*/engine/` and `src/co
 | Sync | Vitest + local Supabase | Both game specs' sync tests, run per language; a user's `it` and `zh` rows round-trip; `review_log` insert with a game of the other language is refused by RLS; `language_settings` RLS blocks another user |
 | Migration | Vitest + local Supabase | Migration 1 on a database holding `init.sql` data: every old row becomes `it`, levels copy to `language_settings`, row counts unchanged; migration 2 applies after it |
 | Compatibility | Vitest + local Supabase | Chi è? `chie-launch` sync code (pinned copy in `e2e/compat/`) uploads, pulls and upserts cards against the migrated schema without errors (5.2) |
-| Handoff | Vitest | Encoding round-trip; Zod rejects damaged data; merge into existing `guest:it` is a union; second import adds nothing |
+| Handoff | Vitest | Encoding round-trip; Zod rejects damaged data; merge into existing `guest:it` is a union; second import adds nothing; `next` outside the three allowed paths becomes `/it`; the newer saved round is kept |
 | E2E | Playwright (Chromium, WebKit) | First visit to `/` shows the picker; choosing `zh` then reloading `/` opens `/zh`; a full round in each language; a saved round in each language survives switching; Progress switch shows only that language; sign-in with guest data in both languages shows the combined prompt and uploads both; sign-out clears both; `/fr` shows the not-found screen; handoff from a seeded `chi-e` database at a second origin lands the rows in `/it/progress`; a 500 KB handoff payload works |
 | Each game | As its game spec | Every test in both game specs passes inside the merged repo |
 | Bundle | Script | Budgets in 9; `/languages` loads no language module; `/zh` does not load `it` |
@@ -670,7 +675,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 
 | Day | Date | Capacity | Deliverable | Done when |
 |---|---|---|---|---|
-| 1 | Thu Oct 8 | Half | (Done Wed Oct 7: `jennarbates/parlaplay` created with this spec and the backlog.) Confirm `parlaplay.games` root is owned and unused; create the SES domain identity `parlaplay.games`; this spec to owner review | Root domain answers only Cloudflare; SES identity pending verification; review date set (Wed Oct 14) |
+| 1 | Thu Oct 8 | Half | (Done Wed Oct 7: `jennarbates/parlaplay` created with this spec and the backlog. Public DNS checked Wed Oct 7: the zone is on Cloudflare name servers, and the root and `www` have no records.) Confirm `parlaplay.games` root is owned and unused; create the SES domain identity `parlaplay.games`; this spec to owner review | Root domain answers only Cloudflare; SES identity pending verification; review date set (Wed Oct 14) |
 | 2 | Fri Oct 9 | Half | Paper trace 10.1; spike: largest handoff fragment in Safari iOS | Trace done, TBDs listed; fragment limit recorded in 5.3 |
 | 3 | Mon Oct 12 to Wed Oct 14 | Half | Revise spec; tag `v1` | Spec `v1` tagged |
 | 4 | Thu Oct 15 to Wed Oct 28 | Half | Shéi game work per its spec (content review, engine), in `jennarbates/Chinese` | Shéi spec milestones 3 and 4 done |
@@ -727,6 +732,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 | D19 | Sender `hello@parlaplay.games`, subject `Your parlaplay sign-in code` | Neutral for every language; SES production access is per account and Region, so it carries over |
 | D20 | Chi è? launches unchanged on Oct 29; the merged site launches with Shéi on Nov 13 | Keeps the merge from risking Chi è?'s launch |
 | D21 | Lexicon ids must be disjoint across languages | Makes the compatibility window safe and keeps Progress labels unambiguous |
+| D22 | The handoff gzips its data and refuses above 900 KB encoded | Measured: 1 MB fragments arrive and 2 MB are refused on desktop; gzip makes JSON several times smaller, and a clear refusal beats a silent failure |
 
 ---
 
@@ -738,7 +744,9 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 - Cloudflare Workers pricing (static assets free and unlimited): https://developers.cloudflare.com/workers/platform/pricing/
 - Cloudflare Workers static assets, single-page application routing: https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/
 - Amazon SES, production access per account and Region: https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html
-- Sentry free Developer plan (1 user, 5,000 errors a month), secondary source, `TBD: verify` on sentry.io: https://costbench.com/software/developer-tools/sentry/free-plan/
+- Sentry pricing (Developer plan: 1 user, 5k errors a month, 30-day lookback): https://sentry.io/pricing/
+- Sentry quota management (quota shared across all projects in an organization): https://docs.sentry.io/pricing/quotas/
+- Sentry Spike Protection: https://docs.sentry.io/pricing/quotas/spike-protection
 - RFC 3986, section 3.5: the fragment is not sent to the server: https://www.rfc-editor.org/rfc/rfc3986#section-3.5
 - MDN, same-origin policy and storage (IndexedDB is per origin): https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
 - BCP 47 language tags: https://www.rfc-editor.org/info/bcp47
@@ -750,5 +758,6 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 ## Changelog
 
 - 2026-10-07: v0 draft.
+- 2026-10-07: v0.3. Fragment spike: 1 MB arrives, 2 MB refused on desktop; handoff gzips and caps at 900 KB (5.3, D22). Paper trace (docs/reviews/platform-paper-trace.md) fixes F1 to F9: wait for the app key before routing `/`; registry carries each contentVersion; prompt languages in registry order; Don't save and sign-out remove saved rounds; guest level kept at sign-in; `/import` accepts only three `next` paths, compares rounds by games row start, and sets the last language. Sentry facts verified; Supabase project refs recorded.
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).
