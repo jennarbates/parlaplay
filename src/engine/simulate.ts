@@ -1,8 +1,8 @@
 // Spec 5 and CHI-047: play whole games with a scripted player to measure the
 // CPU. Pure, so tests and scripts/simulate.ts can both use it.
-import { indexContent } from "./content.ts";
-import { evaluate } from "./meaning.ts";
-import { allQuestions } from "./questions.ts";
+import { indexContent, need } from "./content.ts";
+import { evaluate } from "./predicate.ts";
+import { allQuestions, questionTokens } from "./questions.ts";
 import { startGame } from "./start.ts";
 import { step } from "./step.ts";
 import type { EngineContent, GameState } from "./types.ts";
@@ -24,6 +24,8 @@ export function simulateGame(
   content: EngineContent,
 ): GameSummary {
   const index = indexContent(content);
+  const noun = (id: string) => need(index.noun, id);
+  const character = (id: string) => need(index.character, id).attrs;
   const questions = allQuestions(content);
   let s: GameState = startGame(seed, 2, content);
   let candidates = content.characters.map((c) => c.id);
@@ -45,23 +47,22 @@ export function simulateGame(
               .map((q) => ({
                 q,
                 d: Math.abs(
-                  candidates.filter((id) =>
-                    evaluate(q.asked, index.character.get(id)?.attrs ?? ({} as never)),
-                  ).length -
+                  candidates.filter((id) => evaluate(noun(q.nounId), character(id))).length -
                     candidates.length / 2,
                 ),
               }))
               .sort((a, b) => a.d - b.d)[0]?.q;
       if (!pick) throw new Error("no question left");
-      s = step(s, { type: "ASK", templateId: pick.templateId, fill: pick.fill }, content).state;
+      s = step(s, { type: "ASK", tokens: questionTokens(pick, "pr.ta.m") }, content).state;
       const last = s.history.at(-1);
       if (last)
         candidates = candidates.filter(
-          (id) =>
-            evaluate(pick.asked, index.character.get(id)?.attrs ?? ({} as never)) === last.answer,
+          (id) => evaluate(noun(pick.nounId), character(id)) === last.answer,
         );
     } else if (s.phase === "cpuTurn") {
-      s = step(s, { type: "ANSWER", value: true, hintShown: false }, content).state;
+      const pending = s.pendingCpuQuestion;
+      const verb = pending && index.verb.get(pending.key.split("|")[0] ?? "");
+      s = step(s, { type: "ANSWER", answerId: verb?.yes ?? "", hintShown: false }, content).state;
     } else {
       s = step(s, { type: "END_TURN" }, content).state;
     }

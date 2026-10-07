@@ -1,31 +1,80 @@
-// Spec 2 and 3.4: one template renders the question and both answers, always in
-// the words the asker chose (castani and marroni each render as themselves).
-import type { Template } from "../content/schemas.ts";
-import { parseAdjRef, type Index } from "./content.ts";
-import type { Fill } from "./types.ts";
+// Spec 3.4: questions are {pron}{verb}{obj}吗？ and answers are the short answer,
+// a comma, then the full sentence with the asker's pronoun (spec 2, D5, D6).
+// Pinyin is written out in the lexicon, never computed: words are joined with
+// spaces, punctuation sticks to the word before it, and the first letter is
+// capitalised (GB/T 16159-2012).
+import { indexContent, ma, need } from "./content.ts";
+import type { EngineContent } from "./types.ts";
 
-export function renderQuestion(template: Template, fill: Fill, index: Index): string {
-  const art = index.article.get(fill.art);
-  const noun = index.noun.get(fill.noun);
-  if (!art || !noun) throw new Error(`Cannot render ${template.id}: unknown article or noun`);
-  let adjText = "";
-  if (template.needsAdj) {
-    const ref = fill.adj ? parseAdjRef(fill.adj) : undefined;
-    const adj = ref && index.adj.get(ref.lemmaId);
-    if (!ref || !adj)
-      throw new Error(`Cannot render ${template.id}: unknown adjective ${fill.adj}`);
-    adjText = adj.forms[ref.formKey];
+// One word, or one punctuation mark (no lexiconId), of a rendered sentence. The
+// UI uses these to show ruby pinyin word by word.
+export type Segment = { hanzi: string; pinyin: string; lexiconId?: string };
+
+export type Sentence = { hanzi: string; pinyin: string; segments: Segment[] };
+
+const punctuation = { "，": ",", "。": ".", "？": "?" } as const;
+
+function sentence(segments: Segment[]): Sentence {
+  let pinyin = "";
+  for (const s of segments) {
+    if (s.lexiconId === undefined) pinyin += s.pinyin;
+    else pinyin += (pinyin ? " " : "") + s.pinyin;
   }
-  return template.pattern
-    .replace("{art}", art.text)
-    .replace("{noun}", noun.text)
-    .replace("{adj}", adjText);
+  return {
+    hanzi: segments.map((s) => s.hanzi).join(""),
+    pinyin: pinyin.charAt(0).toUpperCase() + pinyin.slice(1),
+    segments,
+  };
 }
 
-const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+function word(content: EngineContent, id: string): Segment {
+  const e = need(indexContent(content).entry, id);
+  return { hanzi: e.hanzi, pinyin: e.pinyin, lexiconId: e.id };
+}
 
-// "Ha i capelli biondi?" → "Sì, ha i capelli biondi." / "No, non ha i capelli biondi."
-export function renderAnswer(question: string, answer: boolean): string {
-  const body = lowerFirst(question.replace(/\?$/, ""));
-  return answer ? `Sì, ${body}.` : `No, non ${body}.`;
+const mark = (hanzi: keyof typeof punctuation): Segment => ({
+  hanzi,
+  pinyin: punctuation[hanzi],
+});
+
+// 他有狗吗？ / Tā yǒu gǒu ma?
+export function renderQuestion(
+  content: EngineContent,
+  pronId: string,
+  verbId: string,
+  nounId: string,
+): Sentence {
+  return sentence([
+    word(content, pronId),
+    word(content, verbId),
+    word(content, nounId),
+    word(content, ma),
+    mark("？"),
+  ]);
+}
+
+// 没有，他没有狗。 / Méiyǒu, tā méiyǒu gǒu.
+export function renderAnswer(
+  content: EngineContent,
+  pronId: string,
+  verbId: string,
+  nounId: string,
+  truth: boolean,
+): Sentence {
+  const verb = need(indexContent(content).verb, verbId);
+  const short = word(content, truth ? verb.yes : verb.no);
+  return sentence([
+    short,
+    mark("，"),
+    word(content, pronId),
+    short,
+    word(content, nounId),
+    mark("。"),
+  ]);
+}
+
+// Tokens as the player placed them, with no punctuation: "他狗有吗".
+export function tokensText(content: EngineContent, tokens: string[]): string {
+  const index = indexContent(content);
+  return tokens.map((id) => index.entry.get(id)?.hanzi ?? "").join("");
 }

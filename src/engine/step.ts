@@ -19,12 +19,12 @@ export function step(state: GameState, action: Action, content: EngineContent): 
 
     case "ASK":
       if (phase !== "playerTurn") return reject(state, "wrongPhase");
-      return ask(state, action.templateId, action.fill, index);
+      return ask(state, action.tokens, content);
 
     case "GUESS": {
       if (phase !== "playerTurn") return reject(state, "wrongPhase");
       if (!index.character.has(action.characterId)) return reject(state, "unknownId");
-      // Spec 2, D3: a wrong guess loses, as in the board game.
+      // Spec 2: a wrong guess loses, as in the board game.
       const result = action.characterId === state.cpuSecret ? "won" : "lost";
       return {
         state: { ...state, phase: "over", result, lastFeedback: undefined },
@@ -44,10 +44,11 @@ export function step(state: GameState, action: Action, content: EngineContent): 
 
     case "ANSWER":
       if (phase !== "cpuTurn") return reject(state, "wrongPhase");
-      return answerCpu(state, action.value, action.hintShown, content, index);
+      if (!index.answer.has(action.answerId)) return reject(state, "unknownId");
+      return answerCpu(state, action.answerId, action.hintShown, content);
 
     case "END_TURN":
-      if (phase === "playerReview") return cpuTurn(state, content, index);
+      if (phase === "playerReview") return cpuTurn(state, content);
       if (phase === "cpuReview") {
         return {
           state: {

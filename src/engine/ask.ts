@@ -1,174 +1,148 @@
 // Spec 4.3: the player's ASK. Checks run in order and the first failure rejects:
-// phase (in step.ts), unknown ids, grammar, meaning, duplicate.
-import type { Adjective, Noun, Template } from "../content/schemas.ts";
-import { formKeyFor, parseAdjRef, type FormKey, type Index } from "./content.ts";
-import { evaluate, keyOf, meaningFor, type Meaning } from "./meaning.ts";
+// phase (in step.ts), unknown ids, shape, grammar (every error collected), off
+// board, duplicate. Level 1 builds its tokens from the picker, so it always
+// passes steps 3 to 5.
+import type { LexiconEntry, Noun, Pronoun, Verb } from "../content/schemas.ts";
+import { he, indexContent, ma, need, she } from "./content.ts";
+import { evaluate, questionKey } from "./predicate.ts";
 import { rate, type Rated } from "./ratings.ts";
-import { renderAnswer, renderQuestion } from "./render.ts";
+import { renderAnswer, renderQuestion, tokensText } from "./render.ts";
 import type {
+  EngineContent,
   Feedback,
-  Fill,
   GameEvent,
   GameState,
   RejectReason,
+  ShapeError,
   SlotError,
   StepResult,
 } from "./types.ts";
 
-type Resolved = {
-  template: Template;
-  noun: Noun;
-  verbText: string;
-  artText: string;
-  adj?: { lemma: Adjective; formKey: FormKey };
-};
+type Token = Extract<LexiconEntry, { pos: "pronoun" | "verb" | "noun" | "particle" }>;
+const kinds = ["pronoun", "verb", "noun", "particle"] as const;
 
-const genderNumber: Record<FormKey, string> = {
-  ms: "masculine singular",
-  fs: "feminine singular",
-  mp: "masculine plural",
-  fp: "feminine plural",
-};
+const genderOf = { "n.nande": "m", "n.nvde": "f" } as const;
+const genderQuestions = [questionKey("v.shi", "n.nande"), questionKey("v.shi", "n.nvde")];
 
-const attrNames: Record<string, string> = {
-  hairColor: "hair color",
-  hairLength: "hair length",
-  eyeColor: "eye color",
-};
-
-export function ask(state: GameState, templateId: string, fill: Fill, index: Index): StepResult {
-  const resolved = resolve(templateId, fill, index);
-  if (!resolved) return reject(state, "unknownId");
-  const { template, noun, adj } = resolved;
+export function ask(state: GameState, tokenIds: string[], content: EngineContent): StepResult {
+  const index = indexContent(content);
   const level2 = state.level === 2;
 
-  // 3. Grammar. Verb and article errors reject; a wrong adjective form only slips,
-  // but is still reported alongside them so feedback shows every problem at once.
-  const expectedVerb = index.verb.get(template.verb);
-  const expectedArtId = template.article === "def" ? noun.defArt : noun.indefArt;
-  const expectedArt = expectedArtId ? index.article.get(expectedArtId) : undefined;
-  if (!expectedVerb || !expectedArt) return reject(state, "unknownId");
+  // 2. Every token is a known pronoun, verb, noun or particle.
+  const tokens: Token[] = [];
+  for (const id of tokenIds) {
+    const e = index.entry.get(id);
+    if (!e || !(kinds as readonly string[]).includes(e.pos)) return reject(state, "unknownId");
+    tokens.push(e as Token);
+  }
 
+  // 3. Shape: one of each kind and at most one 吗. Nothing logged.
+  const shape = shapeError(tokens);
+  if (shape) {
+    return reject(state, "shape", {
+      shape,
+      feedback: [{ messageKey: `shape.${shape.kind}`, params: {} }],
+    });
+  }
+  const pron = tokens.find((t): t is Pronoun => t.pos === "pronoun") as Pronoun;
+  const verb = tokens.find((t): t is Verb => t.pos === "verb") as Verb;
+  const noun = tokens.find((t): t is Noun => t.pos === "noun") as Noun;
+  const hasMa = tokens.some((t) => t.id === ma);
+
+  // 4. Grammar. The correct question keeps the player's pronoun, except 你.
+  const fixedPron = pron.gender ? pron.id : he;
+  const expectedVerb = need(index.verb, noun.verb);
+  const correct = renderQuestion(content, fixedPron, noun.verb, noun.id).hanzi;
+  const given = tokensText(content, tokenIds);
   const errors: SlotError[] = [];
-  if (fill.verb !== expectedVerb.id) {
+  if (!pron.gender)
+    errors.push({ slot: "pron", given: pron.hanzi, expected: "他 / 她", rule: "gp.pron.you" });
+  if (verb.id !== noun.verb && !noun.offBoardVerbs?.includes(verb.id as Noun["verb"]))
     errors.push({
       slot: "verb",
-      given: resolved.verbText,
-      expected: expectedVerb.text,
-      rule: template.verb === "v.ha" ? "verb.avere" : "verb.essere",
+      given: verb.hanzi,
+      expected: expectedVerb.hanzi,
+      rule: `verb.${noun.verb.slice(2)}`,
     });
-  }
-  if (fill.art !== expectedArt.id) {
-    errors.push({
-      slot: "art",
-      given: resolved.artText,
-      expected: expectedArt.text,
-      rule: noun.artRule,
-    });
-  }
-  const formKey = formKeyFor(noun);
-  const slip: SlotError | undefined =
-    adj && adj.lemma.forms[adj.formKey] !== adj.lemma.forms[formKey]
-      ? {
-          slot: "adj",
-          given: adj.lemma.forms[adj.formKey],
-          expected: adj.lemma.forms[formKey],
-          rule: "agreement",
-        }
-      : undefined;
+  if (!hasMa) errors.push({ slot: "ma", given, expected: correct, rule: "gp.ma" });
+  const order = tokens.map((t) => t.pos).join();
+  const wanted = ["pronoun", "verb", "noun", ...(hasMa ? ["particle"] : [])].join();
+  if (order !== wanted) errors.push({ slot: "order", given, expected: correct, rule: "gp.order" });
 
   if (errors.length) {
-    const all = slip ? [...errors, slip] : errors;
-    const feedback = all.map((e) => feedbackFor(e, noun, expectedArt.text));
-    const rated = level2
-      ? rate(
-          { events: [], ratedThisTurn: state.ratedThisTurn },
-          noun.id,
-          "produce",
-          "again",
-          errors[0],
-        )
-      : { events: [], ratedThisTurn: state.ratedThisTurn };
-    return reject(state, "grammar", all, feedback, rated);
-  }
-
-  // 4. Meaning.
-  let meaning: Meaning | undefined;
-  if (adj) {
-    meaning = meaningFor(adj.lemma, noun);
-    if (!meaning) {
-      const choice = adj.lemma.wordChoice?.find((w) => w.noun === noun.id);
-      const use = choice && index.adj.get(choice.use);
-      const feedback: Feedback = use
-        ? [
-            {
-              messageKey: "meaning.wordChoice",
-              params: { noun: noun.text, use: use.forms[formKey] },
-            },
-          ]
-        : [
-            {
-              messageKey: "meaning.mismatch",
-              params: {
-                noun: noun.text,
-                given: adj.lemma.forms[formKey],
-                allowed: (noun.adjAttrs ?? []).map((a) => attrNames[a] ?? a).join(" or "),
-              },
-            },
-          ];
-      return reject(state, "nonsense", undefined, feedback);
+    let rated: Rated = { events: [], ratedThisTurn: state.ratedThisTurn };
+    for (const e of errors) {
+      if (e.slot === "verb") {
+        if (level2) rated = rate(rated, noun.id, "produce", "again", e);
+      } else {
+        rated = slip(rated, e.rule, e.given, e.expected);
+      }
     }
+    const objParams = { pron: need(index.pronoun, fixedPron).hanzi, obj: noun.hanzi };
+    const feedback: Feedback = errors.map((e) => {
+      const params: Record<string, string> =
+        e.slot === "verb" ? objParams : e.slot === "order" ? { expected: e.expected } : {};
+      return { messageKey: e.rule, params };
+    });
+    return reject(state, "grammar", { errors, feedback, rated });
   }
 
-  // 5. Duplicate: the player already asked this (castani and marroni eyes share a key).
-  const asked = { template, noun, ...(meaning && { meaning }) };
-  const key = keyOf(asked);
+  // 5. Off board: real Chinese the board can't answer (D11). Nothing logged.
+  if (noun.offBoardVerbs?.includes(verb.id as Noun["verb"])) {
+    return reject(state, "offBoard", {
+      feedback: [
+        {
+          messageKey: "offBoard.youJob",
+          params: { given: `${given}？`, gloss: noun.gloss, pron: pron.hanzi, obj: noun.hanzi },
+        },
+      ],
+    });
+  }
+
+  // 6. Duplicate, with either pronoun.
+  const key = questionKey(verb.id, noun.id);
   const previous = state.history.find((h) => h.by === "player" && h.key === key);
   if (previous) {
-    return reject(state, "duplicate", undefined, [
-      { messageKey: "duplicate", params: { answerText: previous.answerText } },
-    ]);
+    return reject(state, "duplicate", {
+      feedback: [{ messageKey: "duplicate", params: { answerText: previous.answerText } }],
+    });
   }
 
-  // Accepted: answer truthfully about cpuSecret, rendered with the correct form.
-  const cpuSecret = index.character.get(state.cpuSecret);
-  if (!cpuSecret) throw new Error(`Unknown cpuSecret ${state.cpuSecret}`);
-  const answer = evaluate(asked, cpuSecret.attrs);
-  const corrected = adj ? { ...fill, adj: `${adj.lemma.id}#${formKey}` } : fill;
-  const text = renderQuestion(template, corrected, index);
-  const answerText = renderAnswer(text, answer);
+  // Accepted: answer truthfully about cpuSecret, with the player's pronoun.
+  const secret = need(index.character, state.cpuSecret);
+  const answer = evaluate(noun, secret.attrs);
+  const text = renderQuestion(content, pron.id, verb.id, noun.id).hanzi;
+  const answerText = renderAnswer(content, pron.id, verb.id, noun.id, answer).hanzi;
 
   let rated: Rated = {
     events: [{ type: "asked", by: "player", key, answer }],
     ratedThisTurn: state.ratedThisTurn,
   };
+  if (level2) rated = rate(rated, noun.id, "produce", "good");
+
+  // The soft check (D7): once a gender question has been asked, the pronoun
+  // should match. At both levels, because the Level 1 switch is a real choice.
   let feedback: Feedback | undefined;
-  if (level2) {
-    rated = rate(rated, noun.id, "produce", "good");
-    if (adj && slip) {
-      rated = {
-        ...rated,
-        events: [
-          ...rated.events,
-          {
-            type: "agreementSlip",
-            lexiconId: adj.lemma.id,
-            given: slip.given,
-            expected: slip.expected,
-          },
-        ],
-      };
-      feedback = [feedbackFor(slip, noun, expectedArt.text)];
-    } else if (adj) {
-      rated = rate(rated, adj.lemma.id, "produce", "good");
-    }
+  const genderKnown = state.history.some(
+    (h) => h.by === "player" && genderQuestions.includes(h.key),
+  );
+  const secretGender = genderOf[secret.attrs.gender];
+  if (genderKnown && pron.gender !== secretGender) {
+    const expected = need(index.pronoun, secretGender === "m" ? he : she).hanzi;
+    rated = slip(rated, "gp.pron.gender", pron.hanzi, expected);
+    feedback = [
+      {
+        messageKey: "gp.pron.gender",
+        params: { genderGloss: secretGender === "m" ? "a man" : "a woman", expected },
+      },
+    ];
   }
 
   return {
     state: {
       ...state,
       phase: "playerReview",
-      history: [...state.history, { by: "player", key, text, answer, answerText }],
+      history: [...state.history, { by: "player", key, pron: pron.id, text, answer, answerText }],
       ratedThisTurn: rated.ratedThisTurn,
       lastFeedback: feedback,
     },
@@ -176,55 +150,35 @@ export function ask(state: GameState, templateId: string, fill: Fill, index: Ind
   };
 }
 
-// Step 2: every id exists and the payload fits the noun's template.
-function resolve(templateId: string, fill: Fill, index: Index): Resolved | undefined {
-  const template = index.template.get(templateId);
-  const noun = index.noun.get(fill.noun);
-  const verb = index.verb.get(fill.verb);
-  const art = index.article.get(fill.art);
-  if (!template || !noun || !verb || !art || noun.template !== template.id) return undefined;
-  if (!template.needsAdj)
-    return fill.adj === undefined
-      ? { template, noun, verbText: verb.text, artText: art.text }
-      : undefined;
-  const ref = fill.adj ? parseAdjRef(fill.adj) : undefined;
-  const lemma = ref && index.adj.get(ref.lemmaId);
-  if (!ref || !lemma) return undefined;
-  return {
-    template,
-    noun,
-    verbText: verb.text,
-    artText: art.text,
-    adj: { lemma, formKey: ref.formKey },
-  };
+// Missing kinds first, in the order the spec lists them, then anything doubled.
+function shapeError(tokens: Token[]): ShapeError | undefined {
+  if (tokens.length === 0) return { kind: "empty" };
+  const count = (pos: Token["pos"]) => tokens.filter((t) => t.pos === pos).length;
+  if (count("pronoun") === 0) return { kind: "noPron" };
+  if (count("verb") === 0) return { kind: "noVerb" };
+  if (count("noun") === 0) return { kind: "noObj" };
+  if (kinds.some((k) => count(k) > 1)) return { kind: "extra" };
+  return undefined;
 }
 
-function feedbackFor(error: SlotError, noun: Noun, expectedArt: string): Feedback[number] {
-  if (error.slot === "verb")
-    return { messageKey: error.rule, params: { art: expectedArt, noun: noun.text } };
-  if (error.slot === "adj") {
-    return {
-      messageKey: "agreement",
-      params: {
-        expected: error.expected,
-        given: error.given,
-        noun: noun.text,
-        genderNumber: genderNumber[formKeyFor(noun)],
-      },
-    };
-  }
-  return { messageKey: error.rule, params: { noun: noun.text } };
+function slip(rated: Rated, point: string, given: string, expected: string): Rated {
+  const event: GameEvent = { type: "grammarSlip", point, given, expected };
+  return { ...rated, events: [...rated.events, event] };
 }
 
-// Spec 4.4 invariant 4: a rejection changes nothing but lastFeedback and ratedThisTurn.
+// Spec 4.5 invariant 4: a rejection changes nothing but lastFeedback and ratedThisTurn.
 export function reject(
   state: GameState,
   reason: RejectReason,
-  errors?: SlotError[],
-  feedback?: Feedback,
-  rated?: Rated,
+  extra: { errors?: SlotError[]; shape?: ShapeError; feedback?: Feedback; rated?: Rated } = {},
 ): StepResult {
-  const event: GameEvent = { type: "rejected", reason, ...(errors && { errors }) };
+  const { errors, shape, feedback, rated } = extra;
+  const event: GameEvent = {
+    type: "rejected",
+    reason,
+    ...(errors && { errors }),
+    ...(shape && { shape }),
+  };
   return {
     state: {
       ...state,

@@ -1,26 +1,23 @@
 // Spec 4.1: the engine contract. engine/ is pure TypeScript: no React, DOM or
 // time. One function moves the game forward: step(state, action, content).
-import type { Character, LexiconEntry, Template } from "../content/schemas.ts";
+import type { Character, LexiconEntry } from "../content/schemas.ts";
 
 export type Phase = "setup" | "playerTurn" | "playerReview" | "cpuTurn" | "cpuReview" | "over";
 
 export type Level = 1 | 2;
 
-// Ids, with the adjective as "adj.biondo#mp".
-export type Fill = { verb: string; art: string; noun: string; adj?: string };
-
-// `${templateId}|${nounId}|${value ?? ""}`, where value is the attribute value
-// tested ("adj.marrone" for both castani and marroni eyes).
+// `${verbId}|${objectId}`, e.g. "v.you|n.gou". The pronoun is not part of it, so
+// 他有狗吗？ and 她有狗吗？ are the same question.
 export type QuestionKey = string;
 
 export type SlotError = {
-  slot: "verb" | "art" | "adj" | "answer";
-  given: string; // text the player chose ("gli", "bionde", "Sì")
-  expected: string; // correct text ("i", "biondi", "No")
-  rule: string; // message key from 3.7
+  slot: "pron" | "verb" | "order" | "ma" | "answer";
+  given: string; // text shown: "是", "他狗有吗", "不有"
+  expected: string; // "有", "他有狗吗？", "没有"
+  rule: string; // message key from 3.6
 };
 
-export type ShapeError = { kind: "noVerb" | "noArt" | "noNoun" | "needsAdj" | "noAdjAllowed" };
+export type ShapeError = { kind: "empty" | "noPron" | "noVerb" | "noObj" | "extra" };
 
 // Rendered by the UI with content/messages.json.
 export type Feedback = { messageKey: string; params: Record<string, string> }[];
@@ -28,10 +25,11 @@ export type Feedback = { messageKey: string; params: Record<string, string> }[];
 export type AskedQuestion = {
   by: "player" | "cpu";
   key: QuestionKey;
-  text: string; // "Ha i capelli biondi?"
+  pron: string; // "pr.ta.m"
+  text: string; // "他有狗吗？"
   answer: boolean; // the truth
-  answerText: string; // "No, non ha i capelli biondi."
-  playerAnswer?: boolean; // CPU questions only
+  answerText: string; // "没有，他没有狗。"
+  playerAnswer?: string; // CPU questions only: the answer id chosen, "a.meiyou"
 };
 
 export type GameState = {
@@ -43,8 +41,8 @@ export type GameState = {
   cpuSecret: string;
   flipped: string[]; // player's board, ids face down
   cpuCandidates: string[]; // who the CPU still thinks playerSecret could be
-  cpuQuestionOrder: QuestionKey[]; // seeded shuffle of the 16 questions, fixed at START
-  pendingCpuQuestion?: QuestionKey;
+  cpuQuestionOrder: QuestionKey[]; // seeded shuffle of the 14 questions, fixed at START
+  pendingCpuQuestion?: { key: QuestionKey; pron: string };
   history: AskedQuestion[];
   ratedThisTurn: string[]; // "lexiconId|direction"; cleared when `turn` increments
   lastFeedback?: Feedback; // what the UI shows after the last action
@@ -53,21 +51,22 @@ export type GameState = {
 
 export type Action =
   | { type: "START"; seed: number; level: Level }
-  | { type: "ASK"; templateId: string; fill: Fill }
+  | { type: "ASK"; tokens: string[] } // lexicon ids in the order placed
   | { type: "GUESS"; characterId: string }
   | { type: "FLIP"; characterId: string } // toggles
-  | { type: "ANSWER"; value: boolean; hintShown: boolean }
+  | { type: "ANSWER"; answerId: string; hintShown: boolean }
   | { type: "END_TURN" };
 
-export type RejectReason = "wrongPhase" | "unknownId" | "grammar" | "nonsense" | "duplicate";
+export type RejectReason =
+  "wrongPhase" | "unknownId" | "shape" | "grammar" | "offBoard" | "duplicate";
 export type Direction = "recognize" | "produce";
 export type Rating = "again" | "hard" | "good";
 
 export type GameEvent =
-  | { type: "rejected"; reason: RejectReason; errors?: SlotError[] }
+  | { type: "rejected"; reason: RejectReason; errors?: SlotError[]; shape?: ShapeError }
   | { type: "asked"; by: "player" | "cpu"; key: QuestionKey; answer: boolean }
   | { type: "rating"; lexiconId: string; direction: Direction; rating: Rating; detail?: SlotError }
-  | { type: "agreementSlip"; lexiconId: string; given: string; expected: string }
+  | { type: "grammarSlip"; point: string; given: string; expected: string }
   | { type: "gameOver"; result: "won" | "lost" };
 
 export type StepResult = { state: GameState; events: GameEvent[] };
@@ -76,5 +75,4 @@ export type StepResult = { state: GameState; events: GameEvent[] };
 export type EngineContent = {
   characters: Character[];
   lexicon: LexiconEntry[];
-  templates: Template[];
 };

@@ -1,13 +1,13 @@
 // Lookups over the content the engine is given, built once per content object.
-import type { Adjective, Article, Character, Noun, Template, Verb } from "../content/schemas.ts";
+import type { Answer, Character, LexiconEntry, Noun, Pronoun, Verb } from "../content/schemas.ts";
 import type { EngineContent } from "./types.ts";
 
 export type Index = {
-  article: Map<string, Article>;
-  verb: Map<string, Verb>;
+  entry: Map<string, LexiconEntry>;
   noun: Map<string, Noun>;
-  adj: Map<string, Adjective>;
-  template: Map<string, Template>;
+  verb: Map<string, Verb>;
+  pronoun: Map<string, Pronoun>;
+  answer: Map<string, Answer>;
   character: Map<string, Character>;
   characterIds: string[];
 };
@@ -18,35 +18,30 @@ export function indexContent(content: EngineContent): Index {
   const cached = cache.get(content);
   if (cached) return cached;
   const index: Index = {
-    article: new Map(),
-    verb: new Map(),
+    entry: new Map(content.lexicon.map((e) => [e.id, e])),
     noun: new Map(),
-    adj: new Map(),
-    template: new Map(content.templates.map((t) => [t.id, t])),
+    verb: new Map(),
+    pronoun: new Map(),
+    answer: new Map(),
     character: new Map(content.characters.map((c) => [c.id, c])),
     characterIds: content.characters.map((c) => c.id),
   };
   for (const e of content.lexicon) {
-    if (e.pos === "article") index.article.set(e.id, e);
+    if (e.pos === "noun") index.noun.set(e.id, e);
     else if (e.pos === "verb") index.verb.set(e.id, e);
-    else if (e.pos === "noun") index.noun.set(e.id, e);
-    else index.adj.set(e.id, e);
+    else if (e.pos === "pronoun") index.pronoun.set(e.id, e);
+    else if (e.pos === "answer") index.answer.set(e.id, e);
   }
   cache.set(content, index);
   return index;
 }
 
-export type FormKey = keyof Adjective["forms"];
-const formKeys: readonly string[] = ["ms", "fs", "mp", "fp"];
-
-// "adj.biondo#mp" → { lemmaId: "adj.biondo", formKey: "mp" }
-export function parseAdjRef(ref: string): { lemmaId: string; formKey: FormKey } | undefined {
-  const [lemmaId, formKey, ...rest] = ref.split("#");
-  if (!lemmaId || !formKey || rest.length || !formKeys.includes(formKey)) return undefined;
-  return { lemmaId, formKey: formKey as FormKey };
+export function need<T>(map: Map<string, T>, id: string): T {
+  const found = map.get(id);
+  if (found === undefined) throw new Error(`Unknown id ${id}`);
+  return found;
 }
 
-// The form an adjective takes with a noun: m + pl → mp.
-export function formKeyFor(noun: Noun): FormKey {
-  return `${noun.gender}${noun.number === "sg" ? "s" : "p"}` as FormKey;
-}
+export const ma = "pt.ma";
+export const he = "pr.ta.m";
+export const she = "pr.ta.f";

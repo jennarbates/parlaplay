@@ -10,7 +10,6 @@ const read = (file: string): unknown =>
 const content = {
   characters: read("characters.json"),
   lexicon: read("lexicon.json"),
-  templates: read("templates.json"),
 } as EngineContent;
 
 const games = Number(process.argv[2] ?? 1000);
