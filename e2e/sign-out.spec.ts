@@ -10,7 +10,7 @@ test("unsynced progress: warn, Wait keeps you signed in, Sign out clears the dev
 }) => {
   const email = await signIn(page);
   await page.route("**/rest/v1/**", (route) => route.abort());
-  await page.goto("/play?seed=5");
+  await page.goto("/it/play?seed=5");
   await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
   await page.getByRole("button", { name: "Avanti" }).click();
   await page
@@ -30,9 +30,9 @@ test("unsynced progress: warn, Wait keeps you signed in, Sign out clears the dev
   await page.getByRole("button", { name: "Sign out" }).click();
   await warning.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
-  await page.goto("/");
+  await page.goto("/it");
   await expect(page.getByRole("link", { name: "Continue round" })).toHaveCount(0);
-  await page.goto("/progress");
+  await page.goto("/it/progress");
   await expect(page.getByText("Play a round to see your words here.")).toBeVisible();
 });
 

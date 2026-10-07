@@ -6,6 +6,7 @@ import { useProgressStore, type ReviewLogRow } from "../../../core/store/progres
 import { groupMistakes } from "./mistakes.ts";
 import { Mixed } from "./Mixed.tsx";
 import { labelFor } from "./words.ts";
+import { paths } from "../paths.ts";
 
 const directionLabel = { recognize: "Understand", produce: "Say" } as const;
 const labelOf = (id: string) => {
@@ -27,7 +28,10 @@ export function Progress() {
     <section className="flex flex-col gap-4 p-4">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Progress</h1>
-        <Link to="/" className="inline-flex min-h-11 min-w-11 items-center text-blue-700 underline">
+        <Link
+          to={paths.home}
+          className="inline-flex min-h-11 min-w-11 items-center text-blue-700 underline"
+        >
           Home
         </Link>
       </header>

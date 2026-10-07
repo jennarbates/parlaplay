@@ -17,6 +17,8 @@ vi.mock("../services/supabase.ts", () => ({
 const { requestSignOut, signOutNow } = await import("./account.ts");
 const { useAuthStore } = await import("./authStore.ts");
 const { useGameStore } = await import("../../languages/it/store/gameStore.ts");
+// Registers its round hooks, as visiting /it does; sign-out clears the round through them.
+await import("../../languages/it/index.ts");
 const { useProgressStore } = await import("./progressStore.ts");
 const { useSyncStore } = await import("../services/sync.ts");
 const { read, resetForTests, write } = await import("../services/storage.ts");
@@ -57,7 +59,7 @@ describe("sign-out (CHI-087)", () => {
     expect(signOutCalls).toHaveLength(1);
     expect(await read(`user:${user}`)).toBeUndefined();
     expect(await read(`outbox:${user}`)).toBeUndefined();
-    expect(await read("round")).toBeUndefined();
+    expect(await read("round:it")).toBeUndefined();
     expect(useGameStore.getState().game).toBeNull();
     expect(useProgressStore.getState()).toMatchObject({ owner: "guest", games: [], reviewLog: [] });
   });

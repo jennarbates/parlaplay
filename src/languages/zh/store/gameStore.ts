@@ -13,6 +13,8 @@ import {
 import { read, remove, write } from "../../../core/services/storage.ts";
 import { syncNow } from "../../../core/store/account.ts";
 import { useProgressStore } from "../../../core/store/progressStore.ts";
+import { useRounds } from "../../../core/store/rounds.ts";
+import { useShell } from "../../../core/store/shell.ts";
 import { rowsFor } from "./rows.ts";
 
 export type SavedRound = { contentVersion: number; gameId: string; state: GameState };
@@ -35,15 +37,18 @@ type GameStore = {
 // Saves happen in order, one after another, so a slow write can't land after a
 // newer one.
 let saving: Promise<unknown> = Promise.resolve();
+const key = "round:zh"; // platform spec 3.3
+
 function persist(game: GameState | null, gameId: string | null) {
+  const keep = !!game && !!gameId && game.phase !== "over" && game.phase !== "setup";
+  useRounds.getState().setSaved("zh", keep);
   saving = saving.then(() =>
-    game && gameId && game.phase !== "over" && game.phase !== "setup"
-      ? write("round", { contentVersion, gameId, state: game } satisfies SavedRound)
-      : remove("round"),
+    keep ? write(key, { contentVersion, gameId, state: game } satisfies SavedRound) : remove(key),
   );
 }
 
-const inProgress = (game: GameState | null) =>
+// A round worth saving and resuming: Home's "Continue round".
+export const inProgress = (game: GameState | null): game is GameState =>
   !!game && game.phase !== "over" && game.phase !== "setup";
 
 export function randomSeed(): number {
@@ -58,8 +63,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastEvents: [],
 
   async hydrate() {
-    const saved = await read<SavedRound>("round");
+    const saved = await read<SavedRound>(key);
     if (saved && isResumable(saved)) {
+      useRounds.getState().setSaved("zh", true);
       set({ status: "ready", game: saved.state, gameId: saved.gameId, lastEvents: [] });
       return;
     }
@@ -68,12 +74,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (saved) {
       if (typeof saved.gameId === "string")
         useProgressStore.getState().recordGameEnd(saved.gameId, "abandoned");
-      await remove("round");
+      await remove(key);
     }
+    useRounds.getState().setSaved("zh", false);
     set({ status: "ready", game: null, gameId: null, lastEvents: [] });
   },
 
   start(level, seed = randomSeed()) {
+    // Playing a language makes it the default for / (platform spec 4.3, D14).
+    useShell.getState().dispatch({ type: "CHOOSE", code: "zh" });
     // A new round over an unfinished one records the old one as abandoned (spec 2).
     const current = get();
     if (inProgress(current.game) && current.gameId) {
@@ -122,7 +131,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 }));
 
-function isResumable(saved: SavedRound): boolean {
+// Platform spec 3.2: a saved round this content version can resume.
+export function isResumable(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) return false;
+  const saved = value as Partial<SavedRound>;
   if (saved.contentVersion !== contentVersion || typeof saved.gameId !== "string") return false;
   const s = saved.state as Partial<GameState> | undefined;
   const ids = new Set(content.characters.map((c) => c.id));

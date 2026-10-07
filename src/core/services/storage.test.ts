@@ -14,17 +14,17 @@ afterEach(() => {
 describe("read, write, remove", () => {
   test("round-trips structured data under a key", async () => {
     const round = { phase: "playerTurn", flipped: ["c.anna"], nested: { turn: 3 } };
-    expect(await write("round", round)).toBe(true);
-    expect(await read("round")).toEqual(round);
-    expect(await remove("round")).toBe(true);
-    expect(await read("round")).toBeUndefined();
+    expect(await write("round:it", round)).toBe(true);
+    expect(await read("round:it")).toEqual(round);
+    expect(await remove("round:it")).toBe(true);
+    expect(await read("round:it")).toBeUndefined();
   });
 
   test("guest data lives under the key guest, apart from the round", async () => {
     await write("guest", { reviewLog: [1, 2] });
-    await write("round", { turn: 1 });
+    await write("round:it", { turn: 1 });
     expect(await read("guest")).toEqual({ reviewLog: [1, 2] });
-    expect(await read("round")).toEqual({ turn: 1 });
+    expect(await read("round:it")).toEqual({ turn: 1 });
   });
 
   test("survives reopening the database", async () => {
@@ -42,14 +42,14 @@ describe("failures never block play", () => {
         throw new Error("QuotaExceededError");
       },
     });
-    await expect(read("round")).resolves.toBeUndefined();
-    await expect(write("round", { a: 1 })).resolves.toBe(false);
-    await expect(remove("round")).resolves.toBe(false);
+    await expect(read("round:it")).resolves.toBeUndefined();
+    await expect(write("round:it", { a: 1 })).resolves.toBe(false);
+    await expect(remove("round:it")).resolves.toBe(false);
     expect(console.warn).toHaveBeenCalled();
   });
 
   test("a value that cannot be stored is a failed write, not a crash", async () => {
-    await expect(write("round", { f: () => 1 })).resolves.toBe(false);
+    await expect(write("round:it", { f: () => 1 })).resolves.toBe(false);
   });
 });
 

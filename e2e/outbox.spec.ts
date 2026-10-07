@@ -12,7 +12,7 @@ test("a failed sync shows the banner, keeps play going, and clears when back onl
   await signIn(page);
   // Block the database API, then play to the end of a round.
   await page.route("**/rest/v1/**", (route) => route.abort());
-  await page.goto("/play?seed=5");
+  await page.goto("/it/play?seed=5");
   await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
   await page.getByRole("button", { name: "Menu" }).click();
   await page.getByRole("menuitem", { name: "Quit round" }).click();

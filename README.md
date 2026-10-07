@@ -51,7 +51,7 @@ pnpm install
 pnpm dev           # http://localhost:5173
 ```
 
-That's enough to play as a guest: everything runs in the browser and saves to IndexedDB. Sign-in and sync need a Supabase. For a local one (needs Docker):
+The first visit opens the language picker at `/languages`; Chi è? is at `/it` and Shéi at `/zh`, each loaded only when visited. That's enough to play as a guest: everything runs in the browser and saves to IndexedDB. Sign-in and sync need a Supabase. For a local one (needs Docker):
 
 ```bash
 supabase start                      # applies supabase/migrations/

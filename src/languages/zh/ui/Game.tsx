@@ -18,6 +18,7 @@ import { answer as answerOf, question as questionOf } from "./game/sentences.ts"
 import { Sheet } from "./game/Sheet.tsx";
 import { TileBuilder } from "./game/TileBuilder.tsx";
 import { TopBar } from "./game/TopBar.tsx";
+import { paths } from "../paths.ts";
 
 const byId = new Map(content.characters.map((c) => [c.id, c]));
 
@@ -28,8 +29,7 @@ const secondary = "min-h-12 flex-1 rounded-xl bg-stone-200 px-4 font-semibold ac
 export function Game() {
   const { status, game, gameId, lastAction, start, dispatch, quit } = useGameStore();
   const settled = useAccountStore((a) => a.settled);
-  const { pinyin, setPinyin, pronoun, setPronoun, hydrate } = useSettings();
-  useEffect(() => void hydrate(), [hydrate]);
+  const { pinyin, setPinyin, pronoun, setPronoun } = useSettings();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [zoomed, setZoomed] = useState<string>();
@@ -108,7 +108,7 @@ export function Game() {
           <GameMenu
             onQuit={() => {
               // Leave first: /play starts a new round whenever there is none.
-              void navigate("/");
+              void navigate(paths.home);
               quit();
             }}
           />

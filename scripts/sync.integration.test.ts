@@ -3,7 +3,6 @@
 // Docker. The app's own sync code runs here, signed in as throwaway test users.
 import "fake-indexeddb/auto";
 import { rowsFor } from "../src/languages/it/store/rows.ts";
-import { cardIds } from "../src/languages/it/cards.ts";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -221,7 +220,7 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
       { lexicon_id: "n.barba", direction: "produce", log_count: 2 },
       { lexicon_id: "n.occhi", direction: "recognize", log_count: 2 },
     ]);
-    expect((await pull(cardIds()))?.reviewLog).toHaveLength(2);
+    expect((await pull())?.reviewLog).toHaveLength(2);
   });
 
   test("one user cannot read another's rows", async () => {

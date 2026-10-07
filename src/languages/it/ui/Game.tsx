@@ -23,6 +23,7 @@ import { TileBuilder, type TileDraft } from "./game/TileBuilder.tsx";
 import { TopBar } from "./game/TopBar.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
 import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
+import { paths } from "../paths.ts";
 
 const emptyDraft: TileDraft = { tiles: {} };
 const byId = new Map(content.characters.map((c) => [c.id, c]));
@@ -208,7 +209,7 @@ export function Game() {
         <GameMenu
           onQuit={() => {
             // Leave first: /play starts a new round whenever there is none.
-            void navigate("/");
+            void navigate(paths.home);
             quit();
           }}
           onShortcuts={() => setHelp(true)}
