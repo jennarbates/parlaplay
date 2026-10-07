@@ -529,6 +529,12 @@ def validate():
                 problems.append(f"{c['id']}: depends on unknown {d}")
             elif by_id[d]["day"] > c["day"]:
                 problems.append(f"{c['id']} (day {c['day']}) depends on {d} (day {by_id[d]['day']})")
+    # issues are created in list order, so each dependency must come earlier in the list
+    pos = {c["id"]: i for i, c in enumerate(cards)}
+    for c in cards:
+        for d in c["deps"]:
+            if d in pos and pos[d] > pos[c["id"]]:
+                problems.append(f"{c['id']} is listed before its dependency {d}")
     # cycles
     state = {}
 
