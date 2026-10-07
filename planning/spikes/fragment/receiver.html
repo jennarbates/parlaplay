@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Fragment size test: receiver</title>
+<!-- Checks the fragment arrived whole, then goes back with the result. A size that
+     never arrives (the browser refuses the navigation) shows as a missing row. -->
+<script>
+  const sum = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; };
+  const hash = location.hash.slice(1);
+  const at = hash.indexOf("&data=");
+  const head = new URLSearchParams(hash.slice(0, at));
+  const data = at >= 0 ? hash.slice(at + 6) : "";
+  const ok = data.length === Number(head.get("len")) && sum(data) === Number(head.get("sum"));
+  const back = head.get("back") || "";
+  const prev = new URL(back).searchParams.get("r");
+  const results = (prev ? prev + "," : "") + `${head.get("i")}:${ok ? 1 : 0}`;
+  const u = new URL(back);
+  u.searchParams.set("r", results);
+  location.replace(u.toString());
+</script>

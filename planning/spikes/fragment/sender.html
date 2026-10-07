@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fragment size test: sender</title>
+<!-- PLAY-006: how much data survives a cross-origin navigation in a URL fragment.
+     Open sender.html?to=<receiver origin> and press Start. Results come back in the query. -->
+<body style="font: 16px system-ui; margin: 16px">
+<h1>Fragment size test</h1>
+<p id="where"></p>
+<button id="start" style="min-height: 44px; padding: 0 16px">Start</button>
+<table id="results" border="1" cellpadding="6" style="margin-top: 16px; border-collapse: collapse"></table>
+<script>
+  const SIZES_KB = [100, 500, 1024, 2048, 4096, 8192];
+  const q = new URLSearchParams(location.search);
+  const to = q.get("to") || location.origin.replace(/:(\d+)$/, (_, p) => ":" + (Number(p) + 1));
+  document.getElementById("where").textContent = `Sends to ${to}/receiver.html`;
+  // Deterministic base64url-alphabet payload of n bytes, and a checksum of it.
+  const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  function payload(n) {
+    const out = new Array(n);
+    let x = 12345;
+    for (let i = 0; i < n; i++) { x = (x * 1103515245 + 12345) >>> 0; out[i] = ALPHA[x >>> 26]; }
+    return out.join("");
+  }
+  const sum = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; };
+  function go(i, results) {
+    if (i >= SIZES_KB.length) return show(results);
+    const data = payload(SIZES_KB[i] * 1024);
+    const back = `${location.origin}${location.pathname}?to=${encodeURIComponent(to)}&r=${encodeURIComponent(results)}`;
+    location.href = `${to}/receiver.html#i=${i}&len=${data.length}&sum=${sum(data)}&back=${encodeURIComponent(back)}&data=${data}`;
+  }
+  function show(results) {
+    const rows = results ? results.split(",") : [];
+    const t = document.getElementById("results");
+    t.innerHTML = "<tr><th>Size</th><th>Arrived intact</th></tr>" +
+      rows.map((r) => { const [i, ok] = r.split(":"); return `<tr><td>${SIZES_KB[i]} KB</td><td>${ok === "1" ? "yes" : "NO"}</td></tr>`; }).join("");
+    document.body.dataset.done = rows.length === SIZES_KB.length ? "true" : "false";
+    document.body.dataset.results = results || "";
+  }
+  const r = q.get("r");
+  if (r !== null) {
+    const done = r ? r.split(",").length : 0;
+    show(r);
+    if (done < SIZES_KB.length) setTimeout(() => go(done, r), 300);
+  }
+  document.getElementById("start").onclick = () => go(0, "");
+</script>
