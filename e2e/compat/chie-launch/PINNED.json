@@ -1,0 +1,28 @@
+{
+  "repo": "jennarbates/Italian",
+  "ref": "italian/main",
+  "commit": "162cd4ce088411e3ddd5fa7d51b448c430bebd91",
+  "files": {
+    "src/content/lexicon.json": "69a019d2ac155716aa822525ec0f94b157db250c0473030394b0aec7a0435290",
+    "src/content/schemas.ts": "0a7eb6da8765437476e514f8ef66f0db5d291bed4612d40aedeb1ce11c865b0a",
+    "src/engine/ask.ts": "e02121c4a53231186aca26a23c0b2cc1773d9bc7e1fc999ab3071cbdc0528ba0",
+    "src/engine/content.ts": "accc620d52434a9bfee577d0330b32c65617cbdcf07a1eed3aec5363519a303e",
+    "src/engine/cpu.ts": "e77a3b2828606a3096d20d476e24342fbaf2f8f9c2820baba1f48f5a7347b87d",
+    "src/engine/index.ts": "126735685fda3b0fa85801d8897465010859ac21fa0fefe08c3b4c1c160c9f7a",
+    "src/engine/meaning.ts": "f92fd60824d0f87c709c9446cc89bc9176d672a19fbb55efd039eade5c6e1d7b",
+    "src/engine/questions.ts": "19885534e1faa09fef9a7da39d3f41229edc5e5a700fbc6711eda94a4672e3e1",
+    "src/engine/random.ts": "04d56a6abbdccb7891bc48e7c8d1c3cf9cd9bb3a1e99ec8f6aa729335c69c3c0",
+    "src/engine/ratings.ts": "94158c4a6f79176d2b02cb99b77146c0418ddeb14a68c645f9539361da03d332",
+    "src/engine/render.ts": "318a6fae457b5c9629e20c052f1580f9ea704263e5042bfc3501492909ff7752",
+    "src/engine/start.ts": "e874213f5dae0bdce422ffbd993e70170dc67a70bb366f4a3e9072da99cd3a5d",
+    "src/engine/step.ts": "b3d293210d49b428a667413bcd832bbe26679948ce9572bc8990e5ed6fc25989",
+    "src/engine/tiles.ts": "d779fa0bc297122e4ca1dacc62d7976dd3b7b72598d7258775e6cf7191c8b7af",
+    "src/engine/types.ts": "97f69bff5ed8fb047b9f67e5f9283268d80c2ad90ed6eff685263718a07d9490",
+    "src/services/localDay.ts": "f3efa4aea9e5bc4069e7d7a60c7ac9b3a8ef522b540af313a436a2d72b91d734",
+    "src/services/srs.ts": "c8dd41982cd6c7e1089212170502e28633c335425b0c54e4bde3ddc89f92633d",
+    "src/services/storage.ts": "294efb66ee3042f3060c0233bb7bd0904172689afd90923b9c900ad7bf7c8c66",
+    "src/services/supabase.ts": "1b9b8603a8d1245cbb3cab62dc25bcf12e2698fd7c69e8d4c6b91dd395de0dc6",
+    "src/services/sync.ts": "7fc5bfec0e6eeb955ecb14a13329245d6538c10397fbc900c8b9471cb87c4b28",
+    "src/store/progressStore.ts": "58e7f4611938e8eabfe48bb04b36c21c280ee7878960791a6997ca22b707807d"
+  }
+}
