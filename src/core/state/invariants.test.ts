@@ -38,6 +38,7 @@ const action: fc.Arbitrary<ShellAction> = fc.oneof(
     })
     .map((a) => ({ type: "SIGNED_IN" as const, ...a })),
   fc.constantFrom("yes", "no").map((answer) => ({ type: "SAVE_GUEST" as const, answer })),
+  fc.constant({ type: "SIGNED_OUT" as const }),
   fc.boolean().map((unsynced) => ({ type: "SIGN_OUT" as const, unsynced })),
   fc
     .constantFrom("signOut", "wait")

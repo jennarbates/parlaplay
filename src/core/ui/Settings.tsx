@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router";
-import { requestSignOut, signOutNow } from "../store/account.ts";
+import { requestSignOut } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
 import { useStore } from "zustand";
 import { firstCode, languageOf } from "../registry.ts";
@@ -28,7 +28,11 @@ export function Settings() {
   const desktop = useIsDesktop();
   const [signingIn, setSigningIn] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [unsynced, setUnsynced] = useState(false);
+  // The unsynced warning is the shell's prompt U (platform spec 4.2).
+  const unsynced = useShell((s) => s.state.prompt?.kind === "unsyncedSignOut");
+  const dispatch = useShell((s) => s.dispatch);
+  const confirmSignOut = (answer: "signOut" | "wait") =>
+    dispatch({ type: "CONFIRM_SIGN_OUT", answer });
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = dialog.current;
@@ -39,9 +43,11 @@ export function Settings() {
 
   const signOut = async () => {
     setBusy(true);
-    const result = await requestSignOut();
-    setBusy(false);
-    if (result === "unsynced") setUnsynced(true);
+    try {
+      await requestSignOut();
+    } finally {
+      setBusy(false);
+    }
   };
 
   // The account's text and its button, the same at every size.
@@ -97,9 +103,12 @@ export function Settings() {
       <SignInSheet open={signingIn} onClose={() => setSigningIn(false)} />
       <dialog
         ref={dialog}
-        onCancel={() => setUnsynced(false)}
-        onClose={() => setUnsynced(false)}
-        onClick={onBackdropClick(() => setUnsynced(false))}
+        // Escape and the backdrop are Wait: nothing is lost by accident.
+        onCancel={(e) => {
+          e.preventDefault();
+          confirmSignOut("wait");
+        }}
+        onClick={onBackdropClick(() => confirmSignOut("wait"))}
         aria-labelledby="unsynced-title"
         className="m-auto w-[min(90vw,22rem)] rounded-2xl p-5 backdrop:bg-black/50 lg:w-[28rem]"
       >
@@ -107,23 +116,21 @@ export function Settings() {
           Some progress hasn&apos;t synced yet. Sign out anyway?
         </h2>
         <p className="mt-2 text-sm text-stone-600">
-          Signing out removes your progress from this device. Anything not yet synced will be lost.
+          Signing out removes your progress in every language from this device. Anything not yet
+          synced will be lost.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-3">
           <button
             type="button"
             autoFocus
-            onClick={() => setUnsynced(false)}
+            onClick={() => confirmSignOut("wait")}
             className="min-h-12 rounded-xl bg-stone-200 font-semibold"
           >
             Wait
           </button>
           <button
             type="button"
-            onClick={() => {
-              setUnsynced(false);
-              void signOutNow();
-            }}
+            onClick={() => confirmSignOut("signOut")}
             className="min-h-12 rounded-xl bg-rose-700 font-semibold text-white"
           >
             Sign out

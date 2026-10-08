@@ -122,6 +122,13 @@ export function reduce(state: ShellState, action: ShellAction, registry: Registr
       return { state: { ...state, prompt: null }, effects: [effect] };
     }
 
+    case "SIGNED_OUT": {
+      // The session ended outside Settings (another tab signed out, or it expired).
+      // The player confirmed nothing, so nothing on the device is cleared: no effects.
+      if (state.account.kind !== "signedIn") return unchanged(state);
+      return unchanged({ ...state, account: { kind: "guest" }, prompt: null });
+    }
+
     case "SIGN_OUT": {
       if (state.account.kind !== "signedIn" || state.prompt) return unchanged(state);
       if (action.unsynced) return unchanged({ ...state, prompt: { kind: "unsyncedSignOut" } });

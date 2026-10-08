@@ -28,6 +28,7 @@ export type ShellAction =
       guestLanguages: LanguageCode[]; // languages with guest rows on this device, read at sign-in
     }
   | { type: "SAVE_GUEST"; answer: "yes" | "no" }
+  | { type: "SIGNED_OUT" } // the session ended without SIGN_OUT: another tab, or it expired
   | { type: "SIGN_OUT"; unsynced: boolean }
   | { type: "CONFIRM_SIGN_OUT"; answer: "signOut" | "wait" };
 

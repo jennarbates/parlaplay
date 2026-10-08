@@ -1,46 +1,50 @@
-// Spec 7.3: what happens to local data when the account changes. Signing in
+// Spec 7.3 and platform spec 2, 6.3: what happens to local data when the account
+// changes. The shell reducer makes the decisions (SIGNED_IN, SAVE_GUEST, SIGN_OUT);
+// this file finds what they need and carries out the account effects. Signing in
 // switches to that user's local copy and outbox and syncs; signing out goes back
-// to guest data. Signing in with guest data on this device first asks whether to
-// save it to the account.
+// to guest data. Signing in with guest data in any language first asks, once for
+// all of them, whether to save it to the account.
 import { create } from "zustand";
-import { read, remove, write } from "../services/storage.ts";
+import type { LanguageCode } from "../languages.ts";
 import { registry } from "../registry.ts";
-import { loadLevels } from "./prefs.ts";
-import { pull, useSyncStore, type Op } from "../services/sync.ts";
+import { read, remove, write } from "../services/storage.ts";
+import { pull, syncSaved, useSyncStore, type Op } from "../services/sync.ts";
 import { useAuthStore } from "./authStore.ts";
+import { loadLevels } from "./prefs.ts";
 import { progressSaved, progressStore, storageKeyFor, type GuestData } from "./progressStore.ts";
 import { useRounds } from "./rounds.ts";
+import { handleAccountEffects, useShell } from "./shell.ts";
 
 type AccountStore = {
-  // "Save your progress to this account?" is showing. It stays up, busy, until the
-  // answer is on disk, so leaving the page before then just asks again.
-  askToSave: { resolve: (save: boolean) => void; saving: boolean } | null;
   // True once the app knows whose data it is writing (guest or which user) and has
   // that owner's local copy loaded. Play waits for it, so a signed-in learner's
   // first rows after a reload never land in guest data.
   settled: boolean;
 };
-export const useAccountStore = create<AccountStore>(() => ({ askToSave: null, settled: false }));
-
-// The first answer counts; the caller closes the prompt once it is applied.
-function ask(): Promise<boolean> {
-  return new Promise((resolve) => {
-    const answer = (save: boolean) => {
-      if (useAccountStore.getState().askToSave?.saving) return;
-      useAccountStore.setState({ askToSave: { resolve: answer, saving: true } });
-      resolve(save);
-    };
-    useAccountStore.setState({ askToSave: { resolve: answer, saving: false } });
-  });
-}
+export const useAccountStore = create<AccountStore>(() => ({ settled: false }));
 
 const hasData = (d: Partial<GuestData> | undefined) => !!(d?.games?.length || d?.reviewLog?.length);
 
-// Yes: in every language, the guest's rows become this user's (locally, then
-// uploaded: every language's games before any log row, skipping rows already on the
-// server). No: the guest data is deleted. Platform spec 2 and 6.3.
-export async function adoptGuestData(userId: string, save: boolean): Promise<void> {
-  for (const { code } of registry) {
+// Forget a language's saved round, in memory and on disk (3.3).
+async function clearRound(code: LanguageCode) {
+  const rounds = useRounds.getState();
+  rounds.hooks[code]?.clearRound();
+  rounds.setSaved(code, false);
+  await remove(`round:${code}`);
+}
+
+// Save: in each language, the guest's rows become this user's (locally, then
+// queued to upload; the outbox sends every language's games before any log row and
+// skips rows already on the server). Don't save: the guest rows are deleted, and so
+// is the saved round, whose games row would never reach the server (F4). Platform
+// spec 2 and 6.3.
+export async function adoptGuestData(
+  userId: string,
+  languages: readonly LanguageCode[],
+  save: boolean,
+): Promise<void> {
+  if (save) await useSyncStore.getState().load(userId);
+  for (const code of languages) {
     const guest = await read<Partial<GuestData>>(`guest:${code}`);
     if (save && hasData(guest)) {
       const userKey = storageKeyFor(userId, code);
@@ -48,21 +52,23 @@ export async function adoptGuestData(userId: string, save: boolean): Promise<voi
       const games = [...(mine.games ?? []), ...(guest?.games ?? [])];
       const reviewLog = [...(mine.reviewLog ?? []), ...(guest?.reviewLog ?? [])];
       await write(userKey, { games, reviewLog });
-      await useSyncStore.getState().load(userId);
-      const ops: Op[] = [
-        ...(guest?.games ?? []).map((row): Op => ({ kind: "game", row })),
-        ...(guest?.reviewLog ?? []).map((row): Op => ({ kind: "review", row })),
-      ];
-      useSyncStore.getState().enqueue(ops);
+      useSyncStore
+        .getState()
+        .enqueue([
+          ...(guest?.games ?? []).map((row): Op => ({ kind: "game", row })),
+          ...(guest?.reviewLog ?? []).map((row): Op => ({ kind: "review", row })),
+        ]);
+      await syncSaved(); // queued on disk before the guest copy goes
     }
+    if (!save) await clearRound(code);
     await remove(`guest:${code}`);
   }
 }
 
 // The languages with guest rows on this device: from memory where loaded, else
-// from storage (platform spec 3.4.7 keeps them in registry order).
-async function guestLanguages() {
-  const found = [];
+// from storage, in registry order (platform spec 3.4.7).
+async function guestLanguages(): Promise<LanguageCode[]> {
+  const found: LanguageCode[] = [];
   for (const { code } of registry) {
     const progress = progressStore(code).getState();
     const guest =
@@ -74,18 +80,57 @@ async function guestLanguages() {
   return found;
 }
 
+// While the save-guest prompt is open, the sign-in waits here. The shell's
+// uploadGuest or deleteGuest effect settles it: true once the answer is applied,
+// false if the session ended first.
+let waiting: { settle: (applied: boolean) => void; fail: (error: unknown) => void } | null = null;
+
+function stopWaiting() {
+  const w = waiting;
+  waiting = null;
+  w?.settle(false);
+}
+
+function untilAnswered(): Promise<boolean> {
+  stopWaiting();
+  return new Promise((settle, fail) => {
+    waiting = { settle, fail };
+  });
+}
+
+async function saveGuest(userId: string, languages: LanguageCode[], save: boolean) {
+  const w = waiting;
+  waiting = null;
+  try {
+    await adoptGuestData(userId, languages, save);
+  } catch (error) {
+    w?.fail(error);
+    throw error;
+  }
+  w?.settle(true);
+}
+
 const allProgress = () => registry.map(({ code }) => progressStore(code).getState());
 
 export async function onAccountChange(userId: string | null) {
+  const { dispatch } = useShell.getState();
   if (userId) {
     await progressSaved(); // every guest row is on disk before we look
-    if ((await guestLanguages()).length) {
-      try {
-        await adoptGuestData(userId, await ask());
-      } finally {
-        useAccountStore.setState({ askToSave: null });
+    const languages = await guestLanguages();
+    const answer = languages.length ? untilAnswered() : null;
+    // serverLast comes from profiles.last_language once sync reads it (PLAY-023).
+    dispatch({ type: "SIGNED_IN", userId, serverLast: null, guestLanguages: languages });
+    if (answer) {
+      // Nothing switches until the player answers.
+      if (useShell.getState().state.prompt?.kind === "saveGuest") {
+        if (!(await answer)) return; // signed out before answering
+      } else {
+        stopWaiting(); // the shell didn't ask, so the guest data stays where it is
       }
     }
+  } else {
+    stopWaiting();
+    dispatch({ type: "SIGNED_OUT" }); // no-op after a sign-out from Settings
   }
   await Promise.all(allProgress().map((p) => p.switchOwner(userId ?? "guest")));
   await useSyncStore.getState().load(userId);
@@ -126,28 +171,24 @@ export function startAccountSync() {
   }
 }
 
-// Spec 7.3, sign-out: first try to sync. If rows are still waiting, say so and let
-// the learner choose; otherwise sign out straight away.
-export async function requestSignOut(): Promise<"signedOut" | "unsynced"> {
+// Platform spec 6.3, sign-out: first try to sync. Then the shell signs out at once,
+// or opens the unsynced warning if any row is still queued. The outbox is shared,
+// so this counts the rows of every language.
+export async function requestSignOut(): Promise<void> {
   await syncNow();
-  if (useSyncStore.getState().outbox.length > 0) return "unsynced";
-  await signOutNow();
-  return "signedOut";
+  const unsynced = useSyncStore.getState().outbox.length > 0;
+  useShell.getState().dispatch({ type: "SIGN_OUT", unsynced });
 }
 
-// Sign out and clear this user's local copy (shared devices): their progress in
-// every language, their outbox and any round in progress.
+// The shell's signOut effect. Sign out and clear this user's local copy (shared
+// devices): their progress in every language, their outbox and every language's
+// saved round. Device settings (settings:*) and the last language (app) stay
+// (platform spec 6.3, D16).
 export async function signOutNow(): Promise<void> {
   const userId = useAuthStore.getState().userId;
   await useAuthStore.getState().signOut();
   // Every language's round: in memory for the loaded ones, on disk for all (3.3).
-  const rounds = useRounds.getState();
-  for (const { code } of registry) {
-    rounds.hooks[code]?.clearRound();
-    rounds.setSaved(code, false);
-    await remove(`round:${code}`);
-  }
-  // This user's copy in every language (platform spec 2, D16), and their outbox.
+  for (const { code } of registry) await clearRound(code);
   if (userId) {
     for (const { code } of registry) await remove(storageKeyFor(userId, code));
     await remove(`outbox:${userId}`);
@@ -155,3 +196,5 @@ export async function signOutNow(): Promise<void> {
   await useSyncStore.getState().load(null);
   await Promise.all(allProgress().map((p) => p.switchOwner("guest")));
 }
+
+handleAccountEffects({ saveGuest, signOut: signOutNow });

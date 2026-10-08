@@ -1,6 +1,8 @@
 // Platform spec 4: runs the shell reducer and carries out its effects. The router
 // reports every navigation as OPEN; the app key's last language arrives as
-// HYDRATED; a picker card or a new round dispatches CHOOSE.
+// HYDRATED; a picker card or a new round dispatches CHOOSE; the account
+// (store/account.ts) dispatches SIGNED_IN, SIGNED_OUT and SIGN_OUT, and the two
+// prompts dispatch their answers.
 import { create } from "zustand";
 import type { LanguageCode } from "../languages.ts";
 import { knownCode, registry } from "../registry.ts";
@@ -15,12 +17,27 @@ type Shell = {
   // The language last open in this session (not saved). Shared pages lead back to
   // it, so a player who arrived by a link returns to that game, not the picker.
   recent: LanguageCode | null;
+  // The save-guest answer being applied, for these languages. The prompt stays up,
+  // busy, until it is on disk, so leaving the page before then just asks again.
+  saving: LanguageCode[] | null;
   dispatch: (action: ShellAction) => void;
 };
 
-let navigateTo: Navigate | null = null;
+// What the account effects do. store/account.ts registers them, which keeps the
+// shell free of storage and sync details.
+export type AccountEffects = {
+  saveGuest: (userId: string, languages: LanguageCode[], save: boolean) => Promise<void>;
+  signOut: () => Promise<void>;
+};
 
-function run(effect: ShellEffect) {
+let navigateTo: Navigate | null = null;
+let account: AccountEffects | null = null;
+
+export function handleAccountEffects(effects: AccountEffects) {
+  account = effects;
+}
+
+function run(effect: ShellEffect, state: ShellState) {
   switch (effect.type) {
     case "navigate":
       void navigateTo?.(effect.to, { replace: effect.replace });
@@ -33,10 +50,18 @@ function run(effect: ShellEffect) {
       // part of language-aware sync (PLAY-023).
       return;
     case "uploadGuest":
-    case "deleteGuest":
+    case "deleteGuest": {
+      const save = effect.type === "uploadGuest";
+      const work =
+        state.account.kind === "signedIn" && account
+          ? account.saveGuest(state.account.userId, effect.languages, save)
+          : Promise.resolve();
+      // A failure reaches the sign-in that waits on it (store/account.ts).
+      void work.catch(() => {}).finally(() => useShell.setState({ saving: null }));
+      return;
+    }
     case "signOut":
-      // Sign-in and sign-out still run through store/account.ts; they move onto
-      // the shell with the combined save-guest prompt (PLAY-025).
+      void account?.signOut();
       return;
   }
 }
@@ -44,11 +69,18 @@ function run(effect: ShellEffect) {
 export const useShell = create<Shell>((set, get) => ({
   state: initialShellState,
   recent: null,
+  saving: null,
   dispatch(action) {
     const { state, effects } = reduce(get().state, action, registry);
-    set({ state, recent: state.language ?? get().recent });
+    // Set with the state, so the save-guest prompt never flickers shut.
+    const answer = effects.find((e) => e.type === "uploadGuest" || e.type === "deleteGuest");
+    set({
+      state,
+      recent: state.language ?? get().recent,
+      ...(answer && { saving: answer.languages }),
+    });
     // After the state is set, so a navigation sees it.
-    queueMicrotask(() => effects.forEach(run));
+    queueMicrotask(() => effects.forEach((e) => run(e, state)));
   },
 }));
 
