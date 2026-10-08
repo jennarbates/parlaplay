@@ -4,7 +4,7 @@ The plan is in spec 10.2: 3 or more HSK 1 learners play Shéi, and one Chi è? p
 
 ## The build
 
-- URL: `https://parlaplay-playtest.<account>.workers.dev` (printed by the deploy)
+- URL: https://parlaplay-playtest.jennaraquelbates.workers.dev
 - Database: `parlaplay-staging`, so nothing a tester does touches production
 - Deploy or redeploy `main`: `supabase login` and `wrangler login` once, then `pnpm deploy:playtest`
 - Before each session: open `/zh` and `/it` on a phone and play one question in each
