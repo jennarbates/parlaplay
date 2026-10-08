@@ -1,0 +1,32 @@
+[
+  {
+    "id": "gp.ma",
+    "title": "吗 questions",
+    "explain": "Put 吗 at the end of a statement to make a yes/no question."
+  },
+  {
+    "id": "gp.order",
+    "title": "Word order",
+    "explain": "Who + verb + what + 吗: 他有狗吗？"
+  },
+  {
+    "id": "gp.pron.you",
+    "title": "他, 她, not 你",
+    "explain": "You are asking about the hidden person, so use 他 or 她."
+  },
+  {
+    "id": "gp.pron.gender",
+    "title": "他 or 她",
+    "explain": "Once you know someone is a woman, write 她; a man, 他."
+  },
+  {
+    "id": "gp.answer.verb",
+    "title": "Answer with the verb",
+    "explain": "Chinese answers yes/no questions by repeating the verb."
+  },
+  {
+    "id": "gp.neg.mei",
+    "title": "没有, not 不有",
+    "explain": "有 is made negative with 没, never with 不."
+  }
+]

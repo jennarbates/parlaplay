@@ -226,6 +226,7 @@ type ShellAction =
   | { type: "CHOOSE"; code: LanguageCode }                 // a picker card
   | { type: "SIGNED_IN"; userId: string; serverLast: LanguageCode | null }
   | { type: "SAVE_GUEST"; answer: "yes" | "no" }
+  | { type: "SIGNED_OUT" }                                  // the session ended without SIGN_OUT
   | { type: "SIGN_OUT"; unsynced: boolean }
   | { type: "CONFIRM_SIGN_OUT"; answer: "signOut" | "wait" };
 
@@ -250,6 +251,8 @@ type ShellEffect =
 | Signed in, no prompt | Route (4.3) | As guest, plus `writeProfile` | - | - | `unsynced`: U. Else effects `signOut`, state guest | - |
 | P open | Route (4.3), prompt stays | - | - | `yes`: `uploadGuest`; `no`: `deleteGuest`. Prompt closes | - | - |
 | U open | Route (4.3), prompt stays | - | - | - | - | `signOut`: effects `signOut`, state guest. `wait`: prompt closes |
+
+SIGNED_OUT means the session ended without SIGN_OUT: another tab signed out, or the session expired. In every signed-in state it sets the account to guest and closes any prompt, with no effects: the player confirmed nothing, so nothing on the device is cleared, and a later sign-in asks about guest data again. As a guest it is ignored.
 
 ### 4.3 Routing order for OPEN
 
@@ -759,5 +762,6 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 
 - 2026-10-07: v0 draft.
 - 2026-10-07: v0.3. Fragment spike: 1 MB arrives, 2 MB refused on desktop; handoff gzips and caps at 900 KB (5.3, D22). Paper trace (docs/reviews/platform-paper-trace.md) fixes F1 to F9: wait for the app key before routing `/`; registry carries each contentVersion; prompt languages in registry order; Don't save and sign-out remove saved rounds; guest level kept at sign-in; `/import` accepts only three `next` paths, compares rounds by games row start, and sets the last language. Sentry facts verified; Supabase project refs recorded.
+- 2026-10-08: SIGNED_OUT added to the shell (4.1, 4.2) for a session that ends outside Settings, so the shell never stays signed in after it (PLAY-025).
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).

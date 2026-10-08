@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { startGame } from "../src/engine/start.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
 
 // CHI-091: the states in spec 8.2 that are not covered elsewhere.
 
@@ -9,7 +9,7 @@ test("losing the connection mid-round keeps the round playable to the end", asyn
   context,
 }) => {
   const g = startGame(5, 1, content);
-  await page.goto("/play?seed=5");
+  await page.goto("/it/play?seed=5");
   await expect(page.getByRole("list", { name: "Board" }).locator("img").first()).toBeVisible();
   // Every art layer this board needs is already loaded.
   await page.waitForLoadState("networkidle");

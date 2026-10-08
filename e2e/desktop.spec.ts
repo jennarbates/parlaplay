@@ -1,12 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
-import { startGame } from "../src/engine/start.ts";
-import { localDay } from "../src/services/localDay.ts";
-import type { GuestData, ReviewLogRow } from "../src/store/progressStore.ts";
-import { progressStats } from "../src/ui/progressStats.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions } from "../src/languages/it/engine/index.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
+import { localDay } from "../src/core/services/localDay.ts";
+import type { GuestData, ReviewLogRow } from "../src/core/store/progressStore.ts";
+import { progressStats } from "../src/languages/it/ui/progressStats.ts";
 import { hasSupabase } from "./inbox.ts";
+import { chooseItalian } from "./language.ts";
 
 // Desktop spec DS 13.3: the desktop layout, run by the desktop-chromium and
 // desktop-webkit projects at 1440 × 900.
@@ -15,9 +16,10 @@ const nav = (page: Page) => page.getByRole("navigation", { name: "Main" });
 
 test.describe("app shell (DS 5)", () => {
   test("DesktopNav is on every screen but /play, marking the current one", async ({ page }) => {
+    await chooseItalian(page); // shared pages show the last language chosen
     for (const [path, current] of [
-      ["/", "Chi è?"],
-      ["/progress", "Progress"],
+      ["/it", "Chi è?"],
+      ["/it/progress", "Progress"],
       ["/settings", "Settings"],
       ["/privacy", null],
     ] as const) {
@@ -33,14 +35,14 @@ test.describe("app shell (DS 5)", () => {
         await expect(marked, path).toHaveCount(0);
       }
     }
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await expect(page.getByRole("grid", { name: "Board" })).toBeVisible();
     await expect(nav(page)).toHaveCount(0);
   });
 
   test("the nav shows at 1024 wide, not at 1023, and follows a resize", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 640 });
-    await page.goto("/");
+    await page.goto("/it");
     await expect(nav(page)).toBeVisible();
     await page.setViewportSize({ width: 1023, height: 640 });
     await expect(nav(page)).toHaveCount(0);
@@ -53,7 +55,7 @@ test.describe("app shell (DS 5)", () => {
   test("Play reads Continue while a round is saved, and the links go where they say", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/it");
     await nav(page).getByRole("link", { name: "Progress" }).click();
     await expect(page).toHaveURL(/\/progress$/);
     await nav(page).getByRole("link", { name: "Guest · Sign in" }).click();
@@ -62,15 +64,16 @@ test.describe("app shell (DS 5)", () => {
     await expect(page.getByRole("grid", { name: "Board" })).toBeVisible();
     // Flip a card so the round is saved, then come back.
     await page.locator('[aria-label="Board"] button[aria-pressed="false"]').first().click();
-    await page.goto("/");
+    await page.goto("/it");
     await expect(nav(page).getByRole("link", { name: "Continue", exact: true })).toBeVisible();
   });
 });
 
 test("no horizontal scroll on any screen at 1024 and 1440 wide", async ({ page }) => {
+  await chooseItalian(page);
   for (const width of [1024, 1440]) {
     await page.setViewportSize({ width, height: 800 });
-    for (const path of ["/", "/progress", "/settings", "/privacy"]) {
+    for (const path of ["/it", "/it/progress", "/settings", "/privacy"]) {
       await page.goto(path);
       await expect(nav(page)).toBeVisible();
       const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -94,7 +97,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
       page,
     }) => {
       await page.setViewportSize(size);
-      await page.goto("/play?seed=1");
+      await page.goto("/it/play?seed=1");
       const items = board(page).getByRole("gridcell");
       await expect(items).toHaveCount(24);
       for (const item of await items.all()) {
@@ -116,7 +119,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
   }
 
   test("an always-open panel instead of the sheet, in desktop wording", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await expect(panel(page)).toBeVisible();
     await expect(page.getByRole("button", { name: /questions$/ })).toHaveCount(0);
     await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
@@ -125,7 +128,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
   });
 
   test("card positions are the same in playerTurn and playerReview", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     const positions = () =>
       board(page)
         .getByRole("gridcell")
@@ -144,7 +147,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
         .locator("span span span")
         .first()
         .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     const big = await nameSize();
     expect(big).toBeGreaterThan(10);
     expect(big).toBeLessThanOrEqual(16);
@@ -155,7 +158,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
   });
 
   test("resizing across 1024px keeps flips and a guess in progress", async ({ page }) => {
-    await page.goto("/play?seed=3");
+    await page.goto("/it/play?seed=3");
     for (const name of ["Marco", "Sara", "Luca"]) await card(page, name).click();
     await panel(page).getByRole("button", { name: "Indovina" }).click();
     await page.setViewportSize({ width: 390, height: 844 });
@@ -175,7 +178,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
   });
 
   test("resizing keeps a half-built Level 2 question", async ({ page }) => {
-    await page.goto("/play?level=2&seed=5");
+    await page.goto("/it/play?level=2&seed=5");
     await page.getByRole("group", { name: "Verb" }).getByRole("button").first().click();
     await page.getByRole("group", { name: "Noun" }).getByRole("button").first().click();
     const slots = page.getByRole("group", { name: "Your question" });
@@ -194,7 +197,7 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
   const tooltip = (page: Page) => page.getByRole("tooltip");
 
   test("resting on a card shows a larger preview beside it; leaving hides it", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     const chiara = card(page, "Chiara");
     await chiara.hover();
     await page.waitForTimeout(100);
@@ -218,14 +221,14 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
   });
 
   test("no preview while guessing, or on a phone-sized window", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await panel(page).getByRole("button", { name: "Indovina" }).click();
     await page.getByRole("button", { name: /^Guess Chiara: / }).hover();
     await page.waitForTimeout(500);
     await expect(tooltip(page)).toHaveCount(0);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await card(page, "Chiara").hover();
     await page.waitForTimeout(500);
     await expect(tooltip(page)).toHaveCount(0);
@@ -233,7 +236,7 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
 
   test("a click hides it, and it has no fade under reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await card(page, "Elena").hover();
     await expect(tooltip(page)).toBeVisible();
     expect(await tooltip(page).evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
@@ -243,7 +246,7 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
   });
 
   test("right-click opens the card's detail and does not flip it", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     const davide = card(page, "Davide");
     await davide.hover();
     await expect(tooltip(page)).toBeVisible();
@@ -260,7 +263,7 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
   });
 
   test("the context menu key on a focused card opens its detail", async ({ page, browserName }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await card(page, "Luca").focus();
     // The key raises contextmenu on the focused element. Macs have no such key and
     // WebKit does not raise it for a simulated one, so there the event is sent.
@@ -276,7 +279,7 @@ const cpuName = (seed: number) =>
 
 test.describe("round end and dialogs (DS 9.2, DS 9.6)", () => {
   test("round end is two columns, with Play again focused and not fixed", async ({ page }) => {
-    await page.goto("/play?seed=5");
+    await page.goto("/it/play?seed=5");
     await panel(page).getByRole("button", { name: "Indovina" }).click();
     await page.getByRole("button", { name: new RegExp(`^Guess ${cpuName(5)}: `) }).click();
     // Desktop: the dialog's focus starts on Guess, so Enter confirms.
@@ -302,7 +305,7 @@ test.describe("round end and dialogs (DS 9.2, DS 9.6)", () => {
   });
 
   test("dialogs close on Esc and on the backdrop, and give focus back", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     const dialog = page.getByRole("dialog");
     // GuessConfirm, opened from the keyboard, at 24rem.
     await panel(page).getByRole("button", { name: "Indovina" }).click();
@@ -367,7 +370,7 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   test("a whole Level 1 round with only the shortcut keys (DS 2.1)", async ({ page }) => {
     const seed = 5;
     const g = startGame(seed, 1, content);
-    await page.goto(`/play?seed=${seed}`);
+    await page.goto(`/it/play?seed=${seed}`);
     await expect(board(page)).toBeVisible();
 
     // q, then ↓ twice and Enter: the third question is asked.
@@ -417,7 +420,7 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   });
 
   test("the board is one tab stop, moved around with the grid keys", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await expect(board(page)).toBeVisible();
     const tabStops = await board(page)
       .locator("button")
@@ -457,7 +460,7 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   test("? and the menu open the shortcuts; the menu closes on Esc and outside", async ({
     page,
   }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await expect(board(page)).toBeVisible();
     await page.keyboard.press("?");
     const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
@@ -485,7 +488,7 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   test("Level 2: Tab moves between tile rows, ← → along one", async ({ page, browserName }) => {
     // WebKit only Tabs to buttons with a macOS setting on (see a11y.spec.ts).
     test.skip(browserName !== "chromium", "Tab order for buttons is a macOS setting in WebKit");
-    await page.goto("/play?level=2&seed=5");
+    await page.goto("/it/play?level=2&seed=5");
     await expect(board(page)).toBeVisible();
     const row = (name: string) => page.getByRole("group", { name, exact: true });
     await page.keyboard.press("q");
@@ -507,7 +510,7 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   });
 
   test("buttons show their keys and carry aria-keyshortcuts", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     const indovina = panel(page).getByRole("button", { name: "Indovina" });
     await expect(indovina).toHaveAttribute("aria-keyshortcuts", "g");
     await expect(indovina).toHaveText("IndovinaG");
@@ -515,7 +518,7 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   });
 
   test("keys with Ctrl, Cmd or Alt held do nothing", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await expect(board(page)).toBeVisible();
     await page.keyboard.press("Alt+g");
     await page.keyboard.press("Control+g");
@@ -539,7 +542,7 @@ test.describe("Home, Settings and Privacy (DS 9.1, 9.4, 9.5)", () => {
   }) => {
     for (const width of [1024, 1440]) {
       await page.setViewportSize({ width, height: 800 });
-      await page.goto("/");
+      await page.goto("/it");
       const main = page.locator("main");
       await expect(main).toContainText(
         "Ask yes-or-no questions in Italian to find the secret character.",
@@ -570,7 +573,7 @@ test.describe("Home, Settings and Privacy (DS 9.1, 9.4, 9.5)", () => {
     );
     // The default level still works from here.
     await page.getByRole("radio", { name: "Level 2" }).check();
-    await page.goto("/");
+    await page.goto("/it");
     await expect(page.getByRole("radio", { name: /Level 2/ })).toBeChecked();
   });
 
@@ -601,11 +604,11 @@ test.describe("Progress dashboard (DS 9.3)", () => {
     return page.evaluate(
       (value) =>
         new Promise<void>((resolve, reject) => {
-          const open = indexedDB.open("chi-e", 1);
+          const open = indexedDB.open("parlaplay", 1);
           open.onupgradeneeded = () => open.result.createObjectStore("kv");
           open.onsuccess = () => {
             const tx = open.result.transaction("kv", "readwrite");
-            tx.objectStore("kv").put(value, "guest");
+            tx.objectStore("kv").put(value, "guest:it");
             tx.oncomplete = () => {
               open.result.close();
               resolve();
@@ -623,6 +626,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
     const at = (hoursAgo: number) => new Date(now.getTime() - hoursAgo * 3_600_000);
     const row = (i: number, lexiconId: string, rating: ReviewLogRow["rating"], when: Date) => ({
       id: `r${i}`,
+      language: "it" as const,
       gameId: "g1",
       lexiconId,
       direction: "recognize" as const,
@@ -637,6 +641,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
       games: [
         {
           id: "g1",
+          language: "it",
           seed: 1,
           level: 1,
           contentVersion: 1,
@@ -646,6 +651,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
         },
         {
           id: "g2",
+          language: "it",
           seed: 2,
           level: 1,
           contentVersion: 1,
@@ -663,9 +669,9 @@ test.describe("Progress dashboard (DS 9.3)", () => {
     };
     const expected = progressStats(data, now);
 
-    await page.goto("/");
+    await page.goto("/it");
     await seed(page, data);
-    await page.goto("/progress");
+    await page.goto("/it/progress");
     await expect(page.getByRole("tablist")).toHaveCount(0);
     for (const [label, value] of [
       ["Words seen", expected.wordsSeen],
@@ -691,7 +697,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
   });
 
   test("with no data, the empty message once, full width, with no tiles", async ({ page }) => {
-    await page.goto("/progress");
+    await page.goto("/it/progress");
     await expect(page.getByText("Play a round to see your words here.")).toHaveCount(1);
     await expect(page.locator("dl")).toHaveCount(0);
     await expect(page.getByRole("tablist")).toHaveCount(0);
@@ -706,7 +712,7 @@ test.describe("DS 13.3", () => {
       .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")?.split(":")[0]));
 
   test("resize: 1440 × 900 to 390 × 844 and back keeps the same 3 flips", async ({ page }) => {
-    await page.goto("/play?seed=3");
+    await page.goto("/it/play?seed=3");
     for (const name of ["Marco", "Sara", "Luca"]) await card(page, name).click();
     const before = await flippedNames(page);
     expect(before).toHaveLength(3);
@@ -724,7 +730,7 @@ test.describe("DS 13.3", () => {
     page,
   }) => {
     test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
-    await page.goto("/play?seed=1");
+    await page.goto("/it/play?seed=1");
     await card(page, "Anna").click();
     await expect(card(page, "Anna")).toHaveAttribute("aria-pressed", "true");
     await page.goto("/settings");

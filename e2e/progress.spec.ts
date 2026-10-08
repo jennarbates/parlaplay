@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
-import { startGame } from "../src/engine/start.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions } from "../src/languages/it/engine/index.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
 
 // CHI-074: the Progress screen.
 
@@ -11,9 +11,9 @@ function savedRatings(page: Page): Promise<string[]> {
   return page.evaluate(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
+        const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("guest");
+          const get = open.result.transaction("kv").objectStore("kv").get("guest:it");
           get.onsuccess = () => {
             open.result.close();
             resolve(
@@ -31,7 +31,7 @@ const tile = (page: Page, group: string, name: string) =>
   page.getByRole("group", { name: group, exact: true }).getByRole("button", { name, exact: true });
 
 test("with no play yet, both tabs show the empty state", async ({ page }) => {
-  await page.goto("/progress");
+  await page.goto("/it/progress");
   await expect(page.getByText("Play a round to see your words here.")).toBeVisible();
   await page.getByRole("tab", { name: "Due" }).click();
   await expect(page.getByRole("tab", { name: "Due" })).toHaveAttribute("aria-selected", "true");
@@ -40,7 +40,7 @@ test("with no play yet, both tabs show the empty state", async ({ page }) => {
 
 test("after a round: mistakes grouped by word, and words due with dates", async ({ page }) => {
   const g = startGame(8, 2, content);
-  await page.goto("/play?level=2&seed=8");
+  await page.goto("/it/play?level=2&seed=8");
 
   // Two article mistakes on barba (one repeated), then a slip on biondi.
   await tile(page, "Verb", "ha").click();
@@ -78,7 +78,7 @@ test("after a round: mistakes grouped by word, and words due with dates", async 
 
   // Wait for the review log to reach IndexedDB before leaving the page.
   await expect.poll(() => savedRatings(page)).toContain("slip");
-  await page.goto("/progress");
+  await page.goto("/it/progress");
   const mistakes = page.getByRole("list", { name: "Mistakes by word" });
   await expect(mistakes).toContainText("barba");
   await expect(mistakes).toContainText("il → la");

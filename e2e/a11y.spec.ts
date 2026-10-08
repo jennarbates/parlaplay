@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { content } from "../src/content/index.ts";
-import { allQuestions } from "../src/engine/index.ts";
-import { evaluate } from "../src/engine/meaning.ts";
-import { startGame } from "../src/engine/start.ts";
+import { content } from "../src/languages/it/content/index.ts";
+import { allQuestions } from "../src/languages/it/engine/index.ts";
+import { evaluate } from "../src/languages/it/engine/meaning.ts";
+import { startGame } from "../src/languages/it/engine/start.ts";
 
 // CHI-090: WCAG 2.2 AA basics. Screen reader names in Italian, a whole round by
 // keyboard with visible focus, and 44 × 44 px touch targets.
@@ -39,13 +39,13 @@ async function smallTargets(page: Page): Promise<string[]> {
 
 test.describe("touch targets are at least 44 × 44 px", () => {
   test("Home, Progress and the game at both levels", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/it");
     expect(await smallTargets(page)).toEqual([]);
-    for (const path of ["/progress", "/settings", "/privacy"]) {
+    for (const path of ["/it/progress", "/settings", "/privacy"]) {
       await page.goto(path);
       expect(await smallTargets(page), path).toEqual([]);
     }
-    await page.goto("/play?seed=5");
+    await page.goto("/it/play?seed=5");
     await expect(page.getByRole("list", { name: "Questions to ask" })).toBeVisible();
     expect(await smallTargets(page)).toEqual([]);
     // The CPU's turn, with Show hint.
@@ -56,7 +56,7 @@ test.describe("touch targets are at least 44 × 44 px", () => {
   });
 
   test("Level 2 builder and the round end", async ({ page }) => {
-    await page.goto("/play?level=2&seed=5");
+    await page.goto("/it/play?level=2&seed=5");
     await page
       .getByRole("group", { name: "Adjective", exact: true })
       .getByRole("button")
@@ -75,7 +75,7 @@ test.describe("touch targets are at least 44 × 44 px", () => {
 });
 
 test("each card's accessible name lists name and attributes in Italian", async ({ page }) => {
-  await page.goto("/play?seed=1");
+  await page.goto("/it/play?seed=1");
   // A list on the phone, a grid on desktop (desktop spec DS 8.2).
   const cards = page.locator('[aria-label="Board"] button[aria-pressed]');
   await expect(cards).toHaveCount(24);
@@ -117,7 +117,7 @@ test.describe("keyboard only", () => {
 
   test("a whole round, with visible focus", async ({ page }) => {
     const g = startGame(5, 1, content);
-    await page.goto("/play?seed=5");
+    await page.goto("/it/play?seed=5");
     await page.locator("body").focus();
 
     // Ask the first question.

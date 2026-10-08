@@ -23,14 +23,32 @@ const supabaseShim = `
   alter default privileges in schema public grant all on tables to anon, authenticated;
 `;
 
-export async function freshDb(): Promise<PGlite> {
+export const migrations = (): string[] =>
+  readdirSync(migrationsDir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
+
+export const migrationText = (file: string) => readFileSync(new URL(file, migrationsDir), "utf8");
+
+// Apply the migrations after `after` up to and including `through` (both file
+// names; omit either for the start or the end).
+export async function migrate(
+  db: PGlite,
+  { after, through }: { after?: string; through?: string } = {},
+) {
+  for (const file of migrations()) {
+    if (after && file <= after) continue;
+    if (through && file > through) break;
+    await db.exec(migrationText(file));
+  }
+}
+
+// A database with every migration applied, or only those up to `through`, so a
+// test can seed data before applying the rest.
+export async function freshDb({ through }: { through?: string } = {}): Promise<PGlite> {
   const db = new PGlite();
   await db.exec(supabaseShim);
-  for (const file of readdirSync(migrationsDir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort()) {
-    await db.exec(readFileSync(new URL(file, migrationsDir), "utf8"));
-  }
+  await migrate(db, { through });
   return db;
 }
 

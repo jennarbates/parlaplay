@@ -26,7 +26,7 @@ test("sign in with the code from the email, typed into the same tab", async ({ p
   await expect(page.getByText(`Signed in as ${email}`)).toBeVisible();
 
   // Home shows it too, and it survives a reload.
-  await page.goto("/");
+  await page.goto("/it");
   await expect(page.getByRole("link", { name: email })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("link", { name: email })).toBeVisible();
