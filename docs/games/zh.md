@@ -734,7 +734,7 @@ As Chi è? 8.2 and `it-desktop.md` DS 11, plus:
 
 ### 8.3 Desktop keys
 
-As `it-desktop.md` DS 8, with these keys changed because the Italian ones were Italian words. `zh-desktop.md` ZS 5 has the full table:
+As `it-desktop.md` DS 8, with these keys changed because the Italian ones were Italian words. `zh-desktop.md` ZS 9 has the full table, including the desktop-only keys `/`, `l` and Backspace:
 
 | Key | Action | Replaces |
 |---|---|---|
@@ -744,7 +744,7 @@ As `it-desktop.md` DS 8, with these keys changed because the Italian ones were I
 | `1` to `7` | Level 2 answers, in button order (`是 不是 有 没有 不有 在 不在`) | `s`, `n` |
 | `p` | Pinyin toggle (Level 2) | new |
 | `t` | Pronoun switch (Level 1) | new |
-| `a` | Ask (Level 2, tray not empty) | Chiedi; was Enter in the tray, which already adds or removes the focused tile (`zh-desktop.md` ZD3) |
+| `a` | Ask (Level 2, tray not empty) | Chiedi; was Enter in the tray, which already adds or removes the focused tile (`zh-desktop.md` ZD15) |
 
 Level 2 has no tile letter keys, as DS 8 (DD8).
 
@@ -777,7 +777,7 @@ scripts/       generate-characters.ts, simulate.ts
 supabase/      migrations/
 e2e/           Playwright tests
 spec.md        this file
-zh-desktop.md    how Shéi's desktop layout differs from it-desktop.md; 8.3 above summarises its keys
+zh-desktop.md    the desktop spec (standalone, modelled on it-desktop.md); 8.3 above summarises its keys
 ```
 
 **CI and deploy.** As Chi è?: GitHub Actions runs typecheck, lint, Vitest and Playwright on every push and pull request with a local Supabase; `main` is protected; Cloudflare builds each pull request to a preview URL (with `shei-staging` settings once it exists); merging to `main` deploys production.
@@ -907,7 +907,7 @@ Also queued, as Chi è?: final art, Easy CPU setting, championship mode, Google 
 | D21 | Same SES account, new domain identity | Production access is per account and Region, so Shéi inherits it |
 | D22 | Half-day capacity until Oct 29, launch Fri Nov 13 | Built in parallel with the Chi è? launch, with 3 fix days after the playtest |
 | D23 | Each character has 1 to 3 pets and things | A card with all five is unreadable at 80px; one with none looks broken |
-| D24 | Desktop layout from day 1, reusing `it-desktop.md` | Chi è?'s desktop parts move to `src/core` and Shéi uses them; `zh-desktop.md` has the differences |
+| D24 | Desktop layout from day 1, reusing `it-desktop.md` | Chi è?'s desktop parts move to `src/core` and Shéi uses them; `zh-desktop.md` is the full desktop spec |
 | D25 | Name `谁？` (Shéi?), on `shei.parlaplay.games` | 谁 is itself an HSK 1 word, and the name avoids Hasbro's marks |
 
 ---
