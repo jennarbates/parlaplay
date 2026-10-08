@@ -1,20 +1,26 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { chooseItalian, chooseLanguage } from "./language.ts";
 
 // Platform spec 8.4 (PLAY-065): the logo at the top left of every screen links to /.
 
 const logo = (page: Page) => page.getByRole("link", { name: "parlaplay home" });
 
+async function box(locator: Locator) {
+  const b = await locator.boundingBox();
+  if (!b) throw new Error("no box");
+  return b;
+}
+
 test("exactly one logo on every screen, at the top left", async ({ page }) => {
   await chooseItalian(page);
   for (const path of ["/languages", "/it", "/it/progress", "/zh", "/settings", "/privacy", "/fr"]) {
     await page.goto(path);
     await expect(logo(page)).toHaveCount(1);
-    const box = (await logo(page).boundingBox())!;
-    expect(box.x).toBeLessThan(400); // left, inside the centred column at desktop sizes
-    expect(box.y).toBeLessThan(60);
-    expect(box.height).toBeGreaterThanOrEqual(44);
-    expect(box.width).toBeGreaterThanOrEqual(44);
+    const b = await box(logo(page));
+    expect(b.x).toBeLessThan(400); // left, inside the centred column at desktop sizes
+    expect(b.y).toBeLessThan(60);
+    expect(b.height).toBeGreaterThanOrEqual(44);
+    expect(b.width).toBeGreaterThanOrEqual(44);
   }
 });
 
@@ -66,10 +72,10 @@ test.describe("on a 360 × 560 phone (spec 8.3, 8.4)", () => {
       await page.goto(`/${code}/play?seed=5`);
       const bar = page.locator("header").first();
       await expect(bar).toContainText("Turn 1");
-      expect((await bar.boundingBox())!.height).toBe(56);
+      expect((await box(bar)).height).toBe(56);
       const img = logo(page).getByRole("img");
       await expect(img).toHaveCount(1); // the full logo is display: none below lg
-      expect((await img.boundingBox())!.width).toBeLessThanOrEqual(30);
+      expect((await box(img)).width).toBeLessThanOrEqual(30);
       const overflow = await bar.evaluate((el) => el.scrollWidth > el.clientWidth);
       expect(overflow).toBe(false);
     });
