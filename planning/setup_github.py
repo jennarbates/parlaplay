@@ -5,10 +5,13 @@ Points, Target date and Status filled in.
 
 Run from anywhere:  python3 planning/setup_github.py
 
-Safe to re-run. Progress is saved in planning/state.json, so if something fails
+Safe to re-run. It also updates the issue (title, body, labels, milestone), the
+blocked-by links and the project fields of any card changed in backlog.py since.
+Progress is saved in planning/state.json, so if something fails
 partway, fix the problem and run it again; it skips everything already done.
 Needs the GitHub CLI (gh), signed in with the "project" scope.
 """
+import hashlib
 import json
 import os
 import subprocess
@@ -21,7 +24,7 @@ REPO = DATA["repo"]
 OWNER = DATA["owner"]
 STATE_PATH = os.path.join(HERE, "state.json")
 
-state = {"labels": [], "milestones": {}, "issues": {}, "subissues": [], "blocked": [],
+state = {"labels": [], "milestones": {}, "issues": {}, "subissues": [], "blocked": [], "sent": {},
          "blocked_unsupported": False, "project": None, "fields": {}, "items": {}, "edited": []}
 if os.path.exists(STATE_PATH):
     state.update(json.load(open(STATE_PATH, encoding="utf-8")))
@@ -165,6 +168,49 @@ step("Backlog issues (" + str(len(DATA["cards"])) + "). This takes a few minutes
 for c in DATA["cards"]:
     create_issue(c, state["milestones"][c["milestone"]])
 
+# updates: a card edited in backlog.py after its issue was made
+step("Updating issues whose card changed")
+
+
+def desired(c):
+    want = {"title": c["title"], "body": fill(c["body"]), "labels": sorted(c["labels"])}
+    if "milestone" in c:  # cards only; epics have none
+        want["milestone"] = state["milestones"][c["milestone"]]
+    return want
+
+
+def digest(d):
+    return hashlib.sha256(json.dumps(d, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+changed = 0
+for c in DATA["epics"] + DATA["cards"]:
+    want = desired(c)
+    if state["sent"].get(c["key"]) == digest(want):
+        continue
+    num = str(state["issues"][c["key"]]["number"])
+    have = api("GET", "repos/" + REPO + "/issues/" + num)
+    have_labels = [lab["name"] for lab in have.get("labels", [])]
+    patch = {}
+    if have.get("title") != want["title"]:
+        patch["title"] = want["title"]
+    if (have.get("body") or "") != want["body"]:
+        patch["body"] = want["body"]
+    if "milestone" in want and (have.get("milestone") or {}).get("number") != want["milestone"]:
+        patch["milestone"] = want["milestone"]
+    # Replace only the backlog's own labels; keep any added by hand (bug, and so on).
+    ours = lambda n: n.startswith(("type: ", "epic")) or n == "waits on others"
+    labels = sorted([n for n in have_labels if not ours(n)] + want["labels"])
+    if sorted(have_labels) != labels:
+        patch["labels"] = labels
+    if patch:
+        api("PATCH", "repos/" + REPO + "/issues/" + num, patch, pause=1.0)
+        changed += 1
+        print("   #" + num + "  " + c["title"] + "  (" + ", ".join(sorted(patch)) + ")")
+    state["sent"][c["key"]] = digest(want)
+    save()
+print("   done" + ("" if changed else ": nothing changed"))
+
 # sub-issues
 step("Attaching cards to their epics as sub-issues")
 skipped_sub = 0
@@ -186,6 +232,22 @@ for c in DATA["cards"]:
 print("   done" + ("" if not skipped_sub else " (" + str(skipped_sub) + " skipped, see above)"))
 
 # blocked-by
+step("Removing blocked-by links no longer in the backlog")
+wanted = {c["key"] + "<" + d for c in DATA["cards"] for d in c["deps"]}
+for pair in [p for p in state["blocked"] if p not in wanted]:
+    key, dep = pair.split("<")
+    num = str(state["issues"][key]["number"])
+    try:
+        api("DELETE", "repos/" + REPO + "/issues/" + num + "/dependencies/blocked_by/"
+            + str(state["issues"][dep]["id"]), pause=0.5)
+    except GhError as e:
+        if "404" not in str(e) and "not found" not in str(e).lower():
+            raise
+    state["blocked"].remove(pair)
+    save()
+    print("   removed " + pair)
+print("   done")
+
 step("Adding blocked-by links")
 if state["blocked_unsupported"]:
     print("   skipped: this repo does not support issue dependencies; each issue lists them instead")
@@ -256,7 +318,9 @@ for c in DATA["cards"]:
                    "--url", state["issues"][key]["url"], "--format", "json"], pause=0.3)
         state["items"][key] = item["id"]
         save()
-    if key in state["edited"]:
+    fields_now = [c["points"], c["target_date"]]
+    # Cards set before fields were recorded are set once more, so a changed one is caught.
+    if key in state["edited"] and state["fields"].get(key) == fields_now:
         continue
     iid = state["items"][key]
     base = ["project", "item-edit", "--id", iid, "--project-id", PID]
@@ -265,7 +329,9 @@ for c in DATA["cards"]:
         gh(base + ["--field-id", fields["Target date"]["id"], "--date", c["target_date"]], pause=0.3)
     if todo_option:
         gh(base + ["--field-id", status["id"], "--single-select-option-id", todo_option], pause=0.3)
-    state["edited"].append(key)
+    if key not in state["edited"]:
+        state["edited"].append(key)
+    state["fields"][key] = fields_now
     save()
     print("   " + key)
 

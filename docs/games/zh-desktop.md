@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | v0 draft (2026-10-08). Becomes `v1` after the sign-off in ZS 13.1 |
+| Status | v0.1 draft (2026-10-08). Becomes `v1` after the sign-off in ZS 13.1 |
 | Product name | **谁？** (*Shéi?*, "Who?"). Written `谁？` in the app and `Shei` in code. The branding rules of `zh.md`: never "Guess Who", "Guess Who?" or any official Chinese title of that game in public branding |
 | Audience for this doc | Whoever builds, reviews, or tests Shéi's desktop version |
 | Builds on | `zh.md` (Shéi's MVP spec) for rules, content, engine, CPU, learning model and backend. `it-desktop.md` (Chi è?'s desktop spec, cited as "DS") is the model this spec follows; every part of it that Shéi uses is restated here, so this spec stands on its own |
@@ -13,7 +13,7 @@ Conventions: each section leads with the decision, then the reason. `TBD:` marks
 
 ## ZS 1. Scope and non-goals
 
-**Goal.** A version of Shéi designed for a laptop: the board as large as the window's height allows, the questions, the round so far and the learner's tools beside it, and every move playable by mouse or entirely by keyboard, including building Level 2 questions by typing pinyin. The phone experience stays exactly as it is.
+**Goal.** A version of Shéi designed for a laptop: the board large and central, the questions, the round so far and the learner's tools beside it, and every move playable by mouse or entirely by keyboard, including building Level 2 questions by typing pinyin. The phone experience stays exactly as it is.
 
 **The problem today.** Shéi joined this repo before Chi è?'s desktop work, so none of it reached `src/languages/zh`. Every `/zh` route sets its width to `lg:max-w-md` (`src/languages/zh/index.ts`), so on a laptop the game is a phone-sized strip under DesktopNav. Chi è?'s desktop layout, if copied as is, would still be a phone design widened: a fixed 22 to 26rem panel whose Level 2 tile row does not fit (ZS 6.1), a 14-row question list that scrolls, and no use of the keyboard for the thing Chinese learners type all day, pinyin.
 
@@ -31,7 +31,7 @@ Conventions: each section leads with the decision, then the reason. `TBD:` marks
 | In desktop v1 | Out of desktop v1 (future, ZS 14.1) |
 |---|---|
 | Layout for windows 1024px wide or more | Tablet layouts (768 to 1023px) |
-| A board sized by the window's height, with the panel taking the remaining width (ZS 5) | Resizable or detachable panel |
+| The 6 × 4 board on the left and an always-open side panel on the right (ZS 5, ZS 6) | Resizable or detachable panel |
 | Level 1 questions grouped by verb, 是, 有, 在, all visible at once (ZS 7.1) | Drag and drop of tiles |
 | Level 2 type-to-find: typing pinyin (or characters with an IME) picks tiles (ZS 7.2) | Typing whole questions (`zh.md` Level 3) |
 | A round log beside the board, with word glosses on hover and focus (ZS 7.3, 7.4) | Audio of any kind |
@@ -48,7 +48,7 @@ Rule: anything not in the left column is out. New ideas go to ZS 14.1, not into 
 ### ZS 2.1 A desktop round, step by step
 
 1. The learner opens `/zh` in a 1440 × 900 window. DesktopNav runs across the top; Home shows two columns (ZS 10.1).
-2. They pick Level 2 and press Enter on **Play**. `/zh/play` opens with no DesktopNav: TopBar on top, the 6 × 4 board on the left at the largest size the height allows, and the side panel on the right with the summary "Your turn: ask a question, or guess.", the find field, the tray, the tiles, and below them the round log, empty for now ("Questions you and the computer ask show up here.").
+2. They pick Level 2 and press Enter on **Play**. `/zh/play` opens with no DesktopNav: TopBar on top, the 6 × 4 board on the left, and the side panel on the right with the summary "Your turn: ask a question, or guess.", the find field, the tray, the tiles, and below them the round log, empty for now ("Questions you and the computer ask show up here.").
 3. They press `/`; focus moves to the find field. They type `ta`; a list opens under the field with 他 then 她, 他 selected. They press Enter: 他 goes into the tray and the field clears. They type `you`, Enter; `gou`, Enter; `ma`, Enter. The tray reads 他有狗吗. The field is empty, so Enter asks the question.
 4. The engine accepts it. The panel shows the answer (phase `playerReview`) with the question and answer in the body; hovering 狗 there shows "狗 · gǒu · dog". The log's first entry appears: "You asked 他有狗吗？" and the answer.
 5. They press `b`; focus moves to the board. Arrows and Enter flip down the cards the answer rules out. They press `n` (Next).
@@ -68,7 +68,7 @@ At every step the mouse works too: clicking does exactly what tapping does on th
 | Focused element unmounted by a resize | Focus moves to the board's roving card |
 | Window narrower than 1024px | Phone layout, centred, exactly as today. No "too small" message |
 | Window shorter than 640px at 1024px or wider | Cards shrink to fit (the board formula uses height). The panel's body scrolls; the summary and actions never leave view |
-| Very large window (1920 × 1080 and up) | Cards stop growing at 13rem; the panel stops at 40rem; the rest is grey margin, the layout centred (ZS 5.2) |
+| Very large window (1920 × 1080 and up) | The panel stays 28rem; the cards grow with the height (168px at 1920 × 1080); the board is centred in its column |
 | Touch laptop (touch is the primary input) | `(hover: hover)` is false: no card preview and no hover glosses; long-press still opens CardDetail; focus glosses still work; layout is still desktop |
 | Shortcut key pressed in the find field, the sign-in fields, or any input | Ignored by the shortcut layer; the field handles its own keys (ZS 7.2) |
 | Shortcut pressed with a dialog open | Ignored, except the dialog's own Enter and Esc |
@@ -158,7 +158,7 @@ export function glossShowsEnglish(phase: Phase, level: Level): boolean;
 | Part | Moves to | What it takes that differs by language |
 |---|---|---|
 | `useHoverPreview` | `src/core/ui/useHoverPreview.ts` | nothing |
-| `previewSpot`, `boardVars` | `src/core/ui/boardLayout.ts` | `previewSpot`: the caption's height (Chi è? 32px, Shéi 44px). `boardVars`: the shape, the caption height (Chi è? 0) and the sizing mode (ZS 5.2) |
+| `previewSpot`, `boardVars` | `src/core/ui/boardLayout.ts` | `previewSpot`: the caption's height (Chi è? 32px, Shéi 44px). `boardVars`: the shape, the caption height (Chi è? 0) |
 | `Kbd` | `src/core/ui/Kbd.tsx` | nothing |
 | `SidePanel` | `src/core/ui/SidePanel.tsx` | an optional `log` slot (Chi è? passes none) |
 | `ShortcutsDialog` | `src/core/ui/ShortcutsDialog.tsx` | the rows of keys to list |
@@ -176,9 +176,9 @@ export function glossShowsEnglish(phase: Phase, level: Level): boolean;
 
 `lg`, 64rem (1024px), on width alone, as DS 5 (DD1): CSS uses the `lg:` variant; component swaps use `useIsDesktop()` from `src/core/ui/useMediaQuery.ts`. Hover features also need `(hover: hover) and (pointer: fine)`. The app shell (DesktopNav, page background, SyncBanner placement) is already shared and unchanged. `src/languages/zh/index.ts` sets the route widths of DS 5's table: Home `lg:max-w-5xl`, game `lg:max-w-none`, Progress `lg:max-w-6xl`.
 
-### ZS 5.2 The board takes the height; the panel takes the rest
+### ZS 5.2 Board on the left, a fixed panel on the right
 
-**Decision: the card size comes from the window's height, the board column is exactly as wide as six cards, and the panel gets all the remaining width between 28rem and 40rem (ZD3).** The reason: a 6 × 4 board with captions is height-bound on every common laptop window, so Chi è?'s fixed-width panel leaves width unused beside the board. Giving it to the panel fits the Level 2 tiles and the round log with no scrolling, and costs the cards nothing.
+**Decision: the board fills the left column and an always-open side panel of `minmax(24rem, 28rem)` sits on the right, as Chi è? does (ZD3).** The reason: a fixed panel keeps the layout predictable and the same in both games. It is 2rem wider than Chi è?'s `minmax(22rem, 26rem)` because Level 2's first tile row (7 tiles of at least 44px with 2px gaps, about 320px) overflows a 22rem panel (311px inside its padding) and fits at 24rem (343px), measured on the production build in Chromium on 2026-10-08, with and without pinyin.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -196,31 +196,32 @@ export function glossShowsEnglish(phase: Phase, level: Level): boolean;
 │                                              │ [Clear] [Ask A] [Guess G]  │ actions, pinned
 │                                              │ Press ? for shortcuts      │
 └─────────────────────────────────────────────┴────────────────────────────┘
-       auto (6 cards + gaps + padding)              minmax(28rem, 40rem)
+                    1fr                             minmax(24rem, 28rem)
 ```
 
-- The root is `grid h-dvh grid-rows-[3.5rem_1fr] grid-cols-[auto_minmax(28rem,40rem)] justify-center bg-stone-200`; TopBar spans both columns. The board cell is `bg-stone-50 p-6`; the panel is `bg-white border-l border-stone-200`.
-- The card width is set on the root from the viewport, not from a container query, because the board column's width depends on it:
+- The root is `grid h-dvh grid-rows-[auto_1fr] grid-cols-[1fr_minmax(24rem,28rem)]`; TopBar spans both columns. The board cell is `bg-stone-50 p-6 [container-type:size]`; the panel is `bg-white border-l border-stone-200`. The panel takes its maximum, 28rem (448px), at every width from 1024px, because a fixed track grows to its maximum before `1fr` gets the rest.
+- The card width comes from the board cell's container size, as DS 6.1's formula with the captions taken out of the height:
 
   ```css
   --card-w: min(
-    calc((100vw - 28rem - 3rem - 5 * var(--gap)) / 6),
-    calc((100dvh - 3.5rem - 3rem - 3 * var(--gap) - 4 * var(--card-cap)) / 4 * 5 / 6),
-    13rem
+    calc((100cqw - (var(--cols) - 1) * var(--gap)) / var(--cols)),
+    calc((100cqh - (var(--rows) - 1) * var(--gap) - var(--rows) * var(--card-cap)) / var(--rows) * 5 / 6)
   );
   ```
 
-  with `--gap: 0.5rem` and `--card-cap: 2.25rem`. The three terms: the width left after the panel's minimum, the height left after TopBar, padding, gaps and captions (turned into a width by the 5:6 face), and a cap.
-- The phone keeps its formula and sizes exactly (DD11 of DS): `--card-cap: 1.75rem`, `--gap: 0.25rem`, container-query based.
+  At `lg`: `--cols: 6`, `--rows: 4`, `--gap: 0.5rem`, `--card-cap: 2.25rem`. The board grid is `w-fit` and centred in its cell, so any width the height-bound cards do not use is shared equally on both sides.
+- The phone keeps its sizes exactly (DS DD11): `--card-cap: 1.75rem`, `--gap: 0.25rem`, `px-2 py-1`. On the phone the formula above equals today's.
 
-**Worked sizes** (TopBar 56px, padding 48px, gaps 8px, captions 36px):
+**Worked sizes** (panel 448px, TopBar 56px, padding 48px, gaps 8px, captions 36px):
 
-| Window | Width term | Height term | Card | Board column | Panel |
-|---|---|---|---|---|---|
-| 1024 × 640 | (1024 − 448 − 48 − 40) / 6 = 81px | (640 − 56 − 48 − 24 − 144) / 4 × 5/6 = 77px | 77px | 548px | 476px |
-| 1280 × 720 | 124px | 93px | 93px | 648px | 632px |
-| 1440 × 900 | 151px | 131px | 131px | 873px | 567px |
-| 1920 × 1080 | 231px | 168px | 168px | 1098px | 640px (cap), 182px of margin |
+| Window | Width allows | Height allows | Card |
+|---|---|---|---|
+| 1024 × 640 | (1024 − 448 − 48 − 40) / 6 = 81px | (640 − 56 − 48 − 24 − 144) / 4 × 5/6 = 77px | 77px |
+| 1280 × 720 | 124px | 93px | 93px |
+| 1440 × 900 | 151px | 131px | 131px |
+| 1920 × 1080 | 231px | 168px | 168px |
+
+The board is height-bound at every one, so the extra 2rem of panel costs the cards nothing.
 
 ### ZS 5.3 Board and cards
 
@@ -570,7 +571,7 @@ No Mandarin review is needed: ZS 1's table puts new Chinese strings out, and eve
 | Case | Check |
 |---|---|
 | Fits | At 1024 × 640 and 1440 × 900, both levels: 24 cards visible, no page scroll, the summary and actions visible, each phase area at most 378px tall at 1024 × 640 |
-| Layout | The board column's width equals six cards plus gaps and padding; the panel is between 448 and 640px |
+| Layout | The panel is 448px wide at 1024, 1440 and 1920; the board is centred in its column |
 | No sheet | No "Questions" toggle button; `aside[aria-label="Questions"]` present |
 | Groups | At Level 1, three columns headed 是, 有, 在 holding 5, 5 and 4 questions |
 | Type-to-find | Typing `ta`, Enter, `you`, Enter, `gou`, Enter, `ma`, Enter, Enter asks 他有狗吗？ (success criterion 3) |
@@ -612,13 +613,14 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 
 | Day | Date | Deliverable | Done when |
 |---|---|---|---|
-| 1 | Thu Oct 8 | Request the developer review of this spec; ask 2 playtesters for a laptop session in the week of Nov 9 | Review requested with a return date of Wed Oct 14; 2 playtesters confirmed |
-| 3 | Wed Oct 14 | Paper trace, fold in the review, tag `v1` | Spec tagged `v1` |
-| 12 | Mon Nov 9 | Shared parts moved to `src/core`; layout and side panel | Chi è? tests unedited and green; 24 cards and the panel fit at 1024 × 640 |
-| 13 | Tue Nov 10 | Level 1 groups, round log, glosses, card preview | ZS 7.1, 7.3, 7.4 and ZS 8 work |
-| 14 | Wed Nov 11 | Type-to-find and keyboard play; other screens | A full round at each level by keyboard; ZS 10 at 1024 and 1440 |
-| 15 | Thu Nov 12 | Desktop e2e, manual pass, laptop playtests | CI green; ZS 13.4 logged; 2 laptop sessions logged |
-| 16 | Fri Nov 13 | Fix must-fix findings before launch | Every must-fix desktop finding fixed or the desktop layout is held back (ZS 14.2, ZD14) |
+| 1 | Thu Oct 8 | Request the developer review of this spec (PLAY-064) | Review requested with a return date of Wed Oct 14 |
+| 2 | Fri Oct 9 | Book 2 playtesters for laptop sessions on Thu Nov 12 (PLAY-065) | 2 playtesters confirmed |
+| 3 | Wed Oct 14 | Paper trace, fold in the review, tag `v1` (PLAY-066) | Spec tagged `v1` |
+| 12 | Mon Nov 9 | Shared parts in `src/core`; game layout and side panel; Home and Progress (PLAY-058, PLAY-059, PLAY-062) | Chi è? tests unedited and green; 24 cards and the panel fit at 1024 × 640; ZS 6.3 measured |
+| 13 | Tue Nov 10 | Level 1 groups, round log and round end, glosses, card preview and dialogs (PLAY-067, PLAY-068, PLAY-069, PLAY-060) | ZS 7.1, 7.3, 7.4, 8 and 10.2 work |
+| 14 | Wed Nov 11 | Type-to-find, shortcuts, keyboard navigation (PLAY-070, PLAY-061, PLAY-071) | A full round at each level by keyboard only |
+| 15 | Thu Nov 12 | Desktop e2e; manual pass and laptop playtests (PLAY-063, PLAY-072) | CI green; ZS 13.4 logged; 2 laptop sessions logged |
+| 16 | Fri Nov 13 | Fix must-fix desktop findings before launch (PLAY-073) | Every must-fix desktop finding fixed, or `/zh` launches at phone width (ZD14) |
 
 ## ZS 14. Future work and decision log
 
@@ -644,7 +646,7 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 |---|---|---|
 | ZD1 | No new stored data or content | Desktop is presentation; everything shown exists in content and `history` |
 | ZD2 | Chi è?'s language-neutral desktop parts move to `src/core/ui` | One fix reaches both games and copies cannot drift; Chi è?'s unedited tests guard the move |
-| ZD3 | The card size comes from the height; the board column is six cards wide; the panel takes the rest, 28 to 40rem | A captioned 6 × 4 board is height-bound on common windows, so a fixed panel wastes width the panel needs for tiles and the log |
+| ZD3 | Board on the left, a fixed `minmax(24rem, 28rem)` panel on the right, as Chi è? | The owner's choice, for a predictable layout shared with Chi è?; 2rem wider than Chi è?'s because the measured 7-tile row needs 24rem; the board is height-bound, so the cards lose nothing |
 | ZD4 | Captions grow to 16px and 12px at `lg` | Phone sizes are hard to read at laptop distance; the longest pinyin fits the smallest desktop card |
 | ZD5 | The panel shows `sheetFor()`'s content, with grouped questions and Clear and Ask moved to the actions at `lg` | One source of truth for each phase; the moved buttons never scroll away and free 56px |
 | ZD6 | Level 1 questions grouped by verb in three columns | All 14 fit without scrolling, and the grouping teaches 是, 有, 在 |
@@ -675,3 +677,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 ## ZS 16. Changelog
 
 - 2026-10-08: v0. Full desktop spec for Shéi, replacing the v0.1 list of differences from `it-desktop.md`. Adds the height-sized board with a flexible panel, Level 1 questions grouped by verb, Level 2 type-to-find, the round log and word glosses. Level 2 builder measured on the production build: the 7-tile row overflows a 22rem panel and the builder is 388px tall with Clear and Ask.
+- 2026-10-08: v0.1. Milestones matched to the backlog cards (PLAY-057, PLAY-058 to PLAY-073). Owner review: the panel is fixed at `minmax(24rem, 28rem)` like Chi è?'s, not flexible (ZD3); ZD9 and ZD14 confirmed.
