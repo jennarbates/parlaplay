@@ -1,6 +1,6 @@
 // CHI-080 and CHI-081: the migrations and RLS policies from spec 7.1 and 7.2.
 import type { PGlite } from "@electric-sql/pglite";
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { as, createUser, freshDb } from "./db-harness.ts";
 
 const A = "00000000-0000-4000-8000-00000000000a";
@@ -9,6 +9,10 @@ const gameA = "10000000-0000-4000-8000-00000000000a";
 const gameB = "10000000-0000-4000-8000-00000000000b";
 
 let db: PGlite;
+
+// Each PGlite holds a whole Postgres in memory; free it after every test.
+
+afterEach(() => db.close());
 beforeEach(async () => {
   db = await freshDb();
   await createUser(db, A);
@@ -32,13 +36,19 @@ const insertLog = (user: string, id: string, game: string | null, owner = user) 
   );
 const logId = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
-describe("tables (spec 7.1)", () => {
+describe("tables (spec 7.1, platform spec 6.1)", () => {
   test("profiles, games, review_log and cards exist with their columns", async () => {
     const { rows } = await db.query<{ table_name: string; column_name: string }>(
       `select table_name, column_name from information_schema.columns where table_schema = 'public' order by table_name, ordinal_position`,
     );
     const columns = (t: string) => rows.filter((r) => r.table_name === t).map((r) => r.column_name);
-    expect(columns("profiles")).toEqual(["id", "display_name", "level", "created_at"]);
+    expect(columns("profiles")).toEqual([
+      "id",
+      "display_name",
+      "level",
+      "created_at",
+      "last_language",
+    ]);
     expect(columns("games")).toEqual([
       "id",
       "user_id",
@@ -48,6 +58,7 @@ describe("tables (spec 7.1)", () => {
       "started_at",
       "ended_at",
       "result",
+      "language",
     ]);
     expect(columns("review_log")).toEqual([
       "id",
@@ -59,6 +70,7 @@ describe("tables (spec 7.1)", () => {
       "detail",
       "local_day",
       "created_at",
+      "language",
     ]);
     expect(columns("cards")).toEqual([
       "user_id",
@@ -68,6 +80,7 @@ describe("tables (spec 7.1)", () => {
       "due",
       "log_count",
       "updated_at",
+      "language",
     ]);
   });
 
@@ -152,13 +165,15 @@ describe("tables (spec 7.1)", () => {
 });
 
 describe("Row Level Security (spec 7.2)", () => {
-  test("RLS is enabled on all four tables", async () => {
+  test("RLS is enabled on every table", async () => {
     const { rows } = await db.query<{ relname: string; relrowsecurity: boolean }>(
       "select relname, relrowsecurity from pg_class where relnamespace = 'public'::regnamespace and relkind = 'r' order by relname",
     );
     expect(rows).toEqual([
       { relname: "cards", relrowsecurity: true },
       { relname: "games", relrowsecurity: true },
+      { relname: "language_settings", relrowsecurity: true },
+      { relname: "languages", relrowsecurity: true },
       { relname: "profiles", relrowsecurity: true },
       { relname: "review_log", relrowsecurity: true },
     ]);
