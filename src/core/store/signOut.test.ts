@@ -19,7 +19,7 @@ const { useAuthStore } = await import("./authStore.ts");
 const { useGameStore } = await import("../../languages/it/store/gameStore.ts");
 // Registers its round hooks, as visiting /it does; sign-out clears the round through them.
 await import("../../languages/it/index.ts");
-const { useProgressStore } = await import("./progressStore.ts");
+const useProgressStore = (await import("./progressStore.ts")).progressStore("it");
 const { useSyncStore } = await import("../services/sync.ts");
 const { read, resetForTests, write } = await import("../services/storage.ts");
 
@@ -57,11 +57,15 @@ describe("sign-out (CHI-087)", () => {
     await playSignedIn();
     expect(await requestSignOut()).toBe("signedOut");
     expect(signOutCalls).toHaveLength(1);
-    expect(await read(`user:${user}`)).toBeUndefined();
+    expect(await read(`user:${user}:it`)).toBeUndefined();
     expect(await read(`outbox:${user}`)).toBeUndefined();
     expect(await read("round:it")).toBeUndefined();
     expect(useGameStore.getState().game).toBeNull();
-    expect(useProgressStore.getState()).toMatchObject({ owner: "guest", games: [], reviewLog: [] });
+    expect(useProgressStore.getState()).toMatchObject({
+      owner: "guest",
+      games: [],
+      reviewLog: [],
+    });
   });
 
   test("with rows that cannot sync, warns instead of signing out", async () => {
@@ -84,8 +88,8 @@ describe("sign-out (CHI-087)", () => {
   });
 
   test("the guest's data on the device is left alone", async () => {
-    await write("guest", { games: [{ id: "guest-game" }], reviewLog: [] });
+    await write("guest:it", { games: [{ id: "guest-game" }], reviewLog: [] });
     await signOutNow();
-    expect(await read("guest")).toEqual({ games: [{ id: "guest-game" }], reviewLog: [] });
+    expect(await read("guest:it")).toEqual({ games: [{ id: "guest-game" }], reviewLog: [] });
   });
 });

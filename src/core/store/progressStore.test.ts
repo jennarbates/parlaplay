@@ -3,7 +3,9 @@ import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { read, resetForTests, write } from "../services/storage.ts";
 import { rowsFor } from "../../languages/it/store/rows.ts";
-import { progressSaved, useProgressStore } from "./progressStore.ts";
+import { progressSaved, progressStore } from "./progressStore.ts";
+
+const useProgressStore = progressStore("it");
 
 beforeEach(() => {
   vi.stubGlobal("indexedDB", new IDBFactory());
@@ -68,7 +70,7 @@ describe("games rows (CHI-071)", () => {
     store.recordGameEnd("g1", "lost", at);
     store.recordGameEnd("g1", "abandoned", at); // a second end is ignored
     expect(useProgressStore.getState().games).toEqual([
-      { ...row, endedAt: at.toISOString(), result: "lost" },
+      { ...row, language: "it", endedAt: at.toISOString(), result: "lost" },
     ]);
   });
 });
@@ -91,7 +93,7 @@ describe("persistence", () => {
       ),
     );
     await progressSaved();
-    const saved = await read<{ games: unknown[]; reviewLog: unknown[] }>("guest");
+    const saved = await read<{ games: unknown[]; reviewLog: unknown[] }>("guest:it");
     expect(saved?.games).toHaveLength(1);
     expect(saved?.reviewLog).toHaveLength(1);
 
@@ -105,7 +107,7 @@ describe("persistence", () => {
   });
 
   test("rows recorded before the saved data loads are kept after it", async () => {
-    await write("guest", { games: [], reviewLog: [{ id: "old" }] });
+    await write("guest:it", { games: [], reviewLog: [{ id: "old", language: "it" }] });
     useProgressStore
       .getState()
       .appendRows(
@@ -121,7 +123,7 @@ describe("persistence", () => {
   });
 
   test("damaged guest data loads as empty instead of crashing", async () => {
-    await write("guest", { games: "nope", reviewLog: 3 });
+    await write("guest:it", { games: "nope", reviewLog: 3 });
     await useProgressStore.getState().hydrate();
     expect(useProgressStore.getState()).toMatchObject({ loaded: true, games: [], reviewLog: [] });
   });
@@ -129,7 +131,10 @@ describe("persistence", () => {
 
 describe("owners", () => {
   test("loading twice never duplicates rows", async () => {
-    await write("guest", { games: [{ id: "g1" }], reviewLog: [{ id: "r1" }] });
+    await write("guest:it", {
+      games: [{ id: "g1", language: "it" }],
+      reviewLog: [{ id: "r1", language: "it" }],
+    });
     await Promise.all([
       useProgressStore.getState().hydrate(),
       useProgressStore.getState().hydrate(),
@@ -140,8 +145,8 @@ describe("owners", () => {
 
   test("switching owner loads that owner's data, kept apart from the guest's", async () => {
     const user = "u1";
-    await write("guest", { games: [{ id: "guest-game" }], reviewLog: [] });
-    await write(`user:${user}`, { games: [{ id: "user-game" }], reviewLog: [] });
+    await write("guest:it", { games: [{ id: "guest-game", language: "it" }], reviewLog: [] });
+    await write(`user:${user}:it`, { games: [{ id: "user-game", language: "it" }], reviewLog: [] });
     await useProgressStore.getState().hydrate();
     expect(useProgressStore.getState().games.map((g) => g.id)).toEqual(["guest-game"]);
     await useProgressStore.getState().switchOwner(user);
@@ -157,9 +162,9 @@ describe("owners", () => {
     });
     await progressSaved();
     expect(
-      (await read<{ games: { id: string }[] }>(`user:${user}`))?.games.map((g) => g.id),
+      (await read<{ games: { id: string }[] }>(`user:${user}:it`))?.games.map((g) => g.id),
     ).toEqual(["user-game", "g2"]);
-    expect((await read<{ games: { id: string }[] }>("guest"))?.games.map((g) => g.id)).toEqual([
+    expect((await read<{ games: { id: string }[] }>("guest:it"))?.games.map((g) => g.id)).toEqual([
       "guest-game",
     ]);
   });
@@ -176,5 +181,62 @@ describe("owners", () => {
       );
     await useProgressStore.getState().switchOwner("guest");
     expect(useProgressStore.getState().reviewLog).toHaveLength(1);
+  });
+});
+
+// Platform spec 3.4.1: a language's store never holds another language's rows.
+describe("separation by language (3.4.1)", () => {
+  const zh = progressStore("zh");
+  beforeEach(() => zh.setState({ games: [], reviewLog: [], loaded: false, owner: "guest" }));
+
+  test("each store stamps its own language and saves under its own key", async () => {
+    useProgressStore.getState().recordGameStart({
+      id: "g-it",
+      seed: 1,
+      level: 1,
+      contentVersion: 1,
+      startedAt: at.toISOString(),
+    });
+    zh.getState().recordGameStart({
+      id: "g-zh",
+      seed: 1,
+      level: 1,
+      contentVersion: 1,
+      startedAt: at.toISOString(),
+    });
+    await progressSaved();
+    expect(useProgressStore.getState().games.map((g) => [g.id, g.language])).toEqual([
+      ["g-it", "it"],
+    ]);
+    expect(zh.getState().games.map((g) => [g.id, g.language])).toEqual([["g-zh", "zh"]]);
+    expect((await read<{ games: { id: string }[] }>("guest:zh"))?.games.map((g) => g.id)).toEqual([
+      "g-zh",
+    ]);
+  });
+
+  test("rows of another language never load from storage or merge in", async () => {
+    await write("guest:it", {
+      games: [
+        { id: "a", language: "it" },
+        { id: "b", language: "zh" },
+      ],
+      reviewLog: [{ id: "c", language: "zh" }],
+    });
+    await useProgressStore.getState().hydrate();
+    expect(useProgressStore.getState().games.map((g) => g.id)).toEqual(["a"]);
+    expect(useProgressStore.getState().reviewLog).toEqual([]);
+
+    const remote = {
+      games: [{ id: "d", language: "zh" }],
+      reviewLog: [
+        { id: "e", language: "it" },
+        { id: "f", language: "zh" },
+      ],
+    } as unknown as Parameters<ReturnType<typeof useProgressStore.getState>["mergeRemote"]>[0];
+    useProgressStore.getState().mergeRemote(remote);
+    zh.getState().mergeRemote(remote);
+    expect(useProgressStore.getState().reviewLog.map((r) => r.id)).toEqual(["e"]);
+    expect(zh.getState().games.map((g) => g.id)).toEqual(["d"]);
+    expect(zh.getState().reviewLog.map((r) => r.id)).toEqual(["f"]);
   });
 });

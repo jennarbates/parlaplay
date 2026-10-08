@@ -3,19 +3,19 @@
 // catches its own errors, so a full disk or a private window never stops play.
 import { openDB, type IDBPDatabase } from "idb";
 
-const dbName = "chi-e";
+const dbName = "parlaplay"; // platform spec 3.3
 const storeName = "kv";
 
-// Guest data lives under "guest" (spec 7.3) and each language's round in progress
-// under "round:{code}". A signed-in user's local copy and outbox are kept per user, so signing
-// out can clear exactly that user's data.
+// Platform spec 3.3: every per-language key carries the language code. A
+// signed-in user's local copy and outbox are kept per user, so signing out can
+// clear exactly that user's data.
 export type StorageKey =
-  | "app" // the last language chosen on this device (platform spec 3.3)
-  | "guest"
-  | `round:${string}` // a language's round in progress (platform spec 3.3)
-  | `settings:${string}` // a language's device-only settings (platform spec 3.3)
-  | `user:${string}`
-  | `outbox:${string}`;
+  | "app" // the last language chosen on this device
+  | `guest:${string}` // guest:{code}: a guest's games and review log
+  | `round:${string}` // round:{code}: the round in progress
+  | `settings:${string}` // settings:{code}: device-only settings
+  | `user:${string}:${string}` // user:{userId}:{code}: a signed-in user's local copy
+  | `outbox:${string}`; // outbox:{userId}: queued rows of every language
 
 let db: Promise<IDBPDatabase> | undefined;
 

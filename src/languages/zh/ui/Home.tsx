@@ -3,8 +3,8 @@ import type { Level } from "../engine/index.ts";
 import { useAccountStore } from "../../../core/store/account.ts";
 import { useAuthStore } from "../../../core/store/authStore.ts";
 import { useGameStore } from "../store/gameStore.ts";
-import { usePrefs } from "../../../core/store/prefs.ts";
 import { paths } from "../paths.ts";
+import { usePrefs } from "../stores.ts";
 
 const levels: { level: Level; title: string; detail: string }[] = [
   { level: 1, title: "Level 1", detail: "Tap ready-made questions, with English hints" },

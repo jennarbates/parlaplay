@@ -5,7 +5,7 @@ import { cardIds } from "../cards.ts";
 import { content } from "../content/index.ts";
 import { parseKey, step, type Action, type GameEvent, type GameState } from "../engine/index.ts";
 import { startGame } from "../engine/start.ts";
-import type { ReviewLogRow } from "../../../core/store/progressStore.ts";
+import type { NewReview, ReviewLogRow } from "../../../core/store/progressStore.ts";
 import { rowsFor } from "./rows.ts";
 import {
   applyRow,
@@ -26,6 +26,7 @@ const row = (
   minutes = 0,
 ): ReviewLogRow => ({
   id: crypto.randomUUID(),
+  language: "zh",
   gameId: "g",
   direction: "produce",
   localDay: "2026-10-06",
@@ -155,7 +156,7 @@ describe("the spec 6 event → rating table, end to end (CHI-073)", () => {
   const g1 = { ...g2, level: 1 as const };
   const ask = (...tokens: string[]): Action => ({ type: "ASK", tokens });
   const dog = ["pr.ta.f", "v.you", "n.gou", "pt.ma"];
-  const lines = (log: ReviewLogRow[]) => log.map((r) => [r.lexiconId, r.direction, r.rating]);
+  const lines = (log: readonly NewReview[]) => log.map((r) => [r.lexiconId, r.direction, r.rating]);
 
   test("Level 2 question accepted: produce the noun, good", () => {
     expect(lines(play(g2, [ask(...dog)]).log)).toEqual([["n.gou", "produce", "good"]]);

@@ -18,12 +18,13 @@ vi.mock("./supabase.ts", () => ({
   },
 }));
 const { useSyncStore, syncSaved } = await import("./sync.ts");
-const { useProgressStore } = await import("../store/progressStore.ts");
+const useProgressStore = (await import("../store/progressStore.ts")).progressStore("it");
 const { read, resetForTests } = await import("./storage.ts");
 
 const user = "00000000-0000-4000-8000-00000000000a";
 const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
   id,
+  language: "it",
   seed: 1,
   level: 2,
   contentVersion: 1,
@@ -32,6 +33,7 @@ const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
 });
 const review = (id: string, gameId: string): ReviewLogRow => ({
   id,
+  language: "it",
   gameId,
   lexiconId: "n.capelli",
   direction: "produce",
@@ -63,6 +65,7 @@ describe("flush (CHI-084)", () => {
       {
         id: "g1",
         user_id: user,
+        language: "it",
         seed: 1,
         level: 2,
         content_version: 1,
@@ -75,6 +78,7 @@ describe("flush (CHI-084)", () => {
       {
         id: "r1",
         user_id: user,
+        language: "it",
         game_id: "g1",
         lexicon_id: "n.capelli",
         direction: "produce",

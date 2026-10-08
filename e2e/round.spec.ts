@@ -14,9 +14,9 @@ function savedGames(page: Page): Promise<{ id: string; result?: string }[]> {
   return page.evaluate(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
+        const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("guest");
+          const get = open.result.transaction("kv").objectStore("kv").get("guest:it");
           get.onsuccess = () => {
             open.result.close();
             resolve(
@@ -34,7 +34,7 @@ function savedPhase(page: Page): Promise<string | undefined> {
   return page.evaluate(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
+        const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
           const get = open.result.transaction("kv").objectStore("kv").get("round:it");
           get.onsuccess = () => {

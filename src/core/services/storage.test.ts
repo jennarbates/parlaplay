@@ -21,16 +21,16 @@ describe("read, write, remove", () => {
   });
 
   test("guest data lives under the key guest, apart from the round", async () => {
-    await write("guest", { reviewLog: [1, 2] });
+    await write("guest:it", { reviewLog: [1, 2] });
     await write("round:it", { turn: 1 });
-    expect(await read("guest")).toEqual({ reviewLog: [1, 2] });
+    expect(await read("guest:it")).toEqual({ reviewLog: [1, 2] });
     expect(await read("round:it")).toEqual({ turn: 1 });
   });
 
   test("survives reopening the database", async () => {
-    await write("guest", { kept: true });
+    await write("guest:it", { kept: true });
     resetForTests();
-    expect(await read("guest")).toEqual({ kept: true });
+    expect(await read("guest:it")).toEqual({ kept: true });
   });
 });
 

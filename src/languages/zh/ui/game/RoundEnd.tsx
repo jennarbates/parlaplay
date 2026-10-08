@@ -3,12 +3,12 @@ import { Link } from "react-router";
 import { content } from "../../content/index.ts";
 import type { GameState } from "../../engine/index.ts";
 import { requestPersistence } from "../../../../core/services/storage.ts";
-import { useProgressStore } from "../../../../core/store/progressStore.ts";
 import { Face } from "../Face.tsx";
 import { Mixed, Name } from "../Mixed.tsx";
 import { labelFor } from "../words.ts";
 import { answer as answerOf } from "./sentences.ts";
 import { paths } from "../../paths.ts";
+import { useProgressStore } from "../../stores.ts";
 
 const byId = new Map(content.characters.map((c) => [c.id, c]));
 const hanziOf = new Map(content.lexicon.map((e) => [e.id, e.hanzi]));

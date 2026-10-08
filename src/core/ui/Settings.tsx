@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router";
 import { requestSignOut, signOutNow } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
-import { usePrefs } from "../store/prefs.ts";
+import { useStore } from "zustand";
+import { firstCode, languageOf } from "../registry.ts";
+import { prefsStore } from "../store/prefs.ts";
 import { onBackdropClick } from "./dialog.ts";
 import { SignInSheet } from "./SignInSheet.tsx";
 import { useIsDesktop } from "./useMediaQuery.ts";
@@ -18,7 +20,11 @@ const levelDetail = {
 export function Settings() {
   const home = useShell(homePath);
   const { status, email, userId } = useAuthStore();
-  const { level, setLevel } = usePrefs();
+  // The level of the language last open (platform spec 2: one level per language).
+  // One section per language comes with PLAY-029.
+  const code = useShell((s) => s.state.language ?? s.recent ?? s.state.lastLanguage) ?? firstCode;
+  const language = languageOf(code).englishName;
+  const { level, setLevel } = useStore(prefsStore(code));
   const desktop = useIsDesktop();
   const [signingIn, setSigningIn] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -140,7 +146,7 @@ export function Settings() {
                 Default level
               </p>
             }
-            description="The level Play starts at."
+            description={`The level Play starts at in ${language}.`}
           >
             <div role="radiogroup" aria-labelledby="default-level" className="flex gap-2">
               {([1, 2] as const).map((l) => (
@@ -212,6 +218,7 @@ export function Settings() {
 
       <fieldset className="flex flex-col gap-2 rounded-2xl bg-white p-4 ring-1 ring-stone-200">
         <legend className="float-left mb-1 font-semibold">Default level</legend>
+        <p className="text-sm text-stone-600">{language}</p>
         {([1, 2] as const).map((l) => (
           <label key={l} className="flex min-h-11 cursor-pointer items-center gap-3">
             <input

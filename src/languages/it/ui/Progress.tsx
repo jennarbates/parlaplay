@@ -3,15 +3,12 @@ import { Link } from "react-router";
 import { cardIds } from "../cards.ts";
 import { content } from "../content/index.ts";
 import { endOfLocalDay, isDue, replay, type CardState } from "../../../core/services/srs.ts";
-import {
-  useProgressStore,
-  type GameRow,
-  type ReviewLogRow,
-} from "../../../core/store/progressStore.ts";
+import { type GameRow, type ReviewLogRow } from "../../../core/store/progressStore.ts";
 import { groupMistakes } from "./mistakes.ts";
 import { progressStats } from "./progressStats.ts";
 import { useIsDesktop } from "../../../core/ui/useMediaQuery.ts";
 import { paths } from "../paths.ts";
+import { useProgressStore } from "../stores.ts";
 
 const word = new Map(
   content.lexicon.flatMap((e) =>
