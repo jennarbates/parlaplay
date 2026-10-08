@@ -11,6 +11,7 @@ import { setClientForTests } from "../src/core/services/supabase.ts";
 import { pull, useSyncStore } from "../src/core/services/sync.ts";
 import { adoptGuestData, syncNow } from "../src/core/store/account.ts";
 import { progressStore, type GameRow, type ReviewLogRow } from "../src/core/store/progressStore.ts";
+import { loadLevels, prefsStore } from "../src/core/store/prefs.ts";
 import { write } from "../src/core/services/storage.ts";
 
 const useProgressStore = progressStore("it");
@@ -242,5 +243,41 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     expect(await count(b.client, "review_log")).toBe(1);
     expect(await count(a.client, "review_log")).toBe(0);
     expect(await count(a.client, "games")).toBe(0);
+  });
+
+  // PLAY-023, platform spec 6.3 (F5): at sign-in the account's level wins where it
+  // has one; elsewhere the device's level is saved, and saving it again is harmless.
+  test("signing in keeps a guest's level where the account has none", async () => {
+    const { id, client } = await newUser();
+    await device(id, client);
+    const { error } = await client
+      .from("language_settings")
+      .upsert({ user_id: id, language: "it", level: 1 });
+    expect(error).toBeNull();
+    prefsStore("it").setState({ level: 2 });
+    prefsStore("zh").setState({ level: 2 });
+    await loadLevels(id);
+    await loadLevels(id); // a second sign-in finds both rows and changes nothing
+    const { data } = await client
+      .from("language_settings")
+      .select("language, level")
+      .order("language");
+    expect(data).toEqual([
+      { language: "it", level: 1 },
+      { language: "zh", level: 2 },
+    ]);
+    expect(prefsStore("it").getState().level).toBe(1);
+  });
+
+  test("the last language is saved on the profile and read back", async () => {
+    const { id, client } = await newUser();
+    const { error } = await client.from("profiles").update({ last_language: "zh" }).eq("id", id);
+    expect(error).toBeNull();
+    const { data } = await client
+      .from("profiles")
+      .select("last_language")
+      .eq("id", id)
+      .maybeSingle();
+    expect(data).toEqual({ last_language: "zh" });
   });
 });

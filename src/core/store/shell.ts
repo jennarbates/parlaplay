@@ -26,6 +26,7 @@ type Shell = {
 // What the account effects do. store/account.ts registers them, which keeps the
 // shell free of storage and sync details.
 export type AccountEffects = {
+  writeProfile: (userId: string, lastLanguage: LanguageCode) => Promise<void>;
   saveGuest: (userId: string, languages: LanguageCode[], save: boolean) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -46,8 +47,8 @@ function run(effect: ShellEffect, state: ShellState) {
       void write(effect.key, effect.value);
       return;
     case "writeProfile":
-      // profiles.last_language comes with migration 1 (PLAY-021); writing it is
-      // part of language-aware sync (PLAY-023).
+      if (state.account.kind === "signedIn")
+        void account?.writeProfile(state.account.userId, effect.lastLanguage);
       return;
     case "uploadGuest":
     case "deleteGuest": {
