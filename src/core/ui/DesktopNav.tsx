@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import { languageOf } from "../registry.ts";
 import { useAccountStore } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
@@ -21,6 +21,7 @@ export function DesktopNav() {
   const auth = useAuthStore();
   const level = usePrefs((p) => p.level);
   const language = code ? languageOf(code) : null;
+  const navigate = useNavigate();
 
   return (
     <div className="h-14 shrink-0 border-b border-stone-200 bg-white">
@@ -33,9 +34,16 @@ export function DesktopNav() {
             <NavLink
               to={saved ? `/${language.code}/play` : `/${language.code}/play?level=${level}`}
               // With no saved round, Play starts one at the chosen level, as Home's Play
-              // does (and replaces a finished round still on screen).
-              onClick={() => {
-                if (!saved && settled) useRounds.getState().hooks[language.code]?.newRound(level);
+              // does (and replaces a finished round still on screen). It goes to the game
+              // first: starting a round chooses its language (platform spec 4.3), which
+              // from a shared page would also navigate to that language's Home.
+              onClick={(e) => {
+                if (saved || !settled) return;
+                e.preventDefault();
+                const { code } = language;
+                void Promise.resolve(navigate(`/${code}/play?level=${level}`)).then(() =>
+                  useRounds.getState().hooks[code]?.newRound(level),
+                );
               }}
               className={link}
             >
