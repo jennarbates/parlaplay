@@ -12,7 +12,9 @@ const nouns = new Map(
 describe("englishFor", () => {
   test.each([
     ["v.shi", "n.yisheng", "pr.ta.m", "Is he a doctor?"],
-    ["v.shi", "n.nvde", "pr.ta.f", "Is she a woman?"],
+    ["v.shi", "n.nvde", "pr.ta.f", "Is this person a woman?"],
+    ["v.shi", "n.nvde", "pr.ta.m", "Is this person a woman?"],
+    ["v.shi", "n.nande", "pr.ta.f", "Is this person a man?"],
     ["v.you", "n.gou", "pr.ta.f", "Does she have a dog?"],
     ["v.zai", "n.xuexiao", "pr.ta.m", "Is he at school?"],
     ["v.zai", "n.yiyuan", "pr.ta.f", "Is she at the hospital?"],
@@ -25,7 +27,7 @@ describe("englishFor", () => {
     for (const q of allQuestions(content)) {
       const n = nouns.get(q.nounId);
       for (const p of ["pr.ta.m", "pr.ta.f"])
-        expect(n && englishFor(q.verbId, n, p)).toMatch(/^(Is|Does) (he|she) .+\?$/);
+        expect(n && englishFor(q.verbId, n, p)).toMatch(/^(Is|Does) (he|she|this person) .+\?$/);
     }
   });
 });

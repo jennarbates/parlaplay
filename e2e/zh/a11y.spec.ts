@@ -115,7 +115,7 @@ test.describe("keyboard only", () => {
     await page.locator("body").focus();
 
     // Ask the first question.
-    await tabTo(page, (el) => el.text.endsWith("Is he a man?"));
+    await tabTo(page, (el) => el.text.endsWith("Is this person a man?"));
     const outline = await page.evaluate(
       () => getComputedStyle(document.activeElement as Element).outlineStyle,
     );

@@ -32,3 +32,29 @@ rt {
   font-size: 0.55em;
   line-height: 1.1;
 }
+
+/* Platform spec 8.2: while a language loads on its first visit, a bar across the
+   top says the tap worked. It waits a moment so quick navigations don't flash it. */
+@keyframes loading-bar {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(0.9);
+  }
+}
+.loading-bar {
+  transform-origin: left;
+  animation: loading-bar 8s cubic-bezier(0.1, 0.7, 0.3, 1) 150ms both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-bar {
+    animation: none;
+    transform: scaleX(1);
+  }
+}

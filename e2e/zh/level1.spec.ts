@@ -147,7 +147,7 @@ test("a pronoun slip after the gender is known is shown, and the question still 
   const woman = content.characters.find((c) => c.id === game.cpuSecret)?.attrs.gender === "n.nvde";
   // Ask the gender, then ask with the other pronoun.
   await picker(page)
-    .getByRole("button", { name: /Is he a man\?/ })
+    .getByRole("button", { name: /Is this person a man\?/ })
     .click();
   await page.getByRole("button", { name: "Next" }).click();
   await answerCpu(page, true, game.playerSecret);
