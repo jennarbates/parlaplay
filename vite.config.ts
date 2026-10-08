@@ -6,6 +6,8 @@ import { contentCheck } from "./scripts/content-check.ts";
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), contentCheck()],
+  // scripts/check-bundle.ts reads which chunks each page loads (platform spec 9).
+  build: { manifest: true },
   test: {
     include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     environment: "node",

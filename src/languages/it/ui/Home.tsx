@@ -4,6 +4,7 @@ import { useAccountStore } from "../../../core/store/account.ts";
 import { useAuthStore } from "../../../core/store/authStore.ts";
 import { inProgress, useGameStore } from "../store/gameStore.ts";
 import { usePrefs } from "../../../core/store/prefs.ts";
+import { paths } from "../paths.ts";
 
 const levels: { level: Level; title: string; detail: string }[] = [
   { level: 1, title: "Level 1", detail: "Tap ready-made questions, with English hints" },
@@ -26,14 +27,20 @@ export function Home() {
   const choose = (l: Level) => void setLevel(l, auth.userId);
   const newRound = () => {
     start(level); // over a saved round, this records it as abandoned
-    void navigate("/play");
+    void navigate(paths.play);
   };
 
   return (
     <section className="flex flex-col gap-6 p-4 lg:grid lg:flex-1 lg:grid-cols-2 lg:content-center lg:gap-12 lg:p-10">
       <div className="contents lg:flex lg:flex-col lg:gap-6">
         <header className="flex items-baseline justify-between pt-2 lg:block lg:pt-0">
-          <h1 className="text-4xl font-bold lg:text-6xl">Chi è?</h1>
+          <div>
+            <h1 lang="it" className="text-4xl font-bold lg:text-6xl">
+              Chi è?
+            </h1>
+            {/* Platform spec 8.1: the English name under the title. */}
+            <p className="text-sm text-stone-600 lg:mt-2 lg:text-base">Italian</p>
+          </div>
           <p className="hidden text-lg text-stone-600 lg:mt-4 lg:block">
             Ask yes-or-no questions in Italian to find the secret character.
           </p>
@@ -62,7 +69,7 @@ export function Home() {
               You have a round in progress (Level {game.level}, turn {game.turn}).
             </p>
             <Link
-              to="/play"
+              to={paths.play}
               className="flex min-h-12 items-center justify-center rounded-xl bg-stone-900 font-semibold text-white"
             >
               Continue round
@@ -109,8 +116,9 @@ export function Home() {
 
       <nav className="flex flex-col gap-3 lg:hidden">
         {[
-          { to: "/progress", label: "Progress" },
+          { to: paths.progress, label: "Progress" },
           { to: "/settings", label: "Settings" },
+          { to: "/languages", label: "Change language" }, // platform spec 2, 8.1
         ].map(({ to, label }) => (
           <Link
             key={to}

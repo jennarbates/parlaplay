@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { homePath, useShell } from "../store/shell.ts";
 
 // Where account deletion requests go (spec 7.3). The mailbox must exist before launch.
 const privacyEmail = "privacy@parlaplay.games";
@@ -6,6 +7,7 @@ const privacyEmail = "privacy@parlaplay.games";
 // Spec 7.3 and 9 (Privacy): what is stored, who processes it, that Safari can clear
 // guest data, and how to get an account deleted.
 export function Privacy() {
+  const home = useShell(homePath);
   return (
     // Desktop spec DS 9.5: one reading column at lg, larger, with a way back to
     // Settings (DesktopNav has Home).
@@ -19,7 +21,7 @@ export function Privacy() {
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold lg:text-4xl">Privacy</h1>
         <Link
-          to="/"
+          to={home}
           className="inline-flex min-h-11 min-w-11 items-center text-blue-700 underline lg:hidden"
         >
           Home

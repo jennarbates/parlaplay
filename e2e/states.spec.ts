@@ -9,7 +9,7 @@ test("losing the connection mid-round keeps the round playable to the end", asyn
   context,
 }) => {
   const g = startGame(5, 1, content);
-  await page.goto("/play?seed=5");
+  await page.goto("/it/play?seed=5");
   await expect(page.getByRole("list", { name: "Board" }).locator("img").first()).toBeVisible();
   // Every art layer this board needs is already loaded.
   await page.waitForLoadState("networkidle");

@@ -4,6 +4,7 @@ import { useAccountStore } from "../../../core/store/account.ts";
 import { useAuthStore } from "../../../core/store/authStore.ts";
 import { useGameStore } from "../store/gameStore.ts";
 import { usePrefs } from "../../../core/store/prefs.ts";
+import { paths } from "../paths.ts";
 
 const levels: { level: Level; title: string; detail: string }[] = [
   { level: 1, title: "Level 1", detail: "Tap ready-made questions, with English hints" },
@@ -23,7 +24,7 @@ export function Home() {
   const choose = (l: Level) => void setLevel(l, auth.userId);
   const newRound = () => {
     start(level); // over a saved round, this records it as abandoned
-    void navigate("/play");
+    void navigate(paths.play);
   };
 
   return (
@@ -36,6 +37,7 @@ export function Home() {
           <p lang="zh-Latn-pinyin" className="text-stone-600">
             Shéi?
           </p>
+          <p className="text-sm text-stone-600">Chinese</p>
         </div>
         <p className="text-sm text-stone-600">
           {auth.status === "signedIn" ? (
@@ -62,7 +64,7 @@ export function Home() {
             You have a round in progress (Level {game.level}, turn {game.turn}).
           </p>
           <Link
-            to="/play"
+            to={paths.play}
             className="flex min-h-12 items-center justify-center rounded-xl bg-stone-900 font-semibold text-white"
           >
             Continue round
@@ -106,8 +108,9 @@ export function Home() {
 
       <nav className="flex flex-col gap-3">
         {[
-          { to: "/progress", label: "Progress" },
+          { to: paths.progress, label: "Progress" },
           { to: "/settings", label: "Settings" },
+          { to: "/languages", label: "Change language" }, // platform spec 2, 8.1
         ].map(({ to, label }) => (
           <Link
             key={to}

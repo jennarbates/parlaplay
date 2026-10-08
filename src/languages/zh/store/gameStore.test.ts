@@ -26,7 +26,7 @@ const withId = (state: unknown) => ({
 
 async function saved() {
   await savesSettled();
-  return read<SavedRound>("round");
+  return read<SavedRound>("round:zh");
 }
 
 describe("start and dispatch", () => {
@@ -126,11 +126,11 @@ describe("hydrate", () => {
     useGameStore.getState().start(1, 5);
     const state = useGameStore.getState().game;
     await savesSettled();
-    await write("round", { contentVersion: contentVersion - 1, gameId: "g", state });
+    await write("round:zh", { contentVersion: contentVersion - 1, gameId: "g", state });
     useGameStore.setState({ status: "loading", game: null });
     await useGameStore.getState().hydrate();
     expect(useGameStore.getState().game).toBeNull();
-    expect(await read("round")).toBeUndefined();
+    expect(await read("round:zh")).toBeUndefined();
   });
 
   test.each([
@@ -153,11 +153,11 @@ describe("hydrate", () => {
             : kind === "noGameId"
               ? { contentVersion, state }
               : kind;
-    await write("round", damaged);
+    await write("round:zh", damaged);
     useGameStore.setState({ status: "loading", game: null });
     await useGameStore.getState().hydrate();
     expect(useGameStore.getState().game).toBeNull();
-    expect(await read("round")).toBeUndefined();
+    expect(await read("round:zh")).toBeUndefined();
   });
 
   test("broken storage still gets the app to ready", async () => {

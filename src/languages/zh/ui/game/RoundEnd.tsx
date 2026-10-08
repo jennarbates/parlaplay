@@ -8,6 +8,7 @@ import { Face } from "../Face.tsx";
 import { Mixed, Name } from "../Mixed.tsx";
 import { labelFor } from "../words.ts";
 import { answer as answerOf } from "./sentences.ts";
+import { paths } from "../../paths.ts";
 
 const byId = new Map(content.characters.map((c) => [c.id, c]));
 const hanziOf = new Map(content.lexicon.map((e) => [e.id, e.hanzi]));
@@ -161,7 +162,7 @@ export function RoundEnd({
 
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 border-t border-stone-200 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <Link
-          to="/"
+          to={paths.home}
           className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-stone-200 font-semibold"
         >
           Home

@@ -6,6 +6,7 @@ import { usePrefs } from "../store/prefs.ts";
 import { onBackdropClick } from "./dialog.ts";
 import { SignInSheet } from "./SignInSheet.tsx";
 import { useIsDesktop } from "./useMediaQuery.ts";
+import { homePath, useShell } from "../store/shell.ts";
 
 const levelDetail = {
   1: "ready-made questions with English hints",
@@ -15,6 +16,7 @@ const levelDetail = {
 // Spec 8.1: the default level, the account (sign in, or sign out with the
 // unsynced warning), and the privacy note.
 export function Settings() {
+  const home = useShell(homePath);
   const { status, email, userId } = useAuthStore();
   const { level, setLevel } = usePrefs();
   const desktop = useIsDesktop();
@@ -189,7 +191,10 @@ export function Settings() {
     <section className="flex flex-col gap-4 p-4">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Settings</h1>
-        <Link to="/" className="inline-flex min-h-11 min-w-11 items-center text-blue-700 underline">
+        <Link
+          to={home}
+          className="inline-flex min-h-11 min-w-11 items-center text-blue-700 underline"
+        >
           Home
         </Link>
       </header>

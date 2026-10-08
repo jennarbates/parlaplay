@@ -171,9 +171,7 @@ async function fetchAll<T>(table: "games" | "review_log"): Promise<T[]> {
 // The log is append-only with client uuids, so the merge is a union with no
 // conflicts. The cards are then rebuilt by replaying it and upserted with
 // log_count, which the database uses to ignore a stale device's older state.
-export async function pull(
-  cardIds: readonly string[],
-): Promise<{ games: GameRow[]; reviewLog: ReviewLogRow[] } | null> {
+export async function pull(): Promise<{ games: GameRow[]; reviewLog: ReviewLogRow[] } | null> {
   const { userId } = useSyncStore.getState();
   if (!userId || !supabase) return null;
   try {
@@ -182,7 +180,9 @@ export async function pull(
       fetchAll<DbReview>("review_log"),
     ]);
     const reviewLog = log.map(reviewFromDb);
-    const cards = [...replay(cardIds, reviewLog).values()].filter((c) => c.reviews > 0);
+    // Only reviewed cards are upserted, and replay makes a card for every id in the
+    // log, so this needs no language's card list.
+    const cards = [...replay([], reviewLog).values()].filter((c) => c.reviews > 0);
     if (cards.length) {
       const { error } = await supabase.from("cards").upsert(
         cards.map((c) => ({

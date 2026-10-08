@@ -9,7 +9,7 @@ const tile = (page: Page, group: string, name: string) =>
   page.getByRole("group", { name: group, exact: true }).getByRole("button", { name, exact: true });
 
 async function mistakeAndQuit(page: Page, art: string, noun: string) {
-  await page.goto("/play?level=2&seed=8");
+  await page.goto("/it/play?level=2&seed=8");
   await tile(page, "Verb", "ha").click();
   await tile(page, "Article", art).click();
   await tile(page, "Noun", noun).click();
@@ -30,13 +30,13 @@ test("a mistake made on one device shows on the other", async ({ browser }) => {
 
   await signIn(laptop, email);
   await mistakeAndQuit(laptop, "la", "cappello"); // cappello: la → il
-  await laptop.goto("/progress");
+  await laptop.goto("/it/progress");
   const laptopMistakes = laptop.getByRole("list", { name: "Mistakes by word" });
   await expect(laptopMistakes).toContainText("il → la");
   await expect(laptopMistakes).toContainText("la → il");
 
   // The phone picks up the laptop's mistake on its next sync (app start).
-  await phone.goto("/progress");
+  await phone.goto("/it/progress");
   await expect(phone.getByRole("list", { name: "Mistakes by word" })).toContainText("la → il");
   await expect(phone.getByRole("list", { name: "Mistakes by word" })).toContainText("il → la");
 });

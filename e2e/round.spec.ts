@@ -36,7 +36,7 @@ function savedPhase(page: Page): Promise<string | undefined> {
       new Promise((resolve) => {
         const open = indexedDB.open("chi-e");
         open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("round");
+          const get = open.result.transaction("kv").objectStore("kv").get("round:it");
           get.onsuccess = () => {
             open.result.close();
             resolve((get.result as { state?: { phase?: string } } | undefined)?.state?.phase);
@@ -58,7 +58,7 @@ test.describe("round end (CHI-060)", () => {
   }) => {
     const seed = 8;
     const g = startGame(seed, 2, content);
-    await page.goto(`/play?level=2&seed=${seed}`);
+    await page.goto(`/it/play?level=2&seed=${seed}`);
 
     // A grammar mistake, then the fixed question.
     const tile = (group: string, name: string) =>
@@ -121,7 +121,7 @@ test.describe("round end (CHI-060)", () => {
 
   test("a clean round has no mistakes, and Home goes home", async ({ page }) => {
     const g = startGame(5, 1, content);
-    await page.goto("/play?seed=5");
+    await page.goto("/it/play?seed=5");
     await page.getByRole("button", { name: "Indovina" }).click();
     await page
       .getByRole("button", { name: new RegExp(`^Guess ${nameOf(g.cpuSecret)}: [^(]*$`) })
@@ -137,7 +137,7 @@ test.describe("round end (CHI-060)", () => {
   test("when the computer finds you first, it says so", async ({ page }) => {
     // Answer every CPU question truthfully and never guess: the CPU wins.
     const g = startGame(3, 1, content);
-    await page.goto("/play?seed=3");
+    await page.goto("/it/play?seed=3");
     const qs = allQuestions(content);
     for (let i = 0; i < 8; i++) {
       if (await page.getByRole("heading", { name: "You lost." }).isVisible()) break;
@@ -165,7 +165,7 @@ test.describe("round end (CHI-060)", () => {
 
 test.describe("quit and continue (CHI-061)", () => {
   test("Quit round asks to confirm, records abandoned, and goes home", async ({ page }) => {
-    await page.goto("/play?seed=4");
+    await page.goto("/it/play?seed=4");
     await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
     await page.getByRole("button", { name: "Menu" }).click();
     await page.getByRole("menuitem", { name: "Quit round" }).click();
@@ -189,11 +189,11 @@ test.describe("quit and continue (CHI-061)", () => {
   });
 
   test("Home offers Continue round when one is saved, even after a reload", async ({ page }) => {
-    await page.goto("/play?seed=4");
+    await page.goto("/it/play?seed=4");
     await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
     await page.getByRole("button", { name: "Avanti" }).click();
     await expect.poll(() => savedPhase(page)).toBe("cpuTurn");
-    await page.goto("/");
+    await page.goto("/it");
     await expect(page.getByText("You have a round in progress (Level 1, turn 1).")).toBeVisible();
     await page.reload();
     const cont = page.getByRole("link", { name: "Continue round" });
@@ -203,10 +203,10 @@ test.describe("quit and continue (CHI-061)", () => {
   });
 
   test("starting a new round over a saved one records it abandoned", async ({ page }) => {
-    await page.goto("/play?seed=4");
+    await page.goto("/it/play?seed=4");
     await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
     await expect.poll(() => savedPhase(page)).toBe("playerReview");
-    await page.goto("/");
+    await page.goto("/it");
     await page.getByRole("button", { name: "New round" }).click();
     await expect(page.locator("header")).toContainText("Turn 1");
     await expect(
@@ -220,7 +220,7 @@ test.describe("quit and continue (CHI-061)", () => {
 
 test.describe("Home (CHI-062)", () => {
   test("level picker, Play, Progress, Settings and sign-in status", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/it");
     await expect(page.locator("header").getByText("Guest")).toBeVisible();
     await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/settings");
     await expect(page.getByRole("link", { name: "Progress" })).toBeVisible();
@@ -232,7 +232,7 @@ test.describe("Home (CHI-062)", () => {
   });
 
   test("the chosen level is remembered", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/it");
     await page.getByRole("radio", { name: /Level 2/ }).check();
     await page.reload();
     await expect(page.getByRole("radio", { name: /Level 2/ })).toBeChecked();

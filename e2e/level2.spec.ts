@@ -26,7 +26,7 @@ async function build(
 const chiedi = (page: Page) => page.getByRole("button", { name: "Chiedi" }).click();
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/play?level=2&seed=5");
+  await page.goto("/it/play?level=2&seed=5");
   await expect(page.getByRole("group", { name: "Your question" })).toBeVisible();
 });
 

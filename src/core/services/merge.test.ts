@@ -1,6 +1,5 @@
 import "fake-indexeddb/auto";
 import { rowsFor } from "../../languages/it/store/rows.ts";
-import { cardIds } from "../../languages/it/cards.ts";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { GameRow, ReviewLogRow } from "../store/progressStore.ts";
@@ -90,7 +89,7 @@ describe("pull (CHI-086)", () => {
       reviewToDb(user, review(`r${String(i).padStart(5, "0")}`, "g1", i % 60)),
     );
     server.games = [gameToDb(user, game("g1"))];
-    const remote = await pull(cardIds());
+    const remote = await pull();
     expect(remote?.reviewLog).toHaveLength(2500);
     expect(ranges.filter(([from]) => from >= 0).map(([from]) => from)).toEqual(
       expect.arrayContaining([0, 1000, 2000]),
@@ -107,7 +106,7 @@ describe("pull (CHI-086)", () => {
         detail: { slot: "art", given: "il", expected: "la", rule: "art.fsg" },
       }),
     ];
-    const remote = await pull(cardIds());
+    const remote = await pull();
     expect(remote).toEqual({
       games: [game("g1", { endedAt: "2026-10-19T10:09:00.000Z", result: "won" })],
       reviewLog: [
@@ -124,7 +123,7 @@ describe("pull (CHI-086)", () => {
       reviewToDb(user, review("r1", "g1", 1)),
       reviewToDb(user, review("r2", "g1", 2)),
     ];
-    await pull(cardIds());
+    await pull();
     expect(server.cards).toEqual([
       expect.objectContaining({
         user_id: user,
@@ -146,7 +145,7 @@ describe("pull (CHI-086)", () => {
       },
     ];
     server.review_log = [reviewToDb(user, review("r1", "g1"))];
-    await pull(cardIds());
+    await pull();
     expect(server.cards[0]).toMatchObject({ log_count: 9, state: { newer: true } });
   });
 });

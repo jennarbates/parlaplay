@@ -4,14 +4,12 @@
 // save it to the account.
 import { create } from "zustand";
 import { read, remove, write } from "../services/storage.ts";
-// Until the shell knows the language in play (PLAY-023, PLAY-025), sync replays
-// Chi è?'s cards and sign-out clears Chi è?'s round.
-import { cardIds } from "../../languages/it/cards.ts";
-import { useGameStore } from "../../languages/it/store/gameStore.ts";
+import { registry } from "../registry.ts";
 import { usePrefs } from "./prefs.ts";
 import { pull, useSyncStore, type Op } from "../services/sync.ts";
 import { useAuthStore } from "./authStore.ts";
 import { progressSaved, storageKeyFor, useProgressStore, type GuestData } from "./progressStore.ts";
+import { useRounds } from "./rounds.ts";
 
 type AccountStore = {
   // "Save your progress to this account?" is showing. It stays up, busy, until the
@@ -90,7 +88,7 @@ export async function syncNow(): Promise<void> {
   const sync = useSyncStore.getState();
   if (!sync.userId) return;
   if (!(await sync.flush())) return;
-  const remote = await pull(cardIds());
+  const remote = await pull();
   if (remote && useProgressStore.getState().owner === sync.userId)
     useProgressStore.getState().mergeRemote(remote);
 }
@@ -126,8 +124,13 @@ export async function requestSignOut(): Promise<"signedOut" | "unsynced"> {
 export async function signOutNow(): Promise<void> {
   const userId = useAuthStore.getState().userId;
   await useAuthStore.getState().signOut();
-  useGameStore.setState({ game: null, gameId: null, lastAction: null, lastEvents: [] });
-  await remove("round");
+  // Every language's round: in memory for the loaded ones, on disk for all (3.3).
+  const rounds = useRounds.getState();
+  for (const { code } of registry) {
+    rounds.hooks[code]?.clearRound();
+    rounds.setSaved(code, false);
+    await remove(`round:${code}`);
+  }
   if (userId) {
     await remove(storageKeyFor(userId));
     await remove(`outbox:${userId}`);

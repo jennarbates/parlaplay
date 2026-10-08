@@ -22,7 +22,7 @@ const sheet = (page: Page) => page.getByRole("region", { name: "Questions" });
 const picker = (page: Page) => page.getByRole("list", { name: "Questions to ask" });
 
 test("the Level 1 picker lists all 16 questions with English hints", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/it/play?seed=${seed}`);
   const items = picker(page).getByRole("button");
   await expect(items).toHaveCount(16);
   await expect(picker(page)).toContainText("Ha i capelli biondi?");
@@ -35,7 +35,7 @@ test("the Level 1 picker lists all 16 questions with English hints", async ({ pa
 });
 
 test("a whole round: ask, answer the CPU right and wrong, guess with confirm", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/it/play?seed=${seed}`);
   const first = allQuestions(content)[0];
   if (!first) throw new Error("no questions");
 
@@ -110,7 +110,7 @@ test("a whole round: ask, answer the CPU right and wrong, guess with confirm", a
 });
 
 test("Cancel guess leaves guessing mode without guessing", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/it/play?seed=${seed}`);
   await page.getByRole("button", { name: "Indovina" }).click();
   await page.getByRole("button", { name: "Cancel guess" }).click();
   await expect(page.getByRole("button", { name: "Indovina" })).toBeVisible();
@@ -118,7 +118,7 @@ test("Cancel guess leaves guessing mode without guessing", async ({ page }) => {
 });
 
 test("a wrong guess loses", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/it/play?seed=${seed}`);
   const wrong = content.characters.find((c) => c.id !== game.cpuSecret);
   if (!wrong) throw new Error("no other character");
   await page.getByRole("button", { name: "Indovina" }).click();
@@ -131,7 +131,7 @@ test("a wrong guess loses", async ({ page }) => {
 });
 
 test("answering the CPU correctly shows Right!", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/it/play?seed=${seed}`);
   await picker(page).getByRole("button").first().click();
   await page.getByRole("button", { name: "Avanti" }).click();
   const text = await page.evaluate(
