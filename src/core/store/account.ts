@@ -5,10 +5,10 @@
 import { create } from "zustand";
 import { read, remove, write } from "../services/storage.ts";
 import { registry } from "../registry.ts";
-import { usePrefs } from "./prefs.ts";
+import { loadLevels } from "./prefs.ts";
 import { pull, useSyncStore, type Op } from "../services/sync.ts";
 import { useAuthStore } from "./authStore.ts";
-import { progressSaved, storageKeyFor, useProgressStore, type GuestData } from "./progressStore.ts";
+import { progressSaved, progressStore, storageKeyFor, type GuestData } from "./progressStore.ts";
 import { useRounds } from "./rounds.ts";
 
 type AccountStore = {
@@ -36,36 +36,50 @@ function ask(): Promise<boolean> {
 
 const hasData = (d: Partial<GuestData> | undefined) => !!(d?.games?.length || d?.reviewLog?.length);
 
-// Yes: the guest's rows become this user's (locally, then uploaded games first, then
-// the log, skipping rows already on the server). No: the guest data is deleted.
+// Yes: in every language, the guest's rows become this user's (locally, then
+// uploaded: every language's games before any log row, skipping rows already on the
+// server). No: the guest data is deleted. Platform spec 2 and 6.3.
 export async function adoptGuestData(userId: string, save: boolean): Promise<void> {
-  const guest = await read<Partial<GuestData>>("guest");
-  if (save && hasData(guest)) {
-    const userKey = storageKeyFor(userId);
-    const mine = (await read<Partial<GuestData>>(userKey)) ?? {};
-    const games = [...(mine.games ?? []), ...(guest?.games ?? [])];
-    const reviewLog = [...(mine.reviewLog ?? []), ...(guest?.reviewLog ?? [])];
-    await write(userKey, { games, reviewLog });
-    await useSyncStore.getState().load(userId);
-    const ops: Op[] = [
-      ...(guest?.games ?? []).map((row): Op => ({ kind: "game", row })),
-      ...(guest?.reviewLog ?? []).map((row): Op => ({ kind: "review", row })),
-    ];
-    useSyncStore.getState().enqueue(ops);
+  for (const { code } of registry) {
+    const guest = await read<Partial<GuestData>>(`guest:${code}`);
+    if (save && hasData(guest)) {
+      const userKey = storageKeyFor(userId, code);
+      const mine = (await read<Partial<GuestData>>(userKey)) ?? {};
+      const games = [...(mine.games ?? []), ...(guest?.games ?? [])];
+      const reviewLog = [...(mine.reviewLog ?? []), ...(guest?.reviewLog ?? [])];
+      await write(userKey, { games, reviewLog });
+      await useSyncStore.getState().load(userId);
+      const ops: Op[] = [
+        ...(guest?.games ?? []).map((row): Op => ({ kind: "game", row })),
+        ...(guest?.reviewLog ?? []).map((row): Op => ({ kind: "review", row })),
+      ];
+      useSyncStore.getState().enqueue(ops);
+    }
+    await remove(`guest:${code}`);
   }
-  await remove("guest");
 }
+
+// The languages with guest rows on this device: from memory where loaded, else
+// from storage (platform spec 3.4.7 keeps them in registry order).
+async function guestLanguages() {
+  const found = [];
+  for (const { code } of registry) {
+    const progress = progressStore(code).getState();
+    const guest =
+      progress.owner === "guest" && progress.loaded
+        ? progress
+        : await read<Partial<GuestData>>(`guest:${code}`);
+    if (hasData(guest)) found.push(code);
+  }
+  return found;
+}
+
+const allProgress = () => registry.map(({ code }) => progressStore(code).getState());
 
 export async function onAccountChange(userId: string | null) {
   if (userId) {
     await progressSaved(); // every guest row is on disk before we look
-    const progress = useProgressStore.getState();
-    // Guest rows on this device: from memory if loaded, else from storage.
-    const guest =
-      progress.owner === "guest" && progress.loaded
-        ? progress
-        : await read<Partial<GuestData>>("guest");
-    if (hasData(guest)) {
+    if ((await guestLanguages()).length) {
       try {
         await adoptGuestData(userId, await ask());
       } finally {
@@ -73,12 +87,12 @@ export async function onAccountChange(userId: string | null) {
       }
     }
   }
-  await useProgressStore.getState().switchOwner(userId ?? "guest");
+  await Promise.all(allProgress().map((p) => p.switchOwner(userId ?? "guest")));
   await useSyncStore.getState().load(userId);
   // Local data is ready: play can start. The network sync below never holds it up.
   useAccountStore.setState({ settled: true });
   if (userId) {
-    await usePrefs.getState().loadFromProfile(userId);
+    await loadLevels(userId);
     await syncNow();
   }
 }
@@ -89,8 +103,10 @@ export async function syncNow(): Promise<void> {
   if (!sync.userId) return;
   if (!(await sync.flush())) return;
   const remote = await pull();
-  if (remote && useProgressStore.getState().owner === sync.userId)
-    useProgressStore.getState().mergeRemote(remote);
+  if (!remote) return;
+  // Each language's store takes only its own rows (3.4.1).
+  for (const progress of allProgress())
+    if (progress.owner === sync.userId) progress.mergeRemote(remote);
 }
 
 export function startAccountSync() {
@@ -119,8 +135,8 @@ export async function requestSignOut(): Promise<"signedOut" | "unsynced"> {
   return "signedOut";
 }
 
-// Sign out and clear this user's local copy (shared devices): their progress, their
-// outbox and any round in progress.
+// Sign out and clear this user's local copy (shared devices): their progress in
+// every language, their outbox and any round in progress.
 export async function signOutNow(): Promise<void> {
   const userId = useAuthStore.getState().userId;
   await useAuthStore.getState().signOut();
@@ -131,10 +147,11 @@ export async function signOutNow(): Promise<void> {
     rounds.setSaved(code, false);
     await remove(`round:${code}`);
   }
+  // This user's copy in every language (platform spec 2, D16), and their outbox.
   if (userId) {
-    await remove(storageKeyFor(userId));
+    for (const { code } of registry) await remove(storageKeyFor(userId, code));
     await remove(`outbox:${userId}`);
   }
   await useSyncStore.getState().load(null);
-  await useProgressStore.getState().switchOwner("guest");
+  await Promise.all(allProgress().map((p) => p.switchOwner("guest")));
 }

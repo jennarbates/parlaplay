@@ -12,10 +12,10 @@ import {
 } from "../engine/index.ts";
 import { read, remove, write } from "../../../core/services/storage.ts";
 import { syncNow } from "../../../core/store/account.ts";
-import { useProgressStore } from "../../../core/store/progressStore.ts";
 import { useRounds } from "../../../core/store/rounds.ts";
 import { useShell } from "../../../core/store/shell.ts";
 import { rowsFor } from "./rows.ts";
+import { useProgressStore } from "../stores.ts";
 
 export type SavedRound = { contentVersion: number; gameId: string; state: GameState };
 

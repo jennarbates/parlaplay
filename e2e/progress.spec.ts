@@ -11,9 +11,9 @@ function savedRatings(page: Page): Promise<string[]> {
   return page.evaluate(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("chi-e");
+        const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("guest");
+          const get = open.result.transaction("kv").objectStore("kv").get("guest:it");
           get.onsuccess = () => {
             open.result.close();
             resolve(

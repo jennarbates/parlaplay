@@ -604,11 +604,11 @@ test.describe("Progress dashboard (DS 9.3)", () => {
     return page.evaluate(
       (value) =>
         new Promise<void>((resolve, reject) => {
-          const open = indexedDB.open("chi-e", 1);
+          const open = indexedDB.open("parlaplay", 1);
           open.onupgradeneeded = () => open.result.createObjectStore("kv");
           open.onsuccess = () => {
             const tx = open.result.transaction("kv", "readwrite");
-            tx.objectStore("kv").put(value, "guest");
+            tx.objectStore("kv").put(value, "guest:it");
             tx.oncomplete = () => {
               open.result.close();
               resolve();
@@ -626,6 +626,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
     const at = (hoursAgo: number) => new Date(now.getTime() - hoursAgo * 3_600_000);
     const row = (i: number, lexiconId: string, rating: ReviewLogRow["rating"], when: Date) => ({
       id: `r${i}`,
+      language: "it" as const,
       gameId: "g1",
       lexiconId,
       direction: "recognize" as const,
@@ -640,6 +641,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
       games: [
         {
           id: "g1",
+          language: "it",
           seed: 1,
           level: 1,
           contentVersion: 1,
@@ -649,6 +651,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
         },
         {
           id: "g2",
+          language: "it",
           seed: 2,
           level: 1,
           contentVersion: 1,

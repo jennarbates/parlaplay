@@ -3,6 +3,7 @@
 // log row points at its game. A failed flush keeps everything and tries again on
 // the next round end, app start or `online` event; play is never blocked.
 import { create } from "zustand";
+import { knownCode } from "../registry.ts";
 import type { GameRow, ReviewLogRow } from "../store/progressStore.ts";
 import { replay } from "./srs.ts";
 import { read, write } from "./storage.ts";
@@ -30,6 +31,7 @@ function persist(userId: string, outbox: Op[]) {
 export const gameToDb = (userId: string, g: GameRow) => ({
   id: g.id,
   user_id: userId,
+  language: g.language, // platform spec 6.1
   seed: g.seed,
   level: g.level,
   content_version: g.contentVersion,
@@ -41,6 +43,7 @@ export const gameToDb = (userId: string, g: GameRow) => ({
 export const reviewToDb = (userId: string, r: ReviewLogRow) => ({
   id: r.id,
   user_id: userId,
+  language: r.language,
   game_id: r.gameId,
   lexicon_id: r.lexiconId,
   direction: r.direction,
@@ -129,26 +132,39 @@ async function doFlush(): Promise<boolean> {
 type DbGame = ReturnType<typeof gameToDb>;
 type DbReview = ReturnType<typeof reviewToDb>;
 
-export const gameFromDb = (g: DbGame): GameRow => ({
-  id: g.id,
-  seed: Number(g.seed),
-  level: g.level,
-  contentVersion: g.content_version,
-  startedAt: new Date(g.started_at).toISOString(),
-  ...(g.ended_at && { endedAt: new Date(g.ended_at).toISOString() }),
-  ...(g.result && { result: g.result }),
-});
+// A row of a language this app doesn't have is left out (null).
+export const gameFromDb = (g: DbGame): GameRow | null => {
+  const language = knownCode(g.language);
+  return (
+    language && {
+      id: g.id,
+      language,
+      seed: Number(g.seed),
+      level: g.level,
+      contentVersion: g.content_version,
+      startedAt: new Date(g.started_at).toISOString(),
+      ...(g.ended_at && { endedAt: new Date(g.ended_at).toISOString() }),
+      ...(g.result && { result: g.result }),
+    }
+  );
+};
 
-export const reviewFromDb = (r: DbReview): ReviewLogRow => ({
-  id: r.id,
-  gameId: r.game_id,
-  lexiconId: r.lexicon_id,
-  direction: r.direction,
-  rating: r.rating,
-  ...(r.detail && { detail: r.detail }),
-  localDay: r.local_day,
-  createdAt: new Date(r.created_at).toISOString(),
-});
+export const reviewFromDb = (r: DbReview): ReviewLogRow | null => {
+  const language = knownCode(r.language);
+  return (
+    language && {
+      id: r.id,
+      language,
+      gameId: r.game_id,
+      lexiconId: r.lexicon_id,
+      direction: r.direction,
+      rating: r.rating,
+      ...(r.detail && { detail: r.detail }),
+      localDay: r.local_day,
+      createdAt: new Date(r.created_at).toISOString(),
+    }
+  );
+};
 
 const pageSize = 1000; // Supabase's default max rows per request
 
@@ -167,10 +183,12 @@ async function fetchAll<T>(table: "games" | "review_log"): Promise<T[]> {
   }
 }
 
-// Spec 7.3, merging across devices: download the account's whole log and games.
-// The log is append-only with client uuids, so the merge is a union with no
-// conflicts. The cards are then rebuilt by replaying it and upserted with
-// log_count, which the database uses to ignore a stale device's older state.
+// Spec 7.3, merging across devices: download the account's whole log and games,
+// every language at once (each language's store keeps only its own rows). The log
+// is append-only with client uuids, so the merge is a union with no conflicts.
+// Each language's cards are then rebuilt by replaying that language's log and
+// upserted with its row count as log_count, which the database uses to ignore a
+// stale device's older state (platform spec 6.1).
 export async function pull(): Promise<{ games: GameRow[]; reviewLog: ReviewLogRow[] } | null> {
   const { userId } = useSyncStore.getState();
   if (!userId || !supabase) return null;
@@ -179,25 +197,31 @@ export async function pull(): Promise<{ games: GameRow[]; reviewLog: ReviewLogRo
       fetchAll<DbGame>("games"),
       fetchAll<DbReview>("review_log"),
     ]);
-    const reviewLog = log.map(reviewFromDb);
+    const reviewLog = log.map(reviewFromDb).filter((r) => r !== null);
+    const byLanguage = new Map<ReviewLogRow["language"], ReviewLogRow[]>();
+    for (const r of reviewLog)
+      byLanguage.set(r.language, [...(byLanguage.get(r.language) ?? []), r]);
     // Only reviewed cards are upserted, and replay makes a card for every id in the
     // log, so this needs no language's card list.
-    const cards = [...replay([], reviewLog).values()].filter((c) => c.reviews > 0);
-    if (cards.length) {
-      const { error } = await supabase.from("cards").upsert(
-        cards.map((c) => ({
+    const cards = [...byLanguage].flatMap(([language, rows]) =>
+      [...replay([], rows).values()]
+        .filter((c) => c.reviews > 0)
+        .map((c) => ({
           user_id: userId,
+          language,
           lexicon_id: c.lexiconId,
           direction: c.direction,
           state: c.card,
           due: c.card.due.toISOString(),
-          log_count: reviewLog.length,
+          log_count: rows.length,
           updated_at: new Date().toISOString(),
         })),
-      );
+    );
+    if (cards.length) {
+      const { error } = await supabase.from("cards").upsert(cards);
       if (error) throw error;
     }
-    return { games: games.map(gameFromDb), reviewLog };
+    return { games: games.map(gameFromDb).filter((g) => g !== null), reviewLog };
   } catch {
     useSyncStore.setState({ status: "failed" });
     return null;

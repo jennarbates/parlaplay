@@ -17,7 +17,8 @@ vi.mock("../services/supabase.ts", () => ({
   },
 }));
 const { onAccountChange, useAccountStore, adoptGuestData } = await import("./account.ts");
-const { useProgressStore, progressSaved } = await import("./progressStore.ts");
+const { progressStore, progressSaved } = await import("./progressStore.ts");
+const useProgressStore = progressStore("it");
 const { useSyncStore } = await import("../services/sync.ts");
 const { read, resetForTests, write } = await import("../services/storage.ts");
 
@@ -81,7 +82,7 @@ describe("guest to account (CHI-085)", () => {
     useAccountStore.getState().askToSave?.resolve(true); // a second tap is ignored
     await done;
     expect(useAccountStore.getState().askToSave).toBeNull();
-    expect(await read("guest")).toBeUndefined();
+    expect(await read("guest:it")).toBeUndefined();
     expect(calls).toEqual([]);
   });
 
@@ -93,7 +94,7 @@ describe("guest to account (CHI-085)", () => {
     expect(useProgressStore.getState().reviewLog).toHaveLength(1);
     expect(calls.map((c) => c.table)).toEqual(["games", "review_log"]);
     expect(useSyncStore.getState().outbox).toEqual([]);
-    expect(await read("guest")).toBeUndefined();
+    expect(await read("guest:it")).toBeUndefined();
   });
 
   test("No: the guest data is deleted and the account starts fresh", async () => {
@@ -101,11 +102,11 @@ describe("guest to account (CHI-085)", () => {
     await signInAnswering(false);
     expect(useProgressStore.getState()).toMatchObject({ owner: user, games: [], reviewLog: [] });
     expect(calls).toEqual([]);
-    expect(await read("guest")).toBeUndefined();
+    expect(await read("guest:it")).toBeUndefined();
   });
 
   test("Yes keeps rows the account already had on this device", async () => {
-    await write(`user:${user}`, { games: [{ id: "older" }], reviewLog: [] });
+    await write(`user:${user}:it`, { games: [{ id: "older", language: "it" }], reviewLog: [] });
     await playAsGuest();
     await signInAnswering(true);
     expect(useProgressStore.getState().games.map((g) => g.id)).toEqual(["older", "g1"]);
@@ -129,5 +130,29 @@ describe("guest to account (CHI-085)", () => {
     await useSyncStore.getState().flush();
     await useSyncStore.getState().flush();
     expect(calls.map((c) => c.table)).toEqual(["games", "review_log"]);
+  });
+});
+
+// Platform spec 2 and 6.3: guest data in any language moves to the account in
+// that language; sign-out clears every language.
+describe("guest to account, per language", () => {
+  test("Chinese guest data alone still asks, and moves to the account's zh copy", async () => {
+    const zh = progressStore("zh");
+    zh.setState({ games: [], reviewLog: [], loaded: true, owner: "guest" });
+    zh.getState().recordGameStart({
+      id: "g-zh",
+      seed: 1,
+      level: 1,
+      contentVersion: 1,
+      startedAt: at.toISOString(),
+    });
+    await progressSaved();
+    await signInAnswering(true);
+    expect(await read("guest:zh")).toBeUndefined();
+    expect(
+      (await read<{ games: { id: string }[] }>(`user:${user}:zh`))?.games.map((g) => g.id),
+    ).toEqual(["g-zh"]);
+    expect(zh.getState()).toMatchObject({ owner: user });
+    expect(useProgressStore.getState()).toMatchObject({ owner: user });
   });
 });

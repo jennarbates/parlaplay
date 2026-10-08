@@ -1,25 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-// A fake Supabase profile table.
-const profiles = new Map<string, { level: number }>();
+// A fake Supabase language_settings table, keyed "userId|language".
+type Setting = { user_id: string; language: string; level: number };
+const settings = new Map<string, Setting>();
 let broken = false;
 vi.mock("../services/supabase.ts", () => ({
   supabase: {
     from: () => ({
-      update: (values: { level: number }) => ({
-        eq: async (_: string, id: string) => {
-          if (broken) throw new Error("offline");
-          profiles.set(id, values);
-          return { error: null };
-        },
-      }),
+      upsert: async (row: Setting) => {
+        if (broken) throw new Error("offline");
+        settings.set(`${row.user_id}|${row.language}`, row);
+        return { error: null };
+      },
       select: () => ({
-        eq: (_: string, id: string) => ({
-          maybeSingle: async () => {
-            if (broken) throw new Error("offline");
-            return { data: profiles.get(id) ?? null, error: null };
-          },
-        }),
+        eq: async (_: string, userId: string) => {
+          if (broken) throw new Error("offline");
+          return { data: [...settings.values()].filter((s) => s.user_id === userId), error: null };
+        },
       }),
     }),
   },
@@ -29,38 +26,47 @@ vi.stubGlobal("localStorage", {
   getItem: (k: string) => storage.get(k) ?? null,
   setItem: (k: string, v: string) => void storage.set(k, v),
 });
-const { usePrefs } = await import("./prefs.ts");
+const { loadLevels, prefsStore } = await import("./prefs.ts");
+const it = prefsStore("it");
+const zh = prefsStore("zh");
 
 beforeEach(() => {
-  profiles.clear();
+  settings.clear();
   storage.clear();
   broken = false;
-  usePrefs.setState({ level: 1 });
+  it.setState({ level: 1 });
+  zh.setState({ level: 1 });
 });
 
-describe("default level (CHI-089)", () => {
-  test("saved on the device", async () => {
-    await usePrefs.getState().setLevel(2);
-    expect(usePrefs.getState().level).toBe(2);
-    expect(storage.get("chie.level")).toBe("2");
+describe("level, one per language (CHI-089, platform spec 2, 3.3)", () => {
+  test("saved on the device under the language's own key", async () => {
+    await zh.getState().setLevel(2);
+    expect(zh.getState().level).toBe(2);
+    expect(it.getState().level).toBe(1);
+    expect(storage.get("parlaplay.level.zh")).toBe("2");
+    expect(storage.has("parlaplay.level.it")).toBe(false);
   });
 
-  test("signed in, also saved to the profile", async () => {
-    await usePrefs.getState().setLevel(2, "u1");
-    expect(profiles.get("u1")).toEqual({ level: 2 });
+  test("signed in, also saved to language_settings for that language", async () => {
+    await zh.getState().setLevel(2, "u1");
+    expect([...settings.values()]).toEqual([
+      expect.objectContaining({ user_id: "u1", language: "zh", level: 2 }),
+    ]);
   });
 
-  test("after sign-in the profile's level wins", async () => {
-    profiles.set("u1", { level: 2 });
-    await usePrefs.getState().loadFromProfile("u1");
-    expect(usePrefs.getState().level).toBe(2);
-    expect(storage.get("chie.level")).toBe("2");
+  test("after sign-in the account's level wins, per language", async () => {
+    settings.set("u1|it", { user_id: "u1", language: "it", level: 2 });
+    settings.set("u1|fr", { user_id: "u1", language: "fr", level: 2 }); // unknown: ignored
+    await loadLevels("u1");
+    expect(it.getState().level).toBe(2);
+    expect(zh.getState().level).toBe(1);
+    expect(storage.get("parlaplay.level.it")).toBe("2");
   });
 
   test("offline, nothing throws and the device keeps its level", async () => {
     broken = true;
-    await usePrefs.getState().setLevel(2, "u1");
-    await usePrefs.getState().loadFromProfile("u1");
-    expect(usePrefs.getState().level).toBe(2);
+    await it.getState().setLevel(2, "u1");
+    await loadLevels("u1");
+    expect(it.getState().level).toBe(2);
   });
 });

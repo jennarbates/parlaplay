@@ -5,7 +5,8 @@ import { contentVersion } from "../content/index.ts";
 import { allQuestions, questionTokens } from "../engine/index.ts";
 import { read, resetForTests, write } from "../../../core/services/storage.ts";
 import { randomSeed, savesSettled, useGameStore, type SavedRound } from "./gameStore.ts";
-import { progressSaved, useProgressStore } from "../../../core/store/progressStore.ts";
+import { progressSaved } from "../../../core/store/progressStore.ts";
+import { useProgressStore } from "../stores.ts";
 
 const q = allQuestions((await import("../content/index.ts")).content)[0];
 if (!q) throw new Error("no questions");
@@ -185,6 +186,7 @@ describe("games rows and the review log (CHI-070, CHI-071)", () => {
     expect(games()).toEqual([
       {
         id: gameId,
+        language: "zh",
         seed: 99,
         level: 2,
         contentVersion,

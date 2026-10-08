@@ -2,11 +2,12 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { cardIds } from "../cards.ts";
 import { endOfLocalDay, isDue, replay, type CardState } from "../../../core/services/srs.ts";
-import { useProgressStore, type ReviewLogRow } from "../../../core/store/progressStore.ts";
+import { type ReviewLogRow } from "../../../core/store/progressStore.ts";
 import { groupMistakes } from "./mistakes.ts";
 import { Mixed } from "./Mixed.tsx";
 import { labelFor } from "./words.ts";
 import { paths } from "../paths.ts";
+import { useProgressStore } from "../stores.ts";
 
 const directionLabel = { recognize: "Understand", produce: "Say" } as const;
 const labelOf = (id: string) => {

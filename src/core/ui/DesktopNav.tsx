@@ -1,8 +1,9 @@
 import { Link, NavLink, useNavigate } from "react-router";
-import { languageOf } from "../registry.ts";
+import { firstCode, languageOf } from "../registry.ts";
 import { useAccountStore } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
-import { usePrefs } from "../store/prefs.ts";
+import { useStore } from "zustand";
+import { prefsStore } from "../store/prefs.ts";
 import { useRounds } from "../store/rounds.ts";
 import { useShell } from "../store/shell.ts";
 
@@ -19,7 +20,8 @@ export function DesktopNav() {
   const saved = useRounds((r) => (code ? r.saved[code] === true : false));
   const settled = useAccountStore((a) => a.settled);
   const auth = useAuthStore();
-  const level = usePrefs((p) => p.level);
+  // Hooks can't be conditional: with no language yet, read the first one's level unused.
+  const level = useStore(prefsStore(code ?? firstCode), (p) => p.level);
   const language = code ? languageOf(code) : null;
   const navigate = useNavigate();
 

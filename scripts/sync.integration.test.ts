@@ -10,12 +10,10 @@ import { resetForTests } from "../src/core/services/storage.ts";
 import { setClientForTests } from "../src/core/services/supabase.ts";
 import { pull, useSyncStore } from "../src/core/services/sync.ts";
 import { adoptGuestData, syncNow } from "../src/core/store/account.ts";
-import {
-  useProgressStore,
-  type GameRow,
-  type ReviewLogRow,
-} from "../src/core/store/progressStore.ts";
+import { progressStore, type GameRow, type ReviewLogRow } from "../src/core/store/progressStore.ts";
 import { write } from "../src/core/services/storage.ts";
+
+const useProgressStore = progressStore("it");
 
 const url = process.env.VITE_SUPABASE_URL;
 const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -53,6 +51,7 @@ async function signedIn(email: string, password: string): Promise<SupabaseClient
 
 const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
   id,
+  language: "it",
   seed: 1,
   level: 2,
   contentVersion: 1,
@@ -61,6 +60,7 @@ const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
 });
 const review = (gameId: string, minute: number): ReviewLogRow => ({
   id: crypto.randomUUID(),
+  language: "it",
   gameId,
   lexiconId: "n.capelli",
   direction: "produce",
@@ -125,11 +125,11 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     await device(id, client);
     const g = game(crypto.randomUUID(), { result: "won", endedAt: new Date().toISOString() });
     const guest = { games: [g], reviewLog: [review(g.id, 1), review(g.id, 2), review(g.id, 3)] };
-    await write("guest", guest);
+    await write("guest:it", guest);
     await adoptGuestData(id, true);
     expect(await useSyncStore.getState().flush()).toBe(true);
     // The same rows again (say, a retry after a lost response).
-    await write("guest", guest);
+    await write("guest:it", guest);
     await adoptGuestData(id, true);
     expect(await useSyncStore.getState().flush()).toBe(true);
     expect(await count(client, "games")).toBe(1);

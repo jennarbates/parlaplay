@@ -30,6 +30,12 @@ export const registry: readonly Language[] = buildRegistry(
   versionFiles,
 );
 
+// The first language in registry order: the fallback where some language is needed
+// and none is chosen yet. RegistryFile requires at least one.
+const first = registry[0];
+if (!first) throw new Error("languages.json has no languages");
+export const firstCode: LanguageCode = first.code;
+
 // A registry code, or null for anything else (an unknown code, a damaged value).
 export function knownCode(value: unknown): LanguageCode | null {
   return registry.find((l) => l.code === value)?.code ?? null;

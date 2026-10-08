@@ -32,6 +32,7 @@ const row = (
   minutes = 0,
 ): ReviewLogRow => ({
   id: crypto.randomUUID(),
+  language: "it",
   gameId: "g",
   direction: "produce",
   localDay: "2026-10-06",

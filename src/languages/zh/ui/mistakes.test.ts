@@ -10,6 +10,7 @@ const row = (
   at: string,
 ): ReviewLogRow => ({
   id: `${lexiconId}${at}${given}`,
+  language: "zh",
   gameId: "g",
   lexiconId,
   direction: "produce",

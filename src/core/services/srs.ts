@@ -3,7 +3,7 @@
 // replaying the append-only review log in createdAt order.
 import { createEmptyCard, fsrs, generatorParameters, Rating, type Card, type Grade } from "ts-fsrs";
 import type { Direction } from "../types.ts";
-import type { ReviewLogRow } from "../store/progressStore.ts";
+import type { NewReview } from "../store/progressStore.ts";
 
 export type CardState = {
   lexiconId: string;
@@ -44,7 +44,7 @@ export function emptyCards(cardIds: readonly string[]): Cards {
 }
 
 // Apply one log row. Slip rows feed the Mistakes tab and are skipped here.
-export function applyRow(cards: Cards, row: ReviewLogRow): Cards {
+export function applyRow(cards: Cards, row: NewReview): Cards {
   if (row.rating === "slip") return cards;
   const key = cardKey(row.lexiconId, row.direction);
   const at = new Date(row.createdAt);
@@ -67,12 +67,12 @@ export function applyRow(cards: Cards, row: ReviewLogRow): Cards {
 
 // The one order every device replays in: createdAt, then id to break ties, so the
 // same rows always give the same cards however they arrived (spec 7.3).
-export function logOrder(a: ReviewLogRow, b: ReviewLogRow): number {
+export function logOrder(a: NewReview, b: NewReview): number {
   return a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
 }
 
 // Rebuild every card from the log, oldest first.
-export function replay(cardIds: readonly string[], log: ReviewLogRow[]): Cards {
+export function replay(cardIds: readonly string[], log: readonly NewReview[]): Cards {
   return [...log].sort(logOrder).reduce(applyRow, emptyCards(cardIds));
 }
 

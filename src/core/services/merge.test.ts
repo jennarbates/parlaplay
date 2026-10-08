@@ -20,10 +20,11 @@ vi.mock("./supabase.ts", () => ({
     from: (table: keyof typeof server) => ({
       upsert: async (rows: Record<string, unknown>[], options?: { ignoreDuplicates?: boolean }) => {
         for (const row of rows) {
-          const key = table === "cards" ? `${row.lexicon_id}|${row.direction}` : row.id;
-          const i = server[table].findIndex(
-            (r) => (table === "cards" ? `${r.lexicon_id}|${r.direction}` : r.id) === key,
-          );
+          // cards' primary key includes the language (platform spec 6.1).
+          const keyOf = (r: Record<string, unknown>) =>
+            table === "cards" ? `${r.language}|${r.lexicon_id}|${r.direction}` : r.id;
+          const key = keyOf(row);
+          const i = server[table].findIndex((r) => keyOf(r) === key);
           if (i === -1) server[table].push(row);
           else if (
             table === "cards" &&
@@ -49,13 +50,14 @@ vi.mock("./supabase.ts", () => ({
   },
 }));
 const { useSyncStore, pull, reviewToDb, gameToDb } = await import("./sync.ts");
-const { useProgressStore } = await import("../store/progressStore.ts");
+const useProgressStore = (await import("../store/progressStore.ts")).progressStore("it");
 const { syncNow } = await import("../store/account.ts");
 const { resetForTests } = await import("./storage.ts");
 
 const user = "00000000-0000-4000-8000-00000000000a";
 const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
   id,
+  language: "it",
   seed: 1,
   level: 2,
   contentVersion: 1,
@@ -64,6 +66,7 @@ const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
 });
 const review = (id: string, gameId: string, minute = 1): ReviewLogRow => ({
   id,
+  language: "it",
   gameId,
   lexiconId: "n.capelli",
   direction: "produce",
@@ -134,10 +137,35 @@ describe("pull (CHI-086)", () => {
     ]);
   });
 
+  test("each language's cards come from its own rows, with its own log_count (6.1)", async () => {
+    server.review_log = [
+      reviewToDb(user, review("r1", "g1", 1)),
+      reviewToDb(user, review("r2", "g1", 2)),
+      reviewToDb(user, { ...review("r3", "g2", 3), language: "zh", lexiconId: "n.gou" }),
+    ];
+    const remote = await pull();
+    expect(server.cards).toEqual([
+      expect.objectContaining({ language: "it", lexicon_id: "n.capelli", log_count: 2 }),
+      expect.objectContaining({ language: "zh", lexicon_id: "n.gou", log_count: 1 }),
+    ]);
+    // Rows come back with their language, for each store to keep its own.
+    expect(remote?.reviewLog.map((r) => [r.id, r.language])).toEqual([
+      ["r1", "it"],
+      ["r2", "it"],
+      ["r3", "zh"],
+    ]);
+  });
+
+  test("rows of a language this app doesn't have are left out", async () => {
+    server.review_log = [{ ...reviewToDb(user, review("r1", "g1")), language: "fr" }];
+    expect((await pull())?.reviewLog).toEqual([]);
+  });
+
   test("a stale device cannot overwrite newer cards", async () => {
     server.cards = [
       {
         user_id: user,
+        language: "it",
         lexicon_id: "n.capelli",
         direction: "produce",
         state: { newer: true },

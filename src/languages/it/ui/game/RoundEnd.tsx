@@ -3,11 +3,11 @@ import { Link } from "react-router";
 import { content } from "../../content/index.ts";
 import type { GameState } from "../../engine/index.ts";
 import { requestPersistence } from "../../../../core/services/storage.ts";
-import { useProgressStore } from "../../../../core/store/progressStore.ts";
 import { Face } from "../Face.tsx";
 import { renderMessage } from "../messages.ts";
 import { useIsDesktop } from "../../../../core/ui/useMediaQuery.ts";
 import { paths } from "../../paths.ts";
+import { useProgressStore } from "../../stores.ts";
 
 const byId = new Map(content.characters.map((c) => [c.id, c]));
 const words = new Map(

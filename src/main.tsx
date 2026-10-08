@@ -7,7 +7,8 @@ import { createRouter } from "./routes.tsx";
 import { initErrors } from "./core/services/errors.ts";
 import { startAccountSync } from "./core/store/account.ts";
 import { useAuthStore } from "./core/store/authStore.ts";
-import { useProgressStore } from "./core/store/progressStore.ts";
+import { registry } from "./core/registry.ts";
+import { progressStore } from "./core/store/progressStore.ts";
 import { useRounds } from "./core/store/rounds.ts";
 import { connectRouter, hydrateShell } from "./core/store/shell.ts";
 
@@ -18,7 +19,8 @@ const reporting = initErrors();
 // saved round when its module loads (platform spec 3.2).
 startAccountSync();
 void useAuthStore.getState().init();
-void useProgressStore.getState().hydrate();
+// Every language's progress, so sign-in can see guest rows in any of them.
+for (const { code } of registry) void progressStore(code).getState().hydrate();
 void useRounds.getState().hydrate();
 
 // Platform spec 4: the shell sees every navigation, then the last language.

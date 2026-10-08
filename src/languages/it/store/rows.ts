@@ -2,7 +2,7 @@
 // agreement slips become review-log rows; every other event is not.
 import type { GameEvent } from "../engine/index.ts";
 import { localDay } from "../../../core/services/localDay.ts";
-import type { ReviewLogRow } from "../../../core/store/progressStore.ts";
+import type { NewReview } from "../../../core/store/progressStore.ts";
 
 // Rating and slip events become log rows; every other event is not learning data.
 export function rowsFor(
@@ -10,9 +10,9 @@ export function rowsFor(
   events: GameEvent[],
   at: Date,
   newId: () => string = () => crypto.randomUUID(),
-): ReviewLogRow[] {
+): NewReview[] {
   const common = { gameId, localDay: localDay(at), createdAt: at.toISOString() };
-  return events.flatMap((e): ReviewLogRow[] => {
+  return events.flatMap((e): NewReview[] => {
     if (e.type === "rating") {
       return [
         {

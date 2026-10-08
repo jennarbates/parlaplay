@@ -16,6 +16,7 @@ function row(over: Partial<ReviewLogRow> & { at: Date }): ReviewLogRow {
   const { at, ...rest } = over;
   n += 1;
   return {
+    language: "it",
     id: `r${String(n).padStart(4, "0")}`,
     gameId: "g1",
     lexiconId: words[0] ?? "",
@@ -28,6 +29,7 @@ function row(over: Partial<ReviewLogRow> & { at: Date }): ReviewLogRow {
 }
 const game = (id: string, endedAt?: string): GameRow => ({
   id,
+  language: "it",
   seed: 1,
   level: 1,
   contentVersion: 1,
