@@ -40,7 +40,7 @@ Conventions: each section leads with the decision, then the reason. `TBD:` marks
 | Mistakes tab with words and grammar points; "due words" list | Flashcard review mode; FSRS cards for grammar points |
 | Spaced repetition scheduling stored per user (28 cards) | CPU choosing questions from weak words |
 | Guest play (local only) and email sign-in (6-digit code) with sync | Shared accounts across parlaplay games |
-| Phone layout and desktop layout (as Chi è? `spec-desktop.md`) | Native apps, offline play, installable PWA |
+| Phone layout and desktop layout (`zh-desktop.md`, on Chi è?'s `it-desktop.md`) | Native apps, offline play, installable PWA |
 | Account deletion by email request | In-app account deletion, Google sign-in |
 | | Multiplayer, teacher decks, leaderboards, any LLM feature |
 
@@ -706,7 +706,7 @@ As Chi è? 7.3 in full (6-digit email code only, guest data in IndexedDB under `
 
 ## 8. UX
 
-As Chi è? section 8 and `spec-desktop.md`, which come with the copied code. Below are only the differences. The phone board still fits 360 × 560 (a 360 × 640 phone after browser toolbars) with the bottom sheet collapsed; the desktop board still fits 1024 × 640 with no page scroll.
+As Chi è? section 8 and `it-desktop.md` (with `zh-desktop.md`). Below are only the differences. The phone board still fits 360 × 560 (a 360 × 640 phone after browser toolbars) with the bottom sheet collapsed; the desktop board still fits 1024 × 640 with no page scroll.
 
 ### 8.1 Screens
 
@@ -725,7 +725,7 @@ Same screens, flow and routes (`/`, `/play`, `/progress`, `/settings`, `/privacy
 
 ### 8.2 States
 
-As Chi è? 8.2 and `spec-desktop.md` DS 11, plus:
+As Chi è? 8.2 and `it-desktop.md` DS 11, plus:
 
 | State | Where | Behavior |
 |---|---|---|
@@ -734,7 +734,7 @@ As Chi è? 8.2 and `spec-desktop.md` DS 11, plus:
 
 ### 8.3 Desktop keys
 
-As `spec-desktop.md` DS 8, with these keys changed because the Italian ones were Italian words:
+As `it-desktop.md` DS 8, with these keys changed because the Italian ones were Italian words. `zh-desktop.md` ZS 5 has the full table:
 
 | Key | Action | Replaces |
 |---|---|---|
@@ -744,7 +744,7 @@ As `spec-desktop.md` DS 8, with these keys changed because the Italian ones were
 | `1` to `7` | Level 2 answers, in button order (`是 不是 有 没有 不有 在 不在`) | `s`, `n` |
 | `p` | Pinyin toggle (Level 2) | new |
 | `t` | Pronoun switch (Level 1) | new |
-| Enter in the tray | Ask | Chiedi |
+| `a` | Ask (Level 2, tray not empty) | Chiedi; was Enter in the tray, which already adds or removes the focused tile (`zh-desktop.md` ZD3) |
 
 Level 2 has no tile letter keys, as DS 8 (DD8).
 
@@ -752,7 +752,7 @@ Level 2 has no tile letter keys, as DS 8 (DD8).
 
 ## 9. Non-functional
 
-**Browsers, stack, accessibility target, performance budgets, error reporting, cheating.** As Chi è? section 9 and `spec-desktop.md` DS 12, unchanged: current and previous major versions of iOS Safari, Android Chrome and desktop Chrome, Firefox, Safari, Edge; React, TypeScript (strict), Vite, React Router, Zustand, Tailwind CSS, Zod, `ts-fsrs`, Supabase JS, `idb`; Vitest, fast-check, Playwright; pnpm, ESLint, Prettier; WCAG 2.2 AA; initial JS under 250 KB gzipped, LCP under 2.5 s on Lighthouse mobile, `step()` under 5 ms; Sentry errors only with every data collection category off and URLs scrubbed.
+**Browsers, stack, accessibility target, performance budgets, error reporting, cheating.** As Chi è? section 9 and `it-desktop.md` DS 12, unchanged: current and previous major versions of iOS Safari, Android Chrome and desktop Chrome, Firefox, Safari, Edge; React, TypeScript (strict), Vite, React Router, Zustand, Tailwind CSS, Zod, `ts-fsrs`, Supabase JS, `idb`; Vitest, fast-check, Playwright; pnpm, ESLint, Prettier; WCAG 2.2 AA; initial JS under 250 KB gzipped, LCP under 2.5 s on Lighthouse mobile, `step()` under 5 ms; Sentry errors only with every data collection category off and URLs scrubbed.
 
 **Fonts.** System fonts only: `"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif` for Chinese. No web font, because a full Chinese font is several megabytes and would break the 250 KB budget. Every element with Chinese text has `lang="zh-Hans"` (3.4).
 
@@ -777,7 +777,7 @@ scripts/       generate-characters.ts, simulate.ts
 supabase/      migrations/
 e2e/           Playwright tests
 spec.md        this file
-spec-desktop.md  copied from Chi è?, unchanged; this file's 8.3 overrides its keys
+zh-desktop.md    how Shéi's desktop layout differs from it-desktop.md; 8.3 above summarises its keys
 ```
 
 **CI and deploy.** As Chi è?: GitHub Actions runs typecheck, lint, Vitest and Playwright on every push and pull request with a local Supabase; `main` is protected; Cloudflare builds each pull request to a preview URL (with `shei-staging` settings once it exists); merging to `main` deploys production.
@@ -907,7 +907,7 @@ Also queued, as Chi è?: final art, Easy CPU setting, championship mode, Google 
 | D21 | Same SES account, new domain identity | Production access is per account and Region, so Shéi inherits it |
 | D22 | Half-day capacity until Oct 29, launch Fri Nov 13 | Built in parallel with the Chi è? launch, with 3 fix days after the playtest |
 | D23 | Each character has 1 to 3 pets and things | A card with all five is unreadable at 80px; one with none looks broken |
-| D24 | Desktop layout from day 1, reusing `spec-desktop.md` | The code exists already; only keys change |
+| D24 | Desktop layout from day 1, reusing `it-desktop.md` | Chi è?'s desktop parts move to `src/core` and Shéi uses them; `zh-desktop.md` has the differences |
 | D25 | Name `谁？` (Shéi?), on `shei.parlaplay.games` | 谁 is itself an HSK 1 word, and the name avoids Hasbro's marks |
 
 ---
@@ -932,3 +932,4 @@ Also queued, as Chi è?: final art, Easy CPU setting, championship mode, Google 
 
 - 2026-10-07: v0 draft.
 - 2026-10-07: Repo (section 9) starts from Chi è?'s history instead of a files-only copy, with an `italian` remote for cherry-picking fixes; Chi è?'s spec kept as `docs/chi-e-spec.md`.
+- 2026-10-08: Desktop now points at `it-desktop.md` and `zh-desktop.md` (PLAY-057). 8.3: `a` asks, instead of Enter in the tray.
