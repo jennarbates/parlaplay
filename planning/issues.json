@@ -92,6 +92,11 @@
    "name": "epic: Launch and cleanup",
    "color": "3d8b3d",
    "description": "Card belongs to the Launch and cleanup epic"
+  },
+  {
+   "name": "epic: Shéi desktop",
+   "color": "a14dcb",
+   "description": "Card belongs to the Shéi desktop epic"
   }
  ],
  "milestones": [
@@ -224,6 +229,15 @@
    "labels": [
     "epic",
     "epic: Launch and cleanup"
+   ]
+  },
+  {
+   "key": "E11",
+   "title": "Epic: Shéi desktop",
+   "body": "Epic for the parlaplay platform. 7 cards, 19 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Shéi desktop"
    ]
   }
  ],
@@ -1099,6 +1113,118 @@
    ],
    "points": 1,
    "target_date": "2026-11-13"
+  },
+  {
+   "key": "PLAY-057",
+   "title": "PLAY-057 Write the Shéi desktop spec",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **1 point** · task\nEpic: {{E11}}\n\ndocs/games/zh-desktop.md: only how Shéi's desktop layout differs from it-desktop.md.\n\n### Acceptance criteria\n\n- [ ] docs/games/zh-desktop.md lists each difference from it-desktop.md, decision first\n- [ ] The key table covers every phase at both levels, built from zh.md 8.3\n- [ ] The side panel width is decided against the Level 2 builder at 1024 x 640\n- [ ] zh.md points at docs/games/it-desktop.md instead of spec-desktop.md\n\n### Spec\n\nzh 8.3 · zh D24 · [DS 1](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-058",
+   "title": "PLAY-058 Move the shared desktop parts into src/core",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **3 points** · task\nEpic: {{E11}}\n\nHover preview, preview spot, Kbd, SidePanel, ShortcutsDialog, the shortcut guards and progressStats leave src/languages/it.\n\n### Acceptance criteria\n\n- [ ] Each moved part lives in src/core/ui and takes what differs by language as an argument\n- [ ] Each language keeps its own shortcuts.ts key table\n- [ ] Chi è?'s unit and e2e tests pass without edits\n- [ ] pnpm check:bundle passes for /it and /zh\n\n### Depends on\n\n- {{PLAY-057}}\n\n### Spec\n\n[DS 4.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 6.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 7.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 8.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-057"
+   ],
+   "points": 3,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-059",
+   "title": "PLAY-059 Lay out Shéi's game as board and side panel",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **3 points** · story\nEpic: {{E11}}\n\nAt lg the game fills the window: the 6 x 4 board on the left, the side panel on the right.\n\n### Acceptance criteria\n\n- [ ] /zh routes use the desktop widths of DS 5\n- [ ] At 1024 x 640 all 24 cards and the whole panel show with no page scroll, at both levels\n- [ ] Resizing across 1024px mid-round keeps flips, the Level 2 tray, a shown hint and a guess\n- [ ] Desktop wording says click instead of tap; no Chinese string changes\n- [ ] The phone layout is unchanged\n\n### Depends on\n\n- {{PLAY-058}}\n\n### Spec\n\n[DS 6](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 2.2](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · zh 8.1",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-058"
+   ],
+   "points": 3,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-060",
+   "title": "PLAY-060 Add hover preview and hover styles to Shéi's board",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **1 point** · story\nEpic: {{E11}}\n\nThe Chi è? hover preview, showing the name in characters with its pinyin.\n\n### Acceptance criteria\n\n- [ ] Resting on a card for 350 ms shows its face, characters and pinyin; leaving hides it\n- [ ] No preview while guessing, with a dialog open, or on touch\n- [ ] Right-click on a card opens CardDetail\n- [ ] Hover styles match the DS 7.4 table\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\n[DS 7](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 1,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-061",
+   "title": "PLAY-061 Play Shéi by keyboard",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **5 points** · story\nEpic: {{E11}}\n\nSingle-key shortcuts from zh.md 8.3, the board as an ARIA grid, and a shortcuts dialog.\n\n### Acceptance criteria\n\n- [ ] zh shortcuts.ts is pure and every cell of its key table has a unit test\n- [ ] 1 to 2 answer at Level 1 and 1 to 7 at Level 2; n is Next; p toggles pinyin; t switches the pronoun\n- [ ] At lg the board is a grid with one tab stop and arrow keys; i opens CardDetail\n- [ ] Buttons show their key at lg and carry aria-keyshortcuts\n- [ ] GameMenu closes on Esc and on a click outside it\n- [ ] A full round at each level plays by keyboard only\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\nzh 8.3 · [DS 4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 5,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-062",
+   "title": "PLAY-062 Lay out Shéi's other screens for desktop",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **3 points** · story\nEpic: {{E11}}\n\nHome and round end in two columns, Progress as a dashboard, wider dialogs.\n\n### Acceptance criteria\n\n- [ ] Home shows 谁？ with Shéi? under it beside the level picker\n- [ ] Round end is two columns and Play again has focus\n- [ ] Progress shows the four stat tiles and Mistakes beside Due, with no tablist at lg\n- [ ] CardDetail and GuessConfirm use the DS 9.6 desktop sizes\n- [ ] No horizontal scroll on any /zh screen at 1024 and 1440\n\n### Depends on\n\n- {{PLAY-058}}\n\n### Spec\n\n[DS 9](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-058"
+   ],
+   "points": 3,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-063",
+   "title": "PLAY-063 Test Shéi's desktop layout end to end",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **3 points** · test\nEpic: {{E11}}\n\ne2e/zh/desktop.spec.ts on the desktop projects, axe at desktop size, and a manual laptop pass.\n\n### Acceptance criteria\n\n- [ ] e2e/zh/desktop.spec.ts covers the DS 13.3 cases for /zh and runs in desktop-chromium and desktop-webkit\n- [ ] axe reports no violations on /zh screens at 1440 x 900\n- [ ] Manual pass on a Mac and a Windows laptop, including Chinese system fonts, logged\n- [ ] CI green\n\n### Depends on\n\n- {{PLAY-060}}\n- {{PLAY-061}}\n- {{PLAY-062}}\n\n### Spec\n\n[DS 13.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log) · [DS 13.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: test",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-060",
+    "PLAY-061",
+    "PLAY-062"
+   ],
+   "points": 3,
+   "target_date": "2026-11-12"
   },
   {
    "key": "PLAY-054",

@@ -156,6 +156,38 @@ A sign-in code email reaches an address outside the team"
 PLAY-053,Verify the launch on real phones,To do,Launch and cleanup,test,Sprint 4: Fix and launch,Day 16,Fri Nov 13,1,PLAY-052,no,10.3,The launch-day checks of 10.3.,"A full round of each game on a real iPhone and Android phone
 A real Chi è? guest's progress arrives through the handoff on Safari iOS
 Sentry receives a test error tagged language with no fragment"
+PLAY-057,Write the Shéi desktop spec,To do,Shéi desktop,task,Sprint 4: Fix and launch,Day 12,Mon Nov 9,1,,no,"zh 8.3, zh D24, DS 1",docs/games/zh-desktop.md: only how Shéi's desktop layout differs from it-desktop.md.,"docs/games/zh-desktop.md lists each difference from it-desktop.md, decision first
+The key table covers every phase at both levels, built from zh.md 8.3
+The side panel width is decided against the Level 2 builder at 1024 x 640
+zh.md points at docs/games/it-desktop.md instead of spec-desktop.md"
+PLAY-058,Move the shared desktop parts into src/core,To do,Shéi desktop,task,Sprint 4: Fix and launch,Day 12,Mon Nov 9,3,PLAY-057,no,"DS 4.3, DS 6.2, DS 7.2, DS 8.3","Hover preview, preview spot, Kbd, SidePanel, ShortcutsDialog, the shortcut guards and progressStats leave src/languages/it.","Each moved part lives in src/core/ui and takes what differs by language as an argument
+Each language keeps its own shortcuts.ts key table
+Chi è?'s unit and e2e tests pass without edits
+pnpm check:bundle passes for /it and /zh"
+PLAY-059,Lay out Shéi's game as board and side panel,To do,Shéi desktop,story,Sprint 4: Fix and launch,Day 13,Tue Nov 10,3,PLAY-058,no,"DS 6, DS 2.2, zh 8.1","At lg the game fills the window: the 6 x 4 board on the left, the side panel on the right.","/zh routes use the desktop widths of DS 5
+At 1024 x 640 all 24 cards and the whole panel show with no page scroll, at both levels
+Resizing across 1024px mid-round keeps flips, the Level 2 tray, a shown hint and a guess
+Desktop wording says click instead of tap; no Chinese string changes
+The phone layout is unchanged"
+PLAY-060,Add hover preview and hover styles to Shéi's board,To do,Shéi desktop,story,Sprint 4: Fix and launch,Day 13,Tue Nov 10,1,PLAY-059,no,DS 7,"The Chi è? hover preview, showing the name in characters with its pinyin.","Resting on a card for 350 ms shows its face, characters and pinyin; leaving hides it
+No preview while guessing, with a dialog open, or on touch
+Right-click on a card opens CardDetail
+Hover styles match the DS 7.4 table"
+PLAY-061,Play Shéi by keyboard,To do,Shéi desktop,story,Sprint 4: Fix and launch,Day 14,Wed Nov 11,5,PLAY-059,no,"zh 8.3, DS 4, DS 8","Single-key shortcuts from zh.md 8.3, the board as an ARIA grid, and a shortcuts dialog.","zh shortcuts.ts is pure and every cell of its key table has a unit test
+1 to 2 answer at Level 1 and 1 to 7 at Level 2; n is Next; p toggles pinyin; t switches the pronoun
+At lg the board is a grid with one tab stop and arrow keys; i opens CardDetail
+Buttons show their key at lg and carry aria-keyshortcuts
+GameMenu closes on Esc and on a click outside it
+A full round at each level plays by keyboard only"
+PLAY-062,Lay out Shéi's other screens for desktop,To do,Shéi desktop,story,Sprint 4: Fix and launch,Day 14,Wed Nov 11,3,PLAY-058,no,"DS 9, DS 3","Home and round end in two columns, Progress as a dashboard, wider dialogs.","Home shows 谁？ with Shéi? under it beside the level picker
+Round end is two columns and Play again has focus
+Progress shows the four stat tiles and Mistakes beside Due, with no tablist at lg
+CardDetail and GuessConfirm use the DS 9.6 desktop sizes
+No horizontal scroll on any /zh screen at 1024 and 1440"
+PLAY-063,Test Shéi's desktop layout end to end,To do,Shéi desktop,test,Sprint 4: Fix and launch,Day 15,Thu Nov 12,3,"PLAY-060, PLAY-061, PLAY-062",no,"DS 13.3, DS 13.4","e2e/zh/desktop.spec.ts on the desktop projects, axe at desktop size, and a manual laptop pass.","e2e/zh/desktop.spec.ts covers the DS 13.3 cases for /zh and runs in desktop-chromium and desktop-webkit
+axe reports no violations on /zh screens at 1440 x 900
+Manual pass on a Mac and a Windows laptop, including Chinese system fonts, logged
+CI green"
 PLAY-054,Apply migration 2 after old clients stop,To do,Launch and cleanup,chore,Sprint 5: Cleanup,Day 17,Fri Nov 27,2,PLAY-050,no,"6.2, D8",Remove the compatibility defaults and profiles.level.,"Supabase logs show no chie-launch client sync for 7 days
 Migration 2 applied local, staging, then production
 The compatibility test is removed from CI in the same pull request"

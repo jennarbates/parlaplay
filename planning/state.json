@@ -17,7 +17,8 @@
   "epic: Handoff and redirects",
   "epic: Quality and performance",
   "epic: Playtest and fixes",
-  "epic: Launch and cleanup"
+  "epic: Launch and cleanup",
+  "epic: Shéi desktop"
  ],
  "milestones": {
   "S1": 1,
@@ -361,6 +362,46 @@
    "number": 67,
    "id": 5751519315,
    "url": "https://github.com/jennarbates/parlaplay/issues/67"
+  },
+  "E11": {
+   "number": 84,
+   "id": 5765327037,
+   "url": "https://github.com/jennarbates/parlaplay/issues/84"
+  },
+  "PLAY-057": {
+   "number": 85,
+   "id": 5765327389,
+   "url": "https://github.com/jennarbates/parlaplay/issues/85"
+  },
+  "PLAY-058": {
+   "number": 86,
+   "id": 5765327970,
+   "url": "https://github.com/jennarbates/parlaplay/issues/86"
+  },
+  "PLAY-059": {
+   "number": 87,
+   "id": 5765328385,
+   "url": "https://github.com/jennarbates/parlaplay/issues/87"
+  },
+  "PLAY-060": {
+   "number": 88,
+   "id": 5765328787,
+   "url": "https://github.com/jennarbates/parlaplay/issues/88"
+  },
+  "PLAY-061": {
+   "number": 89,
+   "id": 5765329285,
+   "url": "https://github.com/jennarbates/parlaplay/issues/89"
+  },
+  "PLAY-062": {
+   "number": 90,
+   "id": 5765329719,
+   "url": "https://github.com/jennarbates/parlaplay/issues/90"
+  },
+  "PLAY-063": {
+   "number": 91,
+   "id": 5765330123,
+   "url": "https://github.com/jennarbates/parlaplay/issues/91"
   }
  },
  "subissues": [
@@ -419,7 +460,14 @@
   "PLAY-052",
   "PLAY-053",
   "PLAY-054",
-  "PLAY-055"
+  "PLAY-055",
+  "PLAY-057",
+  "PLAY-058",
+  "PLAY-059",
+  "PLAY-060",
+  "PLAY-061",
+  "PLAY-062",
+  "PLAY-063"
  ],
  "blocked": [
   "PLAY-007<PLAY-003",
@@ -490,7 +538,15 @@
   "PLAY-052<PLAY-001",
   "PLAY-053<PLAY-052",
   "PLAY-054<PLAY-050",
-  "PLAY-055<PLAY-051"
+  "PLAY-055<PLAY-051",
+  "PLAY-058<PLAY-057",
+  "PLAY-059<PLAY-058",
+  "PLAY-060<PLAY-059",
+  "PLAY-061<PLAY-059",
+  "PLAY-062<PLAY-058",
+  "PLAY-063<PLAY-060",
+  "PLAY-063<PLAY-061",
+  "PLAY-063<PLAY-062"
  ],
  "blocked_unsupported": false,
  "project": {
@@ -555,7 +611,14 @@
   "PLAY-052": "PVTI_lAHOApTEl84BmHhYzg_PS_U",
   "PLAY-053": "PVTI_lAHOApTEl84BmHhYzg_PTC4",
   "PLAY-054": "PVTI_lAHOApTEl84BmHhYzg_PTIg",
-  "PLAY-055": "PVTI_lAHOApTEl84BmHhYzg_PTMg"
+  "PLAY-055": "PVTI_lAHOApTEl84BmHhYzg_PTMg",
+  "PLAY-057": "PVTI_lAHOApTEl84BmHhYzg_cpJQ",
+  "PLAY-058": "PVTI_lAHOApTEl84BmHhYzg_cpNQ",
+  "PLAY-059": "PVTI_lAHOApTEl84BmHhYzg_cpR8",
+  "PLAY-060": "PVTI_lAHOApTEl84BmHhYzg_cpUk",
+  "PLAY-061": "PVTI_lAHOApTEl84BmHhYzg_cpXw",
+  "PLAY-062": "PVTI_lAHOApTEl84BmHhYzg_cpbM",
+  "PLAY-063": "PVTI_lAHOApTEl84BmHhYzg_cpd0"
  },
  "edited": [
   "PLAY-001",
@@ -613,6 +676,13 @@
   "PLAY-052",
   "PLAY-053",
   "PLAY-054",
-  "PLAY-055"
+  "PLAY-055",
+  "PLAY-057",
+  "PLAY-058",
+  "PLAY-059",
+  "PLAY-060",
+  "PLAY-061",
+  "PLAY-062",
+  "PLAY-063"
  ]
 }
