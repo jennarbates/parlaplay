@@ -7,9 +7,12 @@ let broken = false;
 vi.mock("../services/supabase.ts", () => ({
   supabase: {
     from: () => ({
-      upsert: async (row: Setting) => {
+      upsert: async (rows: Setting | Setting[], options?: { ignoreDuplicates?: boolean }) => {
         if (broken) throw new Error("offline");
-        settings.set(`${row.user_id}|${row.language}`, row);
+        for (const row of [rows].flat()) {
+          const key = `${row.user_id}|${row.language}`;
+          if (!(options?.ignoreDuplicates && settings.has(key))) settings.set(key, row);
+        }
         return { error: null };
       },
       select: () => ({
@@ -61,6 +64,27 @@ describe("level, one per language (CHI-089, platform spec 2, 3.3)", () => {
     expect(it.getState().level).toBe(2);
     expect(zh.getState().level).toBe(1);
     expect(storage.get("parlaplay.level.it")).toBe("2");
+  });
+
+  test("after sign-in, a language with no row saves the device's level to the account (F5)", async () => {
+    settings.set("u1|it", { user_id: "u1", language: "it", level: 1 });
+    await zh.getState().setLevel(2); // chosen as a guest
+    await it.getState().setLevel(2);
+    await loadLevels("u1");
+    expect(it.getState().level).toBe(1); // the account's row wins
+    expect(storage.get("parlaplay.level.it")).toBe("1");
+    expect(zh.getState().level).toBe(2); // kept, and now on the account
+    expect(settings.get("u1|zh")).toMatchObject({ language: "zh", level: 2 });
+    expect(settings.get("u1|it")).toMatchObject({ level: 1 });
+  });
+
+  test("an account with no rows gets every language's device level", async () => {
+    await zh.getState().setLevel(2);
+    await loadLevels("u1");
+    expect([...settings.values()].map((s) => [s.language, s.level])).toEqual([
+      ["it", 1],
+      ["zh", 2],
+    ]);
   });
 
   test("offline, nothing throws and the device keeps its level", async () => {

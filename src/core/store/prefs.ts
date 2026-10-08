@@ -3,7 +3,7 @@
 // language_settings when signed in so it follows the learner.
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import type { LanguageCode } from "../languages.ts";
-import { knownCode } from "../registry.ts";
+import { knownCode, registry } from "../registry.ts";
 import type { Level } from "../types.ts";
 import { supabase } from "../services/supabase.ts";
 
@@ -61,21 +61,37 @@ export function prefsStore(code: LanguageCode): PrefsStoreHook {
   return store;
 }
 
-// After sign-in: the account's level wins, in each language it has one for.
+// After sign-in (platform spec 6.3): where the account has a level for a language,
+// that row wins and is copied to the device. Where it has none, the device's level
+// is saved to the account, so a guest's Level 2 survives signing in (F5). A row
+// another device writes meanwhile still wins (ignoreDuplicates).
 export async function loadLevels(userId: string): Promise<void> {
   if (!supabase) return;
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("language_settings")
       .select("language, level")
       .eq("user_id", userId);
+    if (error) return; // without the account's rows, no way to tell which are missing
+    const found = new Set<LanguageCode>();
     for (const row of (data ?? []) as { language?: unknown; level?: unknown }[]) {
       const code = knownCode(row.language);
       if (code && (row.level === 1 || row.level === 2)) {
+        found.add(code);
         prefsStore(code).setState({ level: row.level });
         remember(code, row.level);
       }
     }
+    const missing = registry
+      .filter(({ code }) => !found.has(code))
+      .map(({ code }) => ({
+        user_id: userId,
+        language: code,
+        level: prefsStore(code).getState().level,
+        updated_at: new Date().toISOString(),
+      }));
+    if (missing.length)
+      await supabase.from("language_settings").upsert(missing, { ignoreDuplicates: true });
   } catch {
     // Offline or unavailable: keep the device's levels. Never blocks sign-in.
   }

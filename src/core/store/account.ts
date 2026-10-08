@@ -6,8 +6,9 @@
 // all of them, whether to save it to the account.
 import { create } from "zustand";
 import type { LanguageCode } from "../languages.ts";
-import { registry } from "../registry.ts";
+import { knownCode, registry } from "../registry.ts";
 import { read, remove, write } from "../services/storage.ts";
+import { supabase } from "../services/supabase.ts";
 import { pull, syncSaved, useSyncStore, type Op } from "../services/sync.ts";
 import { useAuthStore } from "./authStore.ts";
 import { loadLevels } from "./prefs.ts";
@@ -110,6 +111,47 @@ async function saveGuest(userId: string, languages: LanguageCode[], save: boolea
   w?.settle(true);
 }
 
+// How long sign-in waits for the account's last language before going on without it.
+const profileWait = 3000;
+
+// Platform spec 2: a device with no last language takes the account's, if it has
+// one. The app key is read here too, because at start the shell may not have read
+// it yet. A slow network gives up rather than hold up sign-in.
+async function serverLast(userId: string): Promise<LanguageCode | null> {
+  const client = supabase;
+  if (!client || useShell.getState().state.lastLanguage) return null;
+  const app = await read<{ lastLanguage?: unknown }>("app");
+  if (knownCode(app?.lastLanguage)) return null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const asked = client
+      .from("profiles")
+      .select("last_language")
+      .eq("id", userId)
+      .maybeSingle()
+      .then(({ data }) => knownCode((data as { last_language?: unknown } | null)?.last_language));
+    const gaveUp = new Promise<null>((resolve) => {
+      timer = setTimeout(() => resolve(null), profileWait);
+    });
+    return await Promise.race([asked, gaveUp]);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// The shell's writeProfile effect (platform spec 6.3): choosing a language while
+// signed in saves it to the account too, for the next new device. Best effort: on
+// this device the app key is what counts.
+async function writeProfile(userId: string, lastLanguage: LanguageCode) {
+  try {
+    await supabase?.from("profiles").update({ last_language: lastLanguage }).eq("id", userId);
+  } catch {
+    // Offline: the next choice writes it again.
+  }
+}
+
 const allProgress = () => registry.map(({ code }) => progressStore(code).getState());
 
 export async function onAccountChange(userId: string | null) {
@@ -117,9 +159,9 @@ export async function onAccountChange(userId: string | null) {
   if (userId) {
     await progressSaved(); // every guest row is on disk before we look
     const languages = await guestLanguages();
+    const last = await serverLast(userId);
     const answer = languages.length ? untilAnswered() : null;
-    // serverLast comes from profiles.last_language once sync reads it (PLAY-023).
-    dispatch({ type: "SIGNED_IN", userId, serverLast: null, guestLanguages: languages });
+    dispatch({ type: "SIGNED_IN", userId, serverLast: last, guestLanguages: languages });
     if (answer) {
       // Nothing switches until the player answers.
       if (useShell.getState().state.prompt?.kind === "saveGuest") {
@@ -197,4 +239,4 @@ export async function signOutNow(): Promise<void> {
   await Promise.all(allProgress().map((p) => p.switchOwner("guest")));
 }
 
-handleAccountEffects({ saveGuest, signOut: signOutNow });
+handleAccountEffects({ writeProfile, saveGuest, signOut: signOutNow });
