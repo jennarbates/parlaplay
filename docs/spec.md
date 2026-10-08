@@ -574,7 +574,39 @@ Each game ships exactly as its own spec and definition of done describe, with th
 
 ### 8.3 Layout
 
-The picker fits 360 × 560 without scrolling for two languages: each card at least 44 px tall, full width with 16 px side margins. From 1024 px wide the cards sit side by side, at most 480 px each. Inside a language, the game spec's phone and desktop layouts apply unchanged.
+The picker fits 360 × 560 without scrolling for two languages: each card at least 44 px tall, full width with 16 px side margins. From 1024 px wide the cards sit side by side, at most 480 px each. Inside a language, the game spec's phone and desktop layouts apply unchanged, except for the logo in 8.4.
+
+### 8.4 Logo
+
+Every screen shows the parlaplay logo at its top left, and it links to `/` (D23). The reason: one way home from anywhere, including the game, where the desktop nav is hidden. `/` then routes by 4.3, so a returning player lands on their last language's Home and a first visitor on the picker. This section overrides the game specs' Home, Progress and game screen headers, and desktop spec DS 5, where it says so below.
+
+**Artwork.** A rose-600 speech bubble holding a white play triangle ("parla" is "speak"), then the wordmark `parlaplay` in lowercase, with `parla` in stone-900 and `play` in rose-700. The wordmark is drawn from round-capped strokes, not set in a font, so it renders the same on every device and needs no font licence. `scripts/logo.py` draws it and writes two files, imported so Vite fingerprints them: `src/core/ui/logo.svg` (bubble and wordmark, 234.5 × 56 viewBox) and `src/core/ui/logo-mark.svg` (the bubble alone). Both are shown 28 px tall, width from the aspect ratio: the full logo is 117 px wide (at most 140 px). Both read on `bg-white` and `bg-stone-50`, and together are under 1.2 KB, counted in the 250 KB page budget (9).
+
+**Component.** One shared `src/core/ui/Logo.tsx` renders `<Link to="/">` around `<img src={logo} alt="parlaplay home">` (with `compact`, the mark alone below 1024 px and the full logo from 1024 px), with a hit area of at least 44 × 44 px and the same focus ring as other links. It is a plain link, never a NavLink, so it never carries `aria-current`. No screen draws its own copy.
+
+**Placement.**
+
+| Screen | Phone (below 1024 px) | Desktop (1024 px and up) |
+|---|---|---|
+| `/languages`, `/settings`, `/privacy`, not found, language failed, `/{code}` Home, `/{code}/progress` | Its own 44 px row above the screen, drawn once by `Layout`, 16 px from the left edge | First item in DesktopNav, left of the game title; the screen itself shows no second copy |
+| `/{code}/play` | Left end of the game's TopBar, before the turn: the mark alone (`compact`) | Left end of the game's TopBar, full logo (DesktopNav stays hidden on the game, DS 5) |
+| `/import` | Not shown: leaving mid-import would drop the handoff | Not shown |
+| Round end | As the game screen it sits in | As the game screen |
+
+DesktopNav's fallback link `parlaplay` (shown when no language is known) is removed: the logo replaces it, and `/` with no language opens the picker anyway.
+
+**Layout limits.** On phones the logo row adds at most 44 px. The picker still fits 360 × 560 without scrolling for two languages (8.3). The game TopBar stays 56 px tall (`h-14`), and at 360 px wide its existing items still fit on one line without truncating their labels.
+
+**Edge cases.**
+
+| Situation | Rule |
+|---|---|
+| Logo clicked mid-round | The round is already saved (game spec); `/` opens that language's Home, which shows `Continue round` |
+| Logo clicked on `/{code}` Home when it is already the last language | `/` replaces to `/{code}`; the screen does not change |
+| Logo clicked from a shared link's language (D14) | `/` goes to the last language chosen, not the one being viewed; following the logo is not a CHOOSE |
+| Save-guest prompt open | The dialog is modal; the logo is not reachable until it closes |
+| Logo image fails to load | The `alt` text `parlaplay home` shows as the link text; the link still works |
+| Cmd or Ctrl click | Opens `/` in a new tab, as any link |
 
 ---
 
@@ -736,6 +768,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 | D20 | Chi è? launches unchanged on Oct 29; the merged site launches with Shéi on Nov 13 | Keeps the merge from risking Chi è?'s launch |
 | D21 | Lexicon ids must be disjoint across languages | Makes the compatibility window safe and keeps Progress labels unambiguous |
 | D22 | The handoff gzips its data and refuses above 900 KB encoded | Measured: 1 MB fragments arrive and 2 MB are refused on desktop; gzip makes JSON several times smaller, and a clear refusal beats a silent failure |
+| D23 | A logo (speech bubble and stroke-drawn wordmark) at the top left of every screen but `/import`, including the game, linking to `/`; the bubble alone in the game's top bar on phones | One way home from anywhere; `/` already picks the right home (4.3). The round is saved, so leaving the game loses nothing. `/import` is excluded so a handoff cannot be abandoned halfway. The full logo would push the game bar's items off one line at 360 px |
 
 ---
 
@@ -763,5 +796,6 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 - 2026-10-07: v0 draft.
 - 2026-10-07: v0.3. Fragment spike: 1 MB arrives, 2 MB refused on desktop; handoff gzips and caps at 900 KB (5.3, D22). Paper trace (docs/reviews/platform-paper-trace.md) fixes F1 to F9: wait for the app key before routing `/`; registry carries each contentVersion; prompt languages in registry order; Don't save and sign-out remove saved rounds; guest level kept at sign-in; `/import` accepts only three `next` paths, compares rounds by games row start, and sets the last language. Sentry facts verified; Supabase project refs recorded.
 - 2026-10-08: SIGNED_OUT added to the shell (4.1, 4.2) for a session that ends outside Settings, so the shell never stays signed in after it (PLAY-025).
+- 2026-10-08: Logo at the top left of every screen, linking to `/` (8.4, D23, PLAY-064, PLAY-065), drawn by `scripts/logo.py`. DesktopNav's `parlaplay` fallback link is replaced by it.
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).

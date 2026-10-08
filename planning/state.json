@@ -361,6 +361,16 @@
    "number": 67,
    "id": 5751519315,
    "url": "https://github.com/jennarbates/parlaplay/issues/67"
+  },
+  "PLAY-064": {
+   "number": 92,
+   "id": 5765554385,
+   "url": "https://github.com/jennarbates/parlaplay/issues/92"
+  },
+  "PLAY-065": {
+   "number": 93,
+   "id": 5765554762,
+   "url": "https://github.com/jennarbates/parlaplay/issues/93"
   }
  },
  "subissues": [
@@ -419,7 +429,9 @@
   "PLAY-052",
   "PLAY-053",
   "PLAY-054",
-  "PLAY-055"
+  "PLAY-055",
+  "PLAY-064",
+  "PLAY-065"
  ],
  "blocked": [
   "PLAY-007<PLAY-003",
@@ -490,7 +502,11 @@
   "PLAY-052<PLAY-001",
   "PLAY-053<PLAY-052",
   "PLAY-054<PLAY-050",
-  "PLAY-055<PLAY-051"
+  "PLAY-055<PLAY-051",
+  "PLAY-065<PLAY-064",
+  "PLAY-065<PLAY-027",
+  "PLAY-065<PLAY-028",
+  "PLAY-065<PLAY-033"
  ],
  "blocked_unsupported": false,
  "project": {
@@ -555,7 +571,9 @@
   "PLAY-052": "PVTI_lAHOApTEl84BmHhYzg_PS_U",
   "PLAY-053": "PVTI_lAHOApTEl84BmHhYzg_PTC4",
   "PLAY-054": "PVTI_lAHOApTEl84BmHhYzg_PTIg",
-  "PLAY-055": "PVTI_lAHOApTEl84BmHhYzg_PTMg"
+  "PLAY-055": "PVTI_lAHOApTEl84BmHhYzg_PTMg",
+  "PLAY-064": "PVTI_lAHOApTEl84BmHhYzg_c2u0",
+  "PLAY-065": "PVTI_lAHOApTEl84BmHhYzg_c2z4"
  },
  "edited": [
   "PLAY-001",
@@ -613,6 +631,8 @@
   "PLAY-052",
   "PLAY-053",
   "PLAY-054",
-  "PLAY-055"
+  "PLAY-055",
+  "PLAY-064",
+  "PLAY-065"
  ]
 }

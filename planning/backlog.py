@@ -380,6 +380,21 @@ CARDS = [
      "Work the must-fix list from the top.",
      ["The highest-priority must-fix findings fixed with tests",
       "CI green"]),
+    ("PLAY-064", "Draw the parlaplay logo", "E6", "chore", 1, 12, [], False,
+     ["8.4", "D23"],
+     "Speech bubble and stroke-drawn wordmark, drawn by a script so it can be redrawn.",
+     ["scripts/logo.py writes src/core/ui/logo.svg and src/core/ui/logo-mark.svg",
+      "Reads on bg-white and bg-stone-50",
+      "Full logo at most 140 px wide at 28 px tall; both files under 1.2 KB"]),
+    ("PLAY-065", "Show the logo top left on every screen, linking to /", "E6", "story", 3, 12,
+     ["PLAY-064", "PLAY-027", "PLAY-028", "PLAY-033"], False,
+     ["8.4", "8.3", "D23"],
+     "As a player on any screen, I tap the parlaplay logo to go home.",
+     ["One shared Logo component: a plain Link to / around an img with alt parlaplay home, hit area at least 44 × 44 px",
+      "Placed per the 8.4 table on phone and desktop, including the game TopBar (the mark alone on phones); absent on /import",
+      "DesktopNav's parlaplay fallback link removed",
+      "The picker still fits 360 × 560 with no scroll; the game TopBar stays 56 px tall at 360 px wide",
+      "E2E: from /it/play mid-round, the logo opens /it showing Continue round; from /zh/progress it opens the last language chosen"]),
     ("PLAY-044", "Fix the remaining must-fix findings", "E9", "task", 5, 13,
      ["PLAY-043"], False,
      ["10.4"],
@@ -486,7 +501,7 @@ DOD = [  # spec 10.3 item -> cards
 # Spec sections with a deliverable: each needs at least one card.
 SECTIONS_WITH_DELIVERABLES = ["1", "2", "3.1", "3.2", "3.3", "3.4", "4.1", "4.2", "4.3", "4.4",
                               "4.5", "5.1", "5.2", "5.3", "5.4", "6.1", "6.2", "6.3", "7", "8.1",
-                              "8.3", "9", "10.1", "10.2", "10.3", "10.4"]
+                              "8.3", "8.4", "9", "10.1", "10.2", "10.3", "10.4"]
 
 COLORS = ["a14dcb", "cf7a24", "4d8ccb", "4d57cb", "4db6cb", "4dcba1", "8bcb4d", "cb4d6e",
           "cbaa4d", "6e7781", "3d8b3d"]

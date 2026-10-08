@@ -184,7 +184,7 @@
   {
    "key": "E6",
    "title": "Epic: Picker and shared screens",
-   "body": "Epic for the parlaplay platform. 5 cards, 9 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "body": "Epic for the parlaplay platform. 7 cards, 13 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
    "labels": [
     "epic",
     "epic: Picker and shared screens"
@@ -931,6 +931,39 @@
     "PLAY-042"
    ],
    "points": 5,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-064",
+   "title": "PLAY-064 Draw the parlaplay logo",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **1 point** · chore\nEpic: {{E6}}\n\nSpeech bubble and stroke-drawn wordmark, drawn by a script so it can be redrawn.\n\n### Acceptance criteria\n\n- [ ] scripts/logo.py writes src/core/ui/logo.svg and src/core/ui/logo-mark.svg\n- [ ] Reads on bg-white and bg-stone-50\n- [ ] Full logo at most 140 px wide at 28 px tall; both files under 1.2 KB\n\n### Spec\n\n[8.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#84-logo) · [D23](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S4",
+   "epic": "E6",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-065",
+   "title": "PLAY-065 Show the logo top left on every screen, linking to /",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **3 points** · story\nEpic: {{E6}}\n\nAs a player on any screen, I tap the parlaplay logo to go home.\n\n### Acceptance criteria\n\n- [ ] One shared Logo component: a plain Link to / around an img with alt parlaplay home, hit area at least 44 × 44 px\n- [ ] Placed per the 8.4 table on phone and desktop, including the game TopBar (the mark alone on phones); absent on /import\n- [ ] DesktopNav's parlaplay fallback link removed\n- [ ] The picker still fits 360 × 560 with no scroll; the game TopBar stays 56 px tall at 360 px wide\n- [ ] E2E: from /it/play mid-round, the logo opens /it showing Continue round; from /zh/progress it opens the last language chosen\n\n### Depends on\n\n- {{PLAY-064}}\n- {{PLAY-027}}\n- {{PLAY-028}}\n- {{PLAY-033}}\n\n### Spec\n\n[8.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#84-logo) · [8.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#83-layout) · [D23](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S4",
+   "epic": "E6",
+   "deps": [
+    "PLAY-064",
+    "PLAY-027",
+    "PLAY-028",
+    "PLAY-033"
+   ],
+   "points": 3,
    "target_date": "2026-11-09"
   },
   {

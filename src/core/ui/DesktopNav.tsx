@@ -6,13 +6,15 @@ import { useStore } from "zustand";
 import { prefsStore } from "../store/prefs.ts";
 import { useRounds } from "../store/rounds.ts";
 import { useShell } from "../store/shell.ts";
+import { Logo } from "./Logo.tsx";
 
 const link =
   "inline-flex min-h-11 min-w-11 items-center justify-center px-1 underline-offset-8 decoration-2 hover:underline aria-[current=page]:underline";
 
 // Desktop spec DS 5: the top nav on every screen but Game, at lg only. It belongs
 // to the language open, or on a shared page to the one open earlier this session or
-// else the last one chosen (platform spec 4.3); with none, it offers the picker. Play reads "Continue" when that
+// else the last one chosen (platform spec 4.3). The logo comes first (platform spec
+// 8.4); with no language it is the way to the picker, since / opens it then. Play reads "Continue" when that
 // language has a round saved, by the same rule as Home's "Continue round". The
 // current route gets aria-current="page" (from NavLink) and an underline.
 export function DesktopNav() {
@@ -28,7 +30,8 @@ export function DesktopNav() {
   return (
     <div className="h-14 shrink-0 border-b border-stone-200 bg-white">
       <nav aria-label="Main" className="mx-auto flex h-full max-w-6xl items-center gap-8 px-6">
-        {language ? (
+        <Logo />
+        {language && (
           <>
             <NavLink to={`/${language.code}`} end className={`${link} text-xl font-bold`}>
               <span lang={language.gameTitleLang}>{language.gameTitle}</span>
@@ -55,10 +58,6 @@ export function DesktopNav() {
               Progress
             </NavLink>
           </>
-        ) : (
-          <NavLink to="/languages" className={`${link} text-xl font-bold`}>
-            parlaplay
-          </NavLink>
         )}
         <NavLink to="/settings" className={link}>
           Settings
