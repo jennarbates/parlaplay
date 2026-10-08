@@ -126,11 +126,11 @@ describe.skipIf(!live)("sync against the local Supabase (CHI-088)", () => {
     const g = game(crypto.randomUUID(), { result: "won", endedAt: new Date().toISOString() });
     const guest = { games: [g], reviewLog: [review(g.id, 1), review(g.id, 2), review(g.id, 3)] };
     await write("guest:it", guest);
-    await adoptGuestData(id, true);
+    await adoptGuestData(id, ["it"], true);
     expect(await useSyncStore.getState().flush()).toBe(true);
     // The same rows again (say, a retry after a lost response).
     await write("guest:it", guest);
-    await adoptGuestData(id, true);
+    await adoptGuestData(id, ["it"], true);
     expect(await useSyncStore.getState().flush()).toBe(true);
     expect(await count(client, "games")).toBe(1);
     expect(await count(client, "review_log")).toBe(3);

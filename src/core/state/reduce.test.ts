@@ -187,6 +187,37 @@ describe("4.2: U open", () => {
   });
 });
 
+// The session ended outside Settings (another tab, an expired session): back to
+// guest with no effects, so nothing on the device is cleared (PLAY-025).
+describe("SIGNED_OUT", () => {
+  test("signed in: guest, no effects", () => {
+    expect(run(signedIn, { type: "SIGNED_OUT" })).toEqual({
+      state: { ...signedIn, account: { kind: "guest" } },
+      effects: [],
+    });
+  });
+
+  test("an open prompt closes with it", () => {
+    for (const state of [withP, withU])
+      expect(run(state, { type: "SIGNED_OUT" })).toEqual({
+        state: { ...state, account: { kind: "guest" }, prompt: null },
+        effects: [],
+      });
+  });
+
+  test("as guest it is ignored", () => {
+    ignored(guest, { type: "SIGNED_OUT" });
+  });
+
+  test("a later sign-in asks about guest data again", () => {
+    const out = run(signedIn, { type: "SIGNED_OUT" }).state;
+    expect(run(out, { ...signedInAction, guestLanguages: ["zh"] }).state.prompt).toEqual({
+      kind: "saveGuest",
+      languages: ["zh"],
+    });
+  });
+});
+
 describe("4.2: HYDRATED", () => {
   const fresh = initialShellState;
 

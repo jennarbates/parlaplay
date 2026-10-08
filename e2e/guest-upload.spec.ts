@@ -22,24 +22,24 @@ async function playAsGuest(page: Page) {
   await expect(page.getByRole("list", { name: "Mistakes by word" })).toContainText("il → la");
 }
 
-test("Yes keeps the guest's progress on the account", async ({ page }) => {
+test("Save keeps the guest's progress on the account", async ({ page }) => {
   await playAsGuest(page);
   await signIn(page);
-  const prompt = page.getByRole("dialog", { name: "Save your progress to this account?" });
+  const prompt = page.getByRole("dialog", { name: "Save your Italian progress to this account?" });
   await expect(prompt).toBeVisible();
-  await expect(prompt.getByRole("button", { name: "Yes, save it" })).toBeFocused(); // the default
-  await prompt.getByRole("button", { name: "Yes, save it" }).click();
+  await expect(prompt.getByRole("button", { name: "Save", exact: true })).toBeFocused(); // the default
+  await prompt.getByRole("button", { name: "Save", exact: true }).click();
   await expect(prompt).toBeHidden();
   await page.goto("/it/progress");
   await expect(page.getByRole("list", { name: "Mistakes by word" })).toContainText("il → la");
   await expect(page.getByText("Saved on this device, will sync later.")).toHaveCount(0);
 });
 
-test("No deletes the guest's progress", async ({ page }) => {
+test("Don't save deletes the guest's progress", async ({ page }) => {
   await playAsGuest(page);
   await signIn(page);
-  const prompt = page.getByRole("dialog", { name: "Save your progress to this account?" });
-  await prompt.getByRole("button", { name: "No, delete it" }).click();
+  const prompt = page.getByRole("dialog", { name: "Save your Italian progress to this account?" });
+  await prompt.getByRole("button", { name: "Don't save" }).click();
   // The prompt closes once the choice is on disk; reloading sooner would cancel it.
   await expect(prompt).toBeHidden();
   await page.goto("/it/progress");
@@ -49,6 +49,6 @@ test("No deletes the guest's progress", async ({ page }) => {
 test("without guest progress there is no question", async ({ page }) => {
   await signIn(page);
   await expect(
-    page.getByRole("dialog", { name: "Save your progress to this account?" }),
+    page.getByRole("dialog", { name: "Save your Italian progress to this account?" }),
   ).toHaveCount(0);
 });
