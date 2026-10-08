@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "deploy:playtest": "node scripts/deploy-playtest.ts"
   },
   "dependencies": {
     "@sentry/react": "^11.4.0",

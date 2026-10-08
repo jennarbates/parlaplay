@@ -1,0 +1,15 @@
+// PLAY-040: the playtest build, on its own Worker so it can never replace Chi è?
+// (wrangler.jsonc still names the live `italian` Worker and chie.parlaplay.games).
+// Deployed by hand with `pnpm deploy:playtest`, against parlaplay-staging.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "parlaplay-playtest",
+  "compatibility_date": "2026-10-06",
+  "assets": {
+    "directory": "./dist/",
+    // Deep links such as /zh/play get index.html instead of a 404.
+    "not_found_handling": "single-page-application",
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+}
