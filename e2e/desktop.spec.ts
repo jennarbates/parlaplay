@@ -196,7 +196,7 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
 test.describe("mouse: hover preview and right-click (DS 7)", () => {
   const tooltip = (page: Page) => page.getByRole("tooltip");
 
-  test("resting on a card shows a larger preview beside it; leaving hides it", async ({ page }) => {
+  test("resting on a card shows a larger preview over it; leaving hides it", async ({ page }) => {
     await page.goto("/it/play?seed=1");
     const chiara = card(page, "Chiara");
     await chiara.hover();
@@ -207,11 +207,12 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
     await expect(tooltip(page)).toHaveText("Chiara");
     const id = await tooltip(page).getAttribute("id");
     await expect(chiara).toHaveAttribute("aria-describedby", id ?? "");
-    // Beside the card, never over it, and twice as wide.
+    // Over the card, not beside it, and twice as wide.
     const c = await chiara.boundingBox();
     const t = await tooltip(page).boundingBox();
     if (!c || !t) throw new Error("no boxes");
-    expect(t.x >= c.x + c.width || t.x + t.width <= c.x).toBe(true);
+    expect(t.x < c.x + c.width && t.x + t.width > c.x).toBe(true);
+    expect(t.y < c.y + c.height && t.y + t.height > c.y).toBe(true);
     expect(t.width).toBeCloseTo(Math.min(c.width * 2, 256), 0);
     // Straight on to the next card: it swaps at once.
     await card(page, "Davide").hover();

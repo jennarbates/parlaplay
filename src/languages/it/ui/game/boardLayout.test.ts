@@ -18,14 +18,14 @@ test("the preview is twice the card's width, capped at 16rem", () => {
   expect(previewSpot(box(24, 80, 170, 204), box(0, 0, 2000, 2000)).width).toBe(256);
 });
 
-test("it goes on the side with more room and never covers the card", () => {
-  const leftCard = box(24, 80, 87, 104);
-  const spot = previewSpot(leftCard, area);
-  expect(spot.left).toBeGreaterThanOrEqual(leftCard.right);
+test("it is centred over the card, kept inside the board area left and right", () => {
+  const middle = box(250, 300, 87, 104);
+  const spot = previewSpot(middle, area);
+  expect(spot.left + spot.width / 2).toBeCloseTo(middle.left + middle.width / 2);
 
-  const rightCard = box(497, 80, 87, 104);
-  const other = previewSpot(rightCard, area);
-  expect(other.left + other.width).toBeLessThanOrEqual(rightCard.left);
+  expect(previewSpot(box(24, 80, 87, 104), area).left).toBe(area.left);
+  const right = previewSpot(box(497, 80, 87, 104), area);
+  expect(right.left + right.width).toBeLessThanOrEqual(area.right + 0.001);
 });
 
 test("it is centred on the card, but kept inside the board area", () => {
