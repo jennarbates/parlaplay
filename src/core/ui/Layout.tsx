@@ -1,6 +1,8 @@
-import { Outlet, useMatches } from "react-router";
+import { useEffect } from "react";
+import { Outlet, useLocation, useMatches, useNavigation } from "react-router";
 import type { RouteHandle } from "../language-module.ts";
 import { DesktopNav } from "./DesktopNav.tsx";
+import { pageTitle } from "./pageTitle.ts";
 import { SaveProgressPrompt } from "./SaveProgressPrompt.tsx";
 import { SyncBanner } from "./SyncBanner.tsx";
 import { useIsDesktop } from "./useMediaQuery.ts";
@@ -15,9 +17,22 @@ export function Layout() {
   const game = handle.game === true;
   // The game shows the banner under its own top bar.
   const bannerOnTop = desktop && !game;
+  const { pathname } = useLocation();
+  const loading = useNavigation().state === "loading";
+
+  useEffect(() => {
+    document.title = pageTitle(pathname);
+  }, [pathname]);
 
   return (
     <div className="lg:flex lg:min-h-dvh lg:flex-col lg:bg-stone-200 lg:text-stone-900">
+      {loading && (
+        <div
+          role="progressbar"
+          aria-label="Loading"
+          className="loading-bar fixed inset-x-0 top-0 z-50 h-1 bg-stone-900"
+        />
+      )}
       {desktop && !game && <DesktopNav />}
       {bannerOnTop && <SyncBanner />}
       <main
