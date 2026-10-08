@@ -1,0 +1,293 @@
+[
+  {
+    "id": "art.il",
+    "pos": "article",
+    "text": "il"
+  },
+  {
+    "id": "art.la",
+    "pos": "article",
+    "text": "la"
+  },
+  {
+    "id": "art.l",
+    "pos": "article",
+    "text": "l'"
+  },
+  {
+    "id": "art.i",
+    "pos": "article",
+    "text": "i"
+  },
+  {
+    "id": "art.gli",
+    "pos": "article",
+    "text": "gli"
+  },
+  {
+    "id": "art.un",
+    "pos": "article",
+    "text": "un"
+  },
+  {
+    "id": "art.una",
+    "pos": "article",
+    "text": "una"
+  },
+  {
+    "id": "v.ha",
+    "pos": "verb",
+    "text": "ha"
+  },
+  {
+    "id": "v.e",
+    "pos": "verb",
+    "text": "è"
+  },
+  {
+    "id": "n.capelli",
+    "pos": "noun",
+    "text": "capelli",
+    "gloss": "hair",
+    "gender": "m",
+    "number": "pl",
+    "defArt": "art.i",
+    "template": "t.have.adj",
+    "artRule": "art.mpl.consonant",
+    "adjAttrs": ["hairColor", "hairLength"],
+    "level": "A1"
+  },
+  {
+    "id": "n.occhi",
+    "pos": "noun",
+    "text": "occhi",
+    "gloss": "eyes",
+    "gender": "m",
+    "number": "pl",
+    "defArt": "art.gli",
+    "template": "t.have.adj",
+    "artRule": "art.mpl.vowel",
+    "adjAttrs": ["eyeColor"],
+    "level": "A1"
+  },
+  {
+    "id": "n.occhiali",
+    "pos": "noun",
+    "text": "occhiali",
+    "gloss": "glasses",
+    "gender": "m",
+    "number": "pl",
+    "defArt": "art.gli",
+    "template": "t.have",
+    "artRule": "art.mpl.vowel",
+    "attr": "glasses",
+    "level": "A1"
+  },
+  {
+    "id": "n.cappello",
+    "pos": "noun",
+    "text": "cappello",
+    "gloss": "hat",
+    "gender": "m",
+    "number": "sg",
+    "defArt": "art.il",
+    "template": "t.have",
+    "artRule": "art.msg.consonant",
+    "attr": "hat",
+    "level": "A1"
+  },
+  {
+    "id": "n.barba",
+    "pos": "noun",
+    "text": "barba",
+    "gloss": "beard",
+    "gender": "f",
+    "number": "sg",
+    "defArt": "art.la",
+    "template": "t.have",
+    "artRule": "art.fsg",
+    "attr": "beard",
+    "level": "A1"
+  },
+  {
+    "id": "n.baffi",
+    "pos": "noun",
+    "text": "baffi",
+    "gloss": "mustache",
+    "gender": "m",
+    "number": "pl",
+    "defArt": "art.i",
+    "template": "t.have",
+    "artRule": "art.mpl.consonant",
+    "attr": "mustache",
+    "level": "A1"
+  },
+  {
+    "id": "n.uomo",
+    "pos": "noun",
+    "text": "uomo",
+    "gloss": "man",
+    "gender": "m",
+    "number": "sg",
+    "defArt": "art.l",
+    "indefArt": "art.un",
+    "template": "t.be",
+    "artRule": "art.indef.m",
+    "level": "A1"
+  },
+  {
+    "id": "n.donna",
+    "pos": "noun",
+    "text": "donna",
+    "gloss": "woman",
+    "gender": "f",
+    "number": "sg",
+    "defArt": "art.la",
+    "indefArt": "art.una",
+    "template": "t.be",
+    "artRule": "art.indef.f",
+    "level": "A1"
+  },
+  {
+    "id": "adj.biondo",
+    "pos": "adj",
+    "gloss": "blond",
+    "attr": "hairColor",
+    "forms": {
+      "ms": "biondo",
+      "fs": "bionda",
+      "mp": "biondi",
+      "fp": "bionde"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.castano",
+    "pos": "adj",
+    "gloss": "brown (hair, eyes)",
+    "attr": "hairColor",
+    "alsoMeans": [
+      {
+        "attr": "eyeColor",
+        "value": "adj.marrone"
+      }
+    ],
+    "forms": {
+      "ms": "castano",
+      "fs": "castana",
+      "mp": "castani",
+      "fp": "castane"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.nero",
+    "pos": "adj",
+    "gloss": "black",
+    "attr": "hairColor",
+    "forms": {
+      "ms": "nero",
+      "fs": "nera",
+      "mp": "neri",
+      "fp": "nere"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.rosso",
+    "pos": "adj",
+    "gloss": "red",
+    "attr": "hairColor",
+    "forms": {
+      "ms": "rosso",
+      "fs": "rossa",
+      "mp": "rossi",
+      "fp": "rosse"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.bianco",
+    "pos": "adj",
+    "gloss": "white",
+    "attr": "hairColor",
+    "forms": {
+      "ms": "bianco",
+      "fs": "bianca",
+      "mp": "bianchi",
+      "fp": "bianche"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.corto",
+    "pos": "adj",
+    "gloss": "short",
+    "attr": "hairLength",
+    "forms": {
+      "ms": "corto",
+      "fs": "corta",
+      "mp": "corti",
+      "fp": "corte"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.lungo",
+    "pos": "adj",
+    "gloss": "long",
+    "attr": "hairLength",
+    "forms": {
+      "ms": "lungo",
+      "fs": "lunga",
+      "mp": "lunghi",
+      "fp": "lunghe"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.azzurro",
+    "pos": "adj",
+    "gloss": "blue",
+    "attr": "eyeColor",
+    "forms": {
+      "ms": "azzurro",
+      "fs": "azzurra",
+      "mp": "azzurri",
+      "fp": "azzurre"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.marrone",
+    "pos": "adj",
+    "gloss": "brown (eyes)",
+    "attr": "eyeColor",
+    "wordChoice": [
+      {
+        "noun": "n.capelli",
+        "use": "adj.castano"
+      }
+    ],
+    "forms": {
+      "ms": "marrone",
+      "fs": "marrone",
+      "mp": "marroni",
+      "fp": "marroni"
+    },
+    "level": "A1"
+  },
+  {
+    "id": "adj.verde",
+    "pos": "adj",
+    "gloss": "green",
+    "attr": "eyeColor",
+    "forms": {
+      "ms": "verde",
+      "fs": "verde",
+      "mp": "verdi",
+      "fp": "verdi"
+    },
+    "level": "A1"
+  }
+]

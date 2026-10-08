@@ -12,3 +12,5 @@ planning/spikes
 github-setup
 # created by supabase link; ignored by supabase/.gitignore
 supabase/.temp
+# Chi è?'s sync code, pinned unedited for the compatibility test (PLAY-024)
+e2e/compat/chie-launch
