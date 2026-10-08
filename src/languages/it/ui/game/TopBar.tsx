@@ -1,5 +1,6 @@
 import type { Character } from "../../content/schemas.ts";
 import type { GameState } from "../../engine/index.ts";
+import { Logo } from "../../../../core/ui/Logo.tsx";
 import { Face } from "../Face.tsx";
 
 const whoseTurn: Record<GameState["phase"], string> = {
@@ -26,11 +27,15 @@ export function TopBar({
 }) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-stone-200 bg-white px-3">
-      <div className="leading-tight">
-        <p className="text-xs text-stone-600">Turn {game.turn}</p>
-        <p className="font-semibold" aria-live="polite">
-          {whoseTurn[game.phase]}
-        </p>
+      {/* Platform spec 8.4: the logo first; the bubble alone on phones. */}
+      <div className="flex min-w-0 items-center gap-2 lg:gap-4">
+        <Logo compact />
+        <div className="leading-tight">
+          <p className="text-xs text-stone-600">Turn {game.turn}</p>
+          <p className="font-semibold" aria-live="polite">
+            {whoseTurn[game.phase]}
+          </p>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <figure className="flex items-center gap-1.5">

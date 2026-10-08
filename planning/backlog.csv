@@ -131,6 +131,14 @@ PLAY-042,Triage the playtest findings,To do,Playtest and fixes,task,Sprint 3: Me
 Each must-fix finding is an issue in the Sprint 4 milestone"
 PLAY-043,Fix the first must-fix findings,To do,Playtest and fixes,task,Sprint 4: Fix and launch,Day 12,Mon Nov 9,5,PLAY-042,no,10.4,Work the must-fix list from the top.,"The highest-priority must-fix findings fixed with tests
 CI green"
+PLAY-064,Draw the parlaplay logo,To do,Picker and shared screens,chore,Sprint 4: Fix and launch,Day 12,Mon Nov 9,1,,no,"8.4, D23","Speech bubble and stroke-drawn wordmark, drawn by a script so it can be redrawn.","scripts/logo.py writes src/core/ui/logo.svg and src/core/ui/logo-mark.svg
+Reads on bg-white and bg-stone-50
+Full logo at most 140 px wide at 28 px tall; both files under 1.2 KB"
+PLAY-065,"Show the logo top left on every screen, linking to /",To do,Picker and shared screens,story,Sprint 4: Fix and launch,Day 12,Mon Nov 9,3,"PLAY-064, PLAY-027, PLAY-028, PLAY-033",no,"8.4, 8.3, D23","As a player on any screen, I tap the parlaplay logo to go home.","One shared Logo component: a plain Link to / around an img with alt parlaplay home, hit area at least 44 × 44 px
+Placed per the 8.4 table on phone and desktop, including the game TopBar (the mark alone on phones); absent on /import
+DesktopNav's parlaplay fallback link removed
+The picker still fits 360 × 560 with no scroll; the game TopBar stays 56 px tall at 360 px wide
+E2E: from /it/play mid-round, the logo opens /it showing Continue round; from /zh/progress it opens the last language chosen"
 PLAY-044,Fix the remaining must-fix findings,To do,Playtest and fixes,task,Sprint 4: Fix and launch,Day 13,Tue Nov 10,5,PLAY-043,no,10.4,Finish the must-fix list.,"Every must-fix finding closed
 CI green"
 PLAY-045,Retest fixes on real phones,To do,Playtest and fixes,test,Sprint 4: Fix and launch,Day 14,Wed Nov 11,2,PLAY-044,no,10.2,Repeat the manual pass for every screen a fix touched.,"Each fix checked on a real iPhone and Android phone
