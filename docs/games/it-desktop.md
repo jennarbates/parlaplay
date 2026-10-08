@@ -46,7 +46,7 @@ Rule: anything not in the left column is out. New ideas go to DS 14.1, not into 
 
 1. The learner opens `chie.parlaplay.games` in a 1280 × 800 window. DesktopNav shows across the top; Home shows two columns (DS 9.1).
 2. They pick Level 1 and click **Play** (or press Enter on it). `/play` opens with no DesktopNav: TopBar on top, the 6 × 4 board on the left, the side panel on the right with the summary "Your turn: ask a question, or guess." and the question list.
-3. They hover a card for 350 ms; a larger preview appears beside it (DS 7.2). They move the pointer away and it disappears.
+3. They hover a card for 350 ms; a larger preview appears over it (DS 7.2). They move the pointer away and it disappears.
 4. They press `q`; focus moves to the first enabled question. ↓ twice, Enter: the question is asked. The panel shows the answer (phase `playerReview`).
 5. They press `b`; focus moves to the board. They use the arrow keys and Enter to flip down the cards the answer rules out, then press `a` (Avanti).
 6. The CPU asks its question (phase `cpuTurn`). The panel shows it with **Sì** / **No**. They press `s`. The panel shows ✓ or ✗ (phase `cpuReview`). They press `a`.
@@ -348,7 +348,7 @@ Click works exactly like tap does today: click a card to flip it, click "Indovin
 
 - **When.** Only at `lg` with `(hover: hover) and (pointer: fine)`. It appears after the pointer rests on one card for **350 ms**, and hides as soon as the pointer leaves. Moving straight from one card to another while a preview is open swaps it at once, with no new delay.
 - **What.** The card's face at 2× its board width, capped at `16rem`, with the name under it. No attribute list (that is CardDetail).
-- **Where.** Beside the card, on whichever side has more room, vertically centred on the card and clamped inside the board area. It never covers the hovered card. Its position is computed once when it shows, from `getBoundingClientRect`.
+- **Where.** Centred over the hovered card, clamped inside the board area. It grows out of the card rather than sitting beside it, so it covers the card itself and not one side of neighbours; `pointer-events-none` keeps the card under it hoverable and clickable. Its position is computed once when it shows, from `getBoundingClientRect`.
 - **How.** A new `src/ui/game/CardPreview.tsx`: `role="tooltip"`, `pointer-events-none`, no focus. While it is open the card has `aria-describedby` pointing to it.
 - **Not shown** while a dialog is open (CardDetail, GuessConfirm, the menu, ShortcutsDialog), or while guessing, because then it would cover the cards the learner is aiming at. TBD: ask at the playtest whether it is wanted while guessing.
 - **Motion.** A 120 ms fade in; none under `prefers-reduced-motion`. No layout shift.
