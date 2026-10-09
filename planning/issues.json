@@ -92,6 +92,11 @@
    "name": "epic: Launch and cleanup",
    "color": "3d8b3d",
    "description": "Card belongs to the Launch and cleanup epic"
+  },
+  {
+   "name": "epic: Shéi desktop",
+   "color": "a14dcb",
+   "description": "Card belongs to the Shéi desktop epic"
   }
  ],
  "milestones": [
@@ -224,6 +229,15 @@
    "labels": [
     "epic",
     "epic: Launch and cleanup"
+   ]
+  },
+  {
+   "key": "E11",
+   "title": "Epic: Shéi desktop",
+   "body": "Epic for the parlaplay platform. 17 cards, 38 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Shéi desktop"
    ]
   }
  ],
@@ -1131,6 +1145,285 @@
     "PLAY-052"
    ],
    "points": 1,
+   "target_date": "2026-11-13"
+  },
+  {
+   "key": "PLAY-057",
+   "title": "PLAY-057 Write the Shéi desktop spec",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **2 points** · task\nEpic: {{E11}}\n\ndocs/games/zh-desktop.md: a full desktop design for Shéi, modelled on it-desktop.md.\n\n### Acceptance criteria\n\n- [ ] zh-desktop.md covers scope, behaviour, data, shared code, layout, panel, tools, keys, screens, tests and decisions\n- [ ] Every number in it is worked or measured, and every TBD is listed\n- [ ] zh.md points at it-desktop.md and zh-desktop.md instead of spec-desktop.md\n- [ ] The spec is on main\n\n### Spec\n\n[ZS 1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-1-scope-and-non-goals) · [ZS 13.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-131-spec-sign-off-before-building)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S1",
+   "epic": "E11",
+   "deps": [],
+   "points": 2,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-074",
+   "title": "PLAY-074 Request a developer review of the Shéi desktop spec",
+   "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · task\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nAsk a developer to review the shared code, layout math, combobox and shortcut contract.\n\n### Acceptance criteria\n\n- [ ] ZS 4, ZS 5, ZS 7.2 and ZS 9 sent with a return date of Wed Oct 14\n- [ ] Comments collected in one place\n\n### Depends on\n\n- {{PLAY-057}}\n\n### Spec\n\n[ZS 13.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-131-spec-sign-off-before-building)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop",
+    "waits on others"
+   ],
+   "milestone": "S1",
+   "epic": "E11",
+   "deps": [
+    "PLAY-057"
+   ],
+   "points": 1,
+   "target_date": "2026-10-08"
+  },
+  {
+   "key": "PLAY-075",
+   "title": "PLAY-075 Book two playtesters for laptop sessions",
+   "body": "**Sprint 1: Spec and vendors** · Day 2, Fri Oct 9 · **1 point** · chore\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nLine up the laptop sessions the definition of done asks for, in the week of Nov 9.\n\n### Acceptance criteria\n\n- [ ] 2 playtesters confirmed for a laptop session on Thu Nov 12\n- [ ] Each will play one round at each level\n\n### Spec\n\n[ZS 13.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-132-tests) · [ZS 13.6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-136-milestones)",
+   "labels": [
+    "type: chore",
+    "epic: Shéi desktop",
+    "waits on others"
+   ],
+   "milestone": "S1",
+   "epic": "E11",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-10-09"
+  },
+  {
+   "key": "PLAY-066",
+   "title": "PLAY-066 Paper-trace the desktop spec and tag it v1",
+   "body": "**Sprint 1: Spec and vendors** · Day 3, Wed Oct 14 · **1 point** · task\nEpic: {{E11}}\n\nWalk ZS 2.1 at each level by keyboard and by mouse, fold in the review, and tag v1.\n\n### Acceptance criteria\n\n- [ ] ZS 2.1 traced at both levels, once by keyboard and once by mouse\n- [ ] Every review comment applied or answered; every TBD resolved or parked\n- [ ] Changelog line added and the spec tagged v1\n\n### Depends on\n\n- {{PLAY-057}}\n- {{PLAY-074}}\n\n### Spec\n\n[ZS 13.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-131-spec-sign-off-before-building)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S1",
+   "epic": "E11",
+   "deps": [
+    "PLAY-057",
+    "PLAY-074"
+   ],
+   "points": 1,
+   "target_date": "2026-10-14"
+  },
+  {
+   "key": "PLAY-058",
+   "title": "PLAY-058 Move the shared desktop parts into src/core",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **3 points** · task\nEpic: {{E11}}\n\nHover preview, board layout, Kbd, SidePanel, ShortcutsDialog, the shortcut guard and progressStats leave src/languages/it; add Tooltip.\n\n### Acceptance criteria\n\n- [ ] Each part of the ZS 4 table lives in src/core/ui and takes what differs by language as an argument\n- [ ] shortcutGuard.ts holds DS 4.3 steps 1 to 3 and has unit tests\n- [ ] Chi è?'s unit and e2e tests pass without edits\n- [ ] pnpm check:bundle shows /it within 1 kB of before\n\n### Depends on\n\n- {{PLAY-066}}\n\n### Spec\n\n[ZS 4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-4-shared-code) · [ZD2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-066"
+   ],
+   "points": 3,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-059",
+   "title": "PLAY-059 Lay out Shéi's game as board and side panel",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **3 points** · story\nEpic: {{E11}}\n\nAt lg the board fills the left column and a minmax(24rem, 28rem) panel sits on the right.\n\n### Acceptance criteria\n\n- [ ] /zh routes use the desktop widths of ZS 5.1\n- [ ] At lg the captions are 16px and 12px in a 2.25rem strip, and cards match the ZS 5.2 table at 1024 x 640 and 1440 x 900\n- [ ] The panel has summary, phase area, log slot and actions; Level 2's Clear and Ask sit in the actions\n- [ ] Each phase area is measured at 1024 x 640, recorded in ZS 6.3, and is at most 378px\n- [ ] Resizing across 1024px keeps flips, the tray, a shown hint and a guess\n- [ ] Desktop wording of ZS 6.2; the phone layout is unchanged\n\n### Depends on\n\n- {{PLAY-058}}\n\n### Spec\n\n[ZS 5](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-5-breakpoint-and-game-layout) · [ZS 6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-6-side-panel) · [ZS 2.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-22-edge-cases) · [ZD3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log) · [ZD4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log) · [ZD5](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-058"
+   ],
+   "points": 3,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-062",
+   "title": "PLAY-062 Lay out Shéi's Home and Progress for desktop",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **2 points** · story\nEpic: {{E11}}\n\nHome in two columns, and Progress as a dashboard with stat tiles.\n\n### Acceptance criteria\n\n- [ ] Home shows 谁？ in text-6xl with Shéi? under it, the pitch line, and the level cards beside it\n- [ ] Progress shows Words seen, Due today, Mistakes this week and Rounds played from progressStats\n- [ ] At lg Mistakes and Due sit side by side with no tablist\n- [ ] No horizontal scroll on /zh and /zh/progress at 1024 and 1440\n\n### Depends on\n\n- {{PLAY-058}}\n\n### Spec\n\n[ZS 10.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-101-home) · [ZS 10.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-103-progress-dashboard)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-058"
+   ],
+   "points": 2,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-067",
+   "title": "PLAY-067 Group Level 1 questions by verb",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **2 points** · story\nEpic: {{E11}}\n\nAt lg the 14 questions show in three columns headed 是, 有 and 在.\n\n### Acceptance criteria\n\n- [ ] Columns are headed 是 shì \"who they are\", 有 yǒu \"what they have\", 在 zài \"where they are\"\n- [ ] Each noun lands under its verb from the lexicon's verb field: 5, 5 and 4 questions\n- [ ] The English hint is one line, truncated, and shows in full on hover and focus\n- [ ] All 14 fit at 1024 x 640 within the ZS 6.3 budget\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\n[ZS 7.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-71-level-1-questions-grouped-by-verb) · [ZD6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 2,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-068",
+   "title": "PLAY-068 Add the round log to the panel and round end",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **3 points** · story\nEpic: {{E11}}\n\nEvery question and answer of the round, newest first, beside the board and on a two-column round end.\n\n### Acceptance criteria\n\n- [ ] roundLog() is pure and its ZS 3 invariants have unit tests\n- [ ] The log shows \"Round log (n)\", and \"Questions you and the computer ask show up here.\" when empty\n- [ ] With only its header's height, the header opens the log as an overlay; Esc closes it\n- [ ] Round end is two columns with the log on the right, and Play again has focus\n- [ ] A reload mid-round rebuilds the log from history\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\n[ZS 7.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-73-round-log) · [ZS 10.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-102-round-end) · [ZS 3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-3-data-and-content-model) · [ZD8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 3,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-069",
+   "title": "PLAY-069 Show word glosses on hover and focus",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **2 points** · story\nEpic: {{E11}}\n\nHovering a word in resolved text shows its characters, pinyin and English.\n\n### Acceptance criteria\n\n- [ ] Glosses appear in the log, review phases, round end and Progress, never on tiles or the CPU's live question\n- [ ] glossShowsEnglish() is false exactly in cpuTurn and Level 2 playerTurn, with unit tests\n- [ ] The gloss is dismissible with Esc, hoverable, and persistent (WCAG 1.4.13)\n- [ ] A focused log entry shows its English line when English is allowed\n\n### Depends on\n\n- {{PLAY-068}}\n\n### Spec\n\n[ZS 7.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-74-word-glosses) · [ZD9](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-068"
+   ],
+   "points": 2,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-060",
+   "title": "PLAY-060 Add card preview, hover styles and desktop dialogs",
+   "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **2 points** · story\nEpic: {{E11}}\n\nThe Chi è? card preview with Shéi's caption, the DS 7.4 hover styles, and desktop dialog sizes.\n\n### Acceptance criteria\n\n- [ ] Resting 350 ms on a card shows its face, name and pinyin; never while guessing, with a dialog open, or on touch\n- [ ] Right-click on a card opens CardDetail\n- [ ] Hover styles match the ZS 8 list\n- [ ] CardDetail's face is 28rem and GuessConfirm is 24rem with focus on confirm\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\n[ZS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-8-mouse) · [ZS 10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-104-dialogs)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 2,
+   "target_date": "2026-11-10"
+  },
+  {
+   "key": "PLAY-070",
+   "title": "PLAY-070 Build Level 2 type-to-find",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **3 points** · story\nEpic: {{E11}}\n\nA combobox above the tray picks tiles from typed pinyin, or characters from an IME.\n\n### Acceptance criteria\n\n- [ ] pinyinKey and findTiles pass every row of the ZS 3 table and its invariants\n- [ ] The field follows the APG combobox pattern: combobox, aria-expanded, aria-controls, aria-activedescendant\n- [ ] Enter adds the selected tile; Enter on an empty field asks; Backspace on an empty field removes the last tile\n- [ ] Keys during IME composition are ignored (isComposing or keyCode 229)\n- [ ] The no-match and tray-full messages show as in ZS 7.2\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\n[ZS 7.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-72-level-2-type-to-find) · [ZS 3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-3-data-and-content-model) · [ZD7](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 3,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-061",
+   "title": "PLAY-061 Add Shéi's keyboard shortcuts",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **3 points** · story\nEpic: {{E11}}\n\nThe pure shortcut contract of ZS 9, its listener, key labels, the shortcuts dialog and the GameMenu fix.\n\n### Acceptance criteria\n\n- [ ] shortcuts.ts is pure and every cell of ZS 9.2 has a unit test, plus the ZS 9.3 invariants\n- [ ] answer picks from answerIds(), the same list the buttons render\n- [ ] Buttons show their key at lg and carry aria-keyshortcuts\n- [ ] ? opens Keyboard shortcuts; GameMenu closes on Esc and on a click outside it\n\n### Depends on\n\n- {{PLAY-059}}\n\n### Spec\n\n[ZS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-91-shortcut-contract) · [ZS 9.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-92-transition-table) · [ZS 9.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-93-invariants) · [ZD10](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log) · [ZD11](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log) · [ZD15](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-059"
+   ],
+   "points": 3,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-071",
+   "title": "PLAY-071 Make the board, questions, tiles and log keyboard-navigable",
+   "body": "**Sprint 4: Fix and launch** · Day 14, Wed Nov 11 · **3 points** · story\nEpic: {{E11}}\n\nRoving tabindex with arrow keys at lg, as the ZS 9.4 table says.\n\n### Acceptance criteria\n\n- [ ] At lg the board is an ARIA grid of 4 rows of 6 with one tab stop; i opens CardDetail\n- [ ] Level 1 arrows move within and across the verb columns, skipping asked questions\n- [ ] Level 2 tile rows are one tab stop each with arrows inside; Enter adds or removes\n- [ ] l focuses the newest log entry; arrows move between entries\n- [ ] A full round at each level plays by keyboard only\n\n### Depends on\n\n- {{PLAY-061}}\n- {{PLAY-067}}\n- {{PLAY-068}}\n\n### Spec\n\n[ZS 9.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-94-focus) · [ZS 5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-53-board-and-cards)",
+   "labels": [
+    "type: story",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-061",
+    "PLAY-067",
+    "PLAY-068"
+   ],
+   "points": 3,
+   "target_date": "2026-11-11"
+  },
+  {
+   "key": "PLAY-063",
+   "title": "PLAY-063 Test Shéi's desktop version end to end",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **3 points** · test\nEpic: {{E11}}\n\ne2e/zh/desktop.spec.ts with every ZS 13.3 case, on the desktop projects, plus axe.\n\n### Acceptance criteria\n\n- [ ] Every ZS 13.3 case passes in desktop-chromium and desktop-webkit\n- [ ] playwright.config.ts runs e2e/zh/desktop.spec.ts on the desktop projects without waiting for PLAY-038\n- [ ] axe reports no violations on every /zh screen at 1440 x 900\n- [ ] Phone tests pass without edits; CI green\n\n### Depends on\n\n- {{PLAY-060}}\n- {{PLAY-062}}\n- {{PLAY-069}}\n- {{PLAY-070}}\n- {{PLAY-071}}\n\n### Spec\n\n[ZS 13.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-133-desktop-e2e-cases-e2ezhdesktopspects) · [ZD12](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: test",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-060",
+    "PLAY-062",
+    "PLAY-069",
+    "PLAY-070",
+    "PLAY-071"
+   ],
+   "points": 3,
+   "target_date": "2026-11-12"
+  },
+  {
+   "key": "PLAY-072",
+   "title": "PLAY-072 Run the manual laptop pass and laptop playtests",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **2 points** · test\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nThe ZS 13.4 checks on real laptops, and the two booked laptop sessions.\n\n### Acceptance criteria\n\n- [ ] ZS 13.4 done on a Mac and a Windows laptop, including the system Pinyin input methods, and logged\n- [ ] 2 playtesters played one round at each level on a laptop\n- [ ] Findings logged and triaged as must-fix or later\n\n### Depends on\n\n- {{PLAY-063}}\n- {{PLAY-075}}\n\n### Spec\n\n[ZS 13.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-134-manual) · [ZS 13.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-132-tests)",
+   "labels": [
+    "type: test",
+    "epic: Shéi desktop",
+    "waits on others"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-063",
+    "PLAY-075"
+   ],
+   "points": 2,
+   "target_date": "2026-11-12"
+  },
+  {
+   "key": "PLAY-073",
+   "title": "PLAY-073 Fix the must-fix desktop findings before launch",
+   "body": "**Sprint 4: Fix and launch** · Day 16, Fri Nov 13 · **2 points** · task\nEpic: {{E11}}\n\nClose every must-fix desktop finding, or launch /zh at phone width.\n\n### Acceptance criteria\n\n- [ ] Every must-fix desktop finding fixed and retested\n- [ ] If any remains on Fri Nov 13, /zh routes go back to lg:max-w-md and the desktop cards move after launch\n\n### Depends on\n\n- {{PLAY-072}}\n\n### Spec\n\n[ZS 13.6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-136-milestones) · [ZD14](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-142-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Shéi desktop"
+   ],
+   "milestone": "S4",
+   "epic": "E11",
+   "deps": [
+    "PLAY-072"
+   ],
+   "points": 2,
    "target_date": "2026-11-13"
   },
   {

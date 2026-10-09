@@ -17,6 +17,9 @@ ROOT = os.path.dirname(HERE)
 SPEC_PATH = os.path.join(ROOT, "docs", "spec.md")
 REPO = "jennarbates/parlaplay"
 SPEC_URL = f"https://github.com/{REPO}/blob/main/docs/spec.md"
+# The Shéi desktop spec: cards in epic E11 cite its sections (ZS n) and decisions (ZD n).
+DESKTOP_SPEC_PATH = os.path.join(ROOT, "docs", "games", "zh-desktop.md")
+DESKTOP_URL = f"https://github.com/{REPO}/blob/main/docs/games/zh-desktop.md"
 BACKLOG_URL = f"https://github.com/{REPO}/blob/main/planning/backlog.md"
 
 # Day -> (date label, ISO date, capacity). From spec 10.4.
@@ -66,6 +69,7 @@ EPICS = [  # key, name
     ("E8", "Quality and performance"),
     ("E9", "Playtest and fixes"),
     ("E10", "Launch and cleanup"),
+    ("E11", "Shéi desktop"),
 ]
 
 # id, title, epic, type, points, day, depends on, waits on others, spec refs, description, acceptance criteria
@@ -462,6 +466,138 @@ CARDS = [
      ["A full round of each game on a real iPhone and Android phone",
       "A real Chi è? guest's progress arrives through the handoff on Safari iOS",
       "Sentry receives a test error tagged language with no fragment"]),
+    # Shéi desktop (E11): docs/games/zh-desktop.md. Spec refs ZS n and ZD n link there.
+    ("PLAY-057", "Write the Shéi desktop spec", "E11", "task", 2, 1, [], False,
+     ["ZS 1", "ZS 13.1"],
+     "docs/games/zh-desktop.md: a full desktop design for Shéi, modelled on it-desktop.md.",
+     ["zh-desktop.md covers scope, behaviour, data, shared code, layout, panel, tools, keys, screens, tests and decisions",
+      "Every number in it is worked or measured, and every TBD is listed",
+      "zh.md points at it-desktop.md and zh-desktop.md instead of spec-desktop.md",
+      "The spec is on main"]),
+    ("PLAY-074", "Request a developer review of the Shéi desktop spec", "E11", "task", 1, 1,
+     ["PLAY-057"], True,
+     ["ZS 13.1"],
+     "Ask a developer to review the shared code, layout math, combobox and shortcut contract.",
+     ["ZS 4, ZS 5, ZS 7.2 and ZS 9 sent with a return date of Wed Oct 14",
+      "Comments collected in one place"]),
+    ("PLAY-075", "Book two playtesters for laptop sessions", "E11", "chore", 1, 2, [], True,
+     ["ZS 13.2", "ZS 13.6"],
+     "Line up the laptop sessions the definition of done asks for, in the week of Nov 9.",
+     ["2 playtesters confirmed for a laptop session on Thu Nov 12",
+      "Each will play one round at each level"]),
+    ("PLAY-066", "Paper-trace the desktop spec and tag it v1", "E11", "task", 1, 3,
+     ["PLAY-057", "PLAY-074"], False,
+     ["ZS 13.1"],
+     "Walk ZS 2.1 at each level by keyboard and by mouse, fold in the review, and tag v1.",
+     ["ZS 2.1 traced at both levels, once by keyboard and once by mouse",
+      "Every review comment applied or answered; every TBD resolved or parked",
+      "Changelog line added and the spec tagged v1"]),
+    ("PLAY-058", "Move the shared desktop parts into src/core", "E11", "task", 3, 12,
+     ["PLAY-066"], False,
+     ["ZS 4", "ZD2"],
+     "Hover preview, board layout, Kbd, SidePanel, ShortcutsDialog, the shortcut guard and progressStats leave src/languages/it; add Tooltip.",
+     ["Each part of the ZS 4 table lives in src/core/ui and takes what differs by language as an argument",
+      "shortcutGuard.ts holds DS 4.3 steps 1 to 3 and has unit tests",
+      "Chi è?'s unit and e2e tests pass without edits",
+      "pnpm check:bundle shows /it within 1 kB of before"]),
+    ("PLAY-059", "Lay out Shéi's game as board and side panel", "E11", "story", 3, 12,
+     ["PLAY-058"], False,
+     ["ZS 5", "ZS 6", "ZS 2.2", "ZD3", "ZD4", "ZD5"],
+     "At lg the board fills the left column and a minmax(24rem, 28rem) panel sits on the right.",
+     ["/zh routes use the desktop widths of ZS 5.1",
+      "At lg the captions are 16px and 12px in a 2.25rem strip, and cards match the ZS 5.2 table at 1024 x 640 and 1440 x 900",
+      "The panel has summary, phase area, log slot and actions; Level 2's Clear and Ask sit in the actions",
+      "Each phase area is measured at 1024 x 640, recorded in ZS 6.3, and is at most 378px",
+      "Resizing across 1024px keeps flips, the tray, a shown hint and a guess",
+      "Desktop wording of ZS 6.2; the phone layout is unchanged"]),
+    ("PLAY-062", "Lay out Shéi's Home and Progress for desktop", "E11", "story", 2, 12,
+     ["PLAY-058"], False,
+     ["ZS 10.1", "ZS 10.3"],
+     "Home in two columns, and Progress as a dashboard with stat tiles.",
+     ["Home shows 谁？ in text-6xl with Shéi? under it, the pitch line, and the level cards beside it",
+      "Progress shows Words seen, Due today, Mistakes this week and Rounds played from progressStats",
+      "At lg Mistakes and Due sit side by side with no tablist",
+      "No horizontal scroll on /zh and /zh/progress at 1024 and 1440"]),
+    ("PLAY-067", "Group Level 1 questions by verb", "E11", "story", 2, 13,
+     ["PLAY-059"], False,
+     ["ZS 7.1", "ZD6"],
+     "At lg the 14 questions show in three columns headed 是, 有 and 在.",
+     ["Columns are headed 是 shì \"who they are\", 有 yǒu \"what they have\", 在 zài \"where they are\"",
+      "Each noun lands under its verb from the lexicon's verb field: 5, 5 and 4 questions",
+      "The English hint is one line, truncated, and shows in full on hover and focus",
+      "All 14 fit at 1024 x 640 within the ZS 6.3 budget"]),
+    ("PLAY-068", "Add the round log to the panel and round end", "E11", "story", 3, 13,
+     ["PLAY-059"], False,
+     ["ZS 7.3", "ZS 10.2", "ZS 3", "ZD8"],
+     "Every question and answer of the round, newest first, beside the board and on a two-column round end.",
+     ["roundLog() is pure and its ZS 3 invariants have unit tests",
+      "The log shows \"Round log (n)\", and \"Questions you and the computer ask show up here.\" when empty",
+      "With only its header's height, the header opens the log as an overlay; Esc closes it",
+      "Round end is two columns with the log on the right, and Play again has focus",
+      "A reload mid-round rebuilds the log from history"]),
+    ("PLAY-069", "Show word glosses on hover and focus", "E11", "story", 2, 13,
+     ["PLAY-068"], False,
+     ["ZS 7.4", "ZD9"],
+     "Hovering a word in resolved text shows its characters, pinyin and English.",
+     ["Glosses appear in the log, review phases, round end and Progress, never on tiles or the CPU's live question",
+      "glossShowsEnglish() is false exactly in cpuTurn and Level 2 playerTurn, with unit tests",
+      "The gloss is dismissible with Esc, hoverable, and persistent (WCAG 1.4.13)",
+      "A focused log entry shows its English line when English is allowed"]),
+    ("PLAY-060", "Add card preview, hover styles and desktop dialogs", "E11", "story", 2, 13,
+     ["PLAY-059"], False,
+     ["ZS 8", "ZS 10.4"],
+     "The Chi è? card preview with Shéi's caption, the DS 7.4 hover styles, and desktop dialog sizes.",
+     ["Resting 350 ms on a card shows its face, name and pinyin; never while guessing, with a dialog open, or on touch",
+      "Right-click on a card opens CardDetail",
+      "Hover styles match the ZS 8 list",
+      "CardDetail's face is 28rem and GuessConfirm is 24rem with focus on confirm"]),
+    ("PLAY-070", "Build Level 2 type-to-find", "E11", "story", 3, 14,
+     ["PLAY-059"], False,
+     ["ZS 7.2", "ZS 3", "ZD7"],
+     "A combobox above the tray picks tiles from typed pinyin, or characters from an IME.",
+     ["pinyinKey and findTiles pass every row of the ZS 3 table and its invariants",
+      "The field follows the APG combobox pattern: combobox, aria-expanded, aria-controls, aria-activedescendant",
+      "Enter adds the selected tile; Enter on an empty field asks; Backspace on an empty field removes the last tile",
+      "Keys during IME composition are ignored (isComposing or keyCode 229)",
+      "The no-match and tray-full messages show as in ZS 7.2"]),
+    ("PLAY-061", "Add Shéi's keyboard shortcuts", "E11", "story", 3, 14,
+     ["PLAY-059"], False,
+     ["ZS 9.1", "ZS 9.2", "ZS 9.3", "ZD10", "ZD11", "ZD15"],
+     "The pure shortcut contract of ZS 9, its listener, key labels, the shortcuts dialog and the GameMenu fix.",
+     ["shortcuts.ts is pure and every cell of ZS 9.2 has a unit test, plus the ZS 9.3 invariants",
+      "answer picks from answerIds(), the same list the buttons render",
+      "Buttons show their key at lg and carry aria-keyshortcuts",
+      "? opens Keyboard shortcuts; GameMenu closes on Esc and on a click outside it"]),
+    ("PLAY-071", "Make the board, questions, tiles and log keyboard-navigable", "E11", "story", 3, 14,
+     ["PLAY-061", "PLAY-067", "PLAY-068"], False,
+     ["ZS 9.4", "ZS 5.3"],
+     "Roving tabindex with arrow keys at lg, as the ZS 9.4 table says.",
+     ["At lg the board is an ARIA grid of 4 rows of 6 with one tab stop; i opens CardDetail",
+      "Level 1 arrows move within and across the verb columns, skipping asked questions",
+      "Level 2 tile rows are one tab stop each with arrows inside; Enter adds or removes",
+      "l focuses the newest log entry; arrows move between entries",
+      "A full round at each level plays by keyboard only"]),
+    ("PLAY-063", "Test Shéi's desktop version end to end", "E11", "test", 3, 15,
+     ["PLAY-060", "PLAY-062", "PLAY-069", "PLAY-070", "PLAY-071"], False,
+     ["ZS 13.3", "ZD12"],
+     "e2e/zh/desktop.spec.ts with every ZS 13.3 case, on the desktop projects, plus axe.",
+     ["Every ZS 13.3 case passes in desktop-chromium and desktop-webkit",
+      "playwright.config.ts runs e2e/zh/desktop.spec.ts on the desktop projects without waiting for PLAY-038",
+      "axe reports no violations on every /zh screen at 1440 x 900",
+      "Phone tests pass without edits; CI green"]),
+    ("PLAY-072", "Run the manual laptop pass and laptop playtests", "E11", "test", 2, 15,
+     ["PLAY-063", "PLAY-075"], True,
+     ["ZS 13.4", "ZS 13.2"],
+     "The ZS 13.4 checks on real laptops, and the two booked laptop sessions.",
+     ["ZS 13.4 done on a Mac and a Windows laptop, including the system Pinyin input methods, and logged",
+      "2 playtesters played one round at each level on a laptop",
+      "Findings logged and triaged as must-fix or later"]),
+    ("PLAY-073", "Fix the must-fix desktop findings before launch", "E11", "task", 2, 16,
+     ["PLAY-072"], False,
+     ["ZS 13.6", "ZD14"],
+     "Close every must-fix desktop finding, or launch /zh at phone width.",
+     ["Every must-fix desktop finding fixed and retested",
+      "If any remains on Fri Nov 13, /zh routes go back to lg:max-w-md and the desktop cards move after launch"]),
     # Day 17
     ("PLAY-054", "Apply migration 2 after old clients stop", "E10", "chore", 2, 17,
      ["PLAY-050"], False,
@@ -499,6 +635,27 @@ DOD = [  # spec 10.3 item -> cards
 ]
 
 # Spec sections with a deliverable: each needs at least one card.
+DESKTOP_DOD = [  # zh-desktop.md ZS 13.5 item -> cards
+    ("`zh-desktop.md` reviewed and tagged `v1`", ["PLAY-057", "PLAY-074", "PLAY-066"]),
+    ("The shared parts live in `src/core/ui`, and Chi è?'s tests pass unedited", ["PLAY-058"]),
+    ("A full round at each level plays by mouse only and by keyboard only at 1024 × 640 and 1440 × 900",
+     ["PLAY-071", "PLAY-063"]),
+    ("At 1024 × 640 the board, summary, actions and every phase area fit with no scroll",
+     ["PLAY-059", "PLAY-067", "PLAY-063"]),
+    ("`他有狗吗？` can be asked by typing pinyin alone", ["PLAY-070", "PLAY-063"]),
+    ("The round log and glosses work, and no English gloss shows while a rating is pending",
+     ["PLAY-068", "PLAY-069"]),
+    ("No horizontal scroll on any `/zh` screen at 1024 and 1440", ["PLAY-062", "PLAY-063"]),
+    ("The phone layout is unchanged; all phone tests pass without edits", ["PLAY-059", "PLAY-063"]),
+    ("Desktop Playwright projects green in CI with `e2e/zh/desktop.spec.ts`; axe clean at desktop size",
+     ["PLAY-063"]),
+    ("The manual checks of ZS 13.4 done and logged", ["PLAY-072"]),
+    ("At least 2 playtesters have played a round at each level on a laptop; findings logged",
+     ["PLAY-075", "PLAY-072", "PLAY-073"]),
+]
+DESKTOP_SECTIONS_WITH_DELIVERABLES = ["ZS 3", "ZS 4", "ZS 5", "ZS 6", "ZS 7.1", "ZS 7.2", "ZS 7.3",
+                                      "ZS 7.4", "ZS 8", "ZS 9", "ZS 10", "ZS 13"]
+
 SECTIONS_WITH_DELIVERABLES = ["1", "2", "3.1", "3.2", "3.3", "3.4", "4.1", "4.2", "4.3", "4.4",
                               "4.5", "5.1", "5.2", "5.3", "5.4", "6.1", "6.2", "6.3", "7", "8.1",
                               "8.3", "8.4", "9", "10.1", "10.2", "10.3", "10.4"]
@@ -575,6 +732,22 @@ def validate():
     for s in SECTIONS_WITH_DELIVERABLES:
         if s not in covered and not any(r.startswith(s + ".") for r in covered):
             problems.append(f"spec section {s} has no card")
+    # desktop spec: DoD items match ZS 13.5 exactly, sections covered, ZS and ZD refs resolve
+    for item, refs in DESKTOP_DOD:
+        for r in refs:
+            if r not in by_id:
+                problems.append(f"desktop DoD '{item}': unknown card {r}")
+    if sorted(i for i, _ in DESKTOP_DOD) != sorted(DESKTOP_DOD_ITEMS):
+        problems.append("DESKTOP_DOD does not match zh-desktop.md ZS 13.5")
+    for sec in DESKTOP_SECTIONS_WITH_DELIVERABLES:
+        if not any(r == sec or r.startswith(sec + ".") for r in covered):
+            problems.append(f"desktop spec {sec} has no card")
+    for c in cards:
+        for r in c["refs"]:
+            if r.startswith("ZS ") and r not in DESKTOP_ANCHORS:
+                problems.append(f"{c['id']}: desktop ref {r} has no heading")
+            if re.fullmatch(r"ZD\d+", r) and r not in DESKTOP_DECISIONS:
+                problems.append(f"{c['id']}: {r} is not in the desktop decision log")
     # spec refs resolve to headings
     for c in cards:
         for r in c["refs"]:
@@ -609,8 +782,26 @@ for line in open(SPEC_PATH, encoding="utf-8"):
     if m:
         ANCHORS[m.group(3)] = github_slug(m.group(2))
 
+DESKTOP_ANCHORS, DESKTOP_DECISIONS, DESKTOP_DOD_ITEMS = {}, set(), []
+_in_dod = False
+for line in open(DESKTOP_SPEC_PATH, encoding="utf-8"):
+    line = line.rstrip()
+    m = re.match(r"^#{2,3} ((ZS \d+(?:\.\d+)*)\.? .*)$", line)
+    if m:
+        DESKTOP_ANCHORS[m.group(2)] = github_slug(m.group(1))
+        _in_dod = m.group(2) == "ZS 13.5"
+    m = re.match(r"^\| (ZD\d+) \|", line)
+    if m:
+        DESKTOP_DECISIONS.add(m.group(1))
+    if _in_dod and line.startswith("- [ ] "):
+        DESKTOP_DOD_ITEMS.append(line[6:])
+
 
 def ref_link(r):
+    if r in DESKTOP_ANCHORS:
+        return f"[{r}]({DESKTOP_URL}#{DESKTOP_ANCHORS[r]})"
+    if r in DESKTOP_DECISIONS:
+        return f"[{r}]({DESKTOP_URL}#{DESKTOP_ANCHORS['ZS 14.2']})"
     if r in ANCHORS:
         return f"[{r}]({SPEC_URL}#{ANCHORS[r]})"
     if r.startswith("D"):
@@ -659,6 +850,9 @@ def write_outputs(load):
                     w(f"- [ ] {a}\n")
     w("\n## Definition of done mapping\n\n| Spec 10.3 item | Cards |\n|---|---|\n")
     for item, refs in DOD:
+        w(f"| {item} | {', '.join(refs)} |\n")
+    w("\n## Shéi desktop definition of done mapping\n\n| zh-desktop.md ZS 13.5 item | Cards |\n|---|---|\n")
+    for item, refs in DESKTOP_DOD:
         w(f"| {item} | {', '.join(refs)} |\n")
     open(os.path.join(HERE, "backlog.md"), "w", encoding="utf-8").write(md.getvalue())
 
