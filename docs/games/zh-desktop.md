@@ -613,8 +613,8 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 
 | Day | Date | Deliverable | Done when |
 |---|---|---|---|
-| 1 | Thu Oct 8 | Request the developer review of this spec (PLAY-064) | Review requested with a return date of Wed Oct 14 |
-| 2 | Fri Oct 9 | Book 2 playtesters for laptop sessions on Thu Nov 12 (PLAY-065) | 2 playtesters confirmed |
+| 1 | Thu Oct 8 | Request the developer review of this spec (PLAY-074) | Review requested with a return date of Wed Oct 14 |
+| 2 | Fri Oct 9 | Book 2 playtesters for laptop sessions on Thu Nov 12 (PLAY-075) | 2 playtesters confirmed |
 | 3 | Wed Oct 14 | Paper trace, fold in the review, tag `v1` (PLAY-066) | Spec tagged `v1` |
 | 12 | Mon Nov 9 | Shared parts in `src/core`; game layout and side panel; Home and Progress (PLAY-058, PLAY-059, PLAY-062) | Chi è? tests unedited and green; 24 cards and the panel fit at 1024 × 640; ZS 6.3 measured |
 | 13 | Tue Nov 10 | Level 1 groups, round log and round end, glosses, card preview and dialogs (PLAY-067, PLAY-068, PLAY-069, PLAY-060) | ZS 7.1, 7.3, 7.4, 8 and 10.2 work |
@@ -677,4 +677,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 ## ZS 16. Changelog
 
 - 2026-10-08: v0. Full desktop spec for Shéi, replacing the v0.1 list of differences from `it-desktop.md`. Adds the height-sized board with a flexible panel, Level 1 questions grouped by verb, Level 2 type-to-find, the round log and word glosses. Level 2 builder measured on the production build: the 7-tile row overflows a 22rem panel and the builder is 388px tall with Clear and Ask.
-- 2026-10-08: v0.1. Milestones matched to the backlog cards (PLAY-057, PLAY-058 to PLAY-073). Owner review: the panel is fixed at `minmax(24rem, 28rem)` like Chi è?'s, not flexible (ZD3); ZD9 and ZD14 confirmed.
+- 2026-10-08: v0.1. Milestones matched to the backlog cards (PLAY-057 to PLAY-063 and PLAY-066 to PLAY-075). Owner review: the panel is fixed at `minmax(24rem, 28rem)` like Chi è?'s, not flexible (ZD3); ZD9 and ZD14 confirmed.

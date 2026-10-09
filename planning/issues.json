@@ -189,7 +189,7 @@
   {
    "key": "E6",
    "title": "Epic: Picker and shared screens",
-   "body": "Epic for the parlaplay platform. 5 cards, 9 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "body": "Epic for the parlaplay platform. 7 cards, 13 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
    "labels": [
     "epic",
     "epic: Picker and shared screens"
@@ -948,6 +948,39 @@
    "target_date": "2026-11-09"
   },
   {
+   "key": "PLAY-064",
+   "title": "PLAY-064 Draw the parlaplay logo",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **1 point** · chore\nEpic: {{E6}}\n\nSpeech bubble and stroke-drawn wordmark, drawn by a script so it can be redrawn.\n\n### Acceptance criteria\n\n- [ ] scripts/logo.py writes src/core/ui/logo.svg and src/core/ui/logo-mark.svg\n- [ ] Reads on bg-white and bg-stone-50\n- [ ] Full logo at most 140 px wide at 28 px tall; both files under 1.2 KB\n\n### Spec\n\n[8.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#84-logo) · [D23](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: chore",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S4",
+   "epic": "E6",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-11-09"
+  },
+  {
+   "key": "PLAY-065",
+   "title": "PLAY-065 Show the logo top left on every screen, linking to /",
+   "body": "**Sprint 4: Fix and launch** · Day 12, Mon Nov 9 · **3 points** · story\nEpic: {{E6}}\n\nAs a player on any screen, I tap the parlaplay logo to go home.\n\n### Acceptance criteria\n\n- [ ] One shared Logo component: a plain Link to / around an img with alt parlaplay home, hit area at least 44 × 44 px\n- [ ] Placed per the 8.4 table on phone and desktop, including the game TopBar (the mark alone on phones); absent on /import\n- [ ] DesktopNav's parlaplay fallback link removed\n- [ ] The picker still fits 360 × 560 with no scroll; the game TopBar stays 56 px tall at 360 px wide\n- [ ] E2E: from /it/play mid-round, the logo opens /it showing Continue round; from /zh/progress it opens the last language chosen\n\n### Depends on\n\n- {{PLAY-064}}\n- {{PLAY-027}}\n- {{PLAY-028}}\n- {{PLAY-033}}\n\n### Spec\n\n[8.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#84-logo) · [8.3](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#83-layout) · [D23](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#112-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Picker and shared screens"
+   ],
+   "milestone": "S4",
+   "epic": "E6",
+   "deps": [
+    "PLAY-064",
+    "PLAY-027",
+    "PLAY-028",
+    "PLAY-033"
+   ],
+   "points": 3,
+   "target_date": "2026-11-09"
+  },
+  {
    "key": "PLAY-044",
    "title": "PLAY-044 Fix the remaining must-fix findings",
    "body": "**Sprint 4: Fix and launch** · Day 13, Tue Nov 10 · **5 points** · task\nEpic: {{E9}}\n\nFinish the must-fix list.\n\n### Acceptance criteria\n\n- [ ] Every must-fix finding closed\n- [ ] CI green\n\n### Depends on\n\n- {{PLAY-043}}\n\n### Spec\n\n[10.4](https://github.com/jennarbates/parlaplay/blob/main/docs/spec.md#104-milestones)",
@@ -1129,8 +1162,8 @@
    "target_date": "2026-10-08"
   },
   {
-   "key": "PLAY-064",
-   "title": "PLAY-064 Request a developer review of the Shéi desktop spec",
+   "key": "PLAY-074",
+   "title": "PLAY-074 Request a developer review of the Shéi desktop spec",
    "body": "**Sprint 1: Spec and vendors** · Day 1, Thu Oct 8 · **1 point** · task\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nAsk a developer to review the shared code, layout math, combobox and shortcut contract.\n\n### Acceptance criteria\n\n- [ ] ZS 4, ZS 5, ZS 7.2 and ZS 9 sent with a return date of Wed Oct 14\n- [ ] Comments collected in one place\n\n### Depends on\n\n- {{PLAY-057}}\n\n### Spec\n\n[ZS 13.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-131-spec-sign-off-before-building)",
    "labels": [
     "type: task",
@@ -1146,8 +1179,8 @@
    "target_date": "2026-10-08"
   },
   {
-   "key": "PLAY-065",
-   "title": "PLAY-065 Book two playtesters for laptop sessions",
+   "key": "PLAY-075",
+   "title": "PLAY-075 Book two playtesters for laptop sessions",
    "body": "**Sprint 1: Spec and vendors** · Day 2, Fri Oct 9 · **1 point** · chore\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nLine up the laptop sessions the definition of done asks for, in the week of Nov 9.\n\n### Acceptance criteria\n\n- [ ] 2 playtesters confirmed for a laptop session on Thu Nov 12\n- [ ] Each will play one round at each level\n\n### Spec\n\n[ZS 13.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-132-tests) · [ZS 13.6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-136-milestones)",
    "labels": [
     "type: chore",
@@ -1163,7 +1196,7 @@
   {
    "key": "PLAY-066",
    "title": "PLAY-066 Paper-trace the desktop spec and tag it v1",
-   "body": "**Sprint 1: Spec and vendors** · Day 3, Wed Oct 14 · **1 point** · task\nEpic: {{E11}}\n\nWalk ZS 2.1 at each level by keyboard and by mouse, fold in the review, and tag v1.\n\n### Acceptance criteria\n\n- [ ] ZS 2.1 traced at both levels, once by keyboard and once by mouse\n- [ ] Every review comment applied or answered; every TBD resolved or parked\n- [ ] Changelog line added and the spec tagged v1\n\n### Depends on\n\n- {{PLAY-057}}\n- {{PLAY-064}}\n\n### Spec\n\n[ZS 13.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-131-spec-sign-off-before-building)",
+   "body": "**Sprint 1: Spec and vendors** · Day 3, Wed Oct 14 · **1 point** · task\nEpic: {{E11}}\n\nWalk ZS 2.1 at each level by keyboard and by mouse, fold in the review, and tag v1.\n\n### Acceptance criteria\n\n- [ ] ZS 2.1 traced at both levels, once by keyboard and once by mouse\n- [ ] Every review comment applied or answered; every TBD resolved or parked\n- [ ] Changelog line added and the spec tagged v1\n\n### Depends on\n\n- {{PLAY-057}}\n- {{PLAY-074}}\n\n### Spec\n\n[ZS 13.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-131-spec-sign-off-before-building)",
    "labels": [
     "type: task",
     "epic: Shéi desktop"
@@ -1172,7 +1205,7 @@
    "epic": "E11",
    "deps": [
     "PLAY-057",
-    "PLAY-064"
+    "PLAY-074"
    ],
    "points": 1,
    "target_date": "2026-10-14"
@@ -1362,7 +1395,7 @@
   {
    "key": "PLAY-072",
    "title": "PLAY-072 Run the manual laptop pass and laptop playtests",
-   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **2 points** · test\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nThe ZS 13.4 checks on real laptops, and the two booked laptop sessions.\n\n### Acceptance criteria\n\n- [ ] ZS 13.4 done on a Mac and a Windows laptop, including the system Pinyin input methods, and logged\n- [ ] 2 playtesters played one round at each level on a laptop\n- [ ] Findings logged and triaged as must-fix or later\n\n### Depends on\n\n- {{PLAY-063}}\n- {{PLAY-065}}\n\n### Spec\n\n[ZS 13.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-134-manual) · [ZS 13.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-132-tests)",
+   "body": "**Sprint 4: Fix and launch** · Day 15, Thu Nov 12 · **2 points** · test\nEpic: {{E11}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nThe ZS 13.4 checks on real laptops, and the two booked laptop sessions.\n\n### Acceptance criteria\n\n- [ ] ZS 13.4 done on a Mac and a Windows laptop, including the system Pinyin input methods, and logged\n- [ ] 2 playtesters played one round at each level on a laptop\n- [ ] Findings logged and triaged as must-fix or later\n\n### Depends on\n\n- {{PLAY-063}}\n- {{PLAY-075}}\n\n### Spec\n\n[ZS 13.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-134-manual) · [ZS 13.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/zh-desktop.md#zs-132-tests)",
    "labels": [
     "type: test",
     "epic: Shéi desktop",
@@ -1372,7 +1405,7 @@
    "epic": "E11",
    "deps": [
     "PLAY-063",
-    "PLAY-065"
+    "PLAY-075"
    ],
    "points": 2,
    "target_date": "2026-11-12"

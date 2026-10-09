@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useMatches, useNavigation } from "react-router";
 import type { RouteHandle } from "../language-module.ts";
 import { DesktopNav } from "./DesktopNav.tsx";
+import { Logo } from "./Logo.tsx";
 import { pageTitle } from "./pageTitle.ts";
 import { SaveProgressPrompt } from "./SaveProgressPrompt.tsx";
 import { SyncBanner } from "./SyncBanner.tsx";
@@ -10,7 +11,9 @@ import { useIsDesktop } from "./useMediaQuery.ts";
 // Screens add their own padding; the game uses the full height of the phone.
 // At lg (desktop spec DS 5) the page is grey, DesktopNav runs across the top of
 // every screen but the game, and each screen sits in a lighter area at the width
-// its route asks for (RouteHandle). Below lg nothing changes (DD11).
+// its route asks for (RouteHandle). Below lg nothing changes (DD11), except the
+// logo (platform spec 8.4): its own 44 px row above every screen but the game (which
+// has it in its top bar) and /import (where leaving would drop the handoff).
 export function Layout() {
   const desktop = useIsDesktop();
   const handle = (useMatches().at(-1)?.handle ?? {}) as RouteHandle;
@@ -19,6 +22,7 @@ export function Layout() {
   const bannerOnTop = desktop && !game;
   const { pathname } = useLocation();
   const loading = useNavigation().state === "loading";
+  const logoRow = !desktop && !game && pathname !== "/import";
 
   useEffect(() => {
     document.title = pageTitle(pathname);
@@ -38,6 +42,11 @@ export function Layout() {
       <main
         className={`mx-auto flex min-h-dvh max-w-md flex-col bg-stone-50 text-stone-900 lg:min-h-0 lg:w-full lg:flex-1 ${handle.width ?? "lg:max-w-5xl"}`}
       >
+        {logoRow && (
+          <div className="flex h-11 shrink-0 items-center px-4">
+            <Logo />
+          </div>
+        )}
         {!bannerOnTop && <SyncBanner />}
         <Outlet />
         <SaveProgressPrompt />

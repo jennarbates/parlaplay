@@ -131,6 +131,14 @@ PLAY-042,Triage the playtest findings,To do,Playtest and fixes,task,Sprint 3: Me
 Each must-fix finding is an issue in the Sprint 4 milestone"
 PLAY-043,Fix the first must-fix findings,To do,Playtest and fixes,task,Sprint 4: Fix and launch,Day 12,Mon Nov 9,5,PLAY-042,no,10.4,Work the must-fix list from the top.,"The highest-priority must-fix findings fixed with tests
 CI green"
+PLAY-064,Draw the parlaplay logo,To do,Picker and shared screens,chore,Sprint 4: Fix and launch,Day 12,Mon Nov 9,1,,no,"8.4, D23","Speech bubble and stroke-drawn wordmark, drawn by a script so it can be redrawn.","scripts/logo.py writes src/core/ui/logo.svg and src/core/ui/logo-mark.svg
+Reads on bg-white and bg-stone-50
+Full logo at most 140 px wide at 28 px tall; both files under 1.2 KB"
+PLAY-065,"Show the logo top left on every screen, linking to /",To do,Picker and shared screens,story,Sprint 4: Fix and launch,Day 12,Mon Nov 9,3,"PLAY-064, PLAY-027, PLAY-028, PLAY-033",no,"8.4, 8.3, D23","As a player on any screen, I tap the parlaplay logo to go home.","One shared Logo component: a plain Link to / around an img with alt parlaplay home, hit area at least 44 × 44 px
+Placed per the 8.4 table on phone and desktop, including the game TopBar (the mark alone on phones); absent on /import
+DesktopNav's parlaplay fallback link removed
+The picker still fits 360 × 560 with no scroll; the game TopBar stays 56 px tall at 360 px wide
+E2E: from /it/play mid-round, the logo opens /it showing Continue round; from /zh/progress it opens the last language chosen"
 PLAY-044,Fix the remaining must-fix findings,To do,Playtest and fixes,task,Sprint 4: Fix and launch,Day 13,Tue Nov 10,5,PLAY-043,no,10.4,Finish the must-fix list.,"Every must-fix finding closed
 CI green"
 PLAY-045,Retest fixes on real phones,To do,Playtest and fixes,test,Sprint 4: Fix and launch,Day 14,Wed Nov 11,2,PLAY-044,no,10.2,Repeat the manual pass for every screen a fix touched.,"Each fix checked on a real iPhone and Android phone
@@ -160,11 +168,11 @@ PLAY-057,Write the Shéi desktop spec,To do,Shéi desktop,task,Sprint 1: Spec an
 Every number in it is worked or measured, and every TBD is listed
 zh.md points at it-desktop.md and zh-desktop.md instead of spec-desktop.md
 The spec is on main"
-PLAY-064,Request a developer review of the Shéi desktop spec,To do,Shéi desktop,task,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,PLAY-057,yes,ZS 13.1,"Ask a developer to review the shared code, layout math, combobox and shortcut contract.","ZS 4, ZS 5, ZS 7.2 and ZS 9 sent with a return date of Wed Oct 14
+PLAY-074,Request a developer review of the Shéi desktop spec,To do,Shéi desktop,task,Sprint 1: Spec and vendors,Day 1,Thu Oct 8,1,PLAY-057,yes,ZS 13.1,"Ask a developer to review the shared code, layout math, combobox and shortcut contract.","ZS 4, ZS 5, ZS 7.2 and ZS 9 sent with a return date of Wed Oct 14
 Comments collected in one place"
-PLAY-065,Book two playtesters for laptop sessions,To do,Shéi desktop,chore,Sprint 1: Spec and vendors,Day 2,Fri Oct 9,1,,yes,"ZS 13.2, ZS 13.6","Line up the laptop sessions the definition of done asks for, in the week of Nov 9.","2 playtesters confirmed for a laptop session on Thu Nov 12
+PLAY-075,Book two playtesters for laptop sessions,To do,Shéi desktop,chore,Sprint 1: Spec and vendors,Day 2,Fri Oct 9,1,,yes,"ZS 13.2, ZS 13.6","Line up the laptop sessions the definition of done asks for, in the week of Nov 9.","2 playtesters confirmed for a laptop session on Thu Nov 12
 Each will play one round at each level"
-PLAY-066,Paper-trace the desktop spec and tag it v1,To do,Shéi desktop,task,Sprint 1: Spec and vendors,Day 3,Wed Oct 14,1,"PLAY-057, PLAY-064",no,ZS 13.1,"Walk ZS 2.1 at each level by keyboard and by mouse, fold in the review, and tag v1.","ZS 2.1 traced at both levels, once by keyboard and once by mouse
+PLAY-066,Paper-trace the desktop spec and tag it v1,To do,Shéi desktop,task,Sprint 1: Spec and vendors,Day 3,Wed Oct 14,1,"PLAY-057, PLAY-074",no,ZS 13.1,"Walk ZS 2.1 at each level by keyboard and by mouse, fold in the review, and tag v1.","ZS 2.1 traced at both levels, once by keyboard and once by mouse
 Every review comment applied or answered; every TBD resolved or parked
 Changelog line added and the spec tagged v1"
 PLAY-058,Move the shared desktop parts into src/core,To do,Shéi desktop,task,Sprint 4: Fix and launch,Day 12,Mon Nov 9,3,PLAY-066,no,"ZS 4, ZD2","Hover preview, board layout, Kbd, SidePanel, ShortcutsDialog, the shortcut guard and progressStats leave src/languages/it; add Tooltip.","Each part of the ZS 4 table lives in src/core/ui and takes what differs by language as an argument
@@ -216,7 +224,7 @@ PLAY-063,Test Shéi's desktop version end to end,To do,Shéi desktop,test,Sprint
 playwright.config.ts runs e2e/zh/desktop.spec.ts on the desktop projects without waiting for PLAY-038
 axe reports no violations on every /zh screen at 1440 x 900
 Phone tests pass without edits; CI green"
-PLAY-072,Run the manual laptop pass and laptop playtests,To do,Shéi desktop,test,Sprint 4: Fix and launch,Day 15,Thu Nov 12,2,"PLAY-063, PLAY-065",yes,"ZS 13.4, ZS 13.2","The ZS 13.4 checks on real laptops, and the two booked laptop sessions.","ZS 13.4 done on a Mac and a Windows laptop, including the system Pinyin input methods, and logged
+PLAY-072,Run the manual laptop pass and laptop playtests,To do,Shéi desktop,test,Sprint 4: Fix and launch,Day 15,Thu Nov 12,2,"PLAY-063, PLAY-075",yes,"ZS 13.4, ZS 13.2","The ZS 13.4 checks on real laptops, and the two booked laptop sessions.","ZS 13.4 done on a Mac and a Windows laptop, including the system Pinyin input methods, and logged
 2 playtesters played one round at each level on a laptop
 Findings logged and triaged as must-fix or later"
 PLAY-073,Fix the must-fix desktop findings before launch,To do,Shéi desktop,task,Sprint 4: Fix and launch,Day 16,Fri Nov 13,2,PLAY-072,no,"ZS 13.6, ZD14","Close every must-fix desktop finding, or launch /zh at phone width.","Every must-fix desktop finding fixed and retested
