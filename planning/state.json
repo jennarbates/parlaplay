@@ -412,6 +412,56 @@
    "number": 91,
    "id": 5765330123,
    "url": "https://github.com/jennarbates/parlaplay/issues/91"
+  },
+  "PLAY-074": {
+   "number": 96,
+   "id": 5784496622,
+   "url": "https://github.com/jennarbates/parlaplay/issues/96"
+  },
+  "PLAY-075": {
+   "number": 97,
+   "id": 5784496993,
+   "url": "https://github.com/jennarbates/parlaplay/issues/97"
+  },
+  "PLAY-066": {
+   "number": 98,
+   "id": 5784497521,
+   "url": "https://github.com/jennarbates/parlaplay/issues/98"
+  },
+  "PLAY-067": {
+   "number": 99,
+   "id": 5784497817,
+   "url": "https://github.com/jennarbates/parlaplay/issues/99"
+  },
+  "PLAY-068": {
+   "number": 100,
+   "id": 5784498159,
+   "url": "https://github.com/jennarbates/parlaplay/issues/100"
+  },
+  "PLAY-069": {
+   "number": 101,
+   "id": 5784498508,
+   "url": "https://github.com/jennarbates/parlaplay/issues/101"
+  },
+  "PLAY-070": {
+   "number": 102,
+   "id": 5784498935,
+   "url": "https://github.com/jennarbates/parlaplay/issues/102"
+  },
+  "PLAY-071": {
+   "number": 103,
+   "id": 5784499350,
+   "url": "https://github.com/jennarbates/parlaplay/issues/103"
+  },
+  "PLAY-072": {
+   "number": 104,
+   "id": 5784499680,
+   "url": "https://github.com/jennarbates/parlaplay/issues/104"
+  },
+  "PLAY-073": {
+   "number": 105,
+   "id": 5784499998,
+   "url": "https://github.com/jennarbates/parlaplay/issues/105"
   }
  },
  "subissues": [
@@ -479,7 +529,17 @@
   "PLAY-062",
   "PLAY-063",
   "PLAY-064",
-  "PLAY-065"
+  "PLAY-065",
+  "PLAY-074",
+  "PLAY-075",
+  "PLAY-066",
+  "PLAY-067",
+  "PLAY-068",
+  "PLAY-069",
+  "PLAY-070",
+  "PLAY-071",
+  "PLAY-072",
+  "PLAY-073"
  ],
  "blocked": [
   "PLAY-007<PLAY-003",
@@ -551,26 +611,431 @@
   "PLAY-053<PLAY-052",
   "PLAY-054<PLAY-050",
   "PLAY-055<PLAY-051",
-  "PLAY-058<PLAY-057",
   "PLAY-059<PLAY-058",
   "PLAY-060<PLAY-059",
   "PLAY-061<PLAY-059",
   "PLAY-062<PLAY-058",
   "PLAY-063<PLAY-060",
-  "PLAY-063<PLAY-061",
   "PLAY-063<PLAY-062",
   "PLAY-065<PLAY-064",
   "PLAY-065<PLAY-027",
   "PLAY-065<PLAY-028",
-  "PLAY-065<PLAY-033"
+  "PLAY-065<PLAY-033",
+  "PLAY-074<PLAY-057",
+  "PLAY-066<PLAY-057",
+  "PLAY-066<PLAY-074",
+  "PLAY-058<PLAY-066",
+  "PLAY-067<PLAY-059",
+  "PLAY-068<PLAY-059",
+  "PLAY-069<PLAY-068",
+  "PLAY-070<PLAY-059",
+  "PLAY-071<PLAY-061",
+  "PLAY-071<PLAY-067",
+  "PLAY-071<PLAY-068",
+  "PLAY-063<PLAY-069",
+  "PLAY-063<PLAY-070",
+  "PLAY-063<PLAY-071",
+  "PLAY-072<PLAY-063",
+  "PLAY-072<PLAY-075",
+  "PLAY-073<PLAY-072"
  ],
+ "sent": {
+  "E0": "5edfed45ffe0485b9d5a1b1060efa5c45e024c6fcf529d42bb9f7926ebf8f1cc",
+  "E1": "6b71e2bf2ab6359554ed34ec40824c39d64a34f1c8ac566c2a0cdf19c5d5dabf",
+  "E2": "ac8594da7c5d3262f8bbcf55ed550c304a7ae078034c58cfbdb5ca88395b1f38",
+  "E3": "b04e44355a38257a281cefd808da3b0d3aaf79bca59880b79ab371987aa5be2e",
+  "E4": "d99215a96c2e5d95d93bdece4fa4a2ece1196a58b0b79206dcdee1c6e07db5dd",
+  "E5": "b508b33e717841021b9bc86067daeb0df905c83fcf9ddba0e6fe04c14dd040b1",
+  "E6": "3b66e1a9714d3e8453fa13648c90c1794a35fbd3d5410a8bd0bdb4d5ce0cfda9",
+  "E7": "1d374d470665bc0cc7daeff0b2eb1343982bce38f78ccff4ed2c3b9a4943270d",
+  "E8": "9bcd7ee13a0b2af134c755b7f1e2d280fa5c6260cf5eb7a68cb06d5f0bcd2705",
+  "E9": "87b907e5f0327a4c7857485808094f6c24480da0125eb24dbd441df6498ccd27",
+  "E10": "edbb64372763906482969bfcf6529fd78ce38c1611de5418703d27f2c0c2b996",
+  "E11": "312b0c2553b73a17612ebd7bb5deb25870ff23cbacf3805899bfe4e5b228188c",
+  "PLAY-001": "90572a01fb9b59df4f286a4e050883c1de0d700fab3b4d852164b13a9990d93d",
+  "PLAY-002": "df0d4e273e99dd0324ebacb1c0785edc2453b418be236f849a33919a5ad8b52b",
+  "PLAY-056": "c0c87f70cc22da7da9a945dd812ae5ce1141134d8cda88cdb4ce7d85dcf788cd",
+  "PLAY-003": "dcdeb69e7d20670b1322e91de5e72ca25bda56d537d9dba2afa53cf2c8d0b54a",
+  "PLAY-004": "ae1afbded0175d43fcfa12626d26154601f34f64031f52a9268d9f371e19bc29",
+  "PLAY-005": "0343a9bbf134346e5417e1cde958fd0346b0a60ba47a1912e6ff42a2f0778760",
+  "PLAY-006": "a29a1223edbf87dc1c8cf64afbb52899bd34b37d86ca442a8edb68fcaae05412",
+  "PLAY-007": "bc06965af1bda2394cc5eadcf0cda605f5897d404cb370c38c4fe237ef226e33",
+  "PLAY-008": "804f474ad0eb2d3a6c3a5d70ba64202dad626fd95d6c86b9cbb28251e85f154c",
+  "PLAY-009": "501fc163428bc666c0a219b1618ebdf98bf9441d31f9c493a7a287ecbdaedd4c",
+  "PLAY-010": "181e15072d84596239574dd88670825a334d00975a3f6aef2838075ea4335816",
+  "PLAY-011": "9686ac02dffc61cf224186ddbb4a10558e06a59cfdf234fe7e6cd16cb55ad979",
+  "PLAY-012": "5ef53b3e1706d91a8bf188eb3de12fae3d32a8ed019c656e68d19d7de44dbb5a",
+  "PLAY-013": "ffe92fa25af131bcfec23f3cb635f4354225a1f282e50dacef7d636d1e13c34b",
+  "PLAY-014": "63f23dd7896c281986f4153d41e8e302fa8ae7678e474fc09ca758cc953e0208",
+  "PLAY-015": "8a6836a1d64214ef4a1241c4208320aebde18cef6526f429ab694daea3742876",
+  "PLAY-016": "e84461fc11432b639349569c65b8bbe8456aab1408df3f7d32ff25b407be1b96",
+  "PLAY-017": "f5b6dfd3936cdeef4a62973b0a77a0cb39e21d686e5c38a61d70a49e998141de",
+  "PLAY-018": "47302763e17e167d20b6158f6d2b4ec6cb6a25118d6789107aa91359988d96c7",
+  "PLAY-019": "4a8dbfd2d56abfa34d82b54763af385ad68744206c9ed11d348829d4addfc39b",
+  "PLAY-020": "1c866d0b08709d730504860f44c1d5c931ad520fe305137536e76ef70e34ee8e",
+  "PLAY-021": "07d982637b6d058cc2ebcc875ea550cbcebe3d75084231a822aba82c5a1c4177",
+  "PLAY-022": "3c55d87049ecca6014be4e98cf60b0e14c66212085180a4e5c8aa1059cb103ea",
+  "PLAY-023": "4167888b645e2a99d3be0b87c940fda7f51640cbb728719127bb0e8b178b7d42",
+  "PLAY-024": "18d1c678f57cc1e90b1a5145facc3009c4778823d212b376218fbddc6a1d4640",
+  "PLAY-025": "93629364daf96cd9e5eda977f567f8639bde78b7410df5a3f0a4ec1be81ea8a8",
+  "PLAY-026": "cffdc5d48436fc4504a146c3fd03aedba6416283fbc88349eae947065b3291a5",
+  "PLAY-027": "c2ce99c281610415cc0774566a493efe7b05cf98275816810292c70ab949a9ad",
+  "PLAY-028": "bcdd4b12fd287a2089c4cf64328978d2de00f3f33f4c7e83ab5c9507972eb199",
+  "PLAY-029": "43d1568327ff47375a79618df8aef6d85ff9d8fafddc3cbf19a291adb6f3c80f",
+  "PLAY-030": "bd464e4e6b2ee1309b0077c781b75ad4d0cec8a31cd4bb3660037de384c1af93",
+  "PLAY-031": "06ccf6bf3f42b7e4c12089d056f04138916dc6695cd1451a26b5f1fd399c3446",
+  "PLAY-032": "8431a4ad9aa6d30e20fe4d9ef1fc62da53ee0537967940987137783cfdceea0d",
+  "PLAY-033": "c73a7f4094c603c851fd795d85ef15aa7d07132d39ff97bc9840dcbcc6b02765",
+  "PLAY-034": "5a6bc1918a8a1dc9710656d0b87c6b88f7935df58dc976485bc2b8d26a2f84e2",
+  "PLAY-035": "4beb286c7d5e02c75af9ccf3cfa5a8408e4b83153fd160011635e68efdf9ef9e",
+  "PLAY-036": "5eb97bdf8b7a2b128ce52d387917fa4bdf34f0694d37a7a5c27d7683dc2869ca",
+  "PLAY-037": "3cd2098097f9fa275ddaf425eb493aeb285b45682f35eb03a7b8c56f046f0b33",
+  "PLAY-038": "7efecc5bd61d13bd8716223c5c0f0c74518004ba17fe85f9b5d6077cff023367",
+  "PLAY-039": "6bace20e447794b80494c38aafe8e034b88a336fa16e75ed42e6114b0e4c2342",
+  "PLAY-040": "250f18b69a87c9e1c26c1d6da7150dcc0e68d644c210efc66e677e0015356310",
+  "PLAY-041": "503e05bb5a20f4f397ca4bbe463fdd85724b56de282fc375932a0d4f30a783a4",
+  "PLAY-042": "73548d8455ee58704ac4473bbca45f78e46f776117e358d37ccd501a1f829535",
+  "PLAY-043": "b6fe26d1da9babd779166495c13727e645f1f2cf210d58a718b1280ecb5f6cee",
+  "PLAY-064": "ba569960f85302cec6444bf416272cbb6727b9ca51f1c722817444d1ec3e30c1",
+  "PLAY-065": "6ffd81ceee3e065aa5a5ce18e1daae70809af5b51977e3d808f3c478a470b063",
+  "PLAY-044": "7b6a027858cfeb590407b4e3c30b74aa8556ea65a4d719df53cae87806f4848f",
+  "PLAY-045": "1d285e341ec350bf0680ffc9c990522df5cff97c37dca375c6b6a508958763ed",
+  "PLAY-046": "63ca0802e8d8bb9d3f0cd4a87bdb644da6293420bc41d1f8079c5824a2279f60",
+  "PLAY-047": "b25f68247a753fc9e7841e9a0bbf179b67e85e3efbbeaa16833fc34de5ad2a88",
+  "PLAY-048": "2f1f56cb12d3ddbb4b554df28142ad05ee9ce475c84c673727c0ffe77ec31634",
+  "PLAY-049": "e37a6b09541e32ead4a2684549ca05ea02d887fa69282bc69a836e6705f1c0ce",
+  "PLAY-050": "e25059bd32646d67ed4df7974045ffe9d7d7d1a82f27f86fd8ecd8e4f0cfa799",
+  "PLAY-051": "d444dce3710c72141aa61c4a4ea0e428beb3b57868fce6816f0a876e845f6dd8",
+  "PLAY-052": "e3ce35ad47c5ad25319bce50831d8b8379853f5272b9b1a62564c3b79d26e69d",
+  "PLAY-053": "eabcb5f4fb32db5d0aee936e86dbd93b15269df563472832eab9a89b3ec6f1d9",
+  "PLAY-057": "15de40b2eb3f052d64c84723c1069567d1bf069b42966d71893a041a7adc84e9",
+  "PLAY-074": "08629a46ddbb17bc3ffaff7d444f7cfa6964fcbc5d5688cbadf52c69d52ff242",
+  "PLAY-075": "e9d52cdb9eab544bc17dfa732e358e860a8f850d03d96f048d3c8b5a0301fbe6",
+  "PLAY-066": "7be32295539f3307dcbe103fb5de9e5993ecfbbb6260f215f8d8ffc7c10d1b3b",
+  "PLAY-058": "95d809926698e06f410342df0538e66cfaedd408e3f3c75cc2b36a8077c8400b",
+  "PLAY-059": "1523a268cd560b7216aa13cffcd7a3b8d661391a043b8eac5e0e9f9f0b3a09f3",
+  "PLAY-062": "c4dfd04a0998810f5b26e65f8d9772179ae1a6d17aa15cd38ec9667011d9c8b0",
+  "PLAY-067": "fa3c15f070d7b3b41ce034af6f1bab30b79cd904b73e4d4c39058173ca0f3193",
+  "PLAY-068": "f9a47e23adf3867da8a8b3d8f7815e9ab68ec87e947be02c287f98ff3967a71c",
+  "PLAY-069": "7273930d91b95fb11bf50040f468a8b464da7d3991967624c6a3fd099cae4414",
+  "PLAY-060": "9e857dd661b33e86ccbbb31ab1b5dd063910ab25160d733df094fc295bce40b4",
+  "PLAY-070": "4be203851062baaa382e85df2ade2ec0a853e228b251eb0fff1890bb78eb88e2",
+  "PLAY-061": "3f6e413558b80bd6aaf02f4d9703d3e3b333384f9b7158e5d832784a84b235e1",
+  "PLAY-071": "9debc0a020353888fe75e02a6ff3aad123b491ea6d65dc0b53213db78329e469",
+  "PLAY-063": "aac0f99dd8708b6fc0f5c0843e5e36d1d5905838c7a2bbc41fbc5ad8db7829e1",
+  "PLAY-072": "8e8b6d8b53bc2427d11692fc108f2d0ff90f892b2326c2ba5f20bb908eac98f5",
+  "PLAY-073": "f5fdeb559c763f0b976b75025df22c1c4ff1b4038ec45d20598b1fe4cd7169eb",
+  "PLAY-054": "822a48cb51890a7614a46cfc3f121e523b564392bd19c3e9a4902e9f5848ef44",
+  "PLAY-055": "f43ebebd3aa6d967617c4c74b55571990cbc9052f39c7a15d9c599ad423e6d8b"
+ },
  "blocked_unsupported": false,
  "project": {
   "number": 2,
   "id": "PVT_kwHOApTEl84BmHhY",
   "url": "https://github.com/users/jennarbates/projects/2"
  },
- "fields": {},
+ "fields": {
+  "PLAY-001": [
+   1,
+   "2026-10-08"
+  ],
+  "PLAY-002": [
+   1,
+   "2026-10-08"
+  ],
+  "PLAY-056": [
+   1,
+   "2026-10-08"
+  ],
+  "PLAY-003": [
+   1,
+   "2026-10-08"
+  ],
+  "PLAY-004": [
+   1,
+   "2026-10-08"
+  ],
+  "PLAY-005": [
+   2,
+   "2026-10-09"
+  ],
+  "PLAY-006": [
+   2,
+   "2026-10-09"
+  ],
+  "PLAY-007": [
+   2,
+   "2026-10-14"
+  ],
+  "PLAY-008": [
+   1,
+   "2026-10-14"
+  ],
+  "PLAY-009": [
+   1,
+   "2026-10-29"
+  ],
+  "PLAY-010": [
+   2,
+   "2026-10-30"
+  ],
+  "PLAY-011": [
+   3,
+   "2026-10-30"
+  ],
+  "PLAY-012": [
+   3,
+   "2026-10-30"
+  ],
+  "PLAY-013": [
+   2,
+   "2026-10-30"
+  ],
+  "PLAY-014": [
+   2,
+   "2026-10-30"
+  ],
+  "PLAY-015": [
+   1,
+   "2026-11-02"
+  ],
+  "PLAY-016": [
+   3,
+   "2026-11-02"
+  ],
+  "PLAY-017": [
+   3,
+   "2026-11-02"
+  ],
+  "PLAY-018": [
+   3,
+   "2026-11-02"
+  ],
+  "PLAY-019": [
+   2,
+   "2026-11-02"
+  ],
+  "PLAY-020": [
+   2,
+   "2026-11-03"
+  ],
+  "PLAY-021": [
+   3,
+   "2026-11-03"
+  ],
+  "PLAY-022": [
+   1,
+   "2026-11-03"
+  ],
+  "PLAY-023": [
+   3,
+   "2026-11-03"
+  ],
+  "PLAY-024": [
+   2,
+   "2026-11-03"
+  ],
+  "PLAY-025": [
+   2,
+   "2026-11-03"
+  ],
+  "PLAY-026": [
+   2,
+   "2026-11-04"
+  ],
+  "PLAY-027": [
+   3,
+   "2026-11-04"
+  ],
+  "PLAY-028": [
+   2,
+   "2026-11-04"
+  ],
+  "PLAY-029": [
+   2,
+   "2026-11-04"
+  ],
+  "PLAY-030": [
+   1,
+   "2026-11-06"
+  ],
+  "PLAY-031": [
+   1,
+   "2026-11-04"
+  ],
+  "PLAY-032": [
+   1,
+   "2026-11-04"
+  ],
+  "PLAY-033": [
+   1,
+   "2026-11-04"
+  ],
+  "PLAY-034": [
+   1,
+   "2026-11-06"
+  ],
+  "PLAY-035": [
+   3,
+   "2026-11-05"
+  ],
+  "PLAY-036": [
+   3,
+   "2026-11-05"
+  ],
+  "PLAY-037": [
+   2,
+   "2026-11-05"
+  ],
+  "PLAY-038": [
+   3,
+   "2026-11-05"
+  ],
+  "PLAY-039": [
+   2,
+   "2026-11-06"
+  ],
+  "PLAY-040": [
+   1,
+   "2026-11-05"
+  ],
+  "PLAY-041": [
+   3,
+   "2026-11-06"
+  ],
+  "PLAY-042": [
+   1,
+   "2026-11-06"
+  ],
+  "PLAY-043": [
+   5,
+   "2026-11-09"
+  ],
+  "PLAY-064": [
+   1,
+   "2026-11-09"
+  ],
+  "PLAY-065": [
+   3,
+   "2026-11-09"
+  ],
+  "PLAY-044": [
+   5,
+   "2026-11-10"
+  ],
+  "PLAY-045": [
+   2,
+   "2026-11-11"
+  ],
+  "PLAY-046": [
+   2,
+   "2026-11-11"
+  ],
+  "PLAY-047": [
+   3,
+   "2026-11-12"
+  ],
+  "PLAY-048": [
+   2,
+   "2026-11-12"
+  ],
+  "PLAY-049": [
+   1,
+   "2026-11-12"
+  ],
+  "PLAY-050": [
+   1,
+   "2026-11-13"
+  ],
+  "PLAY-051": [
+   2,
+   "2026-11-13"
+  ],
+  "PLAY-052": [
+   1,
+   "2026-11-13"
+  ],
+  "PLAY-053": [
+   1,
+   "2026-11-13"
+  ],
+  "PLAY-057": [
+   2,
+   "2026-10-08"
+  ],
+  "PLAY-074": [
+   1,
+   "2026-10-08"
+  ],
+  "PLAY-075": [
+   1,
+   "2026-10-09"
+  ],
+  "PLAY-066": [
+   1,
+   "2026-10-14"
+  ],
+  "PLAY-058": [
+   3,
+   "2026-11-09"
+  ],
+  "PLAY-059": [
+   3,
+   "2026-11-09"
+  ],
+  "PLAY-062": [
+   2,
+   "2026-11-09"
+  ],
+  "PLAY-067": [
+   2,
+   "2026-11-10"
+  ],
+  "PLAY-068": [
+   3,
+   "2026-11-10"
+  ],
+  "PLAY-069": [
+   2,
+   "2026-11-10"
+  ],
+  "PLAY-060": [
+   2,
+   "2026-11-10"
+  ],
+  "PLAY-070": [
+   3,
+   "2026-11-11"
+  ],
+  "PLAY-061": [
+   3,
+   "2026-11-11"
+  ],
+  "PLAY-071": [
+   3,
+   "2026-11-11"
+  ],
+  "PLAY-063": [
+   3,
+   "2026-11-12"
+  ],
+  "PLAY-072": [
+   2,
+   "2026-11-12"
+  ],
+  "PLAY-073": [
+   2,
+   "2026-11-13"
+  ],
+  "PLAY-054": [
+   2,
+   "2026-11-27"
+  ],
+  "PLAY-055": [
+   1,
+   "2026-11-27"
+  ]
+ },
  "items": {
   "PLAY-001": "PVTI_lAHOApTEl84BmHhYzg_PO1k",
   "PLAY-002": "PVTI_lAHOApTEl84BmHhYzg_PO6s",
@@ -636,7 +1101,17 @@
   "PLAY-060": "PVTI_lAHOApTEl84BmHhYzg_cpUk",
   "PLAY-061": "PVTI_lAHOApTEl84BmHhYzg_cpXw",
   "PLAY-062": "PVTI_lAHOApTEl84BmHhYzg_cpbM",
-  "PLAY-063": "PVTI_lAHOApTEl84BmHhYzg_cpd0"
+  "PLAY-063": "PVTI_lAHOApTEl84BmHhYzg_cpd0",
+  "PLAY-074": "PVTI_lAHOApTEl84BmHhYzg_xJwY",
+  "PLAY-075": "PVTI_lAHOApTEl84BmHhYzg_xJ0s",
+  "PLAY-066": "PVTI_lAHOApTEl84BmHhYzg_xJ30",
+  "PLAY-067": "PVTI_lAHOApTEl84BmHhYzg_xJ84",
+  "PLAY-068": "PVTI_lAHOApTEl84BmHhYzg_xJ-o",
+  "PLAY-069": "PVTI_lAHOApTEl84BmHhYzg_xKAE",
+  "PLAY-070": "PVTI_lAHOApTEl84BmHhYzg_xKC8",
+  "PLAY-071": "PVTI_lAHOApTEl84BmHhYzg_xKF0",
+  "PLAY-072": "PVTI_lAHOApTEl84BmHhYzg_xKJM",
+  "PLAY-073": "PVTI_lAHOApTEl84BmHhYzg_xKLU"
  },
  "edited": [
   "PLAY-001",
@@ -703,6 +1178,16 @@
   "PLAY-062",
   "PLAY-063",
   "PLAY-064",
-  "PLAY-065"
+  "PLAY-065",
+  "PLAY-074",
+  "PLAY-075",
+  "PLAY-066",
+  "PLAY-067",
+  "PLAY-068",
+  "PLAY-069",
+  "PLAY-070",
+  "PLAY-071",
+  "PLAY-072",
+  "PLAY-073"
  ]
 }
