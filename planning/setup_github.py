@@ -327,7 +327,8 @@ for c in DATA["cards"]:
     gh(base + ["--field-id", fields["Points"]["id"], "--number", str(c["points"])], pause=0.3)
     if c["target_date"]:  # unscheduled sprints have no date yet
         gh(base + ["--field-id", fields["Target date"]["id"], "--date", c["target_date"]], pause=0.3)
-    if todo_option:
+    # Status only when the card first lands on the board: after that it is the team's.
+    if todo_option and key not in state["edited"]:
         gh(base + ["--field-id", status["id"], "--single-select-option-id", todo_option], pause=0.3)
     if key not in state["edited"]:
         state["edited"].append(key)
