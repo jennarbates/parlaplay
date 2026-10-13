@@ -9,6 +9,7 @@ export default tseslint.config(
   {
     ignores: [
       "dist",
+      "handoff/dist",
       "coverage",
       "playwright-report",
       "test-results",

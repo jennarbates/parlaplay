@@ -1,0 +1,20 @@
+// Platform spec 5.3, 5.4 and D10: after the move, chie.parlaplay.games serves only
+// the handoff page, as static assets with no Worker script. Deployed by hand in the
+// launch hour (milestone 16), once parlaplay.games is live:
+//   pnpm build:handoff && pnpm exec wrangler deploy -c handoff/wrangler.jsonc
+// It is the same Worker that served Chi è? (`italian`), so the custom domain stays
+// where it is. Removed on Fri May 14 2027, when the subdomain becomes a redirect.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "italian",
+  "compatibility_date": "2026-10-06",
+  "assets": {
+    "directory": "./dist/",
+    // Every old link (/play, /progress, anything) gets the handoff page, which maps
+    // the path itself.
+    "not_found_handling": "single-page-application",
+  },
+  "routes": [{ "pattern": "chie.parlaplay.games", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+}

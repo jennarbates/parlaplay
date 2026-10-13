@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const port = 4173;
+const handoffPort = 4174;
 
 // Spec 10.2: e2e runs in Chromium and WebKit. Phone profiles, since the app is
 // phone-first, plus desktop profiles at 1440 × 900 for the desktop layout
@@ -45,10 +46,19 @@ export default defineConfig({
       testIgnore: [...phoneOnly, shei],
     },
   ],
-  // Test the production build, not the dev server.
-  webServer: {
-    command: `pnpm build && pnpm preview --port ${port} --strictPort`,
-    url: `http://localhost:${port}`,
-    reuseExistingServer: !process.env.CI,
-  },
+  // Test the production build, not the dev server. The handoff page (handoff/) is a
+  // second origin, as chie.parlaplay.games is, built to send players to the first.
+  webServer: [
+    {
+      command: `pnpm build && pnpm preview --port ${port} --strictPort`,
+      url: `http://localhost:${port}`,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: `pnpm build:handoff && pnpm exec vite preview --config handoff/vite.config.ts --port ${handoffPort} --strictPort`,
+      url: `http://localhost:${handoffPort}`,
+      env: { VITE_PARLAPLAY_URL: `http://localhost:${port}` },
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

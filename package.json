@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:cloudflare": "node scripts/cloudflare-build.ts",
+    "build:handoff": "vite build --config handoff/vite.config.ts",
     "preview": "vite preview",
     "check:bundle": "node scripts/check-bundle.ts",
     "typecheck": "tsc -b",
