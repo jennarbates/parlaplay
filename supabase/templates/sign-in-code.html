@@ -1,6 +1,7 @@
-<!-- Spec 7.3, D10: the code only, never a link. On phones a link often opens in
-     another app or browser, which would sign in somewhere without the guest data. -->
-<h2>Your Chi è? sign-in code</h2>
-<p>Type this code into the Chi è? tab where you asked for it:</p>
-<p style="font-size: 32px; font-weight: bold; letter-spacing: 6px">{{ .Token }}</p>
-<p>It works for one hour. If you did not ask for it, you can ignore this email.</p>
+<!-- Platform spec 6.3, D19: one neutral email for every language. The code only,
+     never a link: on phones a link often opens in another app or browser, which
+     would sign in somewhere without the guest data (Chi è? spec 7.3, D10). -->
+<h2>Your parlaplay sign-in code</h2>
+<p>Type this code into the parlaplay tab where you asked for it:</p>
+<p style="font-size:2em;letter-spacing:0.2em"><strong>{{ .Token }}</strong></p>
+<p>It works for 1 hour. If you didn't ask for it, you can ignore this email.</p>
