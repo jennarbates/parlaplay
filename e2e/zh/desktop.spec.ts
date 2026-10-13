@@ -9,6 +9,8 @@ const names = content.characters.map((c) => c.name);
 const first = names[0] ?? "";
 const panel = (page: Page) => page.getByRole("complementary", { name: "Questions" });
 const cards = (page: Page) => page.locator('[aria-label="Board"] [data-card]');
+// Level 1's questions: three columns at desktop size (ZS 7.1).
+const questions = (page: Page) => panel(page).getByRole("group", { name: "Questions to ask" });
 
 async function box(locator: Locator) {
   const b = await locator.boundingBox();
@@ -126,6 +128,65 @@ test.describe("layout: board on the left, panel on the right (ZS 5, ZS 6)", () =
   });
 });
 
+test.describe("Level 1: questions grouped by verb (ZS 7.1)", () => {
+  const column = (page: Page, verb: string) =>
+    questions(page).getByRole("region", { name: new RegExp(`^${verb}`) });
+
+  test("three columns headed 是, 有 and 在, holding 5, 5 and 4 questions", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    for (const [verb, pinyin, english, count] of [
+      ["是", "shì", "who they are", 5],
+      ["有", "yǒu", "what they have", 5],
+      ["在", "zài", "where they are", 4],
+    ] as const) {
+      const heading = column(page, verb).getByRole("heading");
+      await expect(heading).toContainText(pinyin);
+      await expect(heading).toContainText(english);
+      await expect(column(page, verb).getByRole("button")).toHaveCount(count);
+    }
+    // Side by side, in that order.
+    const xs = [];
+    for (const verb of ["是", "有", "在"]) xs.push((await box(column(page, verb))).x);
+    expect(xs[0]).toBeLessThan(xs[1] ?? 0);
+    expect(xs[1]).toBeLessThan(xs[2] ?? 0);
+    // The phone's single list is not here.
+    await expect(page.getByRole("list", { name: "Questions to ask" })).toHaveCount(0);
+  });
+
+  test("the hint is one line, and shows whole on hover and on focus", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 640 });
+    await page.goto("/zh/play?seed=1");
+    const q = column(page, "是").getByRole("button").nth(2); // 他是老师吗？
+    const hint = "Is he a teacher?";
+    await expect(q).toHaveAccessibleDescription(hint);
+    const line = q.locator("span", { hasText: hint }).first();
+    expect((await box(line)).height).toBeLessThan(20); // one line
+    const whole = q.locator('[aria-hidden="true"]', { hasText: hint });
+    await expect(whole).toBeHidden();
+    await q.hover();
+    await expect(whole).toBeVisible();
+    await page.mouse.move(5, 300);
+    await expect(whole).toBeHidden();
+    await q.focus();
+    await expect(whole).toBeVisible();
+  });
+
+  test("an asked question is greyed and shows its answer; 她 changes every question", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?seed=1");
+    await panel(page).getByRole("button", { name: /她/ }).click();
+    await expect(questions(page).getByRole("button").first()).toContainText("她");
+    await questions(page).getByRole("button").first().click();
+    await panel(page).getByRole("button", { name: "Next" }).click();
+    await page.getByRole("group", { name: "Your answer" }).getByRole("button").first().click();
+    await panel(page).getByRole("button", { name: "Next" }).click();
+    const asked = questions(page).getByRole("button").first();
+    await expect(asked).toBeDisabled();
+    await expect(asked).toContainText(/，她/); // the answer, in place of the hint
+  });
+});
+
 // ZS 6.3: at 1024 × 640 the panel has 422px for the phase area and the log, and the
 // log's header needs 44px, so no phase area may be taller than 378px.
 test.describe("phase areas fit 1024 × 640 (ZS 6.3)", () => {
@@ -186,7 +247,11 @@ test.describe("phase areas fit 1024 × 640 (ZS 6.3)", () => {
   test("Level 1: the CPU's question with its hint, and the reviews", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 640 });
     await page.goto("/zh/play?seed=8");
-    await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
+    await measure(page, "L1 groups");
+    // No question is wider than its column, pinyin included.
+    for (const q of await questions(page).getByRole("button").all())
+      expect(await q.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await questions(page).getByRole("button").first().click();
     await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
     await measure(page, "playerReview L1");
     await panel(page).getByRole("button", { name: "Next" }).click();
@@ -303,7 +368,7 @@ test.describe("resize across 1024px (ZS 2.2)", () => {
 
   test("a shown hint survives", async ({ page }) => {
     await page.goto("/zh/play?seed=1");
-    await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
+    await questions(page).getByRole("button").first().click();
     await panel(page).getByRole("button", { name: "Next" }).click();
     await panel(page).getByRole("button", { name: "Show hint" }).click();
     await expect(panel(page).getByRole("button", { name: "Show hint" })).toHaveCount(0);
