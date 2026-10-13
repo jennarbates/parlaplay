@@ -368,6 +368,32 @@ test.describe("keyboard (DS 4, DS 8)", () => {
   const focusedLabel = (page: Page) =>
     page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? "");
 
+  test("Enter held on a card while guessing opens the confirm and goes no further", async ({
+    page,
+  }) => {
+    await page.goto("/it/play?seed=1");
+    await expect(page.locator("header")).toContainText("Turn 1");
+    await page.keyboard.press("g");
+    // A second keydown without a keyup is what a held key sends: event.repeat.
+    await page.keyboard.down("Enter");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("A wrong guess loses the round.");
+    for (let i = 0; i < 5; i++) await page.keyboard.down("Enter");
+    await page.keyboard.up("Enter");
+    await expect(dialog).toBeVisible();
+    await expect(page.getByRole("button", { name: "Play again" })).toHaveCount(0);
+
+    // A fresh press confirms, and the result stays until Play again is pressed again.
+    await page.keyboard.down("Enter");
+    const playAgain = page.getByRole("button", { name: "Play again" });
+    await expect(playAgain).toBeFocused();
+    for (let i = 0; i < 5; i++) await page.keyboard.down("Enter");
+    await page.keyboard.up("Enter");
+    await expect(playAgain).toBeVisible();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("header")).toContainText("Turn 1");
+  });
+
   test("a whole Level 1 round with only the shortcut keys (DS 2.1)", async ({ page }) => {
     const seed = 5;
     const g = startGame(seed, 1, content);
