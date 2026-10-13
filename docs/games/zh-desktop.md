@@ -294,7 +294,7 @@ At 1024 × 640 the panel has 640 − 56 (TopBar) − 61 (summary) − 101 (actio
 | `cpuTurn` L1 with the hint shown | 225px |
 | `cpuReview` after a wrong answer | 149px |
 
-The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is what lets one mistake's feedback fit. No Level 1 question is wider than its column (about 130px), pinyin included; the e2e spec checks every one. Still to measure: the builder with the find field in its top row (PLAY-070). The SyncBanner (ZS 11) takes its height from the same budget while it shows.
+The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is what lets one mistake's feedback fit. No Level 1 question is wider than its column (about 130px), pinyin included; the e2e spec checks every one. The find field took the place of the "Build a question:" line in the builder's top row, so the builder's height did not change (PLAY-070). The SyncBanner (ZS 11) takes its height from the same budget while it shows.
 
 **Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. Two exceptions (ZD18): feedback for more than one mistake, and the SyncBanner showing. Then the area scrolls, starting at its top, where the feedback is. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase.
 
@@ -732,3 +732,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-13: Level 1 groups built (PLAY-067). ZS 7.1: rows are at least 48px; the full hint shows under the button on hover and focus, without the Tooltip. ZS 6.3 has the measured height.
 - 2026-10-13: Round log built (PLAY-068). ZS 3: `roundLog` is given its sentence renderers, so it stays import-free; `logOf` in `sentences.ts` supplies the game's. ZS 7.3: the log collapses to its header under 116px of room. `SidePanel` gains an `overlay` slot for the opened log.
 - 2026-10-13: Word glosses built (PLAY-069). No spec change. In Progress the Due list's words are glossable; the Mistakes list already shows each word's pinyin and English beside it.
+- 2026-10-13: Type-to-find built (PLAY-070). No change to ZS 7.2's table. Details it left open: a single committed word (`狗`) still shows the list and waits for Enter, and only a run of two or more tiles is added at once; Esc on the empty field goes to the tray when the tile rows are disabled by a full tray; the tile rows and `maxTray` live in `game/tiles.ts`.

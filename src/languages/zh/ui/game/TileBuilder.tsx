@@ -1,22 +1,6 @@
-import { content } from "../../content/index.ts";
-import type { LexiconEntry } from "../../content/schemas.ts";
+import { FindField } from "./FindField.tsx";
 import { Word } from "./Ruby.tsx";
-
-const entry = new Map(content.lexicon.map((e) => [e.id, e]));
-const pick = (ids: string[]) => ids.flatMap((id) => entry.get(id) ?? []);
-
-// Spec 8.1, Level 2: pronouns, verbs and 吗 in one row (7 tiles), then the 14
-// nouns in three rows. Order is free (D9): the tray holds tiles as tapped.
-const rows: { label: string; tiles: LexiconEntry[] }[] = [
-  {
-    label: "Who, verbs and 吗",
-    tiles: pick(["pr.ta.m", "pr.ta.f", "pr.ni", "v.shi", "v.you", "v.zai", "pt.ma"]),
-  },
-  { label: "People", tiles: pick(["n.nande", "n.nvde", "n.laoshi", "n.xuesheng", "n.yisheng"]) },
-  { label: "Pets and things", tiles: pick(["n.gou", "n.mao", "n.shouji", "n.shu", "n.diannao"]) },
-  { label: "Places", tiles: pick(["n.jia", "n.xuexiao", "n.yiyuan", "n.fandian"]) },
-];
-export const maxTray = 6;
+import { maxTray, tileEntry, tileRows as rows } from "./tiles.ts";
 
 // The tray is held by Game, so a half-built question survives the swap between
 // the phone's sheet and the desktop panel (zh-desktop.md ZS 2.2). At lg, Clear and
@@ -45,11 +29,23 @@ export function TileBuilder({
       className={`flex flex-col ${desktop ? "gap-1.5 py-1" : "gap-2 py-2"}`}
       onSubmit={(e) => {
         e.preventDefault();
-        onAsk(tray);
+        // At lg, Ask is in the panel's actions and the find field asks for itself.
+        if (!desktop) onAsk(tray);
       }}
     >
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-stone-600">Build a question:</p>
+      <div className="flex items-center justify-between gap-3">
+        {desktop ? (
+          // ZS 7.2: the find field and the Pinyin toggle share the top row.
+          <FindField
+            tray={tray}
+            pinyin={pinyin}
+            onAdd={(ids) => setTray((t) => [...t, ...ids].slice(0, maxTray))}
+            onRemoveLast={() => setTray((t) => t.slice(0, -1))}
+            onAsk={() => onAsk(tray)}
+          />
+        ) : (
+          <p className="text-sm text-stone-600">Build a question:</p>
+        )}
         <label className="flex min-h-11 items-center gap-2 text-sm">
           <input
             type="checkbox"
@@ -72,7 +68,7 @@ export function TileBuilder({
           </span>
         )}
         {tray.map((id, i) => {
-          const e = entry.get(id);
+          const e = tileEntry(id);
           return e ? (
             <button
               key={`${i}-${id}`}
