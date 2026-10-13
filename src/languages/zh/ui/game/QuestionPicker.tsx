@@ -52,7 +52,13 @@ export function QuestionPicker({
 }
 
 // Both are tā in speech; the learner picks the written form (spec 2, D7).
-function PronounSwitch({ value, onChange }: { value: Pronoun; onChange: (p: Pronoun) => void }) {
+export function PronounSwitch({
+  value,
+  onChange,
+}: {
+  value: Pronoun;
+  onChange: (p: Pronoun) => void;
+}) {
   const options: [Pronoun, string, string][] = [
     ["pr.ta.m", "他", "he"],
     ["pr.ta.f", "她", "she"],

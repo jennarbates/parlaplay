@@ -284,6 +284,7 @@ At 1024 × 640 the panel has 640 − 56 (TopBar) − 61 (summary) − 101 (actio
 
 | Phase area | Height |
 |---|---|
+| L1 groups: the pronoun switch and three columns (PLAY-067) | 356px in Chromium, 365px in WebKit, whose ruby is taller |
 | L2 builder, pinyin off or on (the tray and tiles keep their height) | 318px |
 | L2 builder with one mistake's feedback above it | 362px |
 | L2 builder with three mistakes' feedback (`你狗有`, the most there can be) | 431px: scrolls (ZD18) |
@@ -292,7 +293,7 @@ At 1024 × 640 the panel has 640 − 56 (TopBar) − 61 (summary) − 101 (actio
 | `cpuTurn` L1 with the hint shown | 225px |
 | `cpuReview` after a wrong answer | 149px |
 
-The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is what lets one mistake's feedback fit. Still to measure, with the cards that build them: the Level 1 groups and the width of `他在饭店吗？` in its column (PLAY-067), and the builder with the find field in its top row (PLAY-070). The SyncBanner (ZS 11) takes its height from the same budget while it shows.
+The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is what lets one mistake's feedback fit. No Level 1 question is wider than its column (about 130px), pinyin included; the e2e spec checks every one. Still to measure: the builder with the find field in its top row (PLAY-070). The SyncBanner (ZS 11) takes its height from the same budget while it shows.
 
 **Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. Two exceptions (ZD18): feedback for more than one mistake, and the SyncBanner showing. Then the area scrolls, starting at its top, where the feedback is. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase.
 
@@ -310,7 +311,7 @@ The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is w
 
 - The heading's character and pinyin come from the verb's lexicon entry; the English part is the exact string above. Columns come from each noun's `verb` field, so new nouns land in the right column.
 - Above the columns, the pronoun switch as today ("Ask with" 他 he / 她 she).
-- Each question is a button: the question with ruby pinyin at 16px, and under it the English hint (`hint()`) at 12px on **one line**, truncated with an ellipsis when too long; the full hint shows on hover and focus (ZS 7.4's Tooltip) and is the button's accessible description. Asked questions are greyed and show their answer in place of the hint, as today.
+- Each question is a button at least 48px tall: the question with ruby pinyin at 16px, and under it the English hint (`hint()`) at 12px on **one line**, truncated with an ellipsis when too long; the full hint shows just under the button on hover and focus, and is the button's accessible description. (It is drawn by the button itself, not by ZS 7.4's Tooltip, which is mouse-only.) Asked questions are greyed and show their answer in place of the hint, as today.
 - Below `lg`, the phone's single list is unchanged.
 
 ### ZS 7.2 Level 2: type-to-find
@@ -727,3 +728,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-12: v0.2. Paper trace (PLAY-066, `docs/reviews/zh-desktop-paper-trace.md`), findings F1 to F15. Fixed: where focus goes when the game opens and when a phase change removes the focused control; a held key acts once; `l` and Esc with the log collapsed; what counts as an open dialog; `KeyLike` restated; ShortcutsDialog lists the ZS 9.4 keys; Tab and blur in the find field; the height budget names FeedbackText, the SyncBanner and the Level 1 column width; "Chinese" stays on Home at `lg`; `setup` in ZS 6.2; arrows past a fully asked column; the CI note after PLAY-038 (ZD12). Decided on 2026-10-13, on the owner's behalf and to be confirmed: a committed IME phrase that is a run of tiles adds them all (ZS 7.2, ZD16), and at Level 2 the round log stays closed during `playerTurn` (ZS 7.3, ZD17).
 - 2026-10-13: Game layout built (PLAY-059, PLAY-060). ZS 6.3 has measured heights in place of estimates; the builder is tighter at `lg`. ZD18: feedback for two or more mistakes may scroll. ZD19: CardDetail stays text-free at `lg`. `answerIds` lives in `game/answers.ts`.
 - 2026-10-13: Home and Progress built (PLAY-062). No spec change; "Chinese" stays under the title at `lg`, as v0.2 decided.
+- 2026-10-13: Level 1 groups built (PLAY-067). ZS 7.1: rows are at least 48px; the full hint shows under the button on hover and focus, without the Tooltip. ZS 6.3 has the measured height.

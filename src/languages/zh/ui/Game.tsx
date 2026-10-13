@@ -17,6 +17,7 @@ import { FeedbackText } from "./game/FeedbackText.tsx";
 import { GameMenu } from "./game/GameMenu.tsx";
 import { GuessConfirm } from "./game/GuessConfirm.tsx";
 import { boardLayout } from "./game/layout.ts";
+import { QuestionGroups } from "./game/QuestionGroups.tsx";
 import { QuestionPicker } from "./game/QuestionPicker.tsx";
 import { RoundEnd } from "./game/RoundEnd.tsx";
 import { Ruby } from "./game/Ruby.tsx";
@@ -287,7 +288,14 @@ function sheetFor(
         body: (
           <div className="flex flex-col gap-2 pt-1">
             <FeedbackText feedback={game.lastFeedback} />
-            {game.level === 1 ? (
+            {game.level === 1 && h.desktop ? (
+              <QuestionGroups
+                history={game.history}
+                pronoun={h.pronoun}
+                onPronoun={h.setPronoun}
+                onAsk={h.ask}
+              />
+            ) : game.level === 1 ? (
               <QuestionPicker
                 history={game.history}
                 pronoun={h.pronoun}
