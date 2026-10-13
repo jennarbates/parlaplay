@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router";
 import { content } from "../content/index.ts";
@@ -15,13 +15,15 @@ import { CardDetail } from "./game/CardDetail.tsx";
 import { CpuQuestion } from "./game/CpuQuestion.tsx";
 import { FeedbackText } from "./game/FeedbackText.tsx";
 import { GameMenu } from "./game/GameMenu.tsx";
+import { glossShowsEnglish } from "./game/gloss.ts";
 import { GuessConfirm } from "./game/GuessConfirm.tsx";
 import { boardLayout } from "./game/layout.ts";
 import { QuestionGroups } from "./game/QuestionGroups.tsx";
 import { QuestionPicker } from "./game/QuestionPicker.tsx";
 import { RoundEnd } from "./game/RoundEnd.tsx";
+import { RoundLog, RoundLogOverlay } from "./game/RoundLog.tsx";
 import { Ruby } from "./game/Ruby.tsx";
-import { answer as answerOf, question as questionOf } from "./game/sentences.ts";
+import { answer as answerOf, logOf, question as questionOf } from "./game/sentences.ts";
 import { Sheet } from "./game/Sheet.tsx";
 import { TileBuilder } from "./game/TileBuilder.tsx";
 import { TopBar } from "./game/TopBar.tsx";
@@ -83,6 +85,7 @@ export function Game() {
     guessing: false,
     hintShown: false,
     tray: [] as string[],
+    logOpen: false, // the round log's overlay (ZS 7.3)
   });
   if (ui.phaseKey !== phaseKey) {
     setUi({
@@ -92,9 +95,10 @@ export function Game() {
       guessing: false,
       hintShown: false,
       tray: ui.turn === game?.turn ? ui.tray : [],
+      logOpen: false,
     });
   }
-  const { sheetOpen, guessing, hintShown, tray } = ui;
+  const { sheetOpen, guessing, hintShown, tray, logOpen } = ui;
   const setSheetOpen = (open: boolean) => setUi((u) => ({ ...u, sheetOpen: open }));
   const setGuessing = (on: boolean) => setUi((u) => ({ ...u, guessing: on }));
 
@@ -106,6 +110,12 @@ export function Game() {
     wasDesktop.current = desktop;
     if (document.activeElement === document.body) focusBoard();
   }, [desktop]);
+
+  // Closing the log's overlay gives focus back to the header button that opened it.
+  const closeLog = useCallback(() => {
+    flushSync(() => setUi((u) => ({ ...u, logOpen: false })));
+    document.querySelector<HTMLElement>("[data-log-toggle]")?.focus();
+  }, []);
 
   if (status !== "ready" || !settled || !game) return <SkeletonBoard desktop={desktop} />;
   const secret = byId.get(game.playerSecret);
@@ -176,6 +186,11 @@ export function Game() {
     />
   );
 
+  // The round so far, for the panel's log; it rebuilds from history after a reload.
+  const log = logOf(game.history);
+  const showPinyin = game.level === 1 || pinyin;
+  const english = glossShowsEnglish(game.phase, game.level);
+
   // zh-desktop.md ZS 5.2: the board on the left, the always-open panel on the
   // right, the top bar (and the sync banner, ZS 11) across both.
   const screen = desktop ? (
@@ -185,7 +200,31 @@ export function Game() {
         <SyncBanner />
       </div>
       <div className="flex min-h-0 flex-col bg-stone-50">{board}</div>
-      <SidePanel summary={summary} actions={actions}>
+      <SidePanel
+        summary={summary}
+        actions={actions}
+        log={
+          <RoundLog
+            entries={log}
+            pinyin={showPinyin}
+            english={english}
+            // ZD17: closed while a Level 2 question is being built, so the log
+            // cannot be copied from; the learner may still open it.
+            closed={game.level === 2 && game.phase === "playerTurn"}
+            onOpen={() => setUi((u) => ({ ...u, logOpen: true }))}
+          />
+        }
+        overlay={
+          logOpen && (
+            <RoundLogOverlay
+              entries={log}
+              pinyin={showPinyin}
+              english={english}
+              onClose={closeLog}
+            />
+          )
+        }
+      >
         {body}
       </SidePanel>
     </div>

@@ -1,14 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { content } from "../../content/index.ts";
 import type { GameState } from "../../engine/index.ts";
 import { requestPersistence } from "../../../../core/services/storage.ts";
+import { ignoreHeldEnter } from "../../../../core/ui/dialog.ts";
+import { useIsDesktop } from "../../../../core/ui/useMediaQuery.ts";
 import { Face } from "../Face.tsx";
 import { Mixed, Name } from "../Mixed.tsx";
 import { labelFor } from "../words.ts";
-import { answer as answerOf } from "./sentences.ts";
+import { LogEntries } from "./RoundLog.tsx";
+import { answer as answerOf, logOf } from "./sentences.ts";
 import { paths } from "../../paths.ts";
 import { useProgressStore } from "../../stores.ts";
+import { useSettings } from "../../store/settings.ts";
 
 const byId = new Map(content.characters.map((c) => [c.id, c]));
 const hanziOf = new Map(content.lexicon.map((e) => [e.id, e.hanzi]));
@@ -31,6 +35,14 @@ export function RoundEnd({
   useEffect(() => {
     void requestPersistence();
   }, []);
+  // zh-desktop.md ZS 10.2: Play again has focus when the screen appears, so Enter
+  // starts the next round; a key still held from the guess does not (ZS 2.2).
+  const desktop = useIsDesktop();
+  const pinyin = useSettings((x) => x.pinyin);
+  const playAgain = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (desktop) playAgain.current?.focus();
+  }, [desktop]);
 
   const won = game.result === "won";
   const you = byId.get(game.playerSecret);
@@ -39,89 +51,150 @@ export function RoundEnd({
     (r) => r.gameId === gameId && (r.rating === "again" || r.rating === "slip") && r.detail,
   );
 
+  const headline = (
+    <header className="flex flex-col gap-1 pt-2 text-center">
+      <h1 className="text-3xl font-bold">{won ? "You won!" : "You lost."}</h1>
+      <p className="text-stone-600">
+        {won ? (
+          <>
+            You found <span lang="zh-Hans">{cpu?.name}</span> in {game.turn}{" "}
+            {game.turn === 1 ? "turn" : "turns"}.
+          </>
+        ) : cpuGuessed ? (
+          <>
+            The computer found <span lang="zh-Hans">{you?.name}</span> first.
+          </>
+        ) : (
+          <>
+            That wasn't it. The computer's card was <span lang="zh-Hans">{cpu?.name}</span>.
+          </>
+        )}
+      </p>
+    </header>
+  );
+  const bothCards = (
+    <section aria-label="Both cards" className="grid grid-cols-2 gap-4">
+      {[
+        { label: "Your card", c: you },
+        { label: "Computer's card", c: cpu },
+      ].map(({ label, c }) =>
+        c ? (
+          <figure key={label} className="flex flex-col items-center gap-1">
+            <Face
+              character={c}
+              label={`${label}: ${c.name}`}
+              className="w-28 rounded-xl ring-1 ring-stone-300 lg:w-48"
+            />
+            <figcaption className="text-center text-sm">
+              <span className="text-stone-600">{label}</span>
+              <br />
+              <strong>
+                <Name hanzi={c.name} pinyin={c.namePinyin} />
+              </strong>
+            </figcaption>
+          </figure>
+        ) : null,
+      )}
+    </section>
+  );
+  const roundMistakes = (
+    <section aria-labelledby="mistakes-title" className="flex flex-col gap-2">
+      <h2 id="mistakes-title" className="font-semibold">
+        This round's mistakes
+      </h2>
+      {mistakes.length === 0 ? (
+        <p className="text-sm text-stone-600">None. Nicely done.</p>
+      ) : (
+        <ul className="flex flex-col gap-1.5 text-sm">
+          {mistakes.map((m) => {
+            const label = labelFor(m.lexiconId);
+            return (
+              <li key={m.id} className="rounded-lg bg-amber-50 px-3 py-2 ring-1 ring-amber-200">
+                <span className="font-medium">
+                  {label?.kind === "noun" ? (
+                    <span lang="zh-Hans">{label.hanzi}</span>
+                  ) : (
+                    <Mixed text={label?.title ?? m.lexiconId} />
+                  )}
+                </span>
+                {": "}
+                <span lang="zh-Hans" className="line-through decoration-rose-500">
+                  {m.detail?.given}
+                </span>
+                {" → "}
+                <strong lang="zh-Hans">{m.detail?.expected}</strong>
+                {label?.kind === "grammar" && (
+                  <span className="block text-stone-600">
+                    <Mixed text={label.explain} />
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+  const nudge = (
+    <p className="text-center text-sm text-stone-600">
+      <Link to="/settings" className="inline-flex min-h-11 items-center underline">
+        Sign in to keep your progress safe
+      </Link>
+    </p>
+  );
+  const buttons = (
+    <>
+      <Link
+        to={paths.home}
+        className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-stone-200 font-semibold"
+      >
+        Home
+      </Link>
+      <button
+        ref={playAgain}
+        type="button"
+        onClick={onPlayAgain}
+        onKeyDown={ignoreHeldEnter}
+        className="min-h-12 flex-1 rounded-xl bg-stone-900 font-semibold text-white"
+      >
+        Play again
+      </button>
+    </>
+  );
+
+  // ZS 10.2: two columns at lg. The result, both cards, the mistakes and the
+  // buttons on the left; the whole round log on the right, with English always
+  // shown now that nothing is being rated.
+  if (desktop) {
+    return (
+      <div className="mx-auto grid min-h-dvh w-full max-w-6xl grid-cols-2 content-center gap-10 p-10">
+        <div className="flex flex-col gap-6">
+          {headline}
+          {bothCards}
+          {roundMistakes}
+          <div className="flex gap-2">{buttons}</div>
+        </div>
+        <section aria-labelledby="log-title" className="flex min-h-0 flex-col gap-2">
+          <h2 id="log-title" className="font-semibold">
+            Round log ({game.history.length})
+          </h2>
+          <LogEntries
+            entries={logOf(game.history)}
+            pinyin={game.level === 1 || pinyin}
+            english
+            className="max-h-[calc(100dvh-14rem)] !px-0"
+          />
+          {nudge}
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-dvh flex-col gap-6 p-4 pb-28">
-      <header className="flex flex-col gap-1 pt-2 text-center">
-        <h1 className="text-3xl font-bold">{won ? "You won!" : "You lost."}</h1>
-        <p className="text-stone-600">
-          {won ? (
-            <>
-              You found <span lang="zh-Hans">{cpu?.name}</span> in {game.turn}{" "}
-              {game.turn === 1 ? "turn" : "turns"}.
-            </>
-          ) : cpuGuessed ? (
-            <>
-              The computer found <span lang="zh-Hans">{you?.name}</span> first.
-            </>
-          ) : (
-            <>
-              That wasn't it. The computer's card was <span lang="zh-Hans">{cpu?.name}</span>.
-            </>
-          )}
-        </p>
-      </header>
-
-      <section aria-label="Both cards" className="grid grid-cols-2 gap-4">
-        {[
-          { label: "Your card", c: you },
-          { label: "Computer's card", c: cpu },
-        ].map(({ label, c }) =>
-          c ? (
-            <figure key={label} className="flex flex-col items-center gap-1">
-              <Face
-                character={c}
-                label={`${label}: ${c.name}`}
-                className="w-28 rounded-xl ring-1 ring-stone-300"
-              />
-              <figcaption className="text-center text-sm">
-                <span className="text-stone-600">{label}</span>
-                <br />
-                <strong>
-                  <Name hanzi={c.name} pinyin={c.namePinyin} />
-                </strong>
-              </figcaption>
-            </figure>
-          ) : null,
-        )}
-      </section>
-
-      <section aria-labelledby="mistakes-title" className="flex flex-col gap-2">
-        <h2 id="mistakes-title" className="font-semibold">
-          This round's mistakes
-        </h2>
-        {mistakes.length === 0 ? (
-          <p className="text-sm text-stone-600">None. Nicely done.</p>
-        ) : (
-          <ul className="flex flex-col gap-1.5 text-sm">
-            {mistakes.map((m) => {
-              const label = labelFor(m.lexiconId);
-              return (
-                <li key={m.id} className="rounded-lg bg-amber-50 px-3 py-2 ring-1 ring-amber-200">
-                  <span className="font-medium">
-                    {label?.kind === "noun" ? (
-                      <span lang="zh-Hans">{label.hanzi}</span>
-                    ) : (
-                      <Mixed text={label?.title ?? m.lexiconId} />
-                    )}
-                  </span>
-                  {": "}
-                  <span lang="zh-Hans" className="line-through decoration-rose-500">
-                    {m.detail?.given}
-                  </span>
-                  {" → "}
-                  <strong lang="zh-Hans">{m.detail?.expected}</strong>
-                  {label?.kind === "grammar" && (
-                    <span className="block text-stone-600">
-                      <Mixed text={label.explain} />
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
+      {headline}
+      {bothCards}
+      {roundMistakes}
       <section aria-labelledby="history-title" className="flex flex-col gap-2">
         <h2 id="history-title" className="font-semibold">
           Questions
@@ -154,26 +227,9 @@ export function RoundEnd({
         </ol>
       </section>
 
-      <p className="text-center text-sm text-stone-600">
-        <Link to="/settings" className="inline-flex min-h-11 items-center underline">
-          Sign in to keep your progress safe
-        </Link>
-      </p>
-
+      {nudge}
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 border-t border-stone-200 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <Link
-          to={paths.home}
-          className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-stone-200 font-semibold"
-        >
-          Home
-        </Link>
-        <button
-          type="button"
-          onClick={onPlayAgain}
-          className="min-h-12 flex-1 rounded-xl bg-stone-900 font-semibold text-white"
-        >
-          Play again
-        </button>
+        {buttons}
       </div>
     </div>
   );
