@@ -105,7 +105,8 @@ export type LogEntry = {
   playerAnswerId?: string;     // cpu entries: what the learner chose
   right?: boolean;             // cpu entries: whether that was the true answer
 };
-export function roundLog(history: AskedQuestion[]): LogEntry[]; // newest first
+export function roundLog(history: AskedQuestion[], render: LogRender): LogEntry[]; // newest first
+// sentences.ts: logOf(history) calls it with the game's own renderQuestion, renderAnswer and hint
 ```
 
 ```json
@@ -347,7 +348,7 @@ The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is w
 - Heading "Round log", with the count: "Round log (5)". Empty: "Questions you and the computer ask show up here."
 - Each entry is `roundLog()` (ZS 3), rendered as: "You asked" or "The computer asked" in `text-xs text-stone-600`, the question, then the answer in `font-medium`. A CPU entry the learner got wrong adds "(you said 不有)" in rose, as round end does today. Pinyin shows as ruby at Level 1, and at Level 2 when the toggle is on.
 - Every Chinese word is glossable (ZS 7.4).
-- When the log has only its header's height (ZS 6.3), the header is a button, "Round log (5) ▸", that opens the log as an overlay over the phase area, with focus on the newest entry; Esc, `l` or the button closes it and returns focus to the button. While the overlay is open it counts as a dialog for shortcuts (ZS 9.1), so Esc closes it and does nothing else, even while guessing.
+- When the log has room for less than its header and one entry (under 116px, which is every phase at 1024 × 640), the header is a button, "Round log (5) ▸", that opens the log as an overlay over the phase area, with focus on the newest entry; Esc, `l` or the button closes it and returns focus to the button. While the overlay is open it counts as a dialog for shortcuts (ZS 9.1), so Esc closes it and does nothing else, even while guessing.
 - Keyboard: `l` moves focus to the newest entry, opening the overlay first when the log is only its header. The list has roving tabindex (one tab stop); ↑ ↓ move between entries. A focused entry shows its `english` line under it, when `glossShowsEnglish()` is true.
 - Round end shows the same component, full height, in its right column (ZS 10.2), replacing today's "Questions" list at `lg` only.
 - **At Level 2 the log stays closed while the learner builds a question (ZD17).** The log shows whole correct questions, and the CPU asks from the same 14, so an open log would often show the very question the learner is about to build: the CPU asks `他有手机吗？`, and next turn the learner could copy 他, 有, 手机, 吗 and be rated `good` for producing 手机 with the right verb (`zh.md` 6). On the phone that question is gone once the turn ends. So in `playerTurn` at Level 2 the log is only its header button at every window size, and opens as the overlay when the learner asks for it (`l` or the button). In every other phase, and at Level 1 (whose questions are ready-made and unrated), it shows as far as the height allows. No rating changes.
@@ -729,3 +730,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-13: Game layout built (PLAY-059, PLAY-060). ZS 6.3 has measured heights in place of estimates; the builder is tighter at `lg`. ZD18: feedback for two or more mistakes may scroll. ZD19: CardDetail stays text-free at `lg`. `answerIds` lives in `game/answers.ts`.
 - 2026-10-13: Home and Progress built (PLAY-062). No spec change; "Chinese" stays under the title at `lg`, as v0.2 decided.
 - 2026-10-13: Level 1 groups built (PLAY-067). ZS 7.1: rows are at least 48px; the full hint shows under the button on hover and focus, without the Tooltip. ZS 6.3 has the measured height.
+- 2026-10-13: Round log built (PLAY-068). ZS 3: `roundLog` is given its sentence renderers, so it stays import-free; `logOf` in `sentences.ts` supplies the game's. ZS 7.3: the log collapses to its header under 116px of room. `SidePanel` gains an `overlay` slot for the opened log.

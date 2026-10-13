@@ -11,6 +11,7 @@ import {
   type Sentence,
 } from "../../engine/index.ts";
 import { englishFor } from "../english.ts";
+import { roundLog, type LogEntry } from "./roundLog.ts";
 
 export const nouns = new Map(
   content.lexicon.filter((e): e is Noun => e.pos === "noun").map((n) => [n.id, n]),
@@ -31,3 +32,11 @@ export function hint(key: QuestionKey, pron: string): string {
   const noun = nouns.get(nounId);
   return noun ? englishFor(verbId, noun, pron) : "";
 }
+
+// The round log (zh-desktop.md ZS 7.3) over this game's own sentences.
+export const logOf = (history: readonly AskedQuestion[]): LogEntry[] =>
+  roundLog(history, {
+    question: (h) => question(h.key, h.pron),
+    answer,
+    english: (h) => hint(h.key, h.pron),
+  });

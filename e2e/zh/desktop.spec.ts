@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { content } from "../../src/languages/zh/content/index.ts";
-import { build, card, guessCard, savedRound, zh } from "./game.ts";
+import { build, card, chineseText, guessCard, savedRound, zh } from "./game.ts";
 
 // zh-desktop.md ZS 13.3: Shéi at desktop size. Runs on the desktop profiles only
 // (1440 × 900 unless a test sets another size).
@@ -195,7 +195,8 @@ test.describe("phase areas fit 1024 × 640 (ZS 6.3)", () => {
   const areaHeight = (page: Page) =>
     panel(page).evaluate((aside) =>
       Math.round(
-        [...(aside.children[1]?.children ?? [])].reduce(
+        // The panel's middle holds the phase area first, then the log.
+        [...(aside.children[1]?.children[0]?.children ?? [])].reduce(
           (h, c) => h + c.getBoundingClientRect().height,
           0,
         ),
@@ -257,6 +258,134 @@ test.describe("phase areas fit 1024 × 640 (ZS 6.3)", () => {
     await panel(page).getByRole("button", { name: "Next" }).click();
     await panel(page).getByRole("button", { name: "Show hint" }).click();
     await measure(page, "cpuTurn L1, hint");
+  });
+});
+
+test.describe("round log (ZS 7.3)", () => {
+  const log = (page: Page) => panel(page).getByRole("list", { name: "Round log" });
+  const header = (page: Page) => panel(page).getByRole("button", { name: /^Round log/ });
+  const next = (page: Page) => panel(page).getByRole("button", { name: "Next" }).click();
+
+  // One whole turn at Level 1: ask the first question still open, then answer the
+  // computer with its first answer button.
+  async function turn(page: Page) {
+    await questions(page).getByRole("button", { disabled: false }).first().click();
+    await next(page);
+    await page.getByRole("group", { name: "Your answer" }).getByRole("button").first().click();
+    await next(page);
+  }
+
+  test("starts empty, then holds every question and answer, newest first", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    await expect(panel(page)).toContainText("Questions you and the computer ask show up here.");
+    await turn(page);
+    await expect(panel(page).getByRole("heading", { name: "Round log (2)" })).toBeVisible();
+    const entries = log(page).getByRole("listitem");
+    await expect(entries).toHaveCount(2);
+    await expect(entries.nth(0)).toContainText("The computer asked");
+    await expect(entries.nth(1)).toContainText("You asked");
+    expect(await chineseText(entries.nth(1).locator("p").first())).toBe("他是男的吗？");
+
+    // A reload mid-round rebuilds it from the saved history.
+    await page.reload();
+    await expect(log(page).getByRole("listitem")).toHaveCount(2);
+  });
+
+  test("one tab stop; arrows move; the focused entry shows its English when allowed", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?seed=1");
+    await turn(page);
+    await expect(log(page).locator('[tabindex="0"]')).toHaveCount(1);
+    const entries = log(page).getByRole("listitem");
+    await entries.nth(0).focus();
+    await expect(entries.nth(0)).toContainText(/(Is|Does) .+\? (Yes|No)\./); // playerTurn, Level 1
+    await page.keyboard.press("ArrowDown");
+    await expect(entries.nth(1)).toBeFocused();
+    await expect(entries.nth(1)).toContainText("Is this person a man?");
+    await page.keyboard.press("ArrowDown"); // the last one: stays
+    await expect(entries.nth(1)).toBeFocused();
+
+    // While the computer's question is being answered, no English (ZS 7.4).
+    await questions(page).getByRole("button", { disabled: false }).first().click();
+    await next(page);
+    await entries.nth(0).focus();
+    await expect(entries.nth(0)).not.toContainText(/Yes\.|No\./);
+  });
+
+  test("a wrong answer to the computer is marked", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await build(page, "他", "有", "狗", "吗");
+    await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    await next(page);
+    await page.getByRole("group", { name: "Your answer" }).getByRole("button").nth(4).click(); // 不有
+    await expect(log(page).getByRole("listitem").first()).toContainText("(you said 不有)");
+  });
+
+  test("with room for only its header, the header opens it over the phase area", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1024, height: 640 });
+    await page.goto("/zh/play?seed=1");
+    await turn(page);
+    await expect(log(page)).toHaveCount(0);
+    await header(page).click();
+    await expect(log(page).getByRole("listitem")).toHaveCount(2);
+    await expect(log(page).getByRole("listitem").first()).toBeFocused();
+    // It covers the phase area, from under the summary to above the actions.
+    const over = await box(page.locator("[data-log-overlay]"));
+    const under = await box(questions(page));
+    expect(over.y).toBeLessThanOrEqual(under.y);
+    expect(over.y + over.height).toBeGreaterThanOrEqual(under.y + under.height);
+    await page.keyboard.press("Escape");
+    await expect(log(page)).toHaveCount(0);
+    await expect(header(page)).toBeFocused();
+  });
+
+  test("at Level 2 it stays closed while a question is being built (ZD17)", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8"); // 1440 × 900: room to spare
+    await build(page, "他", "有", "狗", "吗");
+    await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    await expect(log(page).getByRole("listitem")).toHaveCount(1); // open in playerReview
+    await next(page);
+    await page.getByRole("group", { name: "Your answer" }).getByRole("button").first().click();
+    await next(page);
+    // The learner's turn again: only the header, though there is room.
+    await expect(log(page)).toHaveCount(0);
+    await expect(header(page)).toHaveText(/Round log \(2\)/);
+    await header(page).click();
+    await expect(log(page).getByRole("listitem")).toHaveCount(2);
+    // Esc closes the log and nothing else.
+    await page.keyboard.press("Escape");
+    await expect(log(page)).toHaveCount(0);
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+  });
+
+  test("round end is two columns, the log on the right, Play again focused", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    await turn(page);
+    await panel(page).getByRole("button", { name: "Guess" }).click();
+    await guessCard(page, first).click();
+    // Confirm with Enter and keep it held: the repeats must not press Play again.
+    await expect(
+      page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }),
+    ).toBeFocused();
+    await page.keyboard.down("Enter");
+    const playAgain = page.getByRole("button", { name: "Play again" });
+    await expect(playAgain).toBeFocused();
+    for (let i = 0; i < 4; i++) await page.keyboard.down("Enter");
+    await page.keyboard.up("Enter");
+    await expect(playAgain).toBeVisible();
+    const logRegion = page.getByRole("region", { name: /^Round log \(2\)/ });
+    await expect(logRegion.getByRole("listitem")).toHaveCount(2);
+    const cardsBox = await box(page.getByRole("region", { name: "Both cards" }));
+    const logBox = await box(logRegion);
+    expect(logBox.x).toBeGreaterThan(cardsBox.x + cardsBox.width - 1);
+    expect(Math.round((await box(page.getByRole("img", { name: /^Your card/ }))).width)).toBe(192);
+    // The phone's history list is replaced by the log here.
+    await expect(page.getByRole("heading", { name: "Questions", exact: true })).toHaveCount(0);
+    await page.keyboard.press("Enter");
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
   });
 });
 
