@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { encodeJson, maxEncodedLength } from "../src/core/handoff/encoding.ts";
+import { maxEncodedLength } from "../src/core/handoff/encoding.ts";
 import { messages } from "../handoff/src/chie.ts";
 import { arrived, chieData, freshDevice, stored, type Guest } from "./handoff.ts";
 
@@ -72,12 +72,26 @@ const game = () => ({
   result: "won",
 });
 
-// Guest data whose handoff is about `encodedKb` KB once gzipped and encoded. Random
+// How long the fragment's data is when this browser's own CompressionStream makes
+// it, as the handoff page does. Engines compress a little differently, and from
+// Node, so the size is measured where it will be made.
+async function encodedLength(page: Page, handoff: unknown): Promise<number> {
+  await blankChiePage(page);
+  return page.evaluate(async (value) => {
+    const gzip = new Blob([JSON.stringify(value)])
+      .stream()
+      .pipeThrough(new CompressionStream("gzip"));
+    const bytes = (await new Response(gzip).arrayBuffer()).byteLength;
+    return Math.ceil((bytes * 4) / 3); // base64url, unpadded
+  }, handoff);
+}
+
+// Guest data whose handoff is at least `encoded` characters in this browser. Random
 // text does not compress, so each row costs about its own length.
-function heavyGuest(encodedKb: number) {
+async function heavyGuest(page: Page, encoded: number) {
   const g = game();
   const filler = () => Array.from({ length: 12 }, uuid).join("");
-  const reviewLog = Array.from({ length: Math.round((encodedKb * 1000) / 385) }, () => ({
+  const row = () => ({
     id: uuid(),
     gameId: g.id,
     lexiconId: `n.${filler()}`,
@@ -85,8 +99,11 @@ function heavyGuest(encodedKb: number) {
     rating: "good",
     localDay: "2026-10-20",
     createdAt: "2026-10-20T10:01:00.000Z",
-  }));
-  return { games: [g], reviewLog };
+  });
+  const guest = { games: [g], reviewLog: Array.from({ length: encoded / 400 }, row) };
+  const size = () => encodedLength(page, { v: 1, guest });
+  while ((await size()) < encoded) guest.reviewLog.push(...Array.from({ length: 50 }, row));
+  return { guest, encoded: await size() };
 }
 
 test("seeded Chi è? progress appears in /it/progress, and stays on the old site", async ({
@@ -155,8 +172,7 @@ test("a signed-in player's unsynced rows wait for them; their synced copy stays 
 });
 
 test("a 500 KB payload arrives whole", async ({ page }) => {
-  const guest = heavyGuest(550);
-  const encoded = (await encodeJson({ v: 1, guest })).length;
+  const { guest, encoded } = await heavyGuest(page, 510_000);
   expect(encoded).toBeGreaterThan(500_000);
   expect(encoded).toBeLessThan(maxEncodedLength);
 
@@ -169,7 +185,9 @@ test("a 500 KB payload arrives whole", async ({ page }) => {
 });
 
 test("progress over 900 KB is not sent, and the page says who to email", async ({ page }) => {
-  await seedChie(page, { guest: heavyGuest(1000) });
+  const { guest, encoded } = await heavyGuest(page, maxEncodedLength + 20_000);
+  expect(encoded).toBeGreaterThan(maxEncodedLength);
+  await seedChie(page, { guest });
   await page.goto(`${chie}/`);
   await expect(page.getByRole("status")).toHaveText(messages.tooLarge);
   expect(new URL(page.url()).origin).toBe(chie);
