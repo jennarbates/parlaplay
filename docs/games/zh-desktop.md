@@ -277,7 +277,7 @@ At 1024 × 640 the panel has 640 − 56 (TopBar) − 61 (summary) − 101 (actio
 | Phase area | Estimate | Leaves for the log |
 |---|---|---|
 | L1 groups (ZS 7.1) | 376px | 46px: the header line |
-| L2 builder without Clear and Ask (ZS 7.2) | 332px | 90px: header and one entry |
+| L2 builder without Clear and Ask (ZS 7.2) | 332px | 90px, of which the log uses its 44px header (ZD17) |
 | CPU question, L2, 7 answers | about 260px | about 160px |
 
 These are estimates from today's component sizes (the Level 2 builder measured 388px including Clear and Ask, Chromium, 2026-10-08), and they leave out FeedbackText. `TBD:` the layout card measures each on the build and records the numbers here: every phase area with its tallest FeedbackText showing (after a rejected question), Level 2 with pinyin on and off, and the width of the longest Level 1 question with its ruby pinyin, `他在饭店吗？`, against its column (about 133px of the 448px panel). **Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase. The SyncBanner (ZS 11) takes its height from the same budget while it shows; then, and only then, the phase area may scroll at 1024 × 640.
@@ -321,7 +321,7 @@ These are estimates from today's component sizes (the Level 2 builder measured 3
 - Strings: placeholder "Type pinyin, e.g. gou"; no match: "No word matches “{query}”."; tray full: "The question is full. Ask it, or remove a word." Both messages are in the list area and announced through `aria-live="polite"`.
 - The field is `lang="zh-Latn-pinyin"`, `autocomplete="off"`, `spellcheck="false"`, `autocapitalize="off"`.
 - "Field empty" means empty after trimming spaces.
-- `TBD:` (owner) an IME commits a phrase, not a word: typing `tayougouma` with the macOS Pinyin input method and choosing 他有狗吗 puts all four words in the field at once, and `findTiles` matches only a tile that *starts with* the query, so the list says "No word matches “他有狗吗”." Either accept that and watch for it in the ZS 13.4 pass, or let a committed string that is exactly a run of tiles add them all. The second is not the typed whole question of ZS 14.1: nothing is parsed, and the engine still checks the result.
+- **An IME commits a phrase, not a word (ZD16).** Typing `tayougouma` with the macOS Pinyin input method and choosing 他有狗吗 puts all four words in the field at once. When the committed text is exactly a run of tiles (matched greedily from the left, longest tile first, ignoring `？` and spaces), every tile in it is added in order and the field clears; if the run would overfill the tray, nothing is added and the full-tray message shows. Any other text matches as before, by the tile it starts. This is not the typed whole question of ZS 14.1: nothing is parsed, the result is the same tray the learner could have clicked, and the engine checks it as usual. `findTiles` gains `splitTiles(text, tiles): Tile[] | null` beside it, with its own tests (`他有狗吗` gives four tiles; `他有狗吗？` the same; `他很好` gives `null`).
 - Clicking tiles works exactly as today; the field is optional.
 - Below `lg` there is no find field.
 
@@ -335,7 +335,7 @@ These are estimates from today's component sizes (the Level 2 builder measured 3
 - When the log has only its header's height (ZS 6.3), the header is a button, "Round log (5) ▸", that opens the log as an overlay over the phase area, with focus on the newest entry; Esc, `l` or the button closes it and returns focus to the button. While the overlay is open it counts as a dialog for shortcuts (ZS 9.1), so Esc closes it and does nothing else, even while guessing.
 - Keyboard: `l` moves focus to the newest entry, opening the overlay first when the log is only its header. The list has roving tabindex (one tab stop); ↑ ↓ move between entries. A focused entry shows its `english` line under it, when `glossShowsEnglish()` is true.
 - Round end shows the same component, full height, in its right column (ZS 10.2), replacing today's "Questions" list at `lg` only.
-- `TBD:` (owner) the log and Level 2's rating. The log shows whole correct questions, and the CPU asks from the same 14, so in `playerTurn` at Level 2 it often shows the very question the learner is about to build: the CPU asks `他有手机吗？`, and next turn the learner can copy 他, 有, 手机, 吗 from the log and is rated `good` for producing 手机 with the right verb (`zh.md` 6). On the phone that question is gone once the turn ends. ZS 1 says no rating changes; ZS 7.2 and ZS 7.4 argue it for their tools, and nothing argues it for the log. Options: accept it and say so in ZD8 (copying a model sentence is still practice, and slips and wrong verbs are still caught); or at Level 2 keep the log to its header during `playerTurn`, so opening it is a choice; or rate an asked question that is in the log `hard`, which is an engine change and so out of v1.
+- **At Level 2 the log stays closed while the learner builds a question (ZD17).** The log shows whole correct questions, and the CPU asks from the same 14, so an open log would often show the very question the learner is about to build: the CPU asks `他有手机吗？`, and next turn the learner could copy 他, 有, 手机, 吗 and be rated `good` for producing 手机 with the right verb (`zh.md` 6). On the phone that question is gone once the turn ends. So in `playerTurn` at Level 2 the log is only its header button at every window size, and opens as the overlay when the learner asks for it (`l` or the button). In every other phase, and at Level 1 (whose questions are ready-made and unrated), it shows as far as the height allows. No rating changes.
 
 ### ZS 7.4 Word glosses
 
@@ -600,6 +600,8 @@ No Mandarin review is needed: ZS 1's table puts new Chinese strings out, and eve
 | Groups | At Level 1, three columns headed 是, 有, 在 holding 5, 5 and 4 questions |
 | Type-to-find | Typing `ta`, Enter, `you`, Enter, `gou`, Enter, `ma`, Enter, Enter asks 他有狗吗？ (success criterion 3) |
 | Find edge cases | `zz` shows "No word matches “zz”."; Backspace on the empty field removes the last tile; `nv` finds 女的 |
+| Committed phrase | Pasting `他有狗吗` into the find field adds four tiles; `他很好` shows "No word matches “他很好”." |
+| Log at Level 2 | In `playerTurn` at Level 2 the log is its header button at 1440 × 900; `l` opens it; in `playerReview` it is open |
 | Log | After two turns the log holds two entries, newest first; `l` focuses the newest; its English line shows |
 | Glosses | Hovering 狗 in the log during `playerReview` shows "dog"; during `cpuTurn` at Level 2 the gloss has no English |
 | Hover preview, right-click | As DS 13.3 |
@@ -685,6 +687,8 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 | ZD13 | Built before launch, in Sprint 4 | The owner's choice; `zh.md` success criterion 1 already promises the laptop at launch |
 | ZD14 | If must-fix desktop findings remain on launch day, `/zh` launches with the desktop layout off (route widths back to `lg:max-w-md`) | A one-line fallback; the phone layout is the tested baseline |
 | ZD15 | `a` asks, replacing `zh.md` 8.3's "Enter in the tray" | Enter on a focused tile already adds or removes it; Enter on the empty find field also asks |
+| ZD16 | A committed IME phrase that is exactly a run of tiles adds them all | An IME's unit is the phrase; "No word matches" for a correct sentence would turn away the learners the find field invites. Nothing is parsed, so it is not Level 3 |
+| ZD17 | At Level 2 the round log is closed during `playerTurn`, opened on request | An always-open log shows the question about to be built, and the `produce` rating would measure copying. Decided for the owner on 2026-10-13, to be confirmed |
 
 ## ZS 15. References
 
@@ -704,4 +708,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 
 - 2026-10-08: v0. Full desktop spec for Shéi, replacing the v0.1 list of differences from `it-desktop.md`. Adds the height-sized board with a flexible panel, Level 1 questions grouped by verb, Level 2 type-to-find, the round log and word glosses. Level 2 builder measured on the production build: the 7-tile row overflows a 22rem panel and the builder is 388px tall with Clear and Ask.
 - 2026-10-08: v0.1. Milestones matched to the backlog cards (PLAY-057 to PLAY-063 and PLAY-066 to PLAY-075). Owner review: the panel is fixed at `minmax(24rem, 28rem)` like Chi è?'s, not flexible (ZD3); ZD9 and ZD14 confirmed.
-- 2026-10-12: v0.2. Paper trace (PLAY-066, `docs/reviews/zh-desktop-paper-trace.md`), findings F1 to F15. Fixed: where focus goes when the game opens and when a phase change removes the focused control; a held key acts once; `l` and Esc with the log collapsed; what counts as an open dialog; `KeyLike` restated; ShortcutsDialog lists the ZS 9.4 keys; Tab and blur in the find field; the height budget names FeedbackText, the SyncBanner and the Level 1 column width; "Chinese" stays on Home at `lg`; `setup` in ZS 6.2; arrows past a fully asked column; the CI note after PLAY-038 (ZD12). Left as `TBD:` for the owner: an IME committing a whole phrase (ZS 7.2), and the round log showing the question a Level 2 learner is about to build (ZS 7.3).
+- 2026-10-12: v0.2. Paper trace (PLAY-066, `docs/reviews/zh-desktop-paper-trace.md`), findings F1 to F15. Fixed: where focus goes when the game opens and when a phase change removes the focused control; a held key acts once; `l` and Esc with the log collapsed; what counts as an open dialog; `KeyLike` restated; ShortcutsDialog lists the ZS 9.4 keys; Tab and blur in the find field; the height budget names FeedbackText, the SyncBanner and the Level 1 column width; "Chinese" stays on Home at `lg`; `setup` in ZS 6.2; arrows past a fully asked column; the CI note after PLAY-038 (ZD12). Decided on 2026-10-13, on the owner's behalf and to be confirmed: a committed IME phrase that is a run of tiles adds them all (ZS 7.2, ZD16), and at Level 2 the round log stays closed during `playerTurn` (ZS 7.3, ZD17).

@@ -1,6 +1,6 @@
 # Shéi desktop paper trace (PLAY-066)
 
-ZS 13.1 step 1, traced on Mon Oct 12 2026 against `docs/games/zh-desktop.md` v0.1, using only that spec (and `zh.md` where it points there). ZS 2.1 is walked four times: Level 2 and Level 1, each once by keyboard only and once by mouse only. Each step names the section it relied on. Every place where the trace had to guess is a finding. Findings with one clear answer are fixed in spec v0.2; the ones that are the owner's call are left in the spec as `TBD:`.
+ZS 13.1 step 1, traced on Mon Oct 12 2026 against `docs/games/zh-desktop.md` v0.1, using only that spec (and `zh.md` where it points there). ZS 2.1 is walked four times: Level 2 and Level 1, each once by keyboard only and once by mouse only. Each step names the section it relied on. Every place where the trace had to guess is a finding. Findings with one clear answer are fixed in spec v0.2. Two were the owner's call (F13, F14); they were decided on the owner's behalf on Oct 13, to be confirmed, and are in the spec as ZD16 and ZD17.
 
 Three things were checked against the code and content rather than on paper, because the spec states them as facts:
 
@@ -103,6 +103,6 @@ The developer review (PLAY-074) and the `v1` tag are still to come; this is the 
 | F10 | "Chinese" hidden on Home at `lg` | Fixed, ZS 10.1: it stays, as platform spec 8.1 and Chi è? |
 | F11 | `setup` has no row in ZS 6.2 | Fixed, ZS 6.2 |
 | F12 | Arrow keys in the Level 1 groups when a column is all asked | Fixed, ZS 9.4 and ZS 9.2 |
-| F13 | An IME commits a phrase, and a phrase matches no tile | `TBD:` in ZS 7.2, for the owner. Accept the message and watch it in the ZS 13.4 pass, or let a committed string that is a run of tiles add them all |
-| F14 | At Level 2 the log shows whole correct questions, including the one the CPU just asked, while the learner is rated on building it | `TBD:` in ZS 7.3, for the owner. ZS 1 says no rating changes and argues it for type-to-find and glosses, not for the log |
+| F13 | An IME commits a phrase, and a phrase matches no tile | Decided Oct 13 (ZD16): a committed string that is exactly a run of tiles adds them all |
+| F14 | At Level 2 the log shows whole correct questions, including the one the CPU just asked, while the learner is rated on building it | Decided Oct 13 (ZD17): at Level 2 the log stays closed during `playerTurn` and opens on request |
 | F15 | No check that a Level 1 question fits a 133px column | Fixed, ZS 6.3: added to what the layout card measures |
