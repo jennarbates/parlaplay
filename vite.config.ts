@@ -9,7 +9,7 @@ export default defineConfig({
   // scripts/check-bundle.ts reads which chunks each page loads (platform spec 9).
   build: { manifest: true },
   test: {
-    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts", "handoff/**/*.test.ts"],
     environment: "node",
     coverage: {
       provider: "v8",

@@ -354,6 +354,15 @@ const Handoff = z.strictObject({
 - Step 5: the Italian screen replaces `/import` in the history, so Back never returns to it. `/import` opened with no fragment shows the failure screen.
 - `Try again` goes to `VITE_CHIE_URL` where that is set (staging and tests), else `https://chie.parlaplay.games/`.
 
+**The handoff page as built (`handoff/`).** A static page with one small script and no Worker code, built with `pnpm build:handoff` into `handoff/dist` and deployed by hand with `handoff/wrangler.jsonc` to the Worker that served Chi è? (`italian`).
+
+- It opens `chi-e` read-only. On a device that never played, it aborts the open, so no empty database is created there.
+- It reads `guest`, `round` and every `outbox:{userId}` that holds rows. `user:{userId}` (a signed-in player's copy, already on the server) stays behind. It never reads `localStorage`.
+- Values are sent as they are; `/import` does all the validation, so damaged data ends on the failure screen, not on the old site.
+- It navigates with `location.replace`, so Back from `parlaplay.games` does not run the handoff again.
+- The message stays empty until the page knows there is data, so a visitor with none sees nothing before the redirect.
+- `VITE_PARLAPLAY_URL` at build time points it somewhere other than `https://parlaplay.games` (staging and tests).
+
 **Size.** A heavy guest after two weeks has a few hundred log rows, about 100 KB of JSON. Measured Wed Oct 7 (`planning/spikes/fragment/`): a cross-origin navigation carries a 1 MB fragment intact in desktop Chromium and WebKit, and both refuse 2 MB. To keep a wide margin, the handoff page gzips the JSON with the browser's built-in `CompressionStream` before base64url-encoding it, and `/import` decompresses it with `DecompressionStream`. If the encoded data is still over 900 KB, the handoff page does not navigate and shows `Your progress is too large to move automatically. Email privacy@parlaplay.games and we'll move it for you.` `TBD: verify` on a real iPhone (Safari) and Android phone (Chrome) with the spike page. The CI handoff test uses a 500 KB encoded payload in Chromium and WebKit.
 
 ### 5.4 Redirects
@@ -820,5 +829,6 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 - 2026-10-08: SIGNED_OUT added to the shell (4.1, 4.2) for a session that ends outside Settings, so the shell never stays signed in after it (PLAY-025).
 - 2026-10-08: Logo at the top left of every screen, linking to `/` (8.4, D23, PLAY-064, PLAY-065), drawn by `scripts/logo.py`. DesktopNav's `parlaplay` fallback link is replaced by it.
 - 2026-10-12: `/import` built (PLAY-035). 5.3 gains the fragment's data shape and the details its steps left open: validate everything before saving, the same round arriving twice keeps the copy here, waiting for the account, the shape of `outbox:pending-handoff`, Back never returning to `/import`, and `VITE_CHIE_URL`.
+- 2026-10-12: Handoff page built (PLAY-036) and tested end to end across two origins (PLAY-037). 5.3 gains "The handoff page as built": which keys it reads, that it never creates or changes `chi-e`, `location.replace`, and `VITE_PARLAPLAY_URL`.
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).

@@ -17,5 +17,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "scripts", "e2e"]
+  "include": ["vite.config.ts", "handoff/vite.config.ts", "playwright.config.ts", "scripts", "e2e"]
 }
