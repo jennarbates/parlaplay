@@ -1,19 +1,12 @@
-import { useState } from "react";
 import { content } from "../../content/index.ts";
 import type { Answer } from "../../content/schemas.ts";
-import { parseKey } from "../../engine/index.ts";
+import { answerIds } from "./answers.ts";
 import { Ruby, Word } from "./Ruby.tsx";
 import { hint, question } from "./sentences.ts";
 
 const answers = new Map(
   content.lexicon.filter((e): e is Answer => e.pos === "answer").map((a) => [a.id, a]),
 );
-const verbs = new Map(
-  content.lexicon.flatMap((e) => (e.pos === "verb" ? [[e.id, e] as const] : [])),
-);
-// Spec 2: Level 2 always shows all seven, in this order. 不有 is never right.
-const level2 = ["a.shi", "a.bushi", "a.you", "a.meiyou", "a.buyou", "a.zai", "a.buzai"];
-
 // Spec 2 and 8.1: the CPU's question and the answer buttons. Level 1 shows pinyin
 // and offers the question verb's two answers; Level 2 offers all seven, with
 // pinyin only when the toggle is on. At Level 1 a hint shows the English, and
@@ -23,17 +16,19 @@ export function CpuQuestion({
   pron,
   level,
   pinyin,
+  hintShown,
+  onShowHint,
   onAnswer,
 }: {
   questionKey: string;
   pron: string;
   level: 1 | 2;
   pinyin: boolean;
+  hintShown: boolean; // held by Game, so it survives the sheet and panel swap
+  onShowHint: () => void;
   onAnswer: (answerId: string, hintShown: boolean) => void;
 }) {
-  const [hintShown, setHintShown] = useState(false);
-  const verb = verbs.get(parseKey(questionKey).verbId);
-  const ids = level === 1 ? [verb?.yes ?? "", verb?.no ?? ""] : level2;
+  const ids = answerIds(questionKey, level);
   const showPinyin = level === 1 || pinyin;
 
   return (
@@ -50,7 +45,7 @@ export function CpuQuestion({
         ) : (
           <button
             type="button"
-            onClick={() => setHintShown(true)}
+            onClick={onShowHint}
             className="inline-flex min-h-11 items-center self-start text-sm text-blue-700 underline"
           >
             Show hint

@@ -280,7 +280,21 @@ At 1024 × 640 the panel has 640 − 56 (TopBar) − 61 (summary) − 101 (actio
 | L2 builder without Clear and Ask (ZS 7.2) | 332px | 90px, of which the log uses its 44px header (ZD17) |
 | CPU question, L2, 7 answers | about 260px | about 160px |
 
-These are estimates from today's component sizes (the Level 2 builder measured 388px including Clear and Ask, Chromium, 2026-10-08), and they leave out FeedbackText. `TBD:` the layout card measures each on the build and records the numbers here: every phase area with its tallest FeedbackText showing (after a rejected question), Level 2 with pinyin on and off, and the width of the longest Level 1 question with its ruby pinyin, `他在饭店吗？`, against its column (about 133px of the 448px panel). **Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase. The SyncBanner (ZS 11) takes its height from the same budget while it shows; then, and only then, the phase area may scroll at 1024 × 640.
+**Measured** on the production build at 1024 × 640, Chromium and WebKit, 2026-10-13 (PLAY-059), and checked on every run by `e2e/zh/desktop.spec.ts`:
+
+| Phase area | Height |
+|---|---|
+| L2 builder, pinyin off or on (the tray and tiles keep their height) | 318px |
+| L2 builder with one mistake's feedback above it | 362px |
+| L2 builder with three mistakes' feedback (`你狗有`, the most there can be) | 431px: scrolls (ZD18) |
+| `playerReview` | 120px at L2, 153px at L1 |
+| `cpuTurn` L2, 7 answers | 224px |
+| `cpuTurn` L1 with the hint shown | 225px |
+| `cpuReview` after a wrong answer | 149px |
+
+The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is what lets one mistake's feedback fit. Still to measure, with the cards that build them: the Level 1 groups and the width of `他在饭店吗？` in its column (PLAY-067), and the builder with the find field in its top row (PLAY-070). The SyncBanner (ZS 11) takes its height from the same budget while it shows.
+
+**Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. Two exceptions (ZD18): feedback for more than one mistake, and the SyncBanner showing. Then the area scrolls, starting at its top, where the feedback is. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase.
 
 ## ZS 7. Desktop tools
 
@@ -409,7 +423,7 @@ export type KeyLike = {
 
 **Order of checks**, the first match returns `null`: (1) Ctrl, Cmd or Alt held; (2) the target is an input, textarea, select or contenteditable; (3) a dialog is open (these three are `shortcutGuard`); (4) the key is not in the table; (5) the cell is `-` or its condition fails. Letters match in either case. When the result is not `null`, the listener calls `preventDefault()`.
 
-`Game` maps each action to an existing handler or a focus move. `answer` picks the id at that index of `answerIds(questionKey, level)`, a function exported from `CpuQuestion.tsx` that the buttons also render from, so the key and the button can never disagree. `showHint` clicks CpuQuestion's own "Show hint", so `zh.md` 6's hint rule is unchanged.
+`Game` maps each action to an existing handler or a focus move. `answer` picks the id at that index of `answerIds(questionKey, level)`, a function in `game/answers.ts` that the buttons also render from, so the key and the button can never disagree. `showHint` clicks CpuQuestion's own "Show hint", so `zh.md` 6's hint rule is unchanged.
 
 ### ZS 9.2 Transition table
 
@@ -502,7 +516,7 @@ The board grid follows the WAI-ARIA grid pattern (APG: Grid), with roving tabind
 
 | Dialog | Phone (unchanged) | Desktop |
 |---|---|---|
-| CardDetail | Centred, face `min(80vw, 22rem)` | Centred, face `28rem`, attributes in Chinese with pinyin |
+| CardDetail | Centred, face `min(80vw, 22rem)` | Centred, face `28rem`, still with no text (ZD19) |
 | GuessConfirm | `min(90vw, 22rem)` | `24rem`; focus starts on the confirm button, which ignores a held key's repeats (ZS 2.2) |
 | SaveProgressPrompt, SignInSheet | as today | Already shared and desktop-ready |
 | GameMenu | Popover | Popover; closes on Esc and outside click |
@@ -689,6 +703,8 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 | ZD15 | `a` asks, replacing `zh.md` 8.3's "Enter in the tray" | Enter on a focused tile already adds or removes it; Enter on the empty find field also asks |
 | ZD16 | A committed IME phrase that is exactly a run of tiles adds them all | An IME's unit is the phrase; "No word matches" for a correct sentence would turn away the learners the find field invites. Nothing is parsed, so it is not Level 3 |
 | ZD17 | At Level 2 the round log is closed during `playerTurn`, opened on request | An always-open log shows the question about to be built, and the `produce` rating would measure copying. Decided for the owner on 2026-10-13, to be confirmed |
+| ZD18 | Feedback for two or more mistakes may make the Level 2 phase area scroll at 1024 × 640 | Measured: the builder is 318px and one mistake's feedback brings it to 362px, inside 378px; three mistakes need 431px. Shrinking the tiles below 44px to fit the rare case would cost every turn |
+| ZD19 | CardDetail shows no attribute list at `lg` | v0.1 asked for the attributes in Chinese with pinyin. Words beside the picture label it, and the learner is rated on recognising those words when the CPU asks about their card. `zh.md` 3.5 keeps the detail view text-free for the same reason. Decided for the owner on 2026-10-13, to be confirmed |
 
 ## ZS 15. References
 
@@ -709,3 +725,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-08: v0. Full desktop spec for Shéi, replacing the v0.1 list of differences from `it-desktop.md`. Adds the height-sized board with a flexible panel, Level 1 questions grouped by verb, Level 2 type-to-find, the round log and word glosses. Level 2 builder measured on the production build: the 7-tile row overflows a 22rem panel and the builder is 388px tall with Clear and Ask.
 - 2026-10-08: v0.1. Milestones matched to the backlog cards (PLAY-057 to PLAY-063 and PLAY-066 to PLAY-075). Owner review: the panel is fixed at `minmax(24rem, 28rem)` like Chi è?'s, not flexible (ZD3); ZD9 and ZD14 confirmed.
 - 2026-10-12: v0.2. Paper trace (PLAY-066, `docs/reviews/zh-desktop-paper-trace.md`), findings F1 to F15. Fixed: where focus goes when the game opens and when a phase change removes the focused control; a held key acts once; `l` and Esc with the log collapsed; what counts as an open dialog; `KeyLike` restated; ShortcutsDialog lists the ZS 9.4 keys; Tab and blur in the find field; the height budget names FeedbackText, the SyncBanner and the Level 1 column width; "Chinese" stays on Home at `lg`; `setup` in ZS 6.2; arrows past a fully asked column; the CI note after PLAY-038 (ZD12). Decided on 2026-10-13, on the owner's behalf and to be confirmed: a committed IME phrase that is a run of tiles adds them all (ZS 7.2, ZD16), and at Level 2 the round log stays closed during `playerTurn` (ZS 7.3, ZD17).
+- 2026-10-13: Game layout built (PLAY-059, PLAY-060). ZS 6.3 has measured heights in place of estimates; the builder is tighter at `lg`. ZD18: feedback for two or more mistakes may scroll. ZD19: CardDetail stays text-free at `lg`. `answerIds` lives in `game/answers.ts`.

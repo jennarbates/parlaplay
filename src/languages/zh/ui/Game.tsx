@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router";
 import { content } from "../content/index.ts";
 import type { GameState, Level } from "../engine/index.ts";
 import { useAccountStore } from "../../../core/store/account.ts";
+import { boardVars } from "../../../core/ui/boardLayout.ts";
+import { SidePanel } from "../../../core/ui/SidePanel.tsx";
+import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
+import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
 import { useGameStore } from "../store/gameStore.ts";
 import { useSettings, type Pronoun } from "../store/settings.ts";
 import { Board } from "./game/Board.tsx";
@@ -11,6 +16,7 @@ import { CpuQuestion } from "./game/CpuQuestion.tsx";
 import { FeedbackText } from "./game/FeedbackText.tsx";
 import { GameMenu } from "./game/GameMenu.tsx";
 import { GuessConfirm } from "./game/GuessConfirm.tsx";
+import { boardLayout } from "./game/layout.ts";
 import { QuestionPicker } from "./game/QuestionPicker.tsx";
 import { RoundEnd } from "./game/RoundEnd.tsx";
 import { Ruby } from "./game/Ruby.tsx";
@@ -23,8 +29,9 @@ import { paths } from "../paths.ts";
 const byId = new Map(content.characters.map((c) => [c.id, c]));
 
 const primary =
-  "min-h-12 flex-1 rounded-xl bg-stone-900 px-4 font-semibold text-white active:bg-stone-700";
-const secondary = "min-h-12 flex-1 rounded-xl bg-stone-200 px-4 font-semibold active:bg-stone-300";
+  "min-h-12 flex-1 rounded-xl bg-stone-900 px-4 font-semibold text-white hover:bg-stone-700 active:bg-stone-700";
+const secondary =
+  "min-h-12 flex-1 rounded-xl bg-stone-200 px-4 font-semibold hover:bg-stone-300 active:bg-stone-300";
 
 export function Game() {
   const { status, game, gameId, lastAction, start, dispatch, quit } = useGameStore();
@@ -34,6 +41,15 @@ export function Game() {
   const [params] = useSearchParams();
   const [zoomed, setZoomed] = useState<string>();
   const [guessFor, setGuessFor] = useState<string>();
+  // Open a dialog for a card. Asking again for the card whose dialog just closed
+  // (its close event can still be on its way) clears it first, so it reopens.
+  const openFor =
+    (set: (id: string | undefined) => void, current: string | undefined) => (id: string) => {
+      if (current === id) flushSync(() => set(undefined));
+      set(id);
+    };
+  const desktop = useIsDesktop();
+  const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
 
   // /play with no round in progress starts one (at ?level=, default 1). ?seed= is
   // for tests that need a known game. Only on arrival: after Quit round the page
@@ -51,25 +67,48 @@ export function Game() {
 
   // Open the sheet when there is something to do in it; fold it away when the
   // board is what matters (flipping cards after an answer). Each new phase resets
-  // the sheet and cancels a half-made guess.
+  // the sheet and cancels a half-made guess. At lg the panel is always open and
+  // sheetOpen is ignored, but kept for a resize back to the phone. The half-built
+  // Level 2 question and the shown hint live here too, so they survive the swap
+  // between sheet and panel (zh-desktop.md ZS 2.2). The tray is cleared by a new
+  // turn, not by a rejected question, as before.
   const phase = game?.phase;
   const wrongAnswer = phase === "cpuReview" && !!game?.lastFeedback?.length;
   const phaseKey = `${phase}|${game?.turn}|${wrongAnswer}`;
-  const [ui, setUi] = useState({ phaseKey: "", sheetOpen: true, guessing: false });
+  const [ui, setUi] = useState({
+    phaseKey: "",
+    turn: 0,
+    sheetOpen: true,
+    guessing: false,
+    hintShown: false,
+    tray: [] as string[],
+  });
   if (ui.phaseKey !== phaseKey) {
     setUi({
       phaseKey,
+      turn: game?.turn ?? 0,
       sheetOpen: phase === "playerTurn" || phase === "cpuTurn" || phase === "over" || wrongAnswer,
       guessing: false,
+      hintShown: false,
+      tray: ui.turn === game?.turn ? ui.tray : [],
     });
   }
-  const { sheetOpen, guessing } = ui;
+  const { sheetOpen, guessing, hintShown, tray } = ui;
   const setSheetOpen = (open: boolean) => setUi((u) => ({ ...u, sheetOpen: open }));
   const setGuessing = (on: boolean) => setUi((u) => ({ ...u, guessing: on }));
 
-  if (status !== "ready" || !settled || !game) return <SkeletonBoard />;
+  // ZS 2.2: a resize across lg swaps the board and the panel, which drops focus if
+  // it was in them; it goes to the board's card instead.
+  const wasDesktop = useRef(desktop);
+  useEffect(() => {
+    if (wasDesktop.current === desktop) return;
+    wasDesktop.current = desktop;
+    if (document.activeElement === document.body) focusBoard();
+  }, [desktop]);
+
+  if (status !== "ready" || !settled || !game) return <SkeletonBoard desktop={desktop} />;
   const secret = byId.get(game.playerSecret);
-  if (!secret) return <SkeletonBoard />;
+  if (!secret) return <SkeletonBoard desktop={desktop} />;
 
   if (game.phase === "over") {
     return (
@@ -83,7 +122,12 @@ export function Game() {
   }
 
   const { summary, body, actions } = sheetFor(game, {
+    desktop,
     guessing,
+    hintShown,
+    showHint: () => setUi((u) => ({ ...u, hintShown: true })),
+    tray,
+    setTray: (update) => setUi((u) => ({ ...u, tray: update(u.tray) })),
     pinyin,
     setPinyin,
     pronoun,
@@ -98,35 +142,57 @@ export function Game() {
     cancelGuess: () => setGuessing(false),
   });
 
-  return (
-    <div className="flex h-dvh flex-col">
-      <TopBar
-        game={game}
-        secret={secret}
-        onZoom={() => setZoomed(secret.id)}
-        menu={
-          <GameMenu
-            onQuit={() => {
-              // Leave first: /play starts a new round whenever there is none.
-              void navigate(paths.home);
-              quit();
-            }}
-          />
-        }
-      />
-      {/* Room for the collapsed sheet, so the open sheet overlays the board instead of shrinking it. */}
-      <div className="flex min-h-0 flex-1 flex-col pb-[7.5rem]">
-        <Board
-          characters={content.characters}
-          flipped={game.flipped}
-          guessing={guessing}
-          onTap={(id) => (guessing ? setGuessFor(id) : dispatch({ type: "FLIP", characterId: id }))}
-          onZoom={setZoomed}
-          onUnflipAll={() => {
-            for (const id of game.flipped) dispatch({ type: "FLIP", characterId: id });
+  const topBar = (
+    <TopBar
+      game={game}
+      secret={secret}
+      onZoom={() => openFor(setZoomed, zoomed)(secret.id)}
+      menu={
+        <GameMenu
+          onQuit={() => {
+            // Leave first: /play starts a new round whenever there is none.
+            void navigate(paths.home);
+            quit();
           }}
         />
+      }
+    />
+  );
+  const board = (
+    <Board
+      characters={content.characters}
+      flipped={game.flipped}
+      guessing={guessing}
+      desktop={desktop}
+      hoverPreview={desktop && finePointer && !guessing}
+      onTap={(id) =>
+        guessing ? openFor(setGuessFor, guessFor)(id) : dispatch({ type: "FLIP", characterId: id })
+      }
+      onZoom={openFor(setZoomed, zoomed)}
+      onUnflipAll={() => {
+        for (const id of game.flipped) dispatch({ type: "FLIP", characterId: id });
+      }}
+    />
+  );
+
+  // zh-desktop.md ZS 5.2: the board on the left, the always-open panel on the
+  // right, the top bar (and the sync banner, ZS 11) across both.
+  const screen = desktop ? (
+    <div className={desktopGrid}>
+      <div className="col-span-2">
+        {topBar}
+        <SyncBanner />
       </div>
+      <div className="flex min-h-0 flex-col bg-stone-50">{board}</div>
+      <SidePanel summary={summary} actions={actions}>
+        {body}
+      </SidePanel>
+    </div>
+  ) : (
+    <div className="flex h-dvh flex-col">
+      {topBar}
+      {/* Room for the collapsed sheet, so the open sheet overlays the board instead of shrinking it. */}
+      <div className="flex min-h-0 flex-1 flex-col pb-[7.5rem]">{board}</div>
       <Sheet
         summary={summary}
         open={sheetOpen}
@@ -135,6 +201,12 @@ export function Game() {
       >
         {body}
       </Sheet>
+    </div>
+  );
+
+  return (
+    <>
+      {screen}
       <CardDetail
         character={zoomed ? byId.get(zoomed) : undefined}
         onClose={() => setZoomed(undefined)}
@@ -149,12 +221,28 @@ export function Game() {
           setGuessing(false);
         }}
       />
-    </div>
+    </>
   );
 }
 
+// ZS 5.2 (ZD3): the panel is 2rem wider than Chi è?'s, for Level 2's row of 7 tiles.
+const desktopGrid = "grid h-dvh grid-cols-[1fr_minmax(24rem,28rem)] grid-rows-[auto_1fr]";
+
+// The board's card in the tab order (desktop), or its first card (phone).
+function focusBoard() {
+  (
+    document.querySelector<HTMLElement>('[aria-label="Board"] [data-card][tabindex="0"]') ??
+    document.querySelector<HTMLElement>('[aria-label="Board"] [data-card]')
+  )?.focus();
+}
+
 type Handlers = {
+  desktop: boolean; // "Click" instead of "Tap", and Clear and Ask in the actions (ZS 6.2)
   guessing: boolean;
+  hintShown: boolean;
+  showHint: () => void;
+  tray: string[];
+  setTray: (update: (tray: string[]) => string[]) => void;
   pinyin: boolean; // the Level 2 toggle; Level 1 always shows pinyin (D14)
   setPinyin: (on: boolean) => void;
   pronoun: Pronoun;
@@ -185,7 +273,7 @@ function sheetFor(
     case "playerTurn": {
       if (h.guessing) {
         return {
-          summary: <strong>Tap the card you think it is.</strong>,
+          summary: <strong>{h.desktop ? "Click" : "Tap"} the card you think it is.</strong>,
           body: null,
           actions: (
             <button type="button" onClick={h.cancelGuess} className={secondary}>
@@ -207,14 +295,34 @@ function sheetFor(
                 onAsk={h.ask}
               />
             ) : (
-              <TileBuilder key={game.turn} pinyin={h.pinyin} onPinyin={h.setPinyin} onAsk={h.ask} />
+              <TileBuilder
+                tray={h.tray}
+                setTray={h.setTray}
+                pinyin={h.pinyin}
+                onPinyin={h.setPinyin}
+                onAsk={h.ask}
+                desktop={h.desktop}
+              />
             )}
           </div>
         ),
         actions: (
-          <button type="button" onClick={h.startGuess} className={secondary}>
-            Guess
-          </button>
+          <>
+            {/* ZD5: at lg Level 2's Clear and Ask are here, where they never scroll away. */}
+            {h.desktop && game.level === 2 && (
+              <>
+                <button type="button" onClick={() => h.setTray(() => [])} className={secondary}>
+                  Clear
+                </button>
+                <button type="button" onClick={() => h.ask(h.tray)} className={primary}>
+                  Ask
+                </button>
+              </>
+            )}
+            <button type="button" onClick={h.startGuess} className={secondary}>
+              Guess
+            </button>
+          </>
         ),
       };
     }
@@ -236,7 +344,7 @@ function sheetFor(
             {/* Spec 8.2: a pronoun slip is a muted line under the answer. */}
             <FeedbackText feedback={game.lastFeedback} tone="muted" />
             <p className="text-sm text-stone-600">
-              Flip down everyone this rules out, then tap Next.
+              Flip down everyone this rules out, then {h.desktop ? "click" : "tap"} Next.
             </p>
           </div>
         ) : null,
@@ -253,6 +361,8 @@ function sheetFor(
             pron={q.pron}
             level={game.level}
             pinyin={h.pinyin}
+            hintShown={h.hintShown}
+            onShowHint={h.showHint}
             onAnswer={h.answer}
           />
         ) : null,
@@ -290,18 +400,27 @@ function sheetFor(
 }
 
 // Spec 8.2: loading shows the board's shape, so nothing jumps when it arrives.
-function SkeletonBoard() {
+// At lg (zh-desktop.md ZS 11) that is the same 6 × 4 grid and an empty panel outline.
+function SkeletonBoard({ desktop }: { desktop: boolean }) {
+  const cards = (
+    <div
+      className={`grid flex-1 grid-cols-6 gap-[var(--gap)] ${desktop ? "p-6" : "p-2 pb-32"}`}
+      style={boardVars(desktop, boardLayout(desktop))}
+    >
+      {Array.from({ length: 24 }, (_, i) => (
+        <div key={i} className="animate-pulse rounded-md bg-stone-200 motion-reduce:animate-none" />
+      ))}
+    </div>
+  );
   return (
-    <div className="flex h-dvh flex-col" aria-busy="true" aria-label="Loading">
-      <div className="h-14 shrink-0 border-b border-stone-200 bg-white" />
-      <div className="grid flex-1 grid-cols-6 gap-1 p-2 pb-32">
-        {Array.from({ length: 24 }, (_, i) => (
-          <div
-            key={i}
-            className="animate-pulse rounded-md bg-stone-200 motion-reduce:animate-none"
-          />
-        ))}
-      </div>
+    <div
+      className={desktop ? desktopGrid : "flex h-dvh flex-col"}
+      aria-busy="true"
+      aria-label="Loading"
+    >
+      <div className="col-span-2 h-14 shrink-0 border-b border-stone-200 bg-white" />
+      {desktop ? <div className="flex min-h-0 flex-col">{cards}</div> : cards}
+      {desktop && <div className="border-l border-stone-200 bg-white" />}
     </div>
   );
 }

@@ -1,11 +1,22 @@
 import { useEffect, useRef, useState } from "react";
+import { onBackdropClick } from "../../../../core/ui/dialog.ts";
 
 // Spec 8.1: a menu with "Quit round", which asks to confirm. Quitting records the
 // round as abandoned (spec 2); words already practised stay in the log.
-export function GameMenu({ onQuit }: { onQuit: () => void }) {
+// zh-desktop.md ZS 9.4: it also opens the keyboard shortcuts, and closes on Esc
+// or a click outside it, giving focus back to the menu button.
+export function GameMenu({
+  onQuit,
+  onShortcuts,
+}: {
+  onQuit: () => void;
+  onShortcuts?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
+  const wrapper = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const d = dialog.current;
     if (!d) return;
@@ -13,22 +24,57 @@ export function GameMenu({ onQuit }: { onQuit: () => void }) {
     if (!confirming && d.open) d.close();
   }, [confirming]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      // Esc closes the menu and nothing else (not a guess in progress, ZS 9.2).
+      e.stopPropagation();
+      e.preventDefault();
+      setOpen(false);
+      button.current?.focus();
+    };
+    const onPointer = (e: PointerEvent) => {
+      if (!wrapper.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("pointerdown", onPointer, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("pointerdown", onPointer, true);
+    };
+  }, [open]);
+
   return (
-    <div className="relative">
+    <div ref={wrapper} className="relative">
       <button
+        ref={button}
         type="button"
         aria-label="Menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-11 w-11 items-center justify-center rounded-full text-2xl leading-none active:bg-stone-100"
+        className="flex h-11 w-11 items-center justify-center rounded-full text-2xl leading-none hover:bg-stone-100 active:bg-stone-100"
       >
         ⋯
       </button>
       {open && (
         <div
           role="menu"
-          className="absolute top-12 right-0 z-30 w-44 rounded-xl bg-white p-1 shadow-lg ring-1 ring-stone-200"
+          className="absolute top-12 right-0 z-30 w-52 rounded-xl bg-white p-1 shadow-lg ring-1 ring-stone-200"
         >
+          {onShortcuts && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onShortcuts();
+              }}
+              className="min-h-11 w-full rounded-lg px-3 text-left hover:bg-stone-100 active:bg-stone-100"
+            >
+              Keyboard shortcuts
+            </button>
+          )}
           <button
             type="button"
             role="menuitem"
@@ -44,7 +90,9 @@ export function GameMenu({ onQuit }: { onQuit: () => void }) {
       )}
       <dialog
         ref={dialog}
+        onCancel={() => setConfirming(false)}
         onClose={() => setConfirming(false)}
+        onClick={onBackdropClick(() => setConfirming(false))}
         aria-labelledby="quit-title"
         className="m-auto w-[min(90vw,22rem)] rounded-2xl p-5 backdrop:bg-black/50"
       >

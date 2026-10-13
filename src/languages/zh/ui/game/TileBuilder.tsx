@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { content } from "../../content/index.ts";
 import type { LexiconEntry } from "../../content/schemas.ts";
 import { Word } from "./Ruby.tsx";
@@ -17,24 +16,33 @@ const rows: { label: string; tiles: LexiconEntry[] }[] = [
   { label: "Pets and things", tiles: pick(["n.gou", "n.mao", "n.shouji", "n.shu", "n.diannao"]) },
   { label: "Places", tiles: pick(["n.jia", "n.xuexiao", "n.yiyuan", "n.fandian"]) },
 ];
-const maxTray = 6;
+export const maxTray = 6;
 
+// The tray is held by Game, so a half-built question survives the swap between
+// the phone's sheet and the desktop panel (zh-desktop.md ZS 2.2). At lg, Clear and
+// Ask sit in the panel's actions instead of here (ZD5).
 export function TileBuilder({
+  tray,
+  setTray,
   pinyin,
   onPinyin,
   onAsk,
+  desktop = false,
 }: {
+  tray: string[];
+  setTray: (update: (tray: string[]) => string[]) => void;
   pinyin: boolean;
   onPinyin: (on: boolean) => void;
   onAsk: (tokens: string[]) => void;
+  desktop?: boolean;
 }) {
-  const [tray, setTray] = useState<string[]>([]);
   const add = (id: string) => setTray((t) => (t.length >= maxTray ? t : [...t, id]));
   const removeAt = (i: number) => setTray((t) => t.filter((_, j) => j !== i));
 
   return (
     <form
-      className="flex flex-col gap-2 py-2"
+      // Tighter at lg, so one piece of feedback above it still fits 1024 × 640 (ZS 6.3).
+      className={`flex flex-col ${desktop ? "gap-1.5 py-1" : "gap-2 py-2"}`}
       onSubmit={(e) => {
         e.preventDefault();
         onAsk(tray);
@@ -58,7 +66,11 @@ export function TileBuilder({
         aria-label="Your question"
         className="flex min-h-14 flex-wrap items-center gap-1 rounded-xl bg-white px-2 py-1 ring-1 ring-stone-300"
       >
-        {tray.length === 0 && <span className="text-sm text-stone-400">Tap words below</span>}
+        {tray.length === 0 && (
+          <span className="text-sm text-stone-400">
+            {desktop ? "Click words below, or type pinyin" : "Tap words below"}
+          </span>
+        )}
         {tray.map((id, i) => {
           const e = entry.get(id);
           return e ? (
@@ -89,7 +101,7 @@ export function TileBuilder({
               type="button"
               onClick={() => add(e.id)}
               disabled={tray.length >= maxTray}
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stone-100 px-2 text-lg ring-1 ring-stone-300 enabled:active:bg-stone-200 disabled:opacity-50"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stone-100 px-2 text-lg ring-1 ring-stone-300 enabled:hover:bg-stone-200 enabled:active:bg-stone-200 disabled:opacity-50"
             >
               <Word hanzi={e.hanzi} pinyin={e.pinyin} showPinyin={pinyin} />
             </button>
@@ -97,21 +109,23 @@ export function TileBuilder({
         </div>
       ))}
 
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => setTray([])}
-          className="min-h-12 rounded-xl bg-stone-200 font-semibold active:bg-stone-300"
-        >
-          Clear
-        </button>
-        <button
-          type="submit"
-          className="min-h-12 rounded-xl bg-stone-900 font-semibold text-white active:bg-stone-700"
-        >
-          Ask
-        </button>
-      </div>
+      {!desktop && (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setTray(() => [])}
+            className="min-h-12 rounded-xl bg-stone-200 font-semibold active:bg-stone-300"
+          >
+            Clear
+          </button>
+          <button
+            type="submit"
+            className="min-h-12 rounded-xl bg-stone-900 font-semibold text-white active:bg-stone-700"
+          >
+            Ask
+          </button>
+        </div>
+      )}
     </form>
   );
 }
