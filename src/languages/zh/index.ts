@@ -33,17 +33,14 @@ useRounds.getState().register("zh", {
   },
 });
 
-// zh-desktop.md ZS 5.1: the game takes the whole window at lg. Home and Progress
-// keep the phone's width until their desktop layouts land (PLAY-062).
-const width = "lg:max-w-md";
-
 const chinese: LanguageModule = {
   code: "zh",
   contentVersion,
   routes: [
-    { index: true, Component: Home, handle: { width } },
+    // zh-desktop.md ZS 5.1: each screen's width at lg; the game takes the whole window.
+    { index: true, Component: Home, handle: { width: "lg:max-w-5xl" } },
     { path: "play", Component: Game, handle: { width: "lg:max-w-none", game: true } },
-    { path: "progress", Component: Progress, handle: { width } },
+    { path: "progress", Component: Progress, handle: { width: "lg:max-w-6xl" } },
   ],
   cardIds,
   labelFor,
