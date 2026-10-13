@@ -1,9 +1,19 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router";
 import { requestSignOut } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
 import { useStore } from "zustand";
-import { firstCode, languageOf } from "../registry.ts";
+import type { DeviceSettingsSection, SettingToggleProps } from "../language-module.ts";
+import type { Language } from "../languages.ts";
+import { registry } from "../registry.ts";
 import { prefsStore } from "../store/prefs.ts";
 import { onBackdropClick } from "./dialog.ts";
 import { SignInSheet } from "./SignInSheet.tsx";
@@ -15,16 +25,33 @@ const levelDetail = {
   2: "build questions from tiles",
 } as const;
 
-// Spec 8.1: the default level, the account (sign in, or sign out with the
-// unsynced warning), and the privacy note.
+// Each language's device settings (platform spec 3.3), for a language that has
+// any: src/languages/{code}/settings.tsx, loaded when Settings opens. It is not the
+// language's module, so Settings never loads a game (D17). Offline, the section
+// shows the level alone.
+const deviceSettings: Record<string, DeviceSettingsSection | undefined> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<DeviceSettingsSection>("../../languages/*/settings.tsx", {
+      import: "default",
+    }),
+  ).map(([path, load]) => [
+    path.split("/").at(-2) ?? "",
+    lazy(async (): Promise<{ default: DeviceSettingsSection }> => {
+      try {
+        return { default: await load() };
+      } catch {
+        return { default: () => null };
+      }
+    }),
+  ]),
+);
+
+// Platform spec 8.1: the account (sign in, or sign out with the unsynced warning),
+// then one section per language with its level and its device settings, then the
+// privacy note.
 export function Settings() {
   const home = useShell(homePath);
   const { status, email, userId } = useAuthStore();
-  // The level of the language last open (platform spec 2: one level per language).
-  // One section per language comes with PLAY-029.
-  const code = useShell((s) => s.state.language ?? s.recent ?? s.state.lastLanguage) ?? firstCode;
-  const language = languageOf(code).englishName;
-  const { level, setLevel } = useStore(prefsStore(code));
   const desktop = useIsDesktop();
   const [signingIn, setSigningIn] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -140,48 +167,23 @@ export function Settings() {
     </>
   );
 
-  // Desktop spec DS 9.4: sections Game, Account and About, each setting a row
-  // with its label and description on the left and its control on the right.
+  // Desktop spec DS 9.4: sections Account, one per language, and About, each
+  // setting a row with its label and description on the left and its control on
+  // the right.
   if (desktop) {
     return (
       <section className="flex flex-col gap-8 p-10">
         <h1 className="text-3xl font-semibold">Settings</h1>
-        <DesktopSection title="Game">
-          <Row
-            label={
-              <p id="default-level" className="font-medium">
-                Default level
-              </p>
-            }
-            description={`The level Play starts at in ${language}.`}
-          >
-            <div role="radiogroup" aria-labelledby="default-level" className="flex gap-2">
-              {([1, 2] as const).map((l) => (
-                <label
-                  key={l}
-                  title={levelDetail[l]}
-                  className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-white px-4 ring-2 hover:bg-stone-100 ${
-                    level === l ? "ring-stone-900" : "ring-stone-200"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="default-level"
-                    checked={level === l}
-                    onChange={() => void setLevel(l, userId)}
-                    className="h-5 w-5 accent-stone-900"
-                  />
-                  Level {l}
-                </label>
-              ))}
-            </div>
-          </Row>
-        </DesktopSection>
         <DesktopSection title="Account">
           <Row label={<p className="font-medium">Sign-in</p>} description={account.text}>
             {account.button}
           </Row>
         </DesktopSection>
+        {registry.map((language) => (
+          <DesktopSection key={language.code} title={language.englishName}>
+            <LanguageRows language={language} userId={userId} desktop />
+          </DesktopSection>
+        ))}
         <DesktopSection title="About">
           <Row
             label={<p className="font-medium">Privacy</p>}
@@ -223,24 +225,18 @@ export function Settings() {
         {account.button}
       </section>
 
-      <fieldset className="flex flex-col gap-2 rounded-2xl bg-white p-4 ring-1 ring-stone-200">
-        <legend className="float-left mb-1 font-semibold">Default level</legend>
-        <p className="text-sm text-stone-600">{language}</p>
-        {([1, 2] as const).map((l) => (
-          <label key={l} className="flex min-h-11 cursor-pointer items-center gap-3">
-            <input
-              type="radio"
-              name="default-level"
-              checked={level === l}
-              onChange={() => void setLevel(l, userId)}
-              className="h-5 w-5 accent-stone-900"
-            />
-            <span>
-              Level {l} <span className="text-sm text-stone-600">· {levelDetail[l]}</span>
-            </span>
-          </label>
-        ))}
-      </fieldset>
+      {registry.map((language) => (
+        <section
+          key={language.code}
+          aria-labelledby={`settings-${language.code}`}
+          className="flex flex-col gap-3 rounded-2xl bg-white p-4 ring-1 ring-stone-200"
+        >
+          <h2 id={`settings-${language.code}`} className="font-semibold">
+            {language.englishName}
+          </h2>
+          <LanguageRows language={language} userId={userId} />
+        </section>
+      ))}
 
       <Link
         to="/privacy"
@@ -253,8 +249,123 @@ export function Settings() {
   );
 }
 
+// One language's level (platform spec 2: one level per language) and its device
+// settings, as rows on desktop and stacked on the phone.
+function LanguageRows({
+  language,
+  userId,
+  desktop = false,
+}: {
+  language: Language;
+  userId: string | null;
+  desktop?: boolean;
+}) {
+  const { code, englishName } = language;
+  const { level, setLevel } = useStore(prefsStore(code));
+  const DeviceSettings = deviceSettings[code];
+  const name = `default-level-${code}`;
+
+  if (desktop) {
+    return (
+      <>
+        <Row
+          label={
+            <p id={name} className="font-medium">
+              Default level
+            </p>
+          }
+          description={`The level Play starts at in ${englishName}.`}
+        >
+          <div role="radiogroup" aria-labelledby={name} className="flex gap-2">
+            {([1, 2] as const).map((l) => (
+              <label
+                key={l}
+                title={levelDetail[l]}
+                className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-white px-4 ring-2 hover:bg-stone-100 ${
+                  level === l ? "ring-stone-900" : "ring-stone-200"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={name}
+                  checked={level === l}
+                  onChange={() => void setLevel(l, userId)}
+                  className="h-5 w-5 accent-stone-900"
+                />
+                Level {l}
+              </label>
+            ))}
+          </div>
+        </Row>
+        {DeviceSettings && (
+          <Suspense>
+            <DeviceSettings Toggle={DesktopToggle} />
+          </Suspense>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 text-sm text-stone-600">Default level</legend>
+        {([1, 2] as const).map((l) => (
+          <label key={l} className="flex min-h-11 cursor-pointer items-center gap-3">
+            <input
+              type="radio"
+              name={name}
+              checked={level === l}
+              onChange={() => void setLevel(l, userId)}
+              className="h-5 w-5 accent-stone-900"
+            />
+            <span>
+              Level {l} <span className="text-sm text-stone-600">· {levelDetail[l]}</span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
+      {DeviceSettings && (
+        <Suspense>
+          <DeviceSettings Toggle={PhoneToggle} />
+        </Suspense>
+      )}
+    </>
+  );
+}
+
+const checkbox = "h-5 w-5 accent-stone-900";
+
+const PhoneToggle: ComponentType<SettingToggleProps> = ({ label, description, ...input }) => (
+  <label className="flex min-h-11 cursor-pointer items-center gap-3">
+    <input type="checkbox" {...toggleInput(input)} className={checkbox} />
+    <span>
+      {label}
+      {description && <span className="block text-sm text-stone-600">{description}</span>}
+    </span>
+  </label>
+);
+
+const DesktopToggle: ComponentType<SettingToggleProps> = ({ label, description, ...input }) => (
+  <label className="grid cursor-pointer grid-cols-[1fr_auto] items-center gap-6 px-5 py-4">
+    <span className="flex flex-col gap-1">
+      <span className="font-medium">{label}</span>
+      {description && <span className="text-sm text-stone-600">{description}</span>}
+    </span>
+    <span className="flex min-h-11 min-w-11 items-center justify-center">
+      <input type="checkbox" {...toggleInput(input)} className={checkbox} />
+    </span>
+  </label>
+);
+
+const toggleInput = ({ checked, disabled, onChange }: Omit<SettingToggleProps, "label">) => ({
+  checked,
+  disabled,
+  onChange: (e: { target: { checked: boolean } }) => onChange(e.target.checked),
+});
+
 function DesktopSection({ title, children }: { title: string; children: ReactNode }) {
-  const id = `settings-${title.toLowerCase()}`;
+  const id = `settings-${title.toLowerCase()}`; // "settings-account", "settings-italian"
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
       <h2 id={id} className="text-lg font-semibold">

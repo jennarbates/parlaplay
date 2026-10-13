@@ -462,7 +462,7 @@ Shortcuts work at every size (a phone with a keyboard benefits too). The "Press 
 
 ### DS 9.4 Settings
 
-- `max-w-3xl`, sections headed "Game", "Account" and "About" (`h2`). Each setting is a row, `grid grid-cols-[1fr_auto] gap-6`: the label and its description on the left, the control on the right.
+- `max-w-3xl`, sections headed "Account", one per language by its English name ("Italian", "Chinese"), and "About" (`h2`), as platform `spec.md` §8.1 orders them. Each setting is a row, `grid grid-cols-[1fr_auto] gap-6`: the label and its description on the left, the control on the right.
 - The unsynced sign-out confirm (`spec.md` §7.3) is a centred modal, `w-[28rem]` at `lg`.
 
 ### DS 9.5 Privacy
@@ -672,3 +672,4 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 - 2026-10-07: CHI-123. DS 8.2: the ARIA grid and the roving tabindex (board and tile rows) are `lg` only; the phone keeps its list and tab order (DD11). ShortcutsDialog is `min(90vw, 32rem)`, since the menu item is on the phone too.
 - 2026-10-07: CHI-124. DS 9.1: the level picker keeps its "Level" legend (the diagram's "Choose your level" was a sketch). DS 9.4: new row text "Default level" / "The level Play starts at.", "Sign-in" (the account text as its description), "Privacy" / "What is stored, who handles it, and how to delete your account." with the link "Read the privacy note". The Home links on Settings and Privacy are hidden at `lg`.
 - 2026-10-07: CHI-125. DS 3: `dueToday` counts due cards (word × direction), not words, so it equals the Due list's "Due today (n)" as the last invariant asks; the first invariant, which assumed words, now bounds it by the reviewed cards. `localDay()` moved to `src/services/localDay.ts` so e2e tests can use it.
+- 2026-10-12: PLAY-029. DS 9.4: the "Game" section becomes one section per language ("Italian", "Chinese"), after "Account", each with its Default level row ("The level Play starts at in Italian.") and its device settings as rows (Chinese: "Show pinyin at Level 2"), following platform `spec.md` §8.1.

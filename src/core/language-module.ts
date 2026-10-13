@@ -1,4 +1,5 @@
 // Platform spec 3.2: what each language exports, and all the shell knows about it.
+import type { ComponentType } from "react";
 import type { RouteObject } from "react-router";
 import type { ZodType } from "zod";
 import type { LanguageCode } from "./languages.ts";
@@ -24,3 +25,15 @@ export type RouteHandle = {
   width?: string; // the page's width class at lg (desktop spec DS 5)
   game?: boolean; // the game screen: full height, no desktop nav
 };
+
+// Platform spec 8.1: a language's device settings as its section of Settings shows
+// them. A language that has any exports this from src/languages/{code}/settings.tsx,
+// apart from its module, and draws each setting with the Toggle Settings gives it.
+export type SettingToggleProps = {
+  label: string;
+  description?: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (on: boolean) => void;
+};
+export type DeviceSettingsSection = ComponentType<{ Toggle: ComponentType<SettingToggleProps> }>;

@@ -16,16 +16,24 @@ export type Pronoun = DeviceSettings["pronoun"];
 const key = "settings:zh";
 
 type Settings = DeviceSettings & {
+  hydrated: boolean; // the saved values have been read
   hydrate: () => Promise<void>;
   setPinyin: (pinyin: boolean) => void;
   setPronoun: (pronoun: Pronoun) => void;
 };
 
+// The game and Settings both ask; the saved values are read once.
+let hydrating: Promise<void> | undefined;
+
 export const useSettings = create<Settings>((set, get) => ({
   ...DeviceSettings.parse({}),
+  hydrated: false,
 
-  async hydrate() {
-    set(DeviceSettings.parse((await read<unknown>(key)) ?? {}));
+  hydrate() {
+    hydrating ??= read<unknown>(key).then((saved) =>
+      set({ ...DeviceSettings.parse(saved ?? {}), hydrated: true }),
+    );
+    return hydrating;
   },
 
   setPinyin(pinyin) {

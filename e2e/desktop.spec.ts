@@ -562,18 +562,19 @@ test.describe("Home, Settings and Privacy (DS 9.1, 9.4, 9.5)", () => {
     }
   });
 
-  test("Settings is rows under Game, Account and About", async ({ page }) => {
+  test("Settings is rows under Account, each language and About", async ({ page }) => {
     await page.goto("/settings");
-    for (const name of ["Game", "Account", "About"])
+    for (const name of ["Account", "Italian", "Chinese", "About"])
       await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
-    const label = await box(page, page.getByText("Default level", { exact: true }));
-    const control = await box(page, page.getByRole("radiogroup", { name: "Default level" }));
+    const italian = page.getByRole("region", { name: "Italian" });
+    const label = await box(page, italian.getByText("Default level", { exact: true }));
+    const control = await box(page, italian.getByRole("radiogroup", { name: "Default level" }));
     expect(control.x).toBeGreaterThan(label.x + label.width);
     expect(Math.abs(control.y + control.height / 2 - (label.y + label.height / 2))).toBeLessThan(
       30,
     );
     // The default level still works from here.
-    await page.getByRole("radio", { name: "Level 2" }).check();
+    await italian.getByRole("radio", { name: "Level 2" }).check();
     await page.goto("/it");
     await expect(page.getByRole("radio", { name: /Level 2/ })).toBeChecked();
   });
