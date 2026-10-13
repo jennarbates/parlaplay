@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { content } from "../src/languages/it/content/index.ts";
 import { allQuestions } from "../src/languages/it/engine/index.ts";
@@ -191,5 +192,90 @@ test.describe("keyboard only", () => {
     await tabTo(page, (el) => el.text === "Play again");
     await page.keyboard.press("Enter");
     await expect(page.locator("header")).toContainText("Turn 1");
+  });
+});
+
+// axe over Chi è? and the shared screens, at whatever size the profile is: the
+// phones and the desktops both run this (spec 9, WCAG 2.2 AA).
+test.describe("axe finds nothing", () => {
+  const violations = async (page: Page) =>
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`);
+  const phone = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
+  // On the phone the questions are in a sheet that may be folded: open it.
+  const openSheet = async (page: Page) => {
+    if (!phone(page)) return;
+    const toggle = page.getByRole("button", { name: /questions$/ });
+    if ((await toggle.getAttribute("aria-expanded")) === "false") await toggle.click();
+  };
+
+  test("the picker, Home, Progress, Settings, Privacy and not-found", async ({ page }) => {
+    for (const [path, heading] of [
+      ["/languages", "Choose a language"],
+      ["/it", "Chi è?"],
+      ["/it/progress", "Progress"],
+      ["/settings", "Settings"],
+      ["/privacy", "Privacy"],
+      ["/fr", "We don't have that language yet."],
+      ["/import", "We couldn't bring your progress over."],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible();
+      expect(await violations(page), path).toEqual([]);
+    }
+  });
+
+  test("a Level 1 round: every phase, the confirm and round end", async ({ page }) => {
+    await page.goto("/it/play?seed=5");
+    await expect(page.getByRole("list", { name: "Questions to ask" })).toBeVisible();
+    expect(await violations(page), "playerTurn").toEqual([]);
+    await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
+    await expect(page.getByRole("button", { name: "Avanti" })).toBeVisible();
+    await openSheet(page);
+    expect(await violations(page), "playerReview").toEqual([]);
+    await page.getByRole("button", { name: "Avanti" }).click();
+    await page.getByRole("button", { name: "Show hint" }).click();
+    expect(await violations(page), "cpuTurn").toEqual([]);
+    await page
+      .getByRole("button", { name: /^(Sì|No)/ })
+      .first()
+      .click();
+    await expect(page.getByRole("button", { name: "Avanti" })).toBeVisible();
+    await openSheet(page);
+    expect(await violations(page), "cpuReview").toEqual([]);
+    await page.getByRole("button", { name: "Avanti" }).click();
+    await page.getByRole("button", { name: "Indovina" }).click();
+    expect(await violations(page), "guessing").toEqual([]);
+    await page
+      .getByRole("button", { name: /^Guess / })
+      .first()
+      .click();
+    await expect(page.getByRole("dialog")).toContainText("A wrong guess loses the round.");
+    expect(await violations(page), "guess confirm").toEqual([]);
+    await page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Play again" })).toBeVisible();
+    expect(await violations(page), "round end").toEqual([]);
+  });
+
+  test("Level 2: the builder, and feedback after a mistake", async ({ page }) => {
+    await page.goto("/it/play?level=2&seed=8");
+    const tile = (group: string, name: string) =>
+      page
+        .getByRole("group", { name: group, exact: true })
+        .getByRole("button", { name, exact: true });
+    await expect(tile("Verb", "ha")).toBeVisible();
+    expect(await violations(page), "builder").toEqual([]);
+    await tile("Verb", "ha").click();
+    await tile("Article", "il").click();
+    await tile("Noun", "barba").click();
+    await page.getByRole("button", { name: "Chiedi" }).click();
+    await expect(page.getByRole("status").first()).toBeVisible();
+    expect(await violations(page), "feedback").toEqual([]);
+    await page.goto("/it/progress");
+    await expect(page.getByText("il → la").first()).toBeVisible();
+    expect(await violations(page), "Progress with data").toEqual([]);
   });
 });

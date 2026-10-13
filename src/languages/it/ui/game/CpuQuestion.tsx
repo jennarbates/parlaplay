@@ -44,7 +44,7 @@ export function CpuQuestion({
           type="button"
           onClick={() => onAnswer(true, hintShown)}
           aria-keyshortcuts="s"
-          className="min-h-14 rounded-xl bg-emerald-600 text-xl font-semibold text-white active:bg-emerald-700"
+          className="min-h-14 rounded-xl bg-emerald-700 text-xl font-semibold text-white active:bg-emerald-800"
         >
           Sì
           {desktop && <Kbd>S</Kbd>}
