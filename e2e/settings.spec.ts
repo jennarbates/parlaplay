@@ -46,7 +46,7 @@ test("account comes first, then a section per language, then the privacy note", 
     "Account",
     "Italian",
     "Chinese",
-    ...(page.viewportSize()!.width >= 1024 ? ["About"] : []),
+    ...((page.viewportSize()?.width ?? 0) >= 1024 ? ["About"] : []),
   ]);
   await page.getByRole("link", { name: /Privacy|Read the privacy note/ }).click();
   await expect(page).toHaveURL(/\/privacy$/);

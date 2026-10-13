@@ -6,6 +6,7 @@ import { type ReviewLogRow } from "../../../core/store/progressStore.ts";
 import { groupMistakes } from "./mistakes.ts";
 import { Mixed } from "./Mixed.tsx";
 import { labelFor } from "./words.ts";
+import { LanguageSwitch } from "../../../core/ui/LanguageSwitch.tsx";
 import { paths } from "../paths.ts";
 import { useProgressStore } from "../stores.ts";
 
@@ -36,6 +37,8 @@ export function Progress() {
           Home
         </Link>
       </header>
+
+      <LanguageSwitch current="zh" />
 
       <div
         role="tablist"

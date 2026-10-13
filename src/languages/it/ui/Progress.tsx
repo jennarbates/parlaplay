@@ -7,6 +7,7 @@ import { type GameRow, type ReviewLogRow } from "../../../core/store/progressSto
 import { groupMistakes } from "./mistakes.ts";
 import { progressStats } from "./progressStats.ts";
 import { useIsDesktop } from "../../../core/ui/useMediaQuery.ts";
+import { LanguageSwitch } from "../../../core/ui/LanguageSwitch.tsx";
 import { paths } from "../paths.ts";
 import { useProgressStore } from "../stores.ts";
 
@@ -37,6 +38,7 @@ export function Progress() {
     return (
       <section className="flex flex-col gap-6 p-10">
         <h1 className="text-3xl font-semibold">Progress</h1>
+        <LanguageSwitch current="it" />
         {!loaded ? (
           <p aria-busy="true" className="text-stone-600">
             Loading…
@@ -87,6 +89,8 @@ export function Progress() {
           Home
         </Link>
       </header>
+
+      <LanguageSwitch current="it" />
 
       <div
         role="tablist"

@@ -39,3 +39,32 @@ test("an unknown language shows the not-found screen", async ({ page }) => {
   await page.getByRole("link", { name: "Choose a language" }).click();
   await expect(page).toHaveURL(/\/languages$/);
 });
+
+test("Progress switches language without changing the default (8.1, D14)", async ({ page }) => {
+  await chooseItalian(page);
+  await page.goto("/it/progress");
+  const languages = page.getByRole("group", { name: "Language" });
+  await expect(languages.getByRole("button")).toHaveText(["Italian", "Chinese"]);
+  await expect(languages.getByRole("button", { name: "Italian" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(languages.getByRole("button", { name: "Chinese" })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+
+  await languages.getByRole("button", { name: "Chinese" }).click();
+  await expect(page).toHaveURL(/\/zh\/progress$/);
+  await expect(languages.getByRole("button", { name: "Chinese" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await languages.getByRole("button", { name: "Italian" }).click();
+  await expect(page).toHaveURL(/\/it\/progress$/);
+
+  await languages.getByRole("button", { name: "Chinese" }).click();
+  await expect(page).toHaveURL(/\/zh\/progress$/);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/it$/);
+});
