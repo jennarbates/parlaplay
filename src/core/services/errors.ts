@@ -1,7 +1,9 @@
 // Spec 9, D19: Sentry for errors only. No replay, no tracing, no personal data,
-// and no query strings or hashes in any URL that leaves the browser.
+// and no query strings or hashes in any URL that leaves the browser. Platform spec
+// 9, D18: one project for every language, each event tagged with the language open.
 import * as Sentry from "@sentry/react";
 import type { Breadcrumb, ErrorEvent } from "@sentry/react";
+import { codeOf } from "../registry.ts";
 
 // Everything after the path: query strings carry codes and tokens, hashes carry
 // Supabase auth sessions.
@@ -51,6 +53,21 @@ export function scrubEvent(event: ErrorEvent): ErrorEvent {
   return scrubbed;
 }
 
+// The language whose screen the error happened on, from the page's path: "it",
+// "zh", or "none" on the picker and the shared pages.
+export function languageTag(url: string | undefined): string {
+  if (!url) return "none";
+  try {
+    return codeOf(new URL(url, "https://parlaplay.games").pathname) ?? "none";
+  } catch {
+    return "none";
+  }
+}
+
+export function tagLanguage(event: ErrorEvent, url = event.request?.url): ErrorEvent {
+  return { ...event, tags: { ...event.tags, language: languageTag(url) } };
+}
+
 export function initErrors(env: ImportMetaEnv = import.meta.env): boolean {
   const dsn = env.VITE_SENTRY_DSN;
   if (!dsn) return false;
@@ -71,7 +88,7 @@ export function initErrors(env: ImportMetaEnv = import.meta.env): boolean {
     // No tracesSampleRate and no replay or tracing integrations: errors only. Session
     // tracking is a default that pings on every page load, so it goes too.
     integrations: (defaults) => defaults.filter((i) => i.name !== "BrowserSession"),
-    beforeSend: scrubEvent,
+    beforeSend: (event) => scrubEvent(tagLanguage(event, event.request?.url ?? location.href)),
     beforeBreadcrumb: scrubBreadcrumb,
   });
   return true;
