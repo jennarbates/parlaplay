@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { content } from "../../src/languages/zh/content/index.ts";
 import { answersFor, build, card, chineseText, guessCard, savedRound, zh } from "./game.ts";
@@ -1035,5 +1036,75 @@ test.describe("Home and Progress (ZS 10.1, ZS 10.3)", () => {
       expect(await noPageScroll(page)).toBe(true);
       await expect(nav(page)).toHaveCount(0);
     }
+  });
+});
+
+// ZS 12 and success criterion 6: axe finds nothing on any Shéi screen at desktop size.
+test.describe("axe (WCAG 2.2 AA)", () => {
+  const violations = async (page: Page) =>
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`);
+
+  test("Home and Progress, empty and with data", async ({ page }) => {
+    await page.goto("/zh");
+    await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+    await page.goto("/zh/progress");
+    await expect(page.getByText("Play a round to see your words here.")).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+
+    await page.goto("/zh/play?level=2&seed=8");
+    await build(page, "他", "是", "狗", "吗");
+    await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    await expect(panel(page)).toContainText("Try again.");
+    expect(await violations(page), "Level 2 with feedback").toEqual([]);
+    await page.goto("/zh/progress");
+    await expect(page.getByRole("region", { name: "Mistakes" })).toContainText("是 → 有");
+    expect(await violations(page), "Progress with data").toEqual([]);
+  });
+
+  test("every phase of a Level 1 round, the dialogs and round end", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    await expect(cards(page)).toHaveCount(24);
+    expect(await violations(page), "playerTurn").toEqual([]);
+    await questions(page).getByRole("button").first().click();
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    expect(await violations(page), "playerReview").toEqual([]);
+    await page.keyboard.press("n");
+    await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
+    expect(await violations(page), "cpuTurn").toEqual([]);
+    await page.keyboard.press("1");
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    expect(await violations(page), "cpuReview").toEqual([]);
+    await page.keyboard.press("n");
+    await page.keyboard.press("?");
+    await expect(page.getByRole("dialog", { name: "Keyboard shortcuts" })).toBeVisible();
+    expect(await violations(page), "shortcuts").toEqual([]);
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("g");
+    expect(await violations(page), "guessing").toEqual([]);
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("dialog")).toContainText("A wrong guess loses the round.");
+    expect(await violations(page), "guess confirm").toEqual([]);
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: "Play again" })).toBeVisible();
+    expect(await violations(page), "round end").toEqual([]);
+  });
+
+  test("Level 2: the builder with its find list, and the computer's seven answers", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await panel(page).getByRole("combobox").fill("n");
+    await expect(panel(page).getByRole("option")).toHaveCount(3);
+    expect(await violations(page), "find list").toEqual([]);
+    await panel(page).getByRole("combobox").fill("他有狗吗");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("n");
+    await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
+    expect(await violations(page), "cpuTurn Level 2").toEqual([]);
   });
 });

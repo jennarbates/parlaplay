@@ -86,6 +86,23 @@ The desktop spec's DS 13.3 cases, all in `desktop.spec.ts`:
 | Nav | "DesktopNav is on every screen but /play, marking the current one" |
 | Progress | "no tabs: four totals and both lists side by side" |
 
+## Shéi on desktop
+
+`zh/desktop.spec.ts` holds every case of `zh-desktop.md` ZS 13.3 and runs on the two desktop profiles only:
+
+| Case | Tests under |
+|---|---|
+| Fits, Layout, No sheet | "layout: board on the left, panel on the right", "phase areas fit 1024 × 640" |
+| Groups | "Level 1: questions grouped by verb" |
+| Type-to-find, Find edge cases, Committed phrase | "Level 2 type-to-find" |
+| Log, Log at Level 2 | "round log" |
+| Glosses | "word glosses" |
+| Hover preview, right-click | "mouse and board keys" |
+| Keyboard rounds, Shortcuts ignored, Held keys, Focus | "keyboard" |
+| Resize | "resize across 1024px" |
+| Screens, Progress | "Home and Progress" |
+| axe | "axe (WCAG 2.2 AA)": every screen and phase, with `@axe-core/playwright` |
+
 `a11y.spec.ts` runs on the desktop profiles too: Italian card names and 44 px targets on every screen. Its Tab-order round is phone-only, since on desktop the board is one tab stop and the keyboard round above covers it.
 
 Tests that need a known game pass `?seed=` to `/play`, and import the engine to know the secrets and the true answers.

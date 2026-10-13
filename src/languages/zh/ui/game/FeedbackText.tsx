@@ -18,20 +18,24 @@ export function FeedbackText({
     muted: "text-stone-600",
   };
   return (
-    <ul role="status" className={`flex flex-col gap-1 rounded-lg px-3 py-2 text-sm ${tones[tone]}`}>
-      {feedback.map((f, i) => (
-        <li key={i}>
-          {renderMessage(content.messages, f.messageKey, f.params).map((s, j) =>
-            s.zh ? (
-              <span key={j} lang="zh-Hans">
-                {s.text}
-              </span>
-            ) : (
-              <span key={j}>{s.text}</span>
-            ),
-          )}
-        </li>
-      ))}
-    </ul>
+    // The status role goes on a wrapper: on the list itself it would replace the
+    // list role, and its items would belong to nothing.
+    <div role="status" className={`rounded-lg px-3 py-2 text-sm ${tones[tone]}`}>
+      <ul className="flex flex-col gap-1">
+        {feedback.map((f, i) => (
+          <li key={i}>
+            {renderMessage(content.messages, f.messageKey, f.params).map((s, j) =>
+              s.zh ? (
+                <span key={j} lang="zh-Hans">
+                  {s.text}
+                </span>
+              ) : (
+                <span key={j}>{s.text}</span>
+              ),
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
