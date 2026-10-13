@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | v0.1 draft (2026-10-08). Becomes `v1` after the sign-off in ZS 13.1 |
+| Status | v0.2 draft (2026-10-12), with the paper trace folded in (`docs/reviews/zh-desktop-paper-trace.md`). Becomes `v1` after the developer review in ZS 13.1 |
 | Product name | **谁？** (*Shéi?*, "Who?"). Written `谁？` in the app and `Shei` in code. The branding rules of `zh.md`: never "Guess Who", "Guess Who?" or any official Chinese title of that game in public branding |
 | Audience for this doc | Whoever builds, reviews, or tests Shéi's desktop version |
 | Builds on | `zh.md` (Shéi's MVP spec) for rules, content, engine, CPU, learning model and backend. `it-desktop.md` (Chi è?'s desktop spec, cited as "DS") is the model this spec follows; every part of it that Shéi uses is restated here, so this spec stands on its own |
@@ -66,6 +66,9 @@ At every step the mouse works too: clicking does exactly what tapping does on th
 |---|---|
 | Window resized across 1024px mid-round | Layout swaps (Sheet and SidePanel). Game state, flips, a guess in progress, the Level 2 tray and a shown hint are kept: `Game` holds the tray and `hintShown`, because the sheet and the panel are different trees. The find field's text is dropped |
 | Focused element unmounted by a resize | Focus moves to the board's roving card |
+| Focused element removed by a phase change (the find field or a question after asking, an answer button after answering) | Focus moves to the board's roving card, as after a resize. The summary is `aria-live`, so the new phase is still announced |
+| The game opens | Focus is on the page, as after any navigation; `/`, `q` and `b` work from there |
+| A key held down | It acts once. `keydown` events with `event.repeat` are ignored by the shortcut layer, by Enter in the find field, by Enter and Space on a card, and by the buttons that take focus on their own (GuessConfirm's confirm, round end's "Play again"). Arrow keys and Backspace repeat. The reason: one long press of Enter would otherwise pick a card, confirm the guess and start the next round |
 | Window narrower than 1024px | Phone layout, centred, exactly as today. No "too small" message |
 | Window shorter than 640px at 1024px or wider | Cards shrink to fit (the board formula uses height). The panel's body scrolls; the summary and actions never leave view |
 | Very large window (1920 × 1080 and up) | The panel stays 28rem; the cards grow with the height (168px at 1920 × 1080); the board is centred in its column |
@@ -247,6 +250,7 @@ A shared `SidePanel` (ZS 4) renders `<aside aria-label="Questions">` with four p
 
 | Phase | Summary | Phase area | Actions |
 |---|---|---|---|
+| `setup` | n/a: the round starts as `/zh/play` opens, so `setup` shows only as the Loading skeleton (ZS 11) | | |
 | `playerTurn` L1 | "Your turn: ask a question, or guess." or "Try again." | FeedbackText, then the question groups (ZS 7.1) | Guess `G` |
 | `playerTurn` L2 | as L1 | FeedbackText, then the find field and Pinyin toggle on one row, the tray, and the four tile rows (ZS 7.2) | Clear, Ask `A`, Guess `G` |
 | `playerTurn`, guessing | "Click the card you think it is." (phone keeps "Tap the card you think it is.") | empty | Cancel guess `Esc` |
@@ -276,7 +280,7 @@ At 1024 × 640 the panel has 640 − 56 (TopBar) − 61 (summary) − 101 (actio
 | L2 builder without Clear and Ask (ZS 7.2) | 332px | 90px: header and one entry |
 | CPU question, L2, 7 answers | about 260px | about 160px |
 
-These are estimates from today's component sizes (the Level 2 builder measured 388px including Clear and Ask, Chromium, 2026-10-08). `TBD:` the layout card measures each on the build and records the numbers here. **Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase.
+These are estimates from today's component sizes (the Level 2 builder measured 388px including Clear and Ask, Chromium, 2026-10-08), and they leave out FeedbackText. `TBD:` the layout card measures each on the build and records the numbers here: every phase area with its tallest FeedbackText showing (after a rejected question), Level 2 with pinyin on and off, and the width of the longest Level 1 question with its ruby pinyin, `他在饭店吗？`, against its column (about 133px of the 448px panel). **Rule:** if a phase area is taller than 378px (422 − the log's 44px header) at 1024 × 640, that card is not done: it shrinks the area, it does not let it scroll. At 1440 × 900 the same budget is 682px, which leaves at least 300px of log in every phase. The SyncBanner (ZS 11) takes its height from the same budget while it shows; then, and only then, the phase area may scroll at 1024 × 640.
 
 ## ZS 7. Desktop tools
 
@@ -310,10 +314,14 @@ These are estimates from today's component sizes (the Level 2 builder measured 3
 | Backspace, field empty | Removes the last tile from the tray |
 | Esc, list open | Closes the list and clears the field |
 | Esc, field empty | Moves focus to the first tile row |
+| Tab, or a click outside the field | Closes the list. The text stays, and the list opens again on the next keystroke or ↓ |
+| Enter held down (`event.repeat`) | Ignored, so one long press cannot add a tile and then ask |
 | Any key while an IME is composing | Ignored: `event.isComposing` is true or `event.keyCode` is 229 (MDN: `keydown`, IME composition) |
 
 - Strings: placeholder "Type pinyin, e.g. gou"; no match: "No word matches “{query}”."; tray full: "The question is full. Ask it, or remove a word." Both messages are in the list area and announced through `aria-live="polite"`.
 - The field is `lang="zh-Latn-pinyin"`, `autocomplete="off"`, `spellcheck="false"`, `autocapitalize="off"`.
+- "Field empty" means empty after trimming spaces.
+- `TBD:` (owner) an IME commits a phrase, not a word: typing `tayougouma` with the macOS Pinyin input method and choosing 他有狗吗 puts all four words in the field at once, and `findTiles` matches only a tile that *starts with* the query, so the list says "No word matches “他有狗吗”." Either accept that and watch for it in the ZS 13.4 pass, or let a committed string that is exactly a run of tiles add them all. The second is not the typed whole question of ZS 14.1: nothing is parsed, and the engine still checks the result.
 - Clicking tiles works exactly as today; the field is optional.
 - Below `lg` there is no find field.
 
@@ -324,9 +332,10 @@ These are estimates from today's component sizes (the Level 2 builder measured 3
 - Heading "Round log", with the count: "Round log (5)". Empty: "Questions you and the computer ask show up here."
 - Each entry is `roundLog()` (ZS 3), rendered as: "You asked" or "The computer asked" in `text-xs text-stone-600`, the question, then the answer in `font-medium`. A CPU entry the learner got wrong adds "(you said 不有)" in rose, as round end does today. Pinyin shows as ruby at Level 1, and at Level 2 when the toggle is on.
 - Every Chinese word is glossable (ZS 7.4).
-- When the log has only its header's height (ZS 6.3), the header is a button, "Round log (5) ▸", that opens the log as an overlay over the phase area, with focus on the newest entry; Esc or the button closes it.
-- Keyboard: `l` moves focus to the newest entry. The list has roving tabindex (one tab stop); ↑ ↓ move between entries. A focused entry shows its `english` line under it, when `glossShowsEnglish()` is true.
+- When the log has only its header's height (ZS 6.3), the header is a button, "Round log (5) ▸", that opens the log as an overlay over the phase area, with focus on the newest entry; Esc, `l` or the button closes it and returns focus to the button. While the overlay is open it counts as a dialog for shortcuts (ZS 9.1), so Esc closes it and does nothing else, even while guessing.
+- Keyboard: `l` moves focus to the newest entry, opening the overlay first when the log is only its header. The list has roving tabindex (one tab stop); ↑ ↓ move between entries. A focused entry shows its `english` line under it, when `glossShowsEnglish()` is true.
 - Round end shows the same component, full height, in its right column (ZS 10.2), replacing today's "Questions" list at `lg` only.
+- `TBD:` (owner) the log and Level 2's rating. The log shows whole correct questions, and the CPU asks from the same 14, so in `playerTurn` at Level 2 it often shows the very question the learner is about to build: the CPU asks `他有手机吗？`, and next turn the learner can copy 他, 有, 手机, 吗 from the log and is rated `good` for producing 手机 with the right verb (`zh.md` 6). On the phone that question is gone once the turn ends. ZS 1 says no rating changes; ZS 7.2 and ZS 7.4 argue it for their tools, and nothing argues it for the log. Options: accept it and say so in ZD8 (copying a model sentence is still practice, and slips and wrong verbs are still caught); or at Level 2 keep the log to its header during `playerTurn`, so opening it is a choice; or rate an asked question that is in the log `hard`, which is an engine change and so out of v1.
 
 ### ZS 7.4 Word glosses
 
@@ -383,7 +392,22 @@ export type ShortcutAction =
 export function keyToAction(k: KeyLike, ctx: ShortcutContext): ShortcutAction | null;
 ```
 
-`KeyLike` is DS 4.1's. **Order of checks**, the first match returns `null`: (1) Ctrl, Cmd or Alt held; (2) the target is an input, textarea, select or contenteditable; (3) a dialog is open (these three are `shortcutGuard`); (4) the key is not in the table; (5) the cell is `-` or its condition fails. Letters match in either case. When the result is not `null`, the listener calls `preventDefault()`.
+`KeyLike` is DS 4.1's, restated here:
+
+```ts
+export type KeyLike = {
+  key: string;             // KeyboardEvent.key
+  ctrlKey: boolean;
+  metaKey: boolean;
+  altKey: boolean;
+  targetTag: string;       // "INPUT", "TEXTAREA", "BUTTON", "LI", ...
+  targetEditable: boolean; // isContentEditable
+};
+```
+
+"A dialog is open" (`dialogOpen`) means any open `<dialog>` (CardDetail, GuessConfirm, ShortcutsDialog, the sign-in sheet, the save-progress prompt), the GameMenu popover, or the round log's overlay (ZS 7.3). Before calling `keyToAction`, the listener drops every `keydown` whose `event.repeat` is true, except Backspace (ZS 2.2); `KeyLike` stays as Chi è? has it.
+
+**Order of checks**, the first match returns `null`: (1) Ctrl, Cmd or Alt held; (2) the target is an input, textarea, select or contenteditable; (3) a dialog is open (these three are `shortcutGuard`); (4) the key is not in the table; (5) the cell is `-` or its condition fails. Letters match in either case. When the result is not `null`, the listener calls `preventDefault()`.
 
 `Game` maps each action to an existing handler or a focus move. `answer` picks the id at that index of `answerIds(questionKey, level)`, a function exported from `CpuQuestion.tsx` that the buttons also render from, so the key and the button can never disagree. `showHint` clicks CpuQuestion's own "Show hint", so `zh.md` 6's hint rule is unchanged.
 
@@ -405,7 +429,7 @@ export function keyToAction(k: KeyLike, ctx: ShortcutContext): ShortcutAction | 
 
 ¹ `null` when the log is empty. ² `null` when the tray is empty. ³ Level 2 only. ⁴ `{ index: key − 1 }` when `key ≤ answers`, else `null`.
 
-`focusQuestions` moves focus to the first enabled question at Level 1, or the first tile row at Level 2. `p` works in every Level 2 phase, not only while building (ZD11): pinyin also shows on the CPU's question, the answers and the log, where a learner reading at Level 2 most needs it.
+`focusQuestions` moves focus to the first enabled question at Level 1 (nothing happens when all 14 are asked), or the first tile row at Level 2. `focusLog` opens the log's overlay first when the log is only its header (ZS 7.3). `p` works in every Level 2 phase, not only while building (ZD11): pinyin also shows on the CPU's question, the answers and the log, where a learner reading at Level 2 most needs it.
 
 ### ZS 9.3 Invariants
 
@@ -429,13 +453,13 @@ Each is a unit test in `src/languages/zh/ui/game/shortcuts.test.ts`:
 | Home / End, Ctrl+Home / Ctrl+End | Board | First or last in the row; first or last on the board |
 | Enter / Space | Card | Flip it, or pick it while guessing |
 | `i` or the context menu key | Card | Open CardDetail |
-| ↑ ↓ ← → | Level 1 groups | ↑ ↓ within a column, ← → to the same row of the next column (or its last row); asked questions are skipped; Enter asks |
+| ↑ ↓ ← → | Level 1 groups | ↑ ↓ within a column, ← → to the same row of the next column (or its last row); asked questions are skipped, and so is a column with every question asked; a move with nowhere to go does nothing; Enter asks |
 | Tab, ← → | Level 2 tiles | Each row (tray, then the four rows) is one tab stop, with ← → inside it; Enter adds a tile, or removes it in the tray |
 | ↑ ↓ | Round log | Move between entries |
 
 The board grid follows the WAI-ARIA grid pattern (APG: Grid), with roving tabindex: one card has `tabIndex=0`. `b` and `g` move focus to that card. The phone's focus-only "Zoom {name}" button stays. All roving tabindex is `lg` only; the phone's tab order is unchanged.
 
-**ShortcutsDialog**: a `<dialog>` titled "Keyboard shortcuts", `min(90vw, 36rem)`, listing ZS 9.2's keys in two columns and the find field's keys of ZS 7.2. Opened by `?` and by the GameMenu item "Keyboard shortcuts".
+**ShortcutsDialog**: a `<dialog>` titled "Keyboard shortcuts", `min(90vw, 36rem)`, listing in two columns ZS 9.2's keys, the keys of the table above (board, Level 1 groups, tile rows, round log) and the find field's keys of ZS 7.2, as Chi è?'s lists its board keys. Opened by `?` and by the GameMenu item "Keyboard shortcuts".
 
 **GameMenu fix**: it closes on Esc and on a click outside it, and focus returns to the menu button (Chi è?'s GameMenu has this; Shéi's does not).
 
@@ -457,14 +481,14 @@ The board grid follows the WAI-ARIA grid pattern (APG: Grid), with roving tabind
 - `grid grid-cols-2 gap-12`, vertically centred under DesktopNav.
 - Left: `谁？` in `text-6xl font-bold` with `lang="zh-Hans"`; "Shéi?" under it in `text-2xl text-stone-600` with `lang="zh-Latn-pinyin"`; the pitch line "Ask questions in Chinese to find the secret character."; the existing round-in-progress card when there is one.
 - Right: the existing level `fieldset` (legend "Level") as two cards side by side, with the Level 1 description in its desktop wording (ZS 6.2), then Play full width.
-- The phone's "Chinese" line, sign-in line and links are hidden at `lg`; DesktopNav has them.
+- The phone's sign-in line and links are hidden at `lg`; DesktopNav has them. "Chinese" stays under the title at `lg`, in `text-base`, as the platform spec (8.1) asks of every language Home and as Chi è? shows "Italian".
 
 ### ZS 10.2 Round end
 
 - `grid grid-cols-2 gap-10` in `max-w-6xl`.
 - Left: "You won!" or "You lost.", both cards ("Your card", "Computer's card") side by side at `w-48` with names and pinyin, this round's mistakes, then "Play again" and "Home" in a row. The action bar is not `fixed` at `lg`, and the phone's `pb-28` is removed.
 - Right: the round log (ZS 7.3), full height, every word glossable with English, and the guest nudge under it.
-- "Play again" has focus when the screen appears.
+- "Play again" has focus when the screen appears, and ignores a held key's repeats (ZS 2.2).
 
 ### ZS 10.3 Progress dashboard
 
@@ -479,7 +503,7 @@ The board grid follows the WAI-ARIA grid pattern (APG: Grid), with roving tabind
 | Dialog | Phone (unchanged) | Desktop |
 |---|---|---|
 | CardDetail | Centred, face `min(80vw, 22rem)` | Centred, face `28rem`, attributes in Chinese with pinyin |
-| GuessConfirm | `min(90vw, 22rem)` | `24rem`; focus starts on the confirm button |
+| GuessConfirm | `min(90vw, 22rem)` | `24rem`; focus starts on the confirm button, which ignores a held key's repeats (ZS 2.2) |
 | SaveProgressPrompt, SignInSheet | as today | Already shared and desktop-ready |
 | GameMenu | Popover | Popover; closes on Esc and outside click |
 | ShortcutsDialog | `min(90vw, 36rem)` | `36rem` |
@@ -539,7 +563,7 @@ Settings and Privacy are shared screens and already have their desktop layouts (
 - **Motion.** Every new transition is off under `prefers-reduced-motion`.
 - **Privacy and security.** No change: no new data, no third parties. The find field's text is never stored or sent.
 - **Error reporting.** No change.
-- **CI.** `e2e/zh/desktop.spec.ts` runs in the `desktop-chromium` and `desktop-webkit` projects now, without waiting for PLAY-038's repointing of the older `e2e/zh` specs (ZD12): `playwright.config.ts` narrows the `shei` skip so it no longer matches this file.
+- **CI.** `e2e/zh/desktop.spec.ts` runs in the `desktop-chromium` and `desktop-webkit` projects only (ZD12). Since PLAY-038 the rest of `e2e/zh` runs on the two phone projects and is skipped on desktop, so `playwright.config.ts` changes twice: the desktop projects' `shei` skip no longer matches this file, and the phone projects skip it, as they skip Chi è?'s `desktop.spec.ts`.
 
 ## ZS 13. Test plan and definition of done
 
@@ -581,6 +605,8 @@ No Mandarin review is needed: ZS 1's table puts new Chinese strings out, and eve
 | Hover preview, right-click | As DS 13.3 |
 | Keyboard rounds | A full round at each level using only ZS 9's keys, to round end |
 | Shortcuts ignored | Typing "nap" in the find field changes nothing but the field |
+| Held keys | With a card focused while guessing, Enter held down (repeating) opens GuessConfirm and goes no further; held Enter in the find field adds one tile and does not ask |
+| Focus | After asking from the find field, and after asking a Level 1 question, focus is on the board's roving card |
 | Resize | At 1440 × 900 flip 3 cards and put 2 tiles in the tray; resize to 390 × 844 and back: the same 3 flipped, the same 2 tiles |
 | Screens | No horizontal scroll on `/zh`, `/zh/progress`, `/settings`, `/privacy` at 1024 and 1440; DesktopNav on every one but `/zh/play` |
 | Progress | No tablist at `lg`; both lists visible; the 4 tiles match `progressStats` for a seeded log |
@@ -655,7 +681,7 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 | ZD9 | Word glosses on resolved text only, without English while a rating is pending | Lookup is how desktop readers learn; English during a pending rating would make the rating meaningless |
 | ZD10 | Single-key shortcuts with English mnemonics, `zh.md` 8.3's keys plus `a`, `/`, `l`, Backspace | Fast play with both hands on the keyboard; the UI chrome is English |
 | ZD11 | `p` works in every Level 2 phase | Pinyin shows on the CPU's question, the answers and the log too |
-| ZD12 | `e2e/zh/desktop.spec.ts` runs now, not after PLAY-038 | Written for `/zh`, it does not need the older specs repointed |
+| ZD12 | `e2e/zh/desktop.spec.ts` runs on the desktop projects only; the older `e2e/zh` specs stay phone-only | The older specs were written for the phone's sheet and tabs (PLAY-038 pointed them at `/zh`); the desktop file covers the same ground at desktop size, as Chi è?'s does |
 | ZD13 | Built before launch, in Sprint 4 | The owner's choice; `zh.md` success criterion 1 already promises the laptop at launch |
 | ZD14 | If must-fix desktop findings remain on launch day, `/zh` launches with the desktop layout off (route widths back to `lg:max-w-md`) | A one-line fallback; the phone layout is the tested baseline |
 | ZD15 | `a` asks, replacing `zh.md` 8.3's "Enter in the tray" | Enter on a focused tile already adds or removes it; Enter on the empty find field also asks |
@@ -678,3 +704,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 
 - 2026-10-08: v0. Full desktop spec for Shéi, replacing the v0.1 list of differences from `it-desktop.md`. Adds the height-sized board with a flexible panel, Level 1 questions grouped by verb, Level 2 type-to-find, the round log and word glosses. Level 2 builder measured on the production build: the 7-tile row overflows a 22rem panel and the builder is 388px tall with Clear and Ask.
 - 2026-10-08: v0.1. Milestones matched to the backlog cards (PLAY-057 to PLAY-063 and PLAY-066 to PLAY-075). Owner review: the panel is fixed at `minmax(24rem, 28rem)` like Chi è?'s, not flexible (ZD3); ZD9 and ZD14 confirmed.
+- 2026-10-12: v0.2. Paper trace (PLAY-066, `docs/reviews/zh-desktop-paper-trace.md`), findings F1 to F15. Fixed: where focus goes when the game opens and when a phase change removes the focused control; a held key acts once; `l` and Esc with the log collapsed; what counts as an open dialog; `KeyLike` restated; ShortcutsDialog lists the ZS 9.4 keys; Tab and blur in the find field; the height budget names FeedbackText, the SyncBanner and the Level 1 column width; "Chinese" stays on Home at `lg`; `setup` in ZS 6.2; arrows past a fully asked column; the CI note after PLAY-038 (ZD12). Left as `TBD:` for the owner: an IME committing a whole phrase (ZS 7.2), and the round log showing the question a Level 2 learner is about to build (ZS 7.3).
