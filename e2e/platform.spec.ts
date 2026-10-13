@@ -80,10 +80,32 @@ const pickerCard = (page: Page, title: RegExp) =>
   page.getByRole("main").getByRole("link", { name: title });
 
 // The mistake's row and the round are on disk, so leaving the page loses neither.
+// The row is under the guest's key, or under the user's when signed in.
 async function saved(page: Page, code: "it" | "zh") {
-  await expect
-    .poll(async () => (await stored<{ reviewLog: unknown[] }>(page, `guest:${code}`))?.reviewLog)
-    .toHaveLength(1);
+  const rows = () =>
+    page.evaluate(
+      (suffix) =>
+        new Promise<number>((resolve) => {
+          const open = indexedDB.open("parlaplay");
+          open.onsuccess = () => {
+            const store = open.result.transaction("kv").objectStore("kv");
+            const keys = store.getAllKeys();
+            const values = store.getAll();
+            values.onsuccess = () => {
+              open.result.close();
+              // Whichever of the two holds rows: a signed-in player's guest key is empty.
+              const counts = keys.result.map((k, i) =>
+                /^(guest|user):/.test(String(k)) && String(k).endsWith(suffix)
+                  ? ((values.result[i] as { reviewLog?: unknown[] }).reviewLog?.length ?? 0)
+                  : 0,
+              );
+              resolve(Math.max(0, ...counts));
+            };
+          };
+        }),
+      `:${code}`,
+    );
+  await expect.poll(rows).toBe(1);
   await expect.poll(() => stored(page, `round:${code}`)).toBeDefined();
 }
 
