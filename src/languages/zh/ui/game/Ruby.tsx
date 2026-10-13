@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import type { Segment } from "../../engine/index.ts";
+import { Glossable } from "./Glossable.tsx";
 
 // Spec 3.4: Chinese with optional pinyin above each word, as HTML ruby. lang tags
 // make browsers pick Chinese glyph shapes and screen readers a Chinese voice; the
@@ -8,25 +9,37 @@ export function Ruby({
   segments,
   pinyin,
   className = "",
+  gloss,
 }: {
   segments: Segment[];
   pinyin: boolean;
   className?: string;
+  // zh-desktop.md ZS 7.4: at lg, in resolved text, each word shows its gloss on
+  // hover: "full" with its English, "noEnglish" while a rating is pending.
+  gloss?: "full" | "noEnglish";
 }) {
   return (
     <span lang="zh-Hans" className={className}>
-      {segments.map((s, i) =>
-        pinyin && s.lexiconId ? (
-          <ruby key={i}>
-            {s.hanzi}
-            <rt lang="zh-Latn-pinyin" className="text-[0.6em] font-normal text-stone-600">
-              {s.pinyin}
-            </rt>
-          </ruby>
+      {segments.map((s, i) => {
+        const word =
+          pinyin && s.lexiconId ? (
+            <ruby>
+              {s.hanzi}
+              <rt lang="zh-Latn-pinyin" className="text-[0.6em] font-normal text-stone-600">
+                {s.pinyin}
+              </rt>
+            </ruby>
+          ) : (
+            s.hanzi
+          );
+        return gloss && s.lexiconId ? (
+          <Glossable key={i} lexiconId={s.lexiconId} english={gloss === "full"}>
+            {word}
+          </Glossable>
         ) : (
-          <Fragment key={i}>{s.hanzi}</Fragment>
-        ),
-      )}
+          <Fragment key={i}>{word}</Fragment>
+        );
+      })}
     </span>
   );
 }

@@ -731,3 +731,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-13: Home and Progress built (PLAY-062). No spec change; "Chinese" stays under the title at `lg`, as v0.2 decided.
 - 2026-10-13: Level 1 groups built (PLAY-067). ZS 7.1: rows are at least 48px; the full hint shows under the button on hover and focus, without the Tooltip. ZS 6.3 has the measured height.
 - 2026-10-13: Round log built (PLAY-068). ZS 3: `roundLog` is given its sentence renderers, so it stays import-free; `logOf` in `sentences.ts` supplies the game's. ZS 7.3: the log collapses to its header under 116px of room. `SidePanel` gains an `overlay` slot for the opened log.
+- 2026-10-13: Word glosses built (PLAY-069). No spec change. In Progress the Due list's words are glossable; the Mistakes list already shows each word's pinyin and English beside it.

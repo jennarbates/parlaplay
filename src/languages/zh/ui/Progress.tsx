@@ -5,6 +5,7 @@ import { endOfLocalDay, isDue, replay, type CardState } from "../../../core/serv
 import { type GameRow, type ReviewLogRow } from "../../../core/store/progressStore.ts";
 import { progressStats } from "../../../core/ui/progressStats.ts";
 import { useIsDesktop } from "../../../core/ui/useMediaQuery.ts";
+import { Glossable } from "./game/Glossable.tsx";
 import { groupMistakes } from "./mistakes.ts";
 import { Mixed } from "./Mixed.tsx";
 import { labelFor } from "./words.ts";
@@ -270,7 +271,16 @@ function CardList({
               className="flex items-center justify-between gap-2 px-3 py-2"
             >
               <span>
-                <strong lang="zh-Hans">{labelOf(c.lexiconId)}</strong>{" "}
+                <strong lang="zh-Hans">
+                  {/* zh-desktop.md ZS 7.4: glossable at lg; nothing is rated here. */}
+                  {Heading === "h3" ? (
+                    <Glossable lexiconId={c.lexiconId} english>
+                      {labelOf(c.lexiconId)}
+                    </Glossable>
+                  ) : (
+                    labelOf(c.lexiconId)
+                  )}
+                </strong>{" "}
                 <span className="text-xs text-stone-600">{directionLabel[c.direction]}</span>
               </span>
               <time dateTime={c.card.due.toISOString()} className="text-sm text-stone-600">

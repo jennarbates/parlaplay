@@ -389,6 +389,67 @@ test.describe("round log (ZS 7.3)", () => {
   });
 });
 
+test.describe("word glosses (ZS 7.4)", () => {
+  const gloss = (page: Page) => page.getByRole("tooltip");
+  const word = (scope: Locator, hanzi: string) =>
+    scope.locator("span", { hasText: new RegExp(`^${hanzi}`) }).last();
+
+  test("a word in the review and the log shows characters, pinyin and English", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await build(page, "他", "有", "狗", "吗");
+    await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    // playerReview: nothing is being rated, so English shows.
+    const entry = panel(page)
+      .getByRole("list", { name: "Round log" })
+      .getByRole("listitem")
+      .first();
+    await word(entry, "狗").first().hover();
+    await expect(gloss(page)).toHaveText(/狗\s*·\s*gǒu\s*·\s*dog/);
+    // Hoverable: the pointer can move onto it and it stays (WCAG 1.4.13).
+    await gloss(page).hover();
+    await page.waitForTimeout(300);
+    await expect(gloss(page)).toBeVisible();
+    // Dismissible: Esc closes it without moving the pointer, and does nothing else.
+    await page.keyboard.press("Escape");
+    await expect(gloss(page)).toHaveCount(0);
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    // The phase area's own sentence is glossable too.
+    await word(panel(page).locator("div").first(), "有").first().hover();
+    await expect(gloss(page)).toContainText("yǒu");
+    await page.mouse.move(5, 300);
+    await expect(gloss(page)).toHaveCount(0);
+  });
+
+  test("while the computer's question is pending, the gloss has no English", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await build(page, "他", "有", "狗", "吗");
+    await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    await panel(page).getByRole("button", { name: "Next" }).click();
+    await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
+    const entry = panel(page)
+      .getByRole("list", { name: "Round log" })
+      .getByRole("listitem")
+      .first();
+    await word(entry, "狗").first().hover();
+    await expect(gloss(page)).toContainText("gǒu");
+    await expect(gloss(page)).not.toContainText("dog");
+    await page.mouse.move(5, 300);
+    // The live question and the answer buttons are never glossable.
+    await panel(page).locator(".text-3xl").hover();
+    await page.waitForTimeout(400);
+    await expect(gloss(page)).toHaveCount(0);
+  });
+
+  test("tiles and Level 1's questions are not glossable", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await zh(panel(page), "狗").first().hover();
+    await page.waitForTimeout(400);
+    await expect(gloss(page)).toHaveCount(0);
+  });
+});
+
 test.describe("mouse and board keys (ZS 8, ZS 9.4)", () => {
   const tooltip = (page: Page) => page.getByRole("tooltip");
 

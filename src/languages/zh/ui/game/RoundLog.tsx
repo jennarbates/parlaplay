@@ -22,6 +22,8 @@ export function LogEntries({
   english: boolean;
   className?: string;
 }) {
+  // Every word is glossable (ZS 7.4), with English only when it is allowed.
+  const gloss = english ? "full" : "noEnglish";
   const [active, setActive] = useState(0);
   const at = Math.min(active, Math.max(entries.length - 1, 0));
   const onKey = (e: KeyboardEvent<HTMLOListElement>) => {
@@ -53,10 +55,10 @@ export function LogEntries({
             {entry.by === "player" ? "You asked" : "The computer asked"}
           </span>
           <p>
-            <Ruby segments={entry.question.segments} pinyin={pinyin} />
+            <Ruby segments={entry.question.segments} pinyin={pinyin} gloss={gloss} />
           </p>
           <p className="font-medium">
-            <Ruby segments={entry.answer.segments} pinyin={pinyin} />
+            <Ruby segments={entry.answer.segments} pinyin={pinyin} gloss={gloss} />
             {entry.right === false && (
               <span className="ml-1 font-normal text-rose-700">
                 (you said <span lang="zh-Hans">{hanziOf.get(entry.playerAnswerId ?? "")}</span>)
