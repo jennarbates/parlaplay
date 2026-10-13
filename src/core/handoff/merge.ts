@@ -52,22 +52,36 @@ export function withLanguage(handoff: Handoff): Incoming {
   };
 }
 
-// Step 3: the incoming round is saved unless the device already has one whose
-// games row started later. If either games row is missing, the existing round is
-// kept. The same round arriving again is also left alone: a second import adds
-// nothing, and the copy here may have been played further.
+// Step 3: which round the device ends up with. `games` is every games row known
+// here after the merge. The incoming round is refused when:
+// - its games row did not come with it (a signed-in Chi è? player's row is on the
+//   server, not in the handoff), or that row is already finished: the handoff page
+//   never deletes anything, so an old link brings a finished round back every time;
+// - it is the round already here, which may have been played further;
+// - the round already here started later, or its own games row is missing.
 export function keepsExistingRound(
   existing: { gameId?: unknown } | undefined,
   incoming: ChieRound,
-  games: readonly Pick<GameRow, "id" | "startedAt">[],
+  games: readonly Pick<GameRow, "id" | "startedAt" | "result">[],
 ): boolean {
+  const row = (id: unknown) => games.find((g) => g.id === id);
+  const theirs = row(incoming.gameId);
+  if (!theirs || theirs.result) return true;
   if (!existing) return false;
   if (existing.gameId === incoming.gameId) return true;
-  const startOf = (id: unknown) => games.find((g) => g.id === id)?.startedAt;
-  const mine = startOf(existing.gameId);
-  const theirs = startOf(incoming.gameId);
-  if (!mine || !theirs) return true;
-  return Date.parse(mine) > Date.parse(theirs);
+  const mine = row(existing.gameId);
+  if (!mine) return true;
+  return Date.parse(mine.startedAt) > Date.parse(theirs.startedAt);
+}
+
+// Rows not already in `have`, by id: what a signed-in player's own copy lacks.
+export function newTo(incoming: GuestData, have: GuestData): GuestData {
+  const games = new Set(have.games.map((g) => g.id));
+  const reviews = new Set(have.reviewLog.map((r) => r.id));
+  return {
+    games: incoming.games.filter((g) => !games.has(g.id)),
+    reviewLog: incoming.reviewLog.filter((r) => !reviews.has(r.id)),
+  };
 }
 
 // Step 4: outboxes join the ones already waiting, per user, each op once.

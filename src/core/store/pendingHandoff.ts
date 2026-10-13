@@ -24,7 +24,10 @@ export async function adoptPendingHandoff(userId: string | null, now = new Date(
   if (pending.length === 0) return;
   const handoff = await read<Partial<HandoffRecord>>("handoff");
   const at = Date.parse(handoff?.at ?? "");
-  if (now.getTime() - at > pendingDays * 24 * 60 * 60 * 1000) {
+  // No date to count from (the import stopped between its last two writes): the
+  // 30 days start now, so the rows neither vanish at once nor wait for ever.
+  if (Number.isNaN(at)) await write("handoff", { from: "chie", at: now.toISOString() });
+  else if (now.getTime() - at > pendingDays * 24 * 60 * 60 * 1000) {
     await remove(pendingKey);
     return;
   }
@@ -32,9 +35,12 @@ export async function adoptPendingHandoff(userId: string | null, now = new Date(
   if (!userId || ops.length === 0) return;
 
   // Queued on disk before the waiting copy goes, so a crash between the two can
-  // only send a row twice, which the server ignores.
+  // only send a row twice, which the server ignores. If the queue did not reach
+  // the disk, the waiting copy stays for the next sign-in.
   useSyncStore.getState().enqueue(ops);
   await syncSaved();
+  const queued = await read<unknown[]>(`outbox:${userId}`);
+  if (!Array.isArray(queued) || queued.length < ops.length) return;
   const rest = pending.filter((p) => p.userId !== userId);
   await (rest.length ? write(pendingKey, rest) : remove(pendingKey));
 

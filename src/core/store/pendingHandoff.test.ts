@@ -140,3 +140,13 @@ test("they are deleted once the handoff is older than 30 days", async () => {
   expect(await read(pendingKey)).toBeUndefined();
   expect(useSyncStore.getState().outbox).toHaveLength(0);
 });
+
+test("with no handoff date, the 30 days start at the next look", async () => {
+  const { remove } = await import("../services/storage.ts");
+  await remove("handoff");
+  await adoptPendingHandoff(null, days(40));
+  expect(await read<unknown[]>(pendingKey)).toHaveLength(1);
+  expect(await read("handoff")).toEqual({ from: "chie", at: days(40).toISOString() });
+  await adoptPendingHandoff(null, days(71));
+  expect(await read(pendingKey)).toBeUndefined();
+});

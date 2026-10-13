@@ -211,6 +211,16 @@ describe("the saved round", () => {
     expect(keepsExistingRound(round(7), round(2), games)).toBe(true);
   });
 
+  test("a round whose games row did not come with it is refused, even onto an empty device", () => {
+    expect(keepsExistingRound(undefined, round(7), games)).toBe(true);
+  });
+
+  test("a round whose game is already finished is refused", () => {
+    const finished = [{ ...game(2), result: "won" as const }];
+    expect(keepsExistingRound(undefined, round(2), finished)).toBe(true);
+    expect(keepsExistingRound(round(1), round(2), [game(1), ...finished])).toBe(true);
+  });
+
   test("the same round arriving again is left alone", () => {
     expect(keepsExistingRound(round(2), round(2), games)).toBe(true);
   });
@@ -291,9 +301,44 @@ describe("importHandoff", () => {
   });
 
   test("a round of another content version is saved but not offered", async () => {
-    await importHandoff(await fragment({ v: 1, round: { ...round(2), contentVersion: 99 } }), now);
+    await importHandoff(
+      await fragment({
+        v: 1,
+        guest: { games: [game(2)], reviewLog: [] },
+        round: { ...round(2), contentVersion: 99 },
+      }),
+      now,
+    );
     expect(await read("round:it")).toMatchObject({ contentVersion: 99 });
     expect(useRounds.getState().saved.it).toBe(false);
+  });
+
+  test("a round finished here does not come back when the old link is opened again", async () => {
+    await importHandoff(await fragment(handoff), now);
+    // The player finishes round 2 on this site: its row closes and the round goes.
+    italian.getState().recordGameEnd(uuid(2), "won");
+    await progressSaved();
+    const { remove } = await import("../services/storage.ts");
+    await remove("round:it");
+    useRounds.getState().setSaved("it", false);
+
+    await importHandoff(await fragment(handoff), now);
+    expect(await read("round:it")).toBeUndefined();
+    expect(useRounds.getState().saved.it).toBe(false);
+    expect((await guest())?.games.find((g) => g.id === uuid(2))?.result).toBe("won");
+  });
+
+  test("a round without its games row is not saved", async () => {
+    await importHandoff(await fragment({ v: 1, round: round(2) }), now);
+    expect(await read("round:it")).toBeUndefined();
+    expect(await read("handoff")).toBeDefined();
+  });
+
+  test("a row with megabytes in one field is rejected", async () => {
+    const huge = { ...review(1, 1), lexiconId: "n.".padEnd(100, "x") };
+    const data = await encodeHandoff({ v: 1, guest: { games: [game(1)], reviewLog: [huge] } });
+    await expect(importHandoff(`#data=${data}`, now)).rejects.toThrow();
+    expect(await guest()).toBeUndefined();
   });
 
   test("a next outside the three allowed paths becomes /it", async () => {
@@ -320,6 +365,30 @@ describe("importHandoff", () => {
     expect((await guest())?.games).toHaveLength(2);
     expect(italian.getState().games).toHaveLength(0);
     expect(await read(`user:${other}:it`)).toBeUndefined();
+    // The round stays behind: played under this account, its review rows would
+    // point at a game that is only in the guest rows.
+    expect(await read("round:it")).toBeUndefined();
+  });
+
+  test("signed in here, rows the account already has are not offered again", async () => {
+    useAuthStore.setState({ status: "signedIn", userId: other, email: "o@b.co" });
+    // Saved to the account after an earlier handoff: both games, one of the reviews.
+    italian.setState({
+      owner: other,
+      games: [1, 2].map((n) => ({ ...game(n), language: "it" as const })),
+      reviewLog: [{ ...review(1, 1), language: "it" as const }],
+    });
+    await importHandoff(await fragment(handoff), now);
+    expect(await guest()).toEqual({ games: [], reviewLog: [{ ...review(2, 2), language: "it" }] });
+
+    // And with nothing new, nothing is written: no guest data, so no prompt.
+    vi.stubGlobal("indexedDB", new IDBFactory());
+    resetForTests();
+    italian.setState({
+      reviewLog: [1, 2].map((n) => ({ ...review(n, n), language: "it" as const })),
+    });
+    await importHandoff(await fragment(handoff), now);
+    expect(await guest()).toBeUndefined();
   });
 
   test("waits for the account to settle before saving", async () => {

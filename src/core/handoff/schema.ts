@@ -5,6 +5,10 @@
 import { z } from "zod";
 
 const Level = z.union([z.literal(1), z.literal(2)]);
+// Longer than any real id or word, short enough that a crafted link cannot plant
+// megabytes in one row, to be saved again on every write and uploaded at sign-in.
+const maxId = 64;
+const text = z.string().max(200);
 
 export const ChieGameRow = z.strictObject({
   id: z.uuid(),
@@ -20,12 +24,10 @@ export type ChieGameRow = z.infer<typeof ChieGameRow>;
 export const ChieReviewLogRow = z.strictObject({
   id: z.uuid(),
   gameId: z.uuid(),
-  lexiconId: z.string().min(1),
+  lexiconId: z.string().min(1).max(maxId),
   direction: z.enum(["recognize", "produce"]),
   rating: z.enum(["again", "hard", "good", "slip"]),
-  detail: z
-    .strictObject({ slot: z.string(), given: z.string(), expected: z.string(), rule: z.string() })
-    .optional(),
+  detail: z.strictObject({ slot: text, given: text, expected: text, rule: text }).optional(),
   localDay: z.iso.date(),
   createdAt: z.iso.datetime(),
 });
