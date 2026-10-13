@@ -389,6 +389,143 @@ test.describe("round log (ZS 7.3)", () => {
   });
 });
 
+test.describe("Level 2 type-to-find (ZS 7.2)", () => {
+  const field = (page: Page) => panel(page).getByRole("combobox");
+  const options = (page: Page) => panel(page).getByRole("option");
+  const tray = (page: Page) => page.getByRole("group", { name: "Your question" });
+  const trayText = async (page: Page) =>
+    (await tray(page).getByRole("button").allTextContents()).join("");
+
+  test("ta, you, gou, ma, each with Enter, then Enter again, asks 他有狗吗？", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await field(page).focus();
+    await page.keyboard.type("ta");
+    await expect(options(page)).toHaveText(["他", "她"]);
+    await expect(options(page).first()).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Enter");
+    await expect(field(page)).toHaveValue("");
+    await expect(field(page)).toBeFocused();
+    for (const word of ["you", "gou", "ma"]) {
+      await page.keyboard.type(word);
+      await page.keyboard.press("Enter");
+    }
+    expect(await trayText(page)).toBe("他有狗吗");
+    await page.keyboard.press("Enter"); // the field is empty: ask
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    expect((await savedRound(page))?.history.at(-1)?.text).toBe("他有狗吗？");
+  });
+
+  test("it is an APG combobox: the field keeps focus and names the selected option", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await expect(field(page)).toHaveAttribute("aria-expanded", "false");
+    await expect(field(page)).toHaveAttribute("aria-autocomplete", "list");
+    await expect(field(page)).toHaveAttribute("placeholder", "Type pinyin, e.g. gou");
+    await field(page).fill("n");
+    await expect(field(page)).toHaveAttribute("aria-expanded", "true");
+    await expect(options(page)).toHaveText(["你", "男的", "女的"]);
+    const listId = (await field(page).getAttribute("aria-controls")) ?? "";
+    await expect(page.locator(`[id="${listId}"]`)).toHaveRole("listbox");
+    const active = async () =>
+      page.locator(`[id="${await field(page).getAttribute("aria-activedescendant")}"]`);
+    await expect(await active()).toHaveText("你");
+    await page.keyboard.press("ArrowDown");
+    await expect(await active()).toHaveText("男的");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp"); // wraps to the last
+    await expect(await active()).toHaveText("女的");
+    await expect(field(page)).toBeFocused();
+    await page.keyboard.press("Enter");
+    expect(await trayText(page)).toBe("女的");
+    // Clicking an option picks it too, and focus stays in the field.
+    await field(page).fill("x");
+    await options(page).nth(1).click();
+    expect(await trayText(page)).toBe("女的学校");
+    await expect(field(page)).toBeFocused();
+  });
+
+  test("no match, a full tray, Backspace, Esc and nv", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await field(page).fill("zz");
+    await expect(panel(page)).toContainText("No word matches “zz”.");
+    await page.keyboard.press("Enter"); // nothing to add
+    expect(await trayText(page)).toBe("");
+    await page.keyboard.press("Escape"); // clears the field, and only that
+    await expect(field(page)).toHaveValue("");
+    await expect(field(page)).toBeFocused();
+
+    await field(page).fill("nv");
+    await expect(options(page)).toHaveText(["女的"]);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Backspace"); // empty field: removes the last tile
+    expect(await trayText(page)).toBe("");
+    await page.keyboard.press("Backspace"); // nothing left: nothing happens
+    await page.keyboard.press("Enter"); // empty field, empty tray: nothing is asked
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+
+    for (const word of ["ta", "ta", "ni", "shi", "you", "zai"]) {
+      await page.keyboard.type(word);
+      await page.keyboard.press("Enter");
+    }
+    await expect(tray(page).getByRole("button")).toHaveCount(6);
+    await page.keyboard.type("ma");
+    await expect(panel(page)).toContainText("The question is full. Ask it, or remove a word.");
+    await page.keyboard.press("Enter");
+    await expect(tray(page).getByRole("button")).toHaveCount(6);
+
+    // Esc on the empty field moves to the first tile row.
+    await field(page).fill("");
+    await page.keyboard.press("Escape");
+    await expect(zh(panel(page), "他").first()).toBeFocused();
+  });
+
+  test("a held Enter adds one tile and does not ask (ZS 2.2)", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await field(page).focus();
+    await page.keyboard.type("gou");
+    await page.keyboard.down("Enter");
+    for (let i = 0; i < 4; i++) await page.keyboard.down("Enter"); // event.repeat
+    await page.keyboard.up("Enter");
+    expect(await trayText(page)).toBe("狗");
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+  });
+
+  test("a committed phrase that is a run of tiles adds them all (ZD16)", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await field(page).fill("他有狗吗"); // as an IME commits it
+    expect(await trayText(page)).toBe("他有狗吗");
+    await expect(field(page)).toHaveValue("");
+    await field(page).fill("他很好");
+    await expect(panel(page)).toContainText("No word matches “他很好”.");
+    await field(page).fill("狗");
+    await expect(options(page)).toHaveText(["狗"]); // one word still asks for Enter
+    // A run that would overfill the tray adds nothing.
+    await field(page).fill("他有猫吗");
+    await expect(panel(page)).toContainText("The question is full. Ask it, or remove a word.");
+    await expect(tray(page).getByRole("button")).toHaveCount(4);
+  });
+
+  test("options show pinyin when the Pinyin toggle is on; Tab closes the list", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await page.getByRole("checkbox", { name: "Pinyin" }).check();
+    await field(page).fill("gou");
+    await expect(options(page).first()).toContainText("gǒu");
+    await page.keyboard.press("Tab");
+    await expect(options(page)).toHaveCount(0);
+    await expect(field(page)).toHaveValue("gou"); // the text stays
+  });
+
+  test("the phone has no find field", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/zh/play?level=2&seed=8");
+    await expect(page.getByRole("combobox")).toHaveCount(0);
+    await expect(page.getByText("Build a question:")).toBeVisible();
+  });
+});
+
 test.describe("word glosses (ZS 7.4)", () => {
   const gloss = (page: Page) => page.getByRole("tooltip");
   const word = (scope: Locator, hanzi: string) =>
