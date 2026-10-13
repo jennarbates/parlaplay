@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Character } from "../../content/schemas.ts";
-import { onBackdropClick } from "../../../../core/ui/dialog.ts";
+import { ignoreHeldEnter, onBackdropClick } from "../../../../core/ui/dialog.ts";
 import { Face } from "../Face.tsx";
 import { useIsDesktop } from "../../../../core/ui/useMediaQuery.ts";
 
@@ -69,6 +69,7 @@ export function GuessConfirm({
               type="button"
               ref={confirm}
               onClick={onConfirm}
+              onKeyDown={ignoreHeldEnter}
               className="min-h-12 rounded-xl bg-stone-900 font-medium text-white"
             >
               Guess

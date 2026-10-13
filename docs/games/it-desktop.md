@@ -437,7 +437,7 @@ Shortcuts work at every size (a phone with a keyboard benefits too). The "Press 
 - `grid grid-cols-2 gap-10`.
   - **Left:** the result headline, both secret cards side by side at `w-48`, then the action buttons ("Play again", "Home") in a row. At `lg` the action bar is **not** `fixed`, and the phone's `pb-28` is removed.
   - **Right:** the question history with answers, this round's mistakes, and the guest nudge (`spec.md` §8.2).
-- "Play again" gets focus when the screen appears.
+- "Play again" gets focus when the screen appears, and ignores a held Enter's repeats: one long press of Enter on a card while guessing opens GuessConfirm and goes no further.
 
 ### DS 9.3 Progress dashboard
 
@@ -475,7 +475,7 @@ Shortcuts work at every size (a phone with a keyboard benefits too). The "Press 
 |---|---|---|
 | SignInSheet | Bottom sheet | Centred modal, `w-[28rem]`, rounded on all corners (`lg:m-auto lg:rounded-2xl`) |
 | CardDetail | Centred, face `min(80vw, 22rem)` | Centred, face `28rem` |
-| GuessConfirm | `min(90vw, 22rem)` | `24rem`; focus starts on the confirm button |
+| GuessConfirm | `min(90vw, 22rem)` | `24rem`; focus starts on the confirm button, which ignores a held Enter's repeats |
 | SaveProgressPrompt | `min(90vw, 22rem)` | `24rem` |
 | GameMenu | Popover | Popover; closes on Esc and outside click |
 | ShortcutsDialog | (new) | `32rem` |
@@ -673,3 +673,4 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 - 2026-10-07: CHI-124. DS 9.1: the level picker keeps its "Level" legend (the diagram's "Choose your level" was a sketch). DS 9.4: new row text "Default level" / "The level Play starts at.", "Sign-in" (the account text as its description), "Privacy" / "What is stored, who handles it, and how to delete your account." with the link "Read the privacy note". The Home links on Settings and Privacy are hidden at `lg`.
 - 2026-10-07: CHI-125. DS 3: `dueToday` counts due cards (word × direction), not words, so it equals the Due list's "Due today (n)" as the last invariant asks; the first invariant, which assumed words, now bounds it by the reviewed cards. `localDay()` moved to `src/services/localDay.ts` so e2e tests can use it.
 - 2026-10-12: PLAY-029. DS 9.4: the "Game" section becomes one section per language ("Italian", "Chinese"), after "Account", each with its Default level row ("The level Play starts at in Italian.") and its device settings as rows (Chinese: "Show pinyin at Level 2"), following platform `spec.md` §8.1.
+- 2026-10-12: DS 9.2, DS 9.6: the buttons that take focus on their own (GuessConfirm's confirm, round end's "Play again") ignore a held Enter's repeats. Before, holding Enter on a card while guessing picked the card, confirmed the guess and started the next round. Found by the Shéi desktop paper trace (F2).

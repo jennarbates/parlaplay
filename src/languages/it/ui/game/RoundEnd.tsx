@@ -5,6 +5,7 @@ import type { GameState } from "../../engine/index.ts";
 import { requestPersistence } from "../../../../core/services/storage.ts";
 import { Face } from "../Face.tsx";
 import { renderMessage } from "../messages.ts";
+import { ignoreHeldEnter } from "../../../../core/ui/dialog.ts";
 import { useIsDesktop } from "../../../../core/ui/useMediaQuery.ts";
 import { paths } from "../../paths.ts";
 import { useProgressStore } from "../../stores.ts";
@@ -187,6 +188,7 @@ export function RoundEnd({
         ref={playAgain}
         type="button"
         onClick={onPlayAgain}
+        onKeyDown={ignoreHeldEnter}
         className="min-h-12 flex-1 rounded-xl bg-stone-900 font-semibold text-white"
       >
         Play again
