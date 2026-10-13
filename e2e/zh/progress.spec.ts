@@ -9,7 +9,7 @@ const savedRatings = async (page: Parameters<typeof savedGuest>[0]) =>
   ((await savedGuest(page)).reviewLog ?? []).map((r) => r.rating);
 
 test("with no play yet, both tabs show the empty state", async ({ page }) => {
-  await page.goto("/progress");
+  await page.goto("/zh/progress");
   await expect(page.getByText("Play a round to see your words here.")).toBeVisible();
   await page.getByRole("tab", { name: "Due" }).click();
   await expect(page.getByRole("tab", { name: "Due" })).toHaveAttribute("aria-selected", "true");
@@ -20,7 +20,7 @@ test("after a round: mistakes by word and grammar point, and words due with date
   page,
 }) => {
   const g = startGame(8, 2, content);
-  await page.goto("/play?level=2&seed=8");
+  await page.goto("/zh/play?level=2&seed=8");
   const ask = () => page.getByRole("button", { name: "Ask", exact: true }).click();
   const clear = () => page.getByRole("button", { name: "Clear" }).click();
 
@@ -42,7 +42,7 @@ test("after a round: mistakes by word and grammar point, and words due with date
   await ask();
 
   await expect.poll(() => savedRatings(page)).toContain("slip");
-  await page.goto("/progress");
+  await page.goto("/zh/progress");
   const mistakes = page.getByRole("list", { name: "Mistakes by word and grammar point" });
   await expect(mistakes).toContainText("狗");
   await expect(mistakes).toContainText("是 → 有");

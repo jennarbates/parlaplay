@@ -38,13 +38,13 @@ async function smallTargets(page: Page): Promise<string[]> {
 
 test.describe("touch targets are at least 44 × 44 px", () => {
   test("Home, Progress and the game at both levels", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/zh");
     expect(await smallTargets(page)).toEqual([]);
-    for (const path of ["/progress", "/settings", "/privacy"]) {
+    for (const path of ["/zh/progress", "/settings", "/privacy"]) {
       await page.goto(path);
       expect(await smallTargets(page), path).toEqual([]);
     }
-    await page.goto("/play?seed=5");
+    await page.goto("/zh/play?seed=5");
     await expect(page.getByRole("list", { name: "Questions to ask" })).toBeVisible();
     expect(await smallTargets(page)).toEqual([]);
     // The CPU's turn, with Show hint.
@@ -55,7 +55,7 @@ test.describe("touch targets are at least 44 × 44 px", () => {
   });
 
   test("Level 2 builder and the round end", async ({ page }) => {
-    await page.goto("/play?level=2&seed=5");
+    await page.goto("/zh/play?level=2&seed=5");
     await page.getByRole("checkbox", { name: "Pinyin" }).check();
     await page.getByRole("group", { name: "People" }).getByRole("button").first().click();
     expect(await smallTargets(page)).toEqual([]);
@@ -73,7 +73,7 @@ test.describe("touch targets are at least 44 × 44 px", () => {
 test("each card's accessible name lists name and attributes in Chinese (spec 9)", async ({
   page,
 }) => {
-  await page.goto("/play?seed=1");
+  await page.goto("/zh/play?seed=1");
   const cards = page.locator('ul[aria-label="Board"] button[aria-pressed]');
   await expect(cards).toHaveCount(24);
   const names = await cards.evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
@@ -111,7 +111,7 @@ test.describe("keyboard only", () => {
 
   test("a whole round, with visible focus", async ({ page }) => {
     const g = startGame(5, 1, content);
-    await page.goto("/play?seed=5");
+    await page.goto("/zh/play?seed=5");
     await page.locator("body").focus();
 
     // Ask the first question.

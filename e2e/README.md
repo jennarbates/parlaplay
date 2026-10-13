@@ -2,6 +2,8 @@
 
 Playwright, run against the production build (`vite build` + `vite preview`) in four profiles: two phones, Chromium as a Pixel 7 and WebKit as an iPhone 15 (spec 10.2), and two desktops, `desktop-chromium` and `desktop-webkit` at 1440 × 900 (desktop spec DS 13.3).
 
+Chi è?'s specs are in this folder and Shéi's in `zh/`, each as its own game spec's test plan lists them. Shéi's run only on the phone profiles until it has a desktop layout. The specs for what the two share (the platform spec's 10.2) are here too: `platform.spec.ts`, `settings.spec.ts`, `privacy.spec.ts`, `logo.spec.ts`, and the sign-in and sync specs.
+
 `desktop.spec.ts` runs only on the desktop profiles. The specs written for the phone's bottom sheet, list board and tabs (`phoneOnly` in `playwright.config.ts`) run only on the phones. Everything else runs on all four.
 
 ```bash
@@ -48,6 +50,23 @@ And by file:
 | `states.spec.ts` | Playing on after the connection drops |
 | `sign-in.spec.ts`, `outbox.spec.ts`, `guest-upload.spec.ts`, `merge.spec.ts`, `sign-out.spec.ts` | Accounts and sync (need Supabase) |
 | `desktop.spec.ts` | The desktop layout (below) |
+
+## Platform
+
+The E2E row of the platform spec's 10.2, and where each case lives:
+
+| Case | Test |
+|---|---|
+| First visit to `/` shows the picker | `platform.spec.ts` "a first visit to / shows the picker, one card per language" |
+| Choosing `zh` then reloading `/` opens `/zh` | `platform.spec.ts` "choosing Chinese, then reloading /, opens /zh (D13)" |
+| A full round in each language | `level1.spec.ts` "a whole round", `zh/level1.spec.ts` "a whole round" |
+| A saved round in each language survives switching | `platform.spec.ts` "a saved round in each language survives switching" |
+| Progress switch shows only that language | `platform.spec.ts` "Progress switches language without changing the default", "Progress shows only its own language's words" |
+| Sign-in with guest data in both languages shows the combined prompt and uploads both | `platform.spec.ts` "signing in with guest data in both shows one prompt and uploads both" (needs Supabase) |
+| Sign-out clears both | `platform.spec.ts` "sign-out clears both languages and both saved rounds" (needs Supabase) |
+| `/fr` shows the not-found screen | `platform.spec.ts` "an unknown language shows the not-found screen" |
+
+Shéi's own account specs (`zh/guest-upload.spec.ts`, `zh/merge.spec.ts`, `zh/outbox.spec.ts`, `zh/sign-out.spec.ts`) repeat Chi è?'s with Chinese rounds, so each language's rows are seen to sync.
 
 ## Desktop
 
