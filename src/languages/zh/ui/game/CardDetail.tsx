@@ -1,8 +1,11 @@
 import { useEffect, useRef } from "react";
 import type { Character } from "../../content/schemas.ts";
+import { onBackdropClick } from "../../../../core/ui/dialog.ts";
 import { Face } from "../Face.tsx";
 
 // Spec 3.5: the face large, with no text, to check small details like eye color.
+// At lg it is 28rem (zh-desktop.md ZS 10.4), still with no text: words beside the
+// picture would label it while the learner is rated on recognising them.
 export function CardDetail({
   character,
   onClose,
@@ -21,10 +24,12 @@ export function CardDetail({
   return (
     <dialog
       ref={dialog}
-      onClose={onClose}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      onCancel={onClose}
+      onClose={(e) => {
+        // A late close event for a dialog that has opened again since.
+        if (!e.currentTarget.open) onClose();
       }}
+      onClick={onBackdropClick(onClose)}
       className="m-auto rounded-2xl bg-transparent p-0 backdrop:bg-black/60"
     >
       {character && (
@@ -32,7 +37,7 @@ export function CardDetail({
           <Face
             character={character}
             label={character.name}
-            className="w-[min(80vw,22rem)] rounded-2xl"
+            className="w-[min(80vw,22rem)] rounded-2xl lg:w-[28rem]"
           />
           <button
             type="button"

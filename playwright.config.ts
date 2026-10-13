@@ -18,9 +18,11 @@ const phoneOnly = [
   "states.spec.ts",
 ];
 
-// Shéi's specs (e2e/zh/) are phone-only until it has a desktop layout of its own
-// (docs/games/zh-desktop.md): at lg it shows the phone's screens in a narrow column.
-const shei = "**/zh/**";
+// Shéi's phone specs (e2e/zh/) run on the phone profiles only; its desktop layout
+// has its own file, e2e/zh/desktop.spec.ts, run on the desktop profiles only, as
+// Chi è?'s is (zh-desktop.md ZD12).
+const sheiPhone = /\/zh\/(?!desktop\.spec\.ts$)/;
+const desktopOnly = "**/desktop.spec.ts";
 
 export default defineConfig({
   testDir: "e2e",
@@ -33,17 +35,17 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Pixel 7"] }, testIgnore: ["desktop.spec.ts"] },
-    { name: "webkit", use: { ...devices["iPhone 15"] }, testIgnore: ["desktop.spec.ts"] },
+    { name: "chromium", use: { ...devices["Pixel 7"] }, testIgnore: [desktopOnly] },
+    { name: "webkit", use: { ...devices["iPhone 15"] }, testIgnore: [desktopOnly] },
     {
       name: "desktop-chromium",
       use: { ...devices["Desktop Chrome"], viewport: desktop },
-      testIgnore: [...phoneOnly, shei],
+      testIgnore: [...phoneOnly, sheiPhone],
     },
     {
       name: "desktop-webkit",
       use: { ...devices["Desktop Safari"], viewport: desktop },
-      testIgnore: [...phoneOnly, shei],
+      testIgnore: [...phoneOnly, sheiPhone],
     },
   ],
   // Test the production build, not the dev server. The handoff page (handoff/) is a

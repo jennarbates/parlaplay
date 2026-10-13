@@ -33,7 +33,8 @@ useRounds.getState().register("zh", {
   },
 });
 
-// Shéi has no desktop layout of its own: every screen keeps the phone's width.
+// zh-desktop.md ZS 5.1: the game takes the whole window at lg. Home and Progress
+// keep the phone's width until their desktop layouts land (PLAY-062).
 const width = "lg:max-w-md";
 
 const chinese: LanguageModule = {
@@ -41,7 +42,7 @@ const chinese: LanguageModule = {
   contentVersion,
   routes: [
     { index: true, Component: Home, handle: { width } },
-    { path: "play", Component: Game, handle: { width, game: true } },
+    { path: "play", Component: Game, handle: { width: "lg:max-w-none", game: true } },
     { path: "progress", Component: Progress, handle: { width } },
   ],
   cardIds,
