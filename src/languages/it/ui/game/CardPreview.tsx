@@ -1,6 +1,6 @@
 import type { Character } from "../../content/schemas.ts";
 import { Face } from "../Face.tsx";
-import type { PreviewSpot } from "./boardLayout.ts";
+import type { PreviewSpot } from "../../../../core/ui/boardLayout.ts";
 
 // A larger, read-only look at a hovered card: the face and the name, no
 // attributes (that is CardDetail). It never takes focus or the pointer.

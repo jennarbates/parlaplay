@@ -1,9 +1,9 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import type { Character } from "../../content/schemas.ts";
-import { boardShape, boardVars } from "./boardLayout.ts";
+import { boardShape, boardVars } from "../../../../core/ui/boardLayout.ts";
 import { Card } from "./Card.tsx";
 import { CardPreview } from "./CardPreview.tsx";
-import { useHoverPreview } from "./useHoverPreview.ts";
+import { useHoverPreview } from "../../../../core/ui/useHoverPreview.ts";
 
 type Props = {
   characters: Character[];

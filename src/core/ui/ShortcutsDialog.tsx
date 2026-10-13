@@ -1,27 +1,21 @@
 import { useEffect, useRef } from "react";
-import { onBackdropClick } from "../../../../core/ui/dialog.ts";
+import { onBackdropClick } from "./dialog.ts";
 
-// Desktop spec DS 8.1 and DS 4.2, in words.
-const keys: { keys: string[]; does: string }[] = [
-  { keys: ["Q"], does: "Go to the questions" },
-  { keys: ["↑", "↓"], does: "Move between questions; Enter asks" },
-  { keys: ["Tab", "←", "→"], does: "Level 2: move between and along the tile rows" },
-  { keys: ["B"], does: "Go to the board" },
-  { keys: ["←", "↑", "→", "↓"], does: "Move around the board" },
-  { keys: ["Home", "End"], does: "First or last card in the row" },
-  { keys: ["Ctrl+Home", "Ctrl+End"], does: "First or last card on the board" },
-  { keys: ["Enter", "Space"], does: "Flip the card, or pick it while guessing" },
-  { keys: ["I"], does: "Look at the card up close" },
-  { keys: ["G"], does: "Indovina: guess who it is" },
-  { keys: ["Esc"], does: "Cancel the guess" },
-  { keys: ["S", "N"], does: "Answer Sì or No to the computer" },
-  { keys: ["H"], does: "Show the hint (Level 1)" },
-  { keys: ["A"], does: "Avanti: carry on" },
-  { keys: ["?"], does: "Show these shortcuts" },
-];
+export type ShortcutRow = { keys: string[]; does: string };
 
-// Desktop spec DS 8.3: the keyboard shortcuts, opened by ? or from the menu.
-export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+// Desktop spec DS 8.3: the keyboard shortcuts, opened by ? or from the menu. Each
+// game gives its own rows; Shéi's list is longer and asks for the wider box.
+export function ShortcutsDialog({
+  open,
+  onClose,
+  rows,
+  wide = false,
+}: {
+  open: boolean;
+  onClose: () => void;
+  rows: readonly ShortcutRow[];
+  wide?: boolean;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = dialog.current;
@@ -39,7 +33,7 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
       }}
       onClick={onBackdropClick(onClose)}
       aria-labelledby="shortcuts-title"
-      className="m-auto max-h-[90dvh] w-[min(90vw,32rem)] rounded-2xl p-5 backdrop:bg-black/50"
+      className={`m-auto max-h-[90dvh] rounded-2xl p-5 backdrop:bg-black/50 ${wide ? "w-[min(90vw,36rem)]" : "w-[min(90vw,32rem)]"}`}
     >
       <div className="flex items-center justify-between">
         <h2 id="shortcuts-title" className="text-xl font-semibold">
@@ -62,7 +56,7 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
           </tr>
         </thead>
         <tbody>
-          {keys.map((k) => (
+          {rows.map((k) => (
             <tr key={k.does} className="border-t border-stone-100">
               <td className="py-1.5 pr-4 whitespace-nowrap">
                 {k.keys.map((key, i) => (

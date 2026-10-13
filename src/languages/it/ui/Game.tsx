@@ -6,19 +6,20 @@ import { questionByKey, type Fill, type GameState, type Level } from "../engine/
 import { useAccountStore } from "../../../core/store/account.ts";
 import { useGameStore } from "../store/gameStore.ts";
 import { Board } from "./game/Board.tsx";
-import { boardVars } from "./game/boardLayout.ts";
+import { boardVars } from "../../../core/ui/boardLayout.ts";
 import { CardDetail } from "./game/CardDetail.tsx";
 import { CpuQuestion } from "./game/CpuQuestion.tsx";
 import { FeedbackText } from "./game/FeedbackText.tsx";
 import { GameMenu } from "./game/GameMenu.tsx";
 import { GuessConfirm } from "./game/GuessConfirm.tsx";
-import { Kbd } from "./game/Kbd.tsx";
+import { Kbd } from "../../../core/ui/Kbd.tsx";
 import { QuestionPicker } from "./game/QuestionPicker.tsx";
 import { RoundEnd } from "./game/RoundEnd.tsx";
 import { keyToAction } from "./game/shortcuts.ts";
-import { ShortcutsDialog } from "./game/ShortcutsDialog.tsx";
+import { ShortcutsDialog } from "../../../core/ui/ShortcutsDialog.tsx";
+import { shortcutRows } from "./game/shortcutRows.ts";
 import { Sheet } from "./game/Sheet.tsx";
-import { SidePanel } from "./game/SidePanel.tsx";
+import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { TileBuilder, type TileDraft } from "./game/TileBuilder.tsx";
 import { TopBar } from "./game/TopBar.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
@@ -270,7 +271,7 @@ export function Game() {
         character={zoomed ? byId.get(zoomed) : undefined}
         onClose={() => setZoomed(undefined)}
       />
-      <ShortcutsDialog open={help} onClose={() => setHelp(false)} />
+      <ShortcutsDialog open={help} onClose={() => setHelp(false)} rows={shortcutRows} />
       <GuessConfirm
         character={guessFor ? byId.get(guessFor) : undefined}
         flipped={!!guessFor && game.flipped.includes(guessFor)}

@@ -94,13 +94,27 @@ export default tseslint.config(
   // The shortcut logic is pure too (desktop spec DS 4.6): only type imports, and
   // no DOM, timers or clock.
   {
-    files: ["src/languages/*/ui/game/shortcuts.ts"],
+    files: [
+      "src/languages/*/ui/game/shortcuts.ts",
+      "src/core/ui/shortcutGuard.ts",
+      // Shéi's desktop logic (zh-desktop.md ZS 4)
+      "src/languages/zh/ui/game/roundLog.ts",
+      "src/languages/zh/ui/game/findTiles.ts",
+      "src/languages/zh/ui/game/gloss.ts",
+    ],
     languageOptions: { globals: {} },
     rules: {
       "@typescript-eslint/no-restricted-imports": [
         "error",
         {
-          patterns: [{ group: ["*"], allowTypeImports: true, message: "Only type imports here." }],
+          patterns: [
+            {
+              // The shared guard (DS 4.3 steps 1 to 3) is pure too.
+              regex: "^(?!.*/core/ui/shortcutGuard\\.ts$)",
+              allowTypeImports: true,
+              message: "Only type imports here.",
+            },
+          ],
         },
       ],
       "no-restricted-globals": [

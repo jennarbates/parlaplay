@@ -1,6 +1,6 @@
 import type { Question } from "../../engine/index.ts";
 import { hintFor } from "./hints.ts";
-import { Kbd } from "./Kbd.tsx";
+import { Kbd } from "../../../../core/ui/Kbd.tsx";
 
 // Spec 2 and 8.1: the CPU's question with Sì and No. At Level 1 a hint shows the
 // English; showing it means the answer is not rated (spec 6). Game holds
