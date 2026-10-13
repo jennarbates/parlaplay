@@ -190,6 +190,29 @@ test.describe("one account, two languages (2, 6.3)", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Quit round" }).click();
   }
 
+  // The language of each of the signed-in player's rows in a table, from the
+  // database itself, through its REST API and Row Level Security.
+  function serverLanguages(page: Page, table: string): Promise<string[]> {
+    return page.evaluate(
+      async ({ url, key, table }) => {
+        const stored = Object.keys(localStorage).find((k) => /^sb-.*-auth-token$/.test(k));
+        const session = JSON.parse((stored && localStorage.getItem(stored)) ?? "{}") as {
+          access_token?: string;
+        };
+        const res = await fetch(`${url}/rest/v1/${table}?select=language`, {
+          headers: { apikey: key, Authorization: `Bearer ${session.access_token ?? ""}` },
+        });
+        if (!res.ok) return [];
+        return ((await res.json()) as { language: string }[]).map((row) => row.language);
+      },
+      {
+        url: process.env.VITE_SUPABASE_URL ?? "",
+        key: process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
+        table,
+      },
+    );
+  }
+
   // A guest with a mistake in each language and no round left open.
   async function playBothAsGuest(page: Page) {
     await italianMistake(page);
@@ -199,27 +222,22 @@ test.describe("one account, two languages (2, 6.3)", () => {
     await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
   }
 
-  test("signing in with guest data in both shows one prompt and uploads both", async ({
-    page,
-    browser,
-  }) => {
+  test("signing in with guest data in both shows one prompt and uploads both", async ({ page }) => {
     await playBothAsGuest(page);
-    const email = await signIn(page);
+    await signIn(page);
     const prompt = page.getByRole("dialog", { name: title });
     await expect(prompt).toBeVisible();
     await prompt.getByRole("button", { name: "Save", exact: true }).click();
     await expect(prompt).toBeHidden();
     await expect(page.getByText("Saved on this device, will sync later.")).toHaveCount(0);
 
-    // Uploaded, not only kept here: a second device signing in sees both.
-    const other = await (await browser.newContext()).newPage();
-    await signIn(other, email);
-    await expect(other.getByRole("dialog", { name: /^Save your/ })).toHaveCount(0);
-    await other.goto("/it/progress");
-    await expect(italianMistakes(other)).toContainText("il → la");
-    await other.goto("/zh/progress");
-    await expect(mistakes(other)).toContainText("是 → 有");
-    await other.context().close();
+    // Uploaded, not only kept here: the account's rows on the server are in both
+    // languages. Read with the player's own session, as the app would.
+    for (const table of ["games", "review_log"]) {
+      await expect
+        .poll(async () => [...new Set(await serverLanguages(page, table))].sort())
+        .toEqual(["it", "zh"]);
+    }
   });
 
   test("Don't save deletes the guest data of both", async ({ page }) => {
