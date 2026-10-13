@@ -1,11 +1,13 @@
 import { Link } from "react-router";
 import { homePath, useShell } from "../store/shell.ts";
 
-// Where account deletion requests go (spec 7.3). The mailbox must exist before launch.
+// Where account deletion requests go (platform spec 6.3). The mailbox must exist
+// before launch.
 const privacyEmail = "privacy@parlaplay.games";
 
-// Spec 7.3 and 9 (Privacy): what is stored, who processes it, that Safari can clear
-// guest data, and how to get an account deleted.
+// Platform spec 8.1 and 9 (Privacy): one note for every language. What is stored
+// per language, who processes it, that Safari can clear guest data, that one
+// account covers every language, and how to get it deleted.
 export function Privacy() {
   const home = useShell(homePath);
   return (
@@ -33,8 +35,8 @@ export function Privacy() {
           Playing as a guest
         </h2>
         <p>
-          Your games and progress stay on this device, in your browser&apos;s storage. Nothing is
-          sent to us. There are no analytics and no trackers.
+          Your games and progress in every language stay on this device, in your browser&apos;s
+          storage. Nothing is sent to us. There are no analytics and no trackers.
         </p>
         <p className="mt-2">
           Your browser can delete this data. Safari on iPhone and iPad clears a site&apos;s storage
@@ -47,8 +49,13 @@ export function Privacy() {
           With an account
         </h2>
         <p>
-          We store your email address, your profile (your default level), the rounds you play, a log
-          of the words you practised and how each went, and your review schedule. That is all.
+          One account covers every language. We store your email address and the language you last
+          played. For each language you play, we store your level, the rounds you play, a log of the
+          words you practised and how each went, and your review schedule. That is all.
+        </p>
+        <p className="mt-2">
+          Settings that belong to one device, such as showing pinyin in Chinese, stay on that
+          device.
         </p>
       </section>
 
@@ -90,7 +97,7 @@ export function Privacy() {
             {privacyEmail}
           </a>{" "}
           from the address you signed in with, and we will delete your account and everything stored
-          with it within one month.
+          with it within one month. That deletes your progress in every language.
         </p>
       </section>
     </article>

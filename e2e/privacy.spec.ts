@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// CHI-092: the privacy note.
+// CHI-092 and PLAY-030: the privacy note, one for every language (platform spec 8.1).
 
 test("the privacy note covers storage, services, Safari and deletion", async ({ page }) => {
   await page.goto("/settings");
@@ -34,6 +34,12 @@ test("the privacy note covers storage, services, Safari and deletion", async ({ 
   await expect(email).toHaveAttribute("href", "mailto:privacy@parlaplay.games");
   await expect(note).toContainText("within one month");
   await expect(note).toContainText("There is no delete button in the app yet");
+
+  // One account for every language, and deleting it deletes them all (platform spec 6.3).
+  await expect(note).toContainText("One account covers every language.");
+  await expect(note).toContainText("That deletes your progress in every language.");
+  await expect(note).toContainText("For each language you play, we store your level");
+  await expect(note).toContainText("Your games and progress in every language stay on this device");
 });
 
 test("/privacy loads directly", async ({ page }) => {
