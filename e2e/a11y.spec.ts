@@ -55,6 +55,23 @@ test.describe("touch targets are at least 44 × 44 px", () => {
     expect(await smallTargets(page)).toEqual([]);
   });
 
+  // PLAY-039, platform spec 10.2: the platform's own screens. Settings is above.
+  test("the picker, the not-found screens and the handoff's failure screen", async ({ page }) => {
+    await page.goto("/languages");
+    await expect(page.getByRole("heading", { name: "Choose a language" })).toBeVisible();
+    expect(await smallTargets(page), "/languages").toEqual([]);
+
+    for (const [path, heading] of [
+      ["/fr", "We don't have that language yet."],
+      ["/nowhere/at/all", "Page not found."],
+      ["/import", "We couldn't bring your progress over."],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+      expect(await smallTargets(page), path).toEqual([]);
+    }
+  });
+
   test("Level 2 builder and the round end", async ({ page }) => {
     await page.goto("/it/play?level=2&seed=5");
     await page
