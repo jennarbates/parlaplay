@@ -149,4 +149,4 @@ pnpm build:handoff
 pnpm exec wrangler deploy -c handoff/wrangler.jsonc
 ```
 
-Set `VITE_PARLAPLAY_URL` when building it to send players somewhere other than `https://parlaplay.games` (staging). It stays up for six months, then the subdomain becomes a plain redirect (D10).
+Set `VITE_PARLAPLAY_URL` when building it to send players somewhere other than `https://parlaplay.games` (staging). The whole launch hour, step by step with its checks and the way back, is in [docs/launch-runbook.md](docs/launch-runbook.md). It stays up for six months, then the subdomain becomes a plain redirect (D10).
