@@ -349,7 +349,9 @@ const Handoff = z.strictObject({
 
 - Nothing is saved until the whole fragment has decoded and validated. If the device then refuses a write, the import stops and shows the failure screen; every step is a union, so `Try again` repairs it.
 - Step 3: the same round arriving again (same `gameId`) keeps the copy already here, which may have been played further.
-- Step 3: `/import` waits until the account is known. For a guest the rows also join the progress already open. If an account is signed in here, the rows wait in `guest:it` like any guest data.
+- Step 3: a round is refused when its games row is finished, or did not come with it. The handoff page never deletes anything, so without the first rule a round finished here would return as `Continue round` every time an old link is opened. The second covers a signed-in Chi è? player, whose games row is on the server: they sign in here and lose only the round in progress.
+- Step 3: `/import` waits until the account is known. For a guest the rows also join the progress already open. If an account is signed in here, the rows wait in `guest:it` like any guest data, except rows that account already has, which are left out so the save-guest prompt does not return at every sign-in. The saved round is not taken while signed in: played under the account, its review rows would point at a game only the guest rows hold.
+- Strings in a row are capped (`lexiconId` 64 characters, each `detail` field 200), so a crafted link cannot store megabytes.
 - Step 4: `outbox:pending-handoff` holds `{ userId, ops }[]`, each op once. When that user signs in (or is already signed in when the handoff arrives), the ops join `outbox:{userId}` and that user's local copy, then sync as usual.
 - Step 5: the Italian screen replaces `/import` in the history, so Back never returns to it. `/import` opened with no fragment shows the failure screen.
 - `Try again` goes to `VITE_CHIE_URL` where that is set (staging and tests), else `https://chie.parlaplay.games/`.
@@ -358,7 +360,7 @@ const Handoff = z.strictObject({
 
 - It opens `chi-e` read-only. On a device that never played, it aborts the open, so no empty database is created there.
 - It reads `guest`, `round` and every `outbox:{userId}` that holds rows. `user:{userId}` (a signed-in player's copy, already on the server) stays behind. It never reads `localStorage`.
-- Values are sent as they are; `/import` does all the validation, so damaged data ends on the failure screen, not on the old site.
+- Values are sent as they are; `/import` does all the validation, so damaged data ends on the failure screen, not on the old site. A signed-in player's round goes too, without its games row, and `/import` refuses it (above).
 - It navigates with `location.replace`, so Back from `parlaplay.games` does not run the handoff again.
 - The message stays empty until the page knows there is data, so a visitor with none sees nothing before the redirect.
 - `VITE_PARLAPLAY_URL` at build time points it somewhere other than `https://parlaplay.games` (staging and tests).
@@ -828,7 +830,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 - 2026-10-07: v0.3. Fragment spike: 1 MB arrives, 2 MB refused on desktop; handoff gzips and caps at 900 KB (5.3, D22). Paper trace (docs/reviews/platform-paper-trace.md) fixes F1 to F9: wait for the app key before routing `/`; registry carries each contentVersion; prompt languages in registry order; Don't save and sign-out remove saved rounds; guest level kept at sign-in; `/import` accepts only three `next` paths, compares rounds by games row start, and sets the last language. Sentry facts verified; Supabase project refs recorded.
 - 2026-10-08: SIGNED_OUT added to the shell (4.1, 4.2) for a session that ends outside Settings, so the shell never stays signed in after it (PLAY-025).
 - 2026-10-08: Logo at the top left of every screen, linking to `/` (8.4, D23, PLAY-064, PLAY-065), drawn by `scripts/logo.py`. DesktopNav's `parlaplay` fallback link is replaced by it.
-- 2026-10-12: `/import` built (PLAY-035). 5.3 gains the fragment's data shape and the details its steps left open: validate everything before saving, the same round arriving twice keeps the copy here, waiting for the account, the shape of `outbox:pending-handoff`, Back never returning to `/import`, and `VITE_CHIE_URL`.
+- 2026-10-12: `/import` built (PLAY-035). 5.3 gains the fragment's data shape and the details its steps left open: validate everything before saving, the same round arriving twice keeps the copy here, waiting for the account, the shape of `outbox:pending-handoff`, Back never returning to `/import`, and `VITE_CHIE_URL`. After a code review the same day: a finished round, or one without its games row, is refused; signed in, the round is not taken and rows the account has are not offered again; row strings are capped.
 - 2026-10-12: Handoff page built (PLAY-036) and tested end to end across two origins (PLAY-037). 5.3 gains "The handoff page as built": which keys it reads, that it never creates or changes `chi-e`, `location.replace`, and `VITE_PARLAPLAY_URL`.
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).

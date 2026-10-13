@@ -90,17 +90,22 @@ async function encodedLength(page: Page, handoff: unknown): Promise<number> {
 // text does not compress, so each row costs about its own length.
 async function heavyGuest(page: Page, encoded: number) {
   const g = game();
-  const filler = () => Array.from({ length: 12 }, uuid).join("");
+  // As much random text as a row may hold: /import caps each field (spec 5.3).
+  const filler = (length: number) =>
+    Array.from({ length: Math.ceil(length / 32) }, () => uuid().replaceAll("-", ""))
+      .join("")
+      .slice(0, length);
   const row = () => ({
     id: uuid(),
     gameId: g.id,
-    lexiconId: `n.${filler()}`,
+    lexiconId: `n.${filler(62)}`,
     direction: "recognize",
-    rating: "good",
+    rating: "again",
+    detail: { slot: filler(200), given: filler(200), expected: filler(200), rule: filler(200) },
     localDay: "2026-10-20",
     createdAt: "2026-10-20T10:01:00.000Z",
   });
-  const guest = { games: [g], reviewLog: Array.from({ length: encoded / 400 }, row) };
+  const guest = { games: [g], reviewLog: Array.from({ length: Math.floor(encoded / 700) }, row) };
   const size = () => encodedLength(page, { v: 1, guest });
   while ((await size()) < encoded) guest.reviewLog.push(...Array.from({ length: 50 }, row));
   return { guest, encoded: await size() };

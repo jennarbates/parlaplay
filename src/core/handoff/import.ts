@@ -25,6 +25,7 @@ import { decodeHandoff } from "./codec.ts";
 import {
   keepsExistingRound,
   mergeOutboxes,
+  newTo,
   nextPath,
   parseFragment,
   withLanguage,
@@ -60,28 +61,34 @@ export async function importHandoff(hash: string, now = new Date()): Promise<str
   const incoming = withLanguage(await decodeHandoff(data));
 
   await accountSettled();
-  await progressSaved();
   const progress = progressStore(code);
+  const signedIn = progress.getState().owner !== "guest";
+  // A guest's rows are open in memory; make sure all of them are, so the merge
+  // below cannot save over rows still being read at app start.
+  if (!signedIn) await progress.getState().hydrate();
+  await progressSaved();
 
-  // Step 3: guest rows, a union by id with what guest:it already holds.
+  // Step 3: guest rows, a union by id with what guest:it already holds. Signed in
+  // here, rows this account already has are left out: an old link opened again
+  // would otherwise ask "Save your Italian progress?" at every sign-in.
+  const arriving = signedIn ? newTo(incoming.guest, progress.getState()) : incoming.guest;
   const saved = await read<Partial<GuestData>>(`guest:${code}`);
   const guest = mergeData(
     { games: rowsOf<GameRow>(saved?.games), reviewLog: rowsOf<ReviewLogRow>(saved?.reviewLog) },
-    incoming.guest,
+    arriving,
   );
-  await save(`guest:${code}`, guest);
-  // A guest has those rows open in memory; a signed-in player meets them, as any
-  // guest data, the next time they sign in.
-  if (progress.getState().owner === "guest") {
+  if (!signedIn || arriving.games.length || arriving.reviewLog.length)
+    await save(`guest:${code}`, guest);
+  if (!signedIn) {
     progress.getState().mergeRemote(incoming.guest);
     await progressSaved();
   }
 
-  // The saved round, unless the one already here is newer.
-  if (incoming.round) {
+  // The saved round, for a guest only: its games row is a guest row, so played
+  // under an account its review rows would point at a game the server never gets.
+  if (incoming.round && !signedIn) {
     const existing = await read<{ gameId?: unknown }>(`round:${code}`);
-    const games = [...guest.games, ...progress.getState().games];
-    if (!keepsExistingRound(existing, incoming.round, games)) {
+    if (!keepsExistingRound(existing, incoming.round, guest.games)) {
       await save(`round:${code}`, incoming.round);
       useRounds
         .getState()
