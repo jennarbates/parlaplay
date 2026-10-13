@@ -1,24 +1,10 @@
-import { expect, test, type Page } from "@playwright/test";
-import { hasSupabase, newEmail } from "./inbox.ts";
-import { signIn } from "./signin.ts";
+import { expect, test } from "@playwright/test";
+import { hasSupabase, newEmail } from "../inbox.ts";
+import { signIn } from "../signin.ts";
+import { mistakeAndQuit, mistakes } from "./game.ts";
 
-// CHI-086: two devices on one account end up with the same Progress. CI only.
+// Two devices on one account merge their Chinese review logs (spec 7.3). CI only.
 test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
-
-const tile = (page: Page, group: string, name: string) =>
-  page.getByRole("group", { name: group, exact: true }).getByRole("button", { name, exact: true });
-
-async function mistakeAndQuit(page: Page, art: string, noun: string) {
-  await page.goto("/play?level=2&seed=8");
-  await tile(page, "Verb", "ha").click();
-  await tile(page, "Article", art).click();
-  await tile(page, "Noun", noun).click();
-  await page.getByRole("button", { name: "Chiedi" }).click();
-  await page.getByRole("button", { name: "Menu" }).click();
-  await page.getByRole("menuitem", { name: "Quit round" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Quit round" }).click();
-  await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
-}
 
 test("a mistake made on one device shows on the other", async ({ browser }) => {
   const email = newEmail();
@@ -26,17 +12,16 @@ test("a mistake made on one device shows on the other", async ({ browser }) => {
   const laptop = await (await browser.newContext()).newPage();
 
   await signIn(phone, email);
-  await mistakeAndQuit(phone, "il", "barba"); // barba: il → la
+  await mistakeAndQuit(phone, "是", "狗"); // 狗: 是 → 有
 
   await signIn(laptop, email);
-  await mistakeAndQuit(laptop, "la", "cappello"); // cappello: la → il
-  await laptop.goto("/progress");
-  const laptopMistakes = laptop.getByRole("list", { name: "Mistakes by word" });
-  await expect(laptopMistakes).toContainText("il → la");
-  await expect(laptopMistakes).toContainText("la → il");
+  await mistakeAndQuit(laptop, "有", "学校"); // 学校: 有 → 在
+  await laptop.goto("/zh/progress");
+  await expect(mistakes(laptop)).toContainText("是 → 有");
+  await expect(mistakes(laptop)).toContainText("有 → 在");
 
   // The phone picks up the laptop's mistake on its next sync (app start).
-  await phone.goto("/progress");
-  await expect(phone.getByRole("list", { name: "Mistakes by word" })).toContainText("la → il");
-  await expect(phone.getByRole("list", { name: "Mistakes by word" })).toContainText("il → la");
+  await phone.goto("/zh/progress");
+  await expect(mistakes(phone)).toContainText("有 → 在");
+  await expect(mistakes(phone)).toContainText("是 → 有");
 });

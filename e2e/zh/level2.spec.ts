@@ -13,7 +13,7 @@ const ask = (page: Page) => page.getByRole("button", { name: "Ask", exact: true 
 const status = (page: Page) => sheet(page).getByRole("status");
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`/play?level=2&seed=${seed}`);
+  await page.goto(`/zh/play?level=2&seed=${seed}`);
   await expect(tray(page)).toBeVisible();
 });
 
@@ -60,7 +60,9 @@ test("the pinyin toggle shows pinyin on tiles and tray, and is remembered", asyn
   await build(page, "他");
   await expect(tray(page)).toContainText("tā");
   await expect(places).toContainText("xuéxiào");
-  await expect.poll(() => stored(page, "settings")).toEqual({ pinyin: true, pronoun: "pr.ta.m" });
+  await expect
+    .poll(() => stored(page, "settings:zh"))
+    .toEqual({ pinyin: true, pronoun: "pr.ta.m" });
   await page.reload();
   await expect(page.getByRole("checkbox", { name: "Pinyin" })).toBeChecked();
 });

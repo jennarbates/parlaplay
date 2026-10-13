@@ -27,7 +27,7 @@ const game = startGame(seed, 1, content);
 test("the picker lists the 14 questions with pinyin and English, and the pronoun switch", async ({
   page,
 }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
   await expect(picker(page).getByRole("button")).toHaveCount(14);
   expect(await chineseText(picker(page))).toContain("他是医生吗？");
   await expect(picker(page)).toContainText("Is he a doctor?");
@@ -40,7 +40,9 @@ test("the picker lists the 14 questions with pinyin and English, and the pronoun
   await expect.poll(() => chineseText(picker(page))).toContain("她是医生吗？");
   await expect(picker(page)).toContainText("Is she a doctor?");
   // The switch is remembered on this device (spec 7.3).
-  await expect.poll(() => stored(page, "settings")).toEqual({ pinyin: false, pronoun: "pr.ta.f" });
+  await expect
+    .poll(() => stored(page, "settings:zh"))
+    .toEqual({ pinyin: false, pronoun: "pr.ta.f" });
   await page.reload();
   await expect(page.getByRole("button", { name: /她\s*she/ })).toHaveAttribute(
     "aria-pressed",
@@ -49,7 +51,7 @@ test("the picker lists the 14 questions with pinyin and English, and the pronoun
 });
 
 test("a whole round: ask, answer the CPU right and wrong, guess with confirm", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
 
   // Ask: the answer is the truth about the CPU's secret, with the asker's pronoun.
   await picker(page)
@@ -67,7 +69,7 @@ test("a whole round: ask, answer the CPU right and wrong, guess with confirm", a
 
   // Show hint reveals the English.
   await page.getByRole("button", { name: "Show hint" }).click();
-  await expect(sheet(page)).toContainText(/^.*(Is|Does) (he|she) /);
+  await expect(sheet(page)).toContainText(/^.*(Is|Does) (he|she|this person) /);
 
   // Answer wrongly on purpose: the correct full answer is shown.
   await answerCpu(page, false, game.playerSecret);
@@ -111,7 +113,7 @@ test("a whole round: ask, answer the CPU right and wrong, guess with confirm", a
 });
 
 test("Cancel guess leaves guessing mode without guessing", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
   await page.getByRole("button", { name: "Guess", exact: true }).click();
   await page.getByRole("button", { name: "Cancel guess" }).click();
   await expect(page.getByRole("button", { name: "Guess", exact: true })).toBeVisible();
@@ -119,7 +121,7 @@ test("Cancel guess leaves guessing mode without guessing", async ({ page }) => {
 });
 
 test("a wrong guess loses", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
   const wrong = content.characters.find((c) => c.id !== game.cpuSecret);
   if (!wrong) throw new Error("no other character");
   await page.getByRole("button", { name: "Guess", exact: true }).click();
@@ -132,7 +134,7 @@ test("a wrong guess loses", async ({ page }) => {
 });
 
 test("answering the CPU correctly shows Right!", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
   await picker(page).getByRole("button").first().click();
   await page.getByRole("button", { name: "Next" }).click();
   await answerCpu(page, true, game.playerSecret);
@@ -143,7 +145,7 @@ test("answering the CPU correctly shows Right!", async ({ page }) => {
 test("a pronoun slip after the gender is known is shown, and the question still answered", async ({
   page,
 }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
   const woman = content.characters.find((c) => c.id === game.cpuSecret)?.attrs.gender === "n.nvde";
   // Ask the gender, then ask with the other pronoun.
   await picker(page)
@@ -164,7 +166,7 @@ test("a pronoun slip after the gender is known is shown, and the question still 
 });
 
 test("Level 1 offers the right verb's two answers, with pinyin", async ({ page }) => {
-  await page.goto(`/play?seed=${seed}`);
+  await page.goto(`/zh/play?seed=${seed}`);
   await picker(page).getByRole("button").first().click();
   await page.getByRole("button", { name: "Next" }).click();
   await waitForPhase(page, "cpuTurn");

@@ -10,7 +10,7 @@ test.describe("on a 360 × 560 phone (spec 8)", () => {
   test.use({ viewport: { width: 360, height: 560 } });
 
   test("all 24 cards fit above the collapsed sheet, 6 × 4, with no scrolling", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/zh/play?seed=1");
     await expect(page.getByRole("list", { name: "Board" }).getByRole("listitem")).toHaveCount(24);
     await collapseSheet(page);
     const sheetTop = (await page.getByRole("region", { name: "Questions" }).boundingBox())?.y ?? 0;
@@ -39,7 +39,7 @@ test.describe("on a 360 × 560 phone (spec 8)", () => {
   });
 
   test("opening the sheet never shrinks the board", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/zh/play?seed=1");
     await collapseSheet(page);
     const closed = await card(page, "王明").boundingBox();
     await page.getByRole("button", { name: /questions$/ }).click();
@@ -54,7 +54,7 @@ test.describe("on a 360 × 560 phone (spec 8)", () => {
 test("tap flips a card and tap again flips it back, and it shows by more than color", async ({
   page,
 }) => {
-  await page.goto("/play?seed=1");
+  await page.goto("/zh/play?seed=1");
   await collapseSheet(page);
   await card(page, "张伟").click();
   const flipped = card(page, "张伟");
@@ -66,7 +66,7 @@ test("tap flips a card and tap again flips it back, and it shows by more than co
 });
 
 test("Unflip all appears once every card is down, and turns them all back", async ({ page }) => {
-  await page.goto("/play?seed=2");
+  await page.goto("/zh/play?seed=2");
   await collapseSheet(page);
   const unflip = page.getByRole("button", { name: "Unflip all" });
   const items = page.locator('ul[aria-label="Board"] button[aria-pressed="false"]');
@@ -80,7 +80,7 @@ test("Unflip all appears once every card is down, and turns them all back", asyn
 });
 
 test("flips survive a reload, because the round is saved after every action", async ({ page }) => {
-  await page.goto("/play?seed=3");
+  await page.goto("/zh/play?seed=3");
   await collapseSheet(page);
   await card(page, "李强").click();
   await card(page, "李丽").click();
@@ -93,7 +93,7 @@ test("flips survive a reload, because the round is saved after every action", as
 });
 
 test("the top bar shows the turn, whose turn, and your own card", async ({ page }) => {
-  await page.goto("/play?seed=1");
+  await page.goto("/zh/play?seed=1");
   const bar = page.locator("header");
   await expect(bar).toContainText("Turn 1");
   await expect(bar).toContainText("Your turn");
@@ -102,7 +102,7 @@ test("the top bar shows the turn, whose turn, and your own card", async ({ page 
 
 test.describe("card detail view (spec 3.5)", () => {
   test("clicking your own card in the top bar opens it large", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/zh/play?seed=1");
     const bar = page.locator("header");
     const label = await bar.getByRole("img", { name: /^Your card: / }).getAttribute("aria-label");
     const name = label?.replace("Your card: ", "") ?? "";
@@ -116,7 +116,7 @@ test.describe("card detail view (spec 3.5)", () => {
   test("long-press opens the face large with no text, and does not flip the card", async ({
     page,
   }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/zh/play?seed=1");
     await collapseSheet(page);
     const davide = card(page, "刘洋");
     const box = await davide.boundingBox();
@@ -135,14 +135,14 @@ test.describe("card detail view (spec 3.5)", () => {
   });
 
   test("a short tap does not open it", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/zh/play?seed=1");
     await collapseSheet(page);
     await card(page, "陈杰").click();
     await expect(page.getByRole("dialog")).toBeHidden();
   });
 
   test("keyboard users get a Zoom control that does the same", async ({ page }) => {
-    await page.goto("/play?seed=1");
+    await page.goto("/zh/play?seed=1");
     await collapseSheet(page);
     // The Zoom control comes right after its card in tab order. WebKit does not Tab
     // between buttons by default, so there it is focused directly.
@@ -161,7 +161,7 @@ test.describe("card detail view (spec 3.5)", () => {
 
 test("the flip animation is off under prefers-reduced-motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/play?seed=1");
+  await page.goto("/zh/play?seed=1");
   const duration = await card(page, "王明")
     .locator("> span")
     .evaluate((el) => getComputedStyle(el).transitionProperty);

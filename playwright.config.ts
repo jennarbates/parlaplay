@@ -17,9 +17,8 @@ const phoneOnly = [
   "states.spec.ts",
 ];
 
-// Shéi's specs (e2e/zh/) are from its own repo, where it was served at /. They
-// run again once /zh is routed (PLAY-017, PLAY-019) and the platform suite
-// (PLAY-038) points them there.
+// Shéi's specs (e2e/zh/) are phone-only until it has a desktop layout of its own
+// (docs/games/zh-desktop.md): at lg it shows the phone's screens in a narrow column.
 const shei = "**/zh/**";
 
 export default defineConfig({
@@ -33,8 +32,8 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Pixel 7"] }, testIgnore: ["desktop.spec.ts", shei] },
-    { name: "webkit", use: { ...devices["iPhone 15"] }, testIgnore: ["desktop.spec.ts", shei] },
+    { name: "chromium", use: { ...devices["Pixel 7"] }, testIgnore: ["desktop.spec.ts"] },
+    { name: "webkit", use: { ...devices["iPhone 15"] }, testIgnore: ["desktop.spec.ts"] },
     {
       name: "desktop-chromium",
       use: { ...devices["Desktop Chrome"], viewport: desktop },

@@ -1,6 +1,6 @@
 // Shared helpers for the game specs. The engine runs here too, so a test can read
 // the saved round from IndexedDB and work out the true answer to any question.
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { content } from "../../src/languages/zh/content/index.ts";
 import { evaluate, parseKey, type GameState } from "../../src/languages/zh/engine/index.ts";
 
@@ -31,7 +31,7 @@ export function stored<T>(page: Page, key: string): Promise<T | undefined> {
   return page.evaluate(
     (k) =>
       new Promise<T | undefined>((resolve) => {
-        const open = indexedDB.open("shei");
+        const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
           const get = open.result.transaction("kv").objectStore("kv").get(k);
           get.onsuccess = () => {
@@ -44,14 +44,14 @@ export function stored<T>(page: Page, key: string): Promise<T | undefined> {
   );
 }
 export const savedRound = async (page: Page) =>
-  (await stored<{ state: GameState }>(page, "round"))?.state;
+  (await stored<{ state: GameState }>(page, "round:zh"))?.state;
 
 type Guest = {
   games?: { id: string; result?: string }[];
   reviewLog?: { rating: string; lexiconId: string }[];
 };
 export const savedGuest = async (page: Page): Promise<Guest> =>
-  (await stored<Guest>(page, "guest")) ?? {};
+  (await stored<Guest>(page, "guest:zh")) ?? {};
 
 // A button whose Chinese text is exactly `hanzi` (pinyin above it may be shown).
 export function zh(scope: Page | Locator, hanzi: string): Locator {
@@ -113,3 +113,18 @@ export async function collapseSheet(page: Page) {
   const toggle = page.getByRole("button", { name: /questions$/ });
   if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
 }
+
+// Level 2: ask about `noun` with the wrong verb (a mistake rated on that noun),
+// then quit the round. Leaves the player on Home.
+export async function mistakeAndQuit(page: Page, verb: string, noun: string) {
+  await page.goto("/zh/play?level=2&seed=8");
+  await build(page, "他", verb, noun, "吗");
+  await page.getByRole("button", { name: "Ask", exact: true }).click();
+  await page.getByRole("button", { name: "Menu" }).click();
+  await page.getByRole("menuitem", { name: "Quit round" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Quit round" }).click();
+  await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
+}
+
+export const mistakes = (page: Page) =>
+  page.getByRole("list", { name: "Mistakes by word and grammar point" });

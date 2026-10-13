@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { hasSupabase } from "./inbox.ts";
-import { signIn } from "./signin.ts";
+import { hasSupabase } from "../inbox.ts";
+import { signIn } from "../signin.ts";
 
 // CHI-084: signed-in writes go to the outbox, then Supabase. CI only.
 test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
@@ -12,7 +12,7 @@ test("a failed sync shows the banner, keeps play going, and clears when back onl
   await signIn(page);
   // Block the database API, then play to the end of a round.
   await page.route("**/rest/v1/**", (route) => route.abort());
-  await page.goto("/play?seed=5");
+  await page.goto("/zh/play?seed=5");
   await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
   await page.getByRole("button", { name: "Menu" }).click();
   await page.getByRole("menuitem", { name: "Quit round" }).click();
