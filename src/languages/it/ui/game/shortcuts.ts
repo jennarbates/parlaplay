@@ -1,17 +1,11 @@
 // Desktop spec DS 4: turning a key press into one of the game's actions. Pure:
-// it imports only types and reads nothing but its arguments, so every cell of the
+// it imports only types and the shared guard, and reads nothing but its arguments, so every cell of the
 // DS 4.2 table is unit-tested. Board keys (arrows, Home, End, Enter, Space, i)
 // are not here: they need the focused card, so the board handles them (DS 8.2).
+import { mayBeShortcut, shortcutKey, type KeyLike } from "../../../../core/ui/shortcutGuard.ts";
 import type { GameState } from "../../engine/index.ts";
 
-export type KeyLike = {
-  key: string; // KeyboardEvent.key
-  ctrlKey: boolean;
-  metaKey: boolean;
-  altKey: boolean;
-  targetTag: string; // "INPUT", "TEXTAREA", "BUTTON", "LI", ...
-  targetEditable: boolean; // isContentEditable
-};
+export type { KeyLike };
 
 export type ShortcutContext = {
   phase: GameState["phase"];
@@ -71,16 +65,10 @@ const keys = new Set<string>(["q", "b", "g", "Escape", "s", "n", "h", "a", "?"])
 
 // DS 4.3: the first rule that matches returns null.
 export function keyToAction(k: KeyLike, ctx: ShortcutContext): ShortcutAction | null {
-  // 1. Browser and system shortcuts. Shift is allowed: ? needs it.
-  if (k.ctrlKey || k.metaKey || k.altKey) return null;
-  // 2. Typing.
-  if (k.targetTag === "INPUT" || k.targetTag === "TEXTAREA" || k.targetTag === "SELECT")
-    return null;
-  if (k.targetEditable) return null;
-  // 3. A dialog has its own keys.
-  if (ctx.dialogOpen) return null;
+  // 1 to 3: a modifier is held, the learner is typing, or a dialog is open.
+  if (!mayBeShortcut(k, ctx.dialogOpen)) return null;
   // 4. Not a shortcut. Letters match in either case.
-  const key = k.key.length === 1 ? k.key.toLowerCase() : k.key;
+  const key = shortcutKey(k);
   if (!keys.has(key)) return null;
   // 5. The cell, or null for "-".
   return rowFor(ctx)[key as Key] ?? null;

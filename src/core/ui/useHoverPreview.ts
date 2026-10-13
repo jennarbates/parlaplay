@@ -8,7 +8,11 @@ const swapWindow = 150; // ms after one preview hides in which the next shows at
 // mouse rests on a card, hides when it leaves, and swaps at once when it moves
 // straight to the next card. Any click, key or right-click hides it, so it is
 // gone before a dialog opens; it never shows while a dialog is open.
-export function useHoverPreview(enabled: boolean, area: RefObject<HTMLElement | null>) {
+export function useHoverPreview(
+  enabled: boolean,
+  area: RefObject<HTMLElement | null>,
+  caption?: number, // px under the face, where it is not Chi è?'s (boardLayout.ts)
+) {
   const [preview, setPreview] = useState<{ id: string; spot: PreviewSpot }>();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const open = useRef(false);
@@ -26,7 +30,7 @@ export function useHoverPreview(enabled: boolean, area: RefObject<HTMLElement | 
     open.current = true;
     setPreview({
       id,
-      spot: previewSpot(card.getBoundingClientRect(), board.getBoundingClientRect(), rem),
+      spot: previewSpot(card.getBoundingClientRect(), board.getBoundingClientRect(), rem, caption),
     });
   };
 
