@@ -117,13 +117,7 @@ function createProgressStore(code: LanguageCode): ProgressStoreHook {
     },
 
     mergeRemote(remote) {
-      const games = new Map(get().games.map((g) => [g.id, g]));
-      for (const g of ours<GameRow>(remote.games)) {
-        const mine = games.get(g.id);
-        if (!mine || (!mine.result && g.result)) games.set(g.id, g);
-      }
-      const reviewLog = unique([...get().reviewLog, ...ours<ReviewLogRow>(remote.reviewLog)]);
-      set({ games: [...games.values()], reviewLog });
+      set(mergeData(get(), { games: ours(remote.games), reviewLog: ours(remote.reviewLog) }));
       persist(get().owner, snapshot(get()));
     },
 
@@ -160,6 +154,20 @@ function createProgressStore(code: LanguageCode): ProgressStoreHook {
 }
 
 const snapshot = ({ games, reviewLog }: GuestData): GuestData => ({ games, reviewLog });
+
+// A union by id (spec 7.3): a finished game beats the same game still open, and the
+// log only ever gains rows.
+export function mergeData(mine: GuestData, theirs: GuestData): GuestData {
+  const games = new Map(mine.games.map((g) => [g.id, g]));
+  for (const g of theirs.games) {
+    const kept = games.get(g.id);
+    if (!kept || (!kept.result && g.result)) games.set(g.id, g);
+  }
+  return {
+    games: [...games.values()],
+    reviewLog: unique([...mine.reviewLog, ...theirs.reviewLog]),
+  };
+}
 
 // The last version of each row by id, in first-seen order.
 function unique<T extends { id: string }>(rows: T[]): T[] {
