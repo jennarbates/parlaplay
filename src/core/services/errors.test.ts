@@ -1,7 +1,7 @@
 import type { ErrorEvent } from "@sentry/react";
 import fc from "fast-check";
 import { describe, expect, test } from "vitest";
-import { scrubBreadcrumb, scrubEvent, scrubUrl } from "./errors.ts";
+import { languageTag, scrubBreadcrumb, scrubEvent, scrubUrl, tagLanguage } from "./errors.ts";
 
 describe("scrubUrl", () => {
   test.each([
@@ -133,5 +133,50 @@ describe("scrubEvent", () => {
   test("does not mutate the original", () => {
     expect(event.user?.email).toBe("learner@example.com");
     expect(event.request?.url).toContain("?code=");
+  });
+});
+
+// Platform spec 9, D18: every event is tagged it, zh or none.
+describe("the language tag", () => {
+  test.each([
+    ["https://parlaplay.games/it", "it"],
+    ["https://parlaplay.games/it/play?seed=1", "it"],
+    ["https://parlaplay.games/zh/progress", "zh"],
+    ["https://parlaplay.games/languages", "none"],
+    ["https://parlaplay.games/settings", "none"],
+    ["https://parlaplay.games/import#data=abc&next=/it/play", "none"],
+    ["https://parlaplay.games/fr/play", "none"],
+    ["https://parlaplay.games/", "none"],
+    ["/zh/play", "zh"],
+    ["not a url at all ://", "none"],
+    [undefined, "none"],
+  ])("%s is tagged %s", (url, tag) => {
+    expect(languageTag(url)).toBe(tag);
+  });
+
+  test("is added beside the event's other tags, from its own url", () => {
+    const event: ErrorEvent = {
+      type: undefined,
+      tags: { handled: "no" },
+      request: { url: "https://parlaplay.games/zh/play?seed=1" },
+    };
+    expect(tagLanguage(event).tags).toEqual({ handled: "no", language: "zh" });
+    expect(event.tags).toEqual({ handled: "no" }); // not mutated
+  });
+
+  test("falls back to the url given when the event has none", () => {
+    const event: ErrorEvent = { type: undefined };
+    expect(tagLanguage(event, "https://parlaplay.games/it/progress").tags?.language).toBe("it");
+    expect(tagLanguage(event).tags?.language).toBe("none");
+  });
+
+  test("an /import error keeps its tag and loses the handoff data", () => {
+    const event: ErrorEvent = {
+      type: undefined,
+      request: { url: "https://parlaplay.games/import#data=SECRETDATA&next=/it/play" },
+    };
+    const sent = scrubEvent(tagLanguage(event));
+    expect(sent.tags?.language).toBe("none");
+    expect(JSON.stringify(sent)).not.toContain("SECRETDATA");
   });
 });
