@@ -11,6 +11,7 @@ import { read, remove, write } from "../services/storage.ts";
 import { supabase } from "../services/supabase.ts";
 import { pull, syncSaved, useSyncStore, type Op } from "../services/sync.ts";
 import { useAuthStore } from "./authStore.ts";
+import { adoptPendingHandoff } from "./pendingHandoff.ts";
 import { loadLevels } from "./prefs.ts";
 import { progressSaved, progressStore, storageKeyFor, type GuestData } from "./progressStore.ts";
 import { useRounds } from "./rounds.ts";
@@ -176,6 +177,7 @@ export async function onAccountChange(userId: string | null) {
   }
   await Promise.all(allProgress().map((p) => p.switchOwner(userId ?? "guest")));
   await useSyncStore.getState().load(userId);
+  await adoptPendingHandoff(userId); // a Chi è? player's unsynced rows (platform spec 5.3)
   // Local data is ready: play can start. The network sync below never holds it up.
   useAccountStore.setState({ settled: true });
   if (userId) {

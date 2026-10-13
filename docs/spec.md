@@ -332,6 +332,28 @@ The existing Chi è? Supabase projects (staging and production) become parlaplay
 5. Save `handoff`, dispatch CHOOSE `it` (so `/` opens Italian next time), then navigate to `next`. `next` must be exactly `/it`, `/it/play` or `/it/progress`; any other value becomes `/it`, so a crafted link cannot redirect anywhere else.
 6. On any failure: `We couldn't bring your progress over.` with `Try again` (back to `https://chie.parlaplay.games/`) and `Start fresh` (to `/it`).
 
+**Fragment data.** The decoded JSON is one object, validated by `Handoff` in `src/core/handoff/schema.ts`, which the handoff page and `/import` share:
+
+```ts
+const Handoff = z.strictObject({
+  v: z.literal(1),
+  guest: z.strictObject({ games: z.array(ChieGameRow), reviewLog: z.array(ChieReviewLogRow) }).optional(),
+  round: z.strictObject({ contentVersion, gameId, state }).optional(),   // Chi è?'s "round" key
+  outboxes: z.array(z.strictObject({ userId: z.uuid(), ops: z.array(ChieOp) })).optional(), // one per "outbox:{userId}" key
+});
+```
+
+`ChieGameRow`, `ChieReviewLogRow` and `ChieOp` are the `chie-launch` shapes: section 3.3's rows without `language`. The round's `state` is checked by the Italian module when it resumes the round (3.2 `isResumable`), not by `/import`.
+
+**Details the steps leave open.**
+
+- Nothing is saved until the whole fragment has decoded and validated. If the device then refuses a write, the import stops and shows the failure screen; every step is a union, so `Try again` repairs it.
+- Step 3: the same round arriving again (same `gameId`) keeps the copy already here, which may have been played further.
+- Step 3: `/import` waits until the account is known. For a guest the rows also join the progress already open. If an account is signed in here, the rows wait in `guest:it` like any guest data.
+- Step 4: `outbox:pending-handoff` holds `{ userId, ops }[]`, each op once. When that user signs in (or is already signed in when the handoff arrives), the ops join `outbox:{userId}` and that user's local copy, then sync as usual.
+- Step 5: the Italian screen replaces `/import` in the history, so Back never returns to it. `/import` opened with no fragment shows the failure screen.
+- `Try again` goes to `VITE_CHIE_URL` where that is set (staging and tests), else `https://chie.parlaplay.games/`.
+
 **Size.** A heavy guest after two weeks has a few hundred log rows, about 100 KB of JSON. Measured Wed Oct 7 (`planning/spikes/fragment/`): a cross-origin navigation carries a 1 MB fragment intact in desktop Chromium and WebKit, and both refuse 2 MB. To keep a wide margin, the handoff page gzips the JSON with the browser's built-in `CompressionStream` before base64url-encoding it, and `/import` decompresses it with `DecompressionStream`. If the encoded data is still over 900 KB, the handoff page does not navigate and shows `Your progress is too large to move automatically. Email privacy@parlaplay.games and we'll move it for you.` `TBD: verify` on a real iPhone (Safari) and Android phone (Chrome) with the spike page. The CI handoff test uses a 500 KB encoded payload in Chromium and WebKit.
 
 ### 5.4 Redirects
@@ -797,5 +819,6 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 - 2026-10-07: v0.3. Fragment spike: 1 MB arrives, 2 MB refused on desktop; handoff gzips and caps at 900 KB (5.3, D22). Paper trace (docs/reviews/platform-paper-trace.md) fixes F1 to F9: wait for the app key before routing `/`; registry carries each contentVersion; prompt languages in registry order; Don't save and sign-out remove saved rounds; guest level kept at sign-in; `/import` accepts only three `next` paths, compares rounds by games row start, and sets the last language. Sentry facts verified; Supabase project refs recorded.
 - 2026-10-08: SIGNED_OUT added to the shell (4.1, 4.2) for a session that ends outside Settings, so the shell never stays signed in after it (PLAY-025).
 - 2026-10-08: Logo at the top left of every screen, linking to `/` (8.4, D23, PLAY-064, PLAY-065), drawn by `scripts/logo.py`. DesktopNav's `parlaplay` fallback link is replaced by it.
+- 2026-10-12: `/import` built (PLAY-035). 5.3 gains the fragment's data shape and the details its steps left open: validate everything before saving, the same round arriving twice keeps the copy here, waiting for the account, the shape of `outbox:pending-handoff`, Back never returning to `/import`, and `VITE_CHIE_URL`.
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).

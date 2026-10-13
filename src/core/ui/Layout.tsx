@@ -22,7 +22,9 @@ export function Layout() {
   const bannerOnTop = desktop && !game;
   const { pathname } = useLocation();
   const loading = useNavigation().state === "loading";
-  const logoRow = !desktop && !game && pathname !== "/import";
+  // No logo and no nav while importing: leaving would drop the handoff (8.4).
+  const importing = pathname === "/import";
+  const logoRow = !desktop && !game && !importing;
 
   useEffect(() => {
     document.title = pageTitle(pathname);
@@ -37,7 +39,7 @@ export function Layout() {
           className="loading-bar fixed inset-x-0 top-0 z-50 h-1 bg-stone-900"
         />
       )}
-      {desktop && !game && <DesktopNav />}
+      {desktop && !game && !importing && <DesktopNav />}
       {bannerOnTop && <SyncBanner />}
       <main
         className={`mx-auto flex min-h-dvh max-w-md flex-col bg-stone-50 text-stone-900 lg:min-h-0 lg:w-full lg:flex-1 ${handle.width ?? "lg:max-w-5xl"}`}

@@ -23,6 +23,13 @@ export const shellRoutes: RouteObject[] = [
       { path: "languages", Component: LanguagePicker, handle: shared("lg:max-w-5xl") },
       { path: "settings", Component: Settings, handle: shared("lg:max-w-3xl") },
       { path: "privacy", Component: Privacy, handle: shared("lg:max-w-3xl") },
+      {
+        // Only during a handoff from chie.parlaplay.games (5.3). Loaded on its own,
+        // with Zod, so no other page pays for it.
+        path: "import",
+        lazy: async () => ({ Component: (await import("./core/ui/Import.tsx")).Import }),
+        handle: shared("lg:max-w-3xl"),
+      },
       { path: "*", Component: NotFound, handle: shared("lg:max-w-3xl") },
     ],
   },

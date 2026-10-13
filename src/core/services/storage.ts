@@ -15,7 +15,8 @@ export type StorageKey =
   | `round:${string}` // round:{code}: the round in progress
   | `settings:${string}` // settings:{code}: device-only settings
   | `user:${string}:${string}` // user:{userId}:{code}: a signed-in user's local copy
-  | `outbox:${string}`; // outbox:{userId}: queued rows of every language
+  | `outbox:${string}` // outbox:{userId}: queued rows of every language; also outbox:pending-handoff
+  | "handoff"; // { from: "chie", at } once a handoff has been saved (5.3)
 
 let db: Promise<IDBPDatabase> | undefined;
 

@@ -9,4 +9,5 @@ interface ImportMetaEnv {
   readonly VITE_RELEASE?: string;
   readonly VITE_ENVIRONMENT?: "production" | "staging";
   readonly VITE_OTP_COOLDOWN_S?: string; // tests against local Supabase only
+  readonly VITE_CHIE_URL?: string; // the handoff page, where it is not chie.parlaplay.games
 }
