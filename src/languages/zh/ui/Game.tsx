@@ -302,6 +302,9 @@ function sheetFor(
 ): { summary: ReactNode; body: ReactNode; actions?: ReactNode } {
   const last = game.history.at(-1);
   const showPinyin = game.level === 1 || h.pinyin;
+  // ZS 7.4: at lg the words of the two review phases are glossable, with English:
+  // nothing is being rated there.
+  const gloss = h.desktop ? ("full" as const) : undefined;
   const next = (
     <button type="button" onClick={h.next} className={primary}>
       Next
@@ -381,11 +384,13 @@ function sheetFor(
             <Ruby
               segments={questionOf(last.key, last.pron).segments}
               pinyin={showPinyin}
+              gloss={gloss}
               className="text-lg text-stone-600"
             />
             <Ruby
               segments={answerOf(last).segments}
               pinyin={showPinyin}
+              gloss={gloss}
               className="text-2xl font-semibold"
             />
             {/* Spec 8.2: a pronoun slip is a muted line under the answer. */}
@@ -431,6 +436,7 @@ function sheetFor(
               <Ruby
                 segments={answerOf(last).segments}
                 pinyin={showPinyin}
+                gloss={gloss}
                 className="text-2xl font-semibold"
               />
             )}
