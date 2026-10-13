@@ -1,6 +1,7 @@
 import { content } from "../../content/index.ts";
 import { allQuestions, questionTokens, type AskedQuestion } from "../../engine/index.ts";
 import type { Pronoun } from "../../store/settings.ts";
+import { Kbd } from "../../../../core/ui/Kbd.tsx";
 import { Ruby } from "./Ruby.tsx";
 import { answer, hint, question } from "./sentences.ts";
 
@@ -55,16 +56,23 @@ export function QuestionPicker({
 export function PronounSwitch({
   value,
   onChange,
+  desktop = false,
 }: {
   value: Pronoun;
   onChange: (p: Pronoun) => void;
+  desktop?: boolean; // show the T key beside it (zh-desktop.md ZS 6.2)
 }) {
   const options: [Pronoun, string, string][] = [
     ["pr.ta.m", "他", "he"],
     ["pr.ta.f", "她", "she"],
   ];
   return (
-    <div role="group" aria-label="Ask about him or her" className="flex items-center gap-2">
+    <div
+      role="group"
+      aria-label="Ask about him or her"
+      aria-keyshortcuts="t"
+      className="flex items-center gap-2"
+    >
       <span className="text-sm text-stone-600">Ask with</span>
       <div className="grid grid-cols-2 rounded-xl bg-stone-200 p-1">
         {options.map(([id, hanzi, gloss]) => (
@@ -84,6 +92,7 @@ export function PronounSwitch({
           </button>
         ))}
       </div>
+      {desktop && <Kbd>T</Kbd>}
     </div>
   );
 }
