@@ -314,14 +314,92 @@ test.describe("resize across 1024px (ZS 2.2)", () => {
   });
 });
 
-test("no horizontal scroll on the game at 1024 and 1440 wide, and no DesktopNav", async ({
-  page,
-}) => {
-  for (const width of [1024, 1440]) {
-    await page.setViewportSize({ width, height: 800 });
-    await page.goto("/zh/play?seed=1");
-    await expect(cards(page)).toHaveCount(24);
-    expect(await noPageScroll(page)).toBe(true);
-    await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
-  }
+test.describe("Home and Progress (ZS 10.1, ZS 10.3)", () => {
+  const nav = (page: Page) => page.getByRole("navigation", { name: "Main" });
+
+  test("Home is two columns: the name and pitch, then the levels and Play", async ({ page }) => {
+    await page.goto("/zh");
+    const title = page.getByRole("heading", { name: "谁？" });
+    expect(await title.evaluate((el) => getComputedStyle(el).fontSize)).toBe("60px");
+    const main = page.getByRole("main");
+    await expect(main.getByText("Shéi?")).toBeVisible();
+    await expect(main.getByText("Chinese", { exact: true })).toBeVisible(); // platform spec 8.1
+    await expect(main).toContainText("Ask questions in Chinese to find the secret character.");
+    await expect(main).toContainText("Click ready-made questions, with English hints");
+
+    const l1 = await box(page.locator("label", { hasText: "Level 1" }));
+    const l2 = await box(page.locator("label", { hasText: "Level 2" }));
+    expect(Math.abs(l1.y - l2.y)).toBeLessThan(2); // side by side
+    expect(l1.x).toBeGreaterThan((await box(title)).x + 300); // in the right column
+    // The phone's links and sign-in line are DesktopNav's job here.
+    await expect(main.getByRole("link", { name: "Progress" })).toBeHidden();
+    await expect(main.getByRole("link", { name: "Sign in" })).toBeHidden();
+    await expect(nav(page).getByRole("link", { name: "Progress" })).toBeVisible();
+
+    await page.locator("label", { hasText: "Level 2" }).click();
+    await main.getByRole("button", { name: "Play" }).click();
+    await expect(page).toHaveURL(/\/zh\/play/);
+    await expect(panel(page)).toContainText("Click words below, or type pinyin");
+  });
+
+  test("Progress with no data: one message, no tiles, no tabs", async ({ page }) => {
+    await page.goto("/zh/progress");
+    await expect(page.getByText("Play a round to see your words here.")).toHaveCount(1);
+    await expect(page.getByRole("tablist")).toHaveCount(0);
+    await expect(page.getByRole("term")).toHaveCount(0);
+  });
+
+  test("Progress is four totals and both lists side by side", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await build(page, "他", "是", "狗", "吗"); // a mistake on 狗
+    await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    await expect(panel(page)).toContainText("Try again.");
+    await page.getByRole("button", { name: "Menu" }).click();
+    await page.getByRole("menuitem", { name: "Quit round" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Quit round" }).click();
+    await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
+
+    await page.goto("/zh/progress");
+    await expect(page.getByRole("tablist")).toHaveCount(0);
+    const total = (label: string) =>
+      page.locator("dl > div", { hasText: label }).getByRole("definition");
+    await expect(total("Words seen")).toHaveText("1");
+    await expect(total("Due today")).toHaveText("1");
+    await expect(total("Mistakes this week")).toHaveText("1");
+    await expect(total("Rounds played")).toHaveText("1");
+
+    const mistakes = page.getByRole("region", { name: "Mistakes" });
+    const due = page.getByRole("region", { name: "Due", exact: true });
+    await expect(mistakes).toContainText("是 → 有");
+    await expect(due).toContainText("狗");
+    await expect(due.getByRole("heading", { level: 3, name: /Due today/ })).toBeVisible();
+    const m = await box(mistakes);
+    const d = await box(due);
+    expect(Math.abs(m.y - d.y)).toBeLessThan(2);
+    expect(d.x).toBeGreaterThan(m.x + m.width - 1);
+    // The phone's Home link is the nav's job.
+    await expect(page.getByRole("main").getByRole("link", { name: "Home" })).toHaveCount(0);
+  });
+
+  test("no horizontal scroll on any Shéi screen at 1024 and 1440, DesktopNav on all but the game", async ({
+    page,
+  }) => {
+    for (const width of [1024, 1440]) {
+      await page.setViewportSize({ width, height: 800 });
+      for (const path of ["/zh", "/zh/progress", "/settings", "/privacy"]) {
+        await page.goto(path);
+        await expect(nav(page)).toBeVisible();
+        expect(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+          ),
+          `${path} at ${width}`,
+        ).toBe(true);
+      }
+      await page.goto("/zh/play?seed=1");
+      await expect(cards(page)).toHaveCount(24);
+      expect(await noPageScroll(page)).toBe(true);
+      await expect(nav(page)).toHaveCount(0);
+    }
+  });
 });

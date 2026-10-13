@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { cardIds } from "../cards.ts";
 import { endOfLocalDay, isDue, replay, type CardState } from "../../../core/services/srs.ts";
-import { type ReviewLogRow } from "../../../core/store/progressStore.ts";
+import { type GameRow, type ReviewLogRow } from "../../../core/store/progressStore.ts";
+import { progressStats } from "../../../core/ui/progressStats.ts";
+import { useIsDesktop } from "../../../core/ui/useMediaQuery.ts";
 import { groupMistakes } from "./mistakes.ts";
 import { Mixed } from "./Mixed.tsx";
 import { labelFor } from "./words.ts";
@@ -22,9 +24,56 @@ type Tab = "mistakes" | "due";
 // Due (words due today and their next review date). Spec 8.2: an empty state
 // before any play.
 export function Progress() {
-  const { reviewLog, loaded } = useProgressStore();
+  const { reviewLog, games, loaded } = useProgressStore();
   const [tab, setTab] = useState<Tab>("mistakes");
+  const desktop = useIsDesktop();
   const empty = loaded && reviewLog.length === 0;
+
+  // zh-desktop.md ZS 10.3: no tabs at lg. Four totals, then Mistakes and Due side
+  // by side; while loading or with no data, one message, full width, no totals.
+  if (desktop) {
+    return (
+      <section className="flex flex-col gap-6 p-10">
+        <h1 className="text-3xl font-semibold">Progress</h1>
+        <LanguageSwitch current="zh" />
+        {!loaded ? (
+          <p aria-busy="true" className="text-stone-600">
+            Loading…
+          </p>
+        ) : empty ? (
+          <p className="rounded-xl bg-white p-10 text-center text-stone-600 ring-1 ring-stone-200">
+            Play a round to see your words here.
+          </p>
+        ) : (
+          <>
+            <StatTiles log={reviewLog} games={games} />
+            <div className="grid grid-cols-2 gap-6">
+              {(
+                [
+                  ["Mistakes", <Mistakes key="m" log={reviewLog} />],
+                  ["Due", <Due key="d" log={reviewLog} heading="h3" />],
+                ] as const
+              ).map(([title, list]) => (
+                <section
+                  key={title}
+                  aria-labelledby={`col-${title}`}
+                  className="flex min-w-0 flex-col gap-3"
+                >
+                  <h2 id={`col-${title}`} className="text-xl font-semibold">
+                    {title}
+                  </h2>
+                  {/* Each list scrolls on its own when it is long. */}
+                  <div className="max-h-[calc(100dvh-20rem)] min-h-40 overflow-y-auto overscroll-contain pr-1">
+                    {list}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col gap-4 p-4">
@@ -77,6 +126,34 @@ export function Progress() {
         )}
       </div>
     </section>
+  );
+}
+
+// The four totals as a row of tiles, number over label, from the shared
+// progressStats over Shéi's cards.
+function StatTiles({ log, games }: { log: ReviewLogRow[]; games: GameRow[] }) {
+  const stats = useMemo(
+    () => progressStats({ reviewLog: log, games }, new Date(), cardIds()),
+    [log, games],
+  );
+  const tiles = [
+    ["Words seen", stats.wordsSeen],
+    ["Due today", stats.dueToday],
+    ["Mistakes this week", stats.mistakesThisWeek],
+    ["Rounds played", stats.roundsPlayed],
+  ] as const;
+  return (
+    <dl className="grid grid-cols-4 gap-4">
+      {tiles.map(([label, value]) => (
+        <div
+          key={label}
+          className="flex flex-col-reverse gap-1 rounded-2xl bg-white p-5 ring-1 ring-stone-200"
+        >
+          <dt className="text-stone-600">{label}</dt>
+          <dd className="text-3xl font-semibold">{value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -135,7 +212,8 @@ const dateFormat = new Intl.DateTimeFormat("en", {
 });
 const timeFormat = new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit" });
 
-function Due({ log }: { log: ReviewLogRow[] }) {
+// Under the desktop "Due" heading, its own headings are a level lower.
+function Due({ log, heading = "h2" }: { log: ReviewLogRow[]; heading?: "h2" | "h3" }) {
   const cards = useMemo(
     () => [...replay(cardIds(), log).values()].filter((c) => c.reviews > 0),
     [log],
@@ -152,12 +230,14 @@ function Due({ log }: { log: ReviewLogRow[] }) {
         cards={due}
         empty="Nothing due today."
         format={timeFormat}
+        heading={heading}
       />
       <CardList
         title="Coming up"
         cards={later}
         empty="Nothing scheduled yet."
         format={dateFormat}
+        heading={heading}
       />
     </div>
   );
@@ -169,15 +249,17 @@ function CardList({
   cards,
   empty,
   format,
+  heading: Heading,
 }: {
   title: string;
   cards: CardState[];
   empty: string;
   format: Intl.DateTimeFormat;
+  heading: "h2" | "h3";
 }) {
   return (
     <section aria-label={title.replace(/ \(\d+\)$/, "")}>
-      <h2 className="mb-2 font-semibold">{title}</h2>
+      <Heading className="mb-2 font-semibold">{title}</Heading>
       {cards.length === 0 ? (
         <p className="text-sm text-stone-600">{empty}</p>
       ) : (
