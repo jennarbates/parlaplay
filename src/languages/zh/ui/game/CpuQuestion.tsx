@@ -1,5 +1,6 @@
 import { content } from "../../content/index.ts";
 import type { Answer } from "../../content/schemas.ts";
+import { Kbd } from "../../../../core/ui/Kbd.tsx";
 import { answerIds } from "./answers.ts";
 import { Ruby, Word } from "./Ruby.tsx";
 import { hint, question } from "./sentences.ts";
@@ -19,6 +20,7 @@ export function CpuQuestion({
   hintShown,
   onShowHint,
   onAnswer,
+  desktop = false,
 }: {
   questionKey: string;
   pron: string;
@@ -27,6 +29,7 @@ export function CpuQuestion({
   hintShown: boolean; // held by Game, so it survives the sheet and panel swap
   onShowHint: () => void;
   onAnswer: (answerId: string, hintShown: boolean) => void;
+  desktop?: boolean; // show each answer's number key, and H (zh-desktop.md ZS 6.2)
 }) {
   const ids = answerIds(questionKey, level);
   const showPinyin = level === 1 || pinyin;
@@ -46,9 +49,11 @@ export function CpuQuestion({
           <button
             type="button"
             onClick={onShowHint}
+            aria-keyshortcuts="h"
             className="inline-flex min-h-11 items-center self-start text-sm text-blue-700 underline"
           >
             Show hint
+            {desktop && <Kbd>H</Kbd>}
           </button>
         ))}
       <div
@@ -70,10 +75,19 @@ export function CpuQuestion({
               key={id}
               type="button"
               data-key={i + 1}
+              aria-keyshortcuts={String(i + 1)}
               onClick={() => onAnswer(id, hintShown)}
-              className={`flex min-h-14 items-center justify-center rounded-xl px-1 text-xl font-semibold ${colour}`}
+              className={`relative flex min-h-14 items-center justify-center rounded-xl px-1 text-xl font-semibold hover:brightness-95 ${colour}`}
             >
               <Word hanzi={a.hanzi} pinyin={a.pinyin} showPinyin={showPinyin} />
+              {desktop && (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-0.5 left-1 font-sans text-[11px] font-medium opacity-70"
+                >
+                  {i + 1}
+                </span>
+              )}
             </button>
           );
         })}

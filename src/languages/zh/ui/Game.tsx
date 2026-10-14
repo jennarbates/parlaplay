@@ -1,15 +1,18 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router";
 import { content } from "../content/index.ts";
 import type { GameState, Level } from "../engine/index.ts";
 import { useAccountStore } from "../../../core/store/account.ts";
 import { boardVars } from "../../../core/ui/boardLayout.ts";
+import { Kbd } from "../../../core/ui/Kbd.tsx";
+import { ShortcutsDialog } from "../../../core/ui/ShortcutsDialog.tsx";
 import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
 import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
 import { useGameStore } from "../store/gameStore.ts";
 import { useSettings, type Pronoun } from "../store/settings.ts";
+import { answerIds } from "./game/answers.ts";
 import { Board } from "./game/Board.tsx";
 import { CardDetail } from "./game/CardDetail.tsx";
 import { CpuQuestion } from "./game/CpuQuestion.tsx";
@@ -25,6 +28,8 @@ import { RoundLog, RoundLogOverlay } from "./game/RoundLog.tsx";
 import { Ruby } from "./game/Ruby.tsx";
 import { answer as answerOf, logOf, question as questionOf } from "./game/sentences.ts";
 import { Sheet } from "./game/Sheet.tsx";
+import { shortcutRows } from "./game/shortcutRows.ts";
+import { keyToAction } from "./game/shortcuts.ts";
 import { TileBuilder } from "./game/TileBuilder.tsx";
 import { TopBar } from "./game/TopBar.tsx";
 import { paths } from "../paths.ts";
@@ -102,6 +107,121 @@ export function Game() {
   const setSheetOpen = (open: boolean) => setUi((u) => ({ ...u, sheetOpen: open }));
   const setGuessing = (on: boolean) => setUi((u) => ({ ...u, guessing: on }));
 
+  const [help, setHelp] = useState(false);
+
+  // zh-desktop.md ZS 9: one keydown listener for the game's shortcut keys. The
+  // pure keyToAction() decides; this carries it out with the same handlers the
+  // buttons use, and stops the browser doing anything else with the key.
+  const onShortcut = useEffectEvent((e: KeyboardEvent) => {
+    if (status !== "ready" || !game) return;
+    // A held key acts once (ZS 2.2), except Backspace, which may clear the tray.
+    if (e.repeat && e.key !== "Backspace") return;
+    const target = e.target instanceof HTMLElement ? e.target : null;
+    const q = game.pendingCpuQuestion;
+    const action = keyToAction(
+      {
+        key: e.key,
+        ctrlKey: e.ctrlKey,
+        metaKey: e.metaKey,
+        altKey: e.altKey,
+        targetTag: target?.tagName ?? "",
+        targetEditable: !!target?.isContentEditable,
+      },
+      {
+        phase: game.phase,
+        level: game.level,
+        guessing,
+        // ZS 9.1: a dialog, the menu popover or the log's overlay.
+        dialogOpen: !!document.querySelector('dialog[open], [role="menu"], [data-log-overlay]'),
+        answers: game.phase === "cpuTurn" && q ? answerIds(q.key, game.level).length : 0,
+        trayEmpty: tray.length === 0,
+        logEmpty: game.history.length === 0,
+      },
+    );
+    // Backspace outside a field is never the browser's "back": some still map it,
+    // and it would leave the round for a key that is a shortcut one turn in two.
+    const typing =
+      !!target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    if (e.key === "Backspace" && !typing) e.preventDefault();
+    if (!action) return;
+    e.preventDefault();
+    switch (action.type) {
+      case "focusQuestions":
+        // The panel is always open; on the phone, after the render that opens the sheet.
+        if (desktop) focusQuestions();
+        else {
+          setSheetOpen(true);
+          requestAnimationFrame(focusQuestions);
+        }
+        break;
+      case "focusBoard":
+        focusBoard();
+        break;
+      case "startGuess":
+        setGuessing(true);
+        setSheetOpen(false);
+        focusBoard();
+        break;
+      case "cancelGuess":
+        setGuessing(false);
+        break;
+      case "answer": {
+        // The same list the buttons render, so key and button cannot disagree.
+        const answerId = q && answerIds(q.key, game.level)[action.index];
+        if (answerId) dispatch({ type: "ANSWER", answerId, hintShown });
+        break;
+      }
+      case "showHint":
+        setUi((u) => ({ ...u, hintShown: true }));
+        break;
+      case "next":
+        dispatch({ type: "END_TURN" });
+        break;
+      case "ask":
+        dispatch({ type: "ASK", tokens: tray });
+        break;
+      case "removeLast":
+        setUi((u) => ({ ...u, tray: u.tray.slice(0, -1) }));
+        break;
+      case "focusFind":
+        document.querySelector<HTMLElement>("[data-find-field]")?.focus();
+        break;
+      case "togglePinyin":
+        setPinyin(!pinyin);
+        break;
+      case "switchPronoun":
+        setPronoun(pronoun === "pr.ta.m" ? "pr.ta.f" : "pr.ta.m");
+        break;
+      case "focusLog": {
+        // With only its header showing, l opens the log; its overlay takes focus.
+        const toggle = document.querySelector<HTMLElement>("[data-log-toggle]");
+        if (toggle) setUi((u) => ({ ...u, logOpen: true }));
+        else document.querySelector<HTMLElement>('[data-log-entry][tabindex="0"]')?.focus();
+        break;
+      }
+      case "openHelp":
+        setHelp(true);
+        break;
+    }
+  });
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => onShortcut(e);
+    document.addEventListener("keydown", listener);
+    return () => document.removeEventListener("keydown", listener);
+  }, []);
+
+  // ZS 2.2: a phase change can remove the control that had focus (the find field
+  // or a question after asking, an answer button after answering). Focus then
+  // goes to the board's card, at lg; the summary is aria-live, so the new phase
+  // is still announced. Not on the first render: the game opens with focus on
+  // the page.
+  const lastPhase = useRef(phaseKey);
+  useEffect(() => {
+    if (lastPhase.current === phaseKey) return;
+    lastPhase.current = phaseKey;
+    if (desktop && document.activeElement === document.body) focusBoard();
+  }, [phaseKey, desktop]);
+
   // ZS 2.2: a resize across lg swaps the board and the panel, which drops focus if
   // it was in them; it goes to the board's card instead.
   const wasDesktop = useRef(desktop);
@@ -165,6 +285,7 @@ export function Game() {
             void navigate(paths.home);
             quit();
           }}
+          onShortcuts={desktop ? () => setHelp(true) : undefined}
         />
       }
     />
@@ -251,6 +372,7 @@ export function Game() {
         character={zoomed ? byId.get(zoomed) : undefined}
         onClose={() => setZoomed(undefined)}
       />
+      <ShortcutsDialog open={help} onClose={() => setHelp(false)} rows={shortcutRows} wide />
       <GuessConfirm
         character={guessFor ? byId.get(guessFor) : undefined}
         flipped={!!guessFor && game.flipped.includes(guessFor)}
@@ -267,6 +389,15 @@ export function Game() {
 
 // ZS 5.2 (ZD3): the panel is 2rem wider than Chi è?'s, for Level 2's row of 7 tiles.
 const desktopGrid = "grid h-dvh grid-cols-[1fr_minmax(24rem,28rem)] grid-rows-[auto_1fr]";
+
+// The first question that can still be asked, or the first word tile.
+function focusQuestions() {
+  document
+    .querySelector<HTMLElement>(
+      '[aria-label="Questions to ask"] button:enabled, [role="group"][aria-label="Who, verbs and 吗"] button:enabled',
+    )
+    ?.focus();
+}
 
 // The board's card in the tab order (desktop), or its first card (phone).
 function focusBoard() {
@@ -306,8 +437,9 @@ function sheetFor(
   // nothing is being rated there.
   const gloss = h.desktop ? ("full" as const) : undefined;
   const next = (
-    <button type="button" onClick={h.next} className={primary}>
+    <button type="button" onClick={h.next} aria-keyshortcuts="n" className={primary}>
       Next
+      {h.desktop && <Kbd>N</Kbd>}
     </button>
   );
 
@@ -319,8 +451,14 @@ function sheetFor(
           summary: <strong>{h.desktop ? "Click" : "Tap"} the card you think it is.</strong>,
           body: null,
           actions: (
-            <button type="button" onClick={h.cancelGuess} className={secondary}>
+            <button
+              type="button"
+              onClick={h.cancelGuess}
+              aria-keyshortcuts="Escape"
+              className={secondary}
+            >
               Cancel guess
+              {h.desktop && <Kbd>Esc</Kbd>}
             </button>
           ),
         };
@@ -364,13 +502,25 @@ function sheetFor(
                 <button type="button" onClick={() => h.setTray(() => [])} className={secondary}>
                   Clear
                 </button>
-                <button type="button" onClick={() => h.ask(h.tray)} className={primary}>
+                <button
+                  type="button"
+                  onClick={() => h.ask(h.tray)}
+                  aria-keyshortcuts="a"
+                  className={primary}
+                >
                   Ask
+                  <Kbd>A</Kbd>
                 </button>
               </>
             )}
-            <button type="button" onClick={h.startGuess} className={secondary}>
+            <button
+              type="button"
+              onClick={h.startGuess}
+              aria-keyshortcuts="g"
+              className={secondary}
+            >
               Guess
+              {h.desktop && <Kbd>G</Kbd>}
             </button>
           </>
         ),
@@ -416,6 +566,7 @@ function sheetFor(
             hintShown={h.hintShown}
             onShowHint={h.showHint}
             onAnswer={h.answer}
+            desktop={h.desktop}
           />
         ) : null,
       };

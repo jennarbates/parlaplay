@@ -22,8 +22,40 @@ export function QuestionGroups({
   const asked = new Map(history.filter((h) => h.by === "player").map((h) => [h.key, h]));
   return (
     <div className="flex flex-col gap-2 py-1.5">
-      <PronounSwitch value={pronoun} onChange={onPronoun} />
-      <div aria-label="Questions to ask" role="group" className="grid grid-cols-3 gap-2">
+      <PronounSwitch value={pronoun} onChange={onPronoun} desktop />
+      <div
+        aria-label="Questions to ask"
+        role="group"
+        className="grid grid-cols-3 gap-2"
+        // ZS 9.4: ↑ ↓ within a column, ← → to the same row of the next column that
+        // has a question left (or its last). Asked questions are skipped; a move
+        // with nowhere to go does nothing. Enter asks.
+        onKeyDown={(e) => {
+          const from = e.target as HTMLElement;
+          if (from.dataset.col === undefined || from.dataset.row === undefined) return;
+          const open = (col: number) => [
+            ...e.currentTarget.querySelectorAll<HTMLButtonElement>(
+              `button[data-col="${col}"]:enabled`,
+            ),
+          ];
+          const col = Number(from.dataset.col);
+          const row = Number(from.dataset.row);
+          let to: HTMLButtonElement | undefined;
+          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            const column = open(col);
+            to =
+              column[column.indexOf(from as HTMLButtonElement) + (e.key === "ArrowDown" ? 1 : -1)];
+          } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            const step = e.key === "ArrowRight" ? 1 : -1;
+            for (let c = col + step; c >= 0 && c < groups.length && !to; c += step) {
+              const column = open(c);
+              to = column.find((b) => Number(b.dataset.row) >= row) ?? column.at(-1);
+            }
+          } else return;
+          e.preventDefault();
+          to?.focus();
+        }}
+      >
         {groups.map(({ verb, english, questions }, col) => (
           <section key={verb?.id ?? col} aria-labelledby={`group-${col}`} className="min-w-0">
             <h3 id={`group-${col}`} className="mb-1 flex items-baseline gap-0.5 leading-tight">

@@ -1,4 +1,6 @@
+import { Kbd } from "../../../../core/ui/Kbd.tsx";
 import { FindField } from "./FindField.tsx";
+import { RovingRow } from "./RovingRow.tsx";
 import { Word } from "./Ruby.tsx";
 import { maxTray, tileEntry, tileRows as rows } from "./tiles.ts";
 
@@ -50,16 +52,18 @@ export function TileBuilder({
           <input
             type="checkbox"
             checked={pinyin}
+            aria-keyshortcuts="p"
             onChange={(e) => onPinyin(e.target.checked)}
             className="h-5 w-5"
           />
           Pinyin
+          {desktop && <Kbd>P</Kbd>}
         </label>
       </div>
 
-      <div
-        role="group"
-        aria-label="Your question"
+      <RovingRow
+        label="Your question"
+        roving={desktop}
         className="flex min-h-14 flex-wrap items-center gap-1 rounded-xl bg-white px-2 py-1 ring-1 ring-stone-300"
       >
         {tray.length === 0 && (
@@ -81,13 +85,13 @@ export function TileBuilder({
             </button>
           ) : null;
         })}
-      </div>
+      </RovingRow>
 
       {rows.map((row, r) => (
-        <div
+        <RovingRow
           key={row.label}
-          role="group"
-          aria-label={row.label}
+          label={row.label}
+          roving={desktop}
           // The first row is always one line of 7 (spec 8.1); nouns wrap as needed.
           className={r === 0 ? "grid grid-cols-7 gap-0.5" : "flex flex-wrap gap-1"}
         >
@@ -102,7 +106,7 @@ export function TileBuilder({
               <Word hanzi={e.hanzi} pinyin={e.pinyin} showPinyin={pinyin} />
             </button>
           ))}
-        </div>
+        </RovingRow>
       ))}
 
       {!desktop && (

@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { content } from "../../src/languages/zh/content/index.ts";
-import { build, card, chineseText, guessCard, savedRound, zh } from "./game.ts";
+import { answersFor, build, card, chineseText, guessCard, savedRound, zh } from "./game.ts";
+import { answerIds } from "../../src/languages/zh/ui/game/answers.ts";
 
 // zh-desktop.md ZS 13.3: Shéi at desktop size. Runs on the desktop profiles only
 // (1440 × 900 unless a test sets another size).
@@ -523,6 +524,247 @@ test.describe("Level 2 type-to-find (ZS 7.2)", () => {
     await page.goto("/zh/play?level=2&seed=8");
     await expect(page.getByRole("combobox")).toHaveCount(0);
     await expect(page.getByText("Build a question:")).toBeVisible();
+  });
+});
+
+test.describe("keyboard (ZS 9)", () => {
+  const focused = (page: Page) =>
+    page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      return el?.dataset.card !== undefined ? `card ${el.dataset.card}` : (el?.tagName ?? "");
+    });
+
+  // The computer's turn, by number key: the right answer's place among the buttons.
+  async function answerByNumber(page: Page) {
+    await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
+    const round = await savedRound(page);
+    const key = round?.pendingCpuQuestion?.key ?? "";
+    const [right] = answersFor(key, round?.playerSecret ?? "");
+    const place = answerIds(key, round?.level ?? 1).indexOf(right);
+    await page.keyboard.press(String(place + 1));
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    await expect(panel(page)).toContainText("Right!");
+  }
+
+  // g, then arrows from the first card to the computer's secret, Enter, Enter.
+  async function guessByKeys(page: Page) {
+    const secret = (await savedRound(page))?.cpuSecret;
+    const index = content.characters.findIndex((c) => c.id === secret);
+    await page.keyboard.press("g");
+    await expect(panel(page)).toContainText("Click the card you think it is.");
+    await page.keyboard.press("Control+Home");
+    for (let i = 0; i < Math.floor(index / 6); i++) await page.keyboard.press("ArrowDown");
+    for (let i = 0; i < index % 6; i++) await page.keyboard.press("ArrowRight");
+    expect(await focused(page)).toBe(`card ${index}`);
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("dialog").getByRole("button", { name: "Guess", exact: true }),
+    ).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("heading", { name: "You won!" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Play again" })).toBeFocused();
+  }
+
+  test("a whole Level 1 round with only the keyboard (ZS 2.1)", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    await expect(cards(page)).toHaveCount(24);
+    await page.keyboard.press("q");
+    await expect(questions(page).getByRole("button").first()).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowRight"); // to the same row of 有
+    await expect(questions(page).locator('[data-col="1"][data-row="1"]')).toBeFocused();
+    await page.keyboard.press("t"); // 她
+    await expect(questions(page).locator('[data-col="1"][data-row="1"]')).toContainText("她");
+    await page.keyboard.press("Enter"); // ask
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    // The question left with the phase: focus is on the board's card (ZS 2.2).
+    expect(await focused(page)).toBe("card 0");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Enter"); // flip one
+    await expect(cards(page).nth(1)).toHaveAttribute("aria-pressed", "true");
+    await page.keyboard.press("n");
+    await page.keyboard.press("3"); // above the two answers shown: nothing
+    await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
+    await page.keyboard.press("h");
+    await expect(panel(page).getByRole("button", { name: /Show hint/ })).toHaveCount(0);
+    await answerByNumber(page);
+    await page.keyboard.press("n");
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+    await page.keyboard.press("l");
+    await expect(
+      panel(page).getByRole("list", { name: "Round log" }).getByRole("listitem").first(),
+    ).toBeFocused();
+    await guessByKeys(page);
+  });
+
+  test("a whole Level 2 round with only the keyboard, typing pinyin", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    await expect(cards(page)).toHaveCount(24);
+    await page.keyboard.press("/");
+    await expect(panel(page).getByRole("combobox")).toBeFocused();
+    for (const word of ["ta", "you", "gou", "ma"]) {
+      await page.keyboard.type(word);
+      await page.keyboard.press("Enter");
+    }
+    await page.keyboard.press("Enter"); // ask
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    expect(await focused(page)).toBe("card 0"); // the find field left with the phase
+    await page.keyboard.press("n");
+    await page.keyboard.press("p"); // pinyin on the computer's question
+    await expect(panel(page).locator("rt").first()).toBeVisible();
+    await answerByNumber(page);
+    await page.keyboard.press("n");
+    // Turn 2: tiles by Tab and arrows, a to ask.
+    await page.keyboard.press("q");
+    await expect(zh(panel(page), "他").first()).toBeFocused();
+    await page.keyboard.press("Enter"); // 他
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight"); // 有
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Backspace"); // off again
+    await page.keyboard.press("Enter"); // and on
+    const tray = page.getByRole("group", { name: "Your question" });
+    await expect(tray.getByRole("button")).toHaveCount(2);
+    await page.keyboard.press("/");
+    await page.keyboard.type("mao");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("ma");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Escape"); // out of the empty field
+    await page.keyboard.press("a");
+    await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
+    expect((await savedRound(page))?.history.at(-1)?.text).toBe("他有猫吗？");
+    await page.keyboard.press("n");
+    await answerByNumber(page);
+    await page.keyboard.press("n");
+    await guessByKeys(page);
+  });
+
+  test("each tile row is one tab stop, with arrows inside it", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    for (const label of ["Who, verbs and 吗", "People", "Pets and things", "Places"]) {
+      const row = panel(page).getByRole("group", { name: label });
+      await expect(row.locator('button[tabindex="0"]')).toHaveCount(1);
+    }
+    const row = panel(page).getByRole("group", { name: "People" });
+    await row.getByRole("button").first().focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await expect(row.getByRole("button").nth(2)).toBeFocused();
+    await page.keyboard.press("ArrowLeft");
+    await expect(row.getByRole("button").nth(1)).toBeFocused();
+    await expect(row.locator('button[tabindex="0"]')).toHaveText("女的");
+    await page.keyboard.press("Tab"); // on to the next row, not the next tile
+    await expect(
+      panel(page).getByRole("group", { name: "Pets and things" }).getByRole("button").first(),
+    ).toBeFocused();
+  });
+
+  test("arrows skip asked questions and a column that is all asked", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    const at = (col: number, row: number) =>
+      questions(page).locator(`[data-col="${col}"][data-row="${row}"]`);
+    // Ask 他是男的吗？ (column 0, row 0), then come back to the player's turn.
+    await at(0, 0).click();
+    await panel(page).getByRole("button", { name: "Next" }).click();
+    await page.getByRole("group", { name: "Your answer" }).getByRole("button").first().click();
+    await panel(page).getByRole("button", { name: "Next" }).click();
+    await page.keyboard.press("q");
+    await expect(at(0, 1)).toBeFocused(); // the first one still open
+    await page.keyboard.press("ArrowUp"); // nothing above it now
+    await expect(at(0, 1)).toBeFocused();
+    await at(1, 0).focus();
+    await page.keyboard.press("ArrowLeft"); // row 0 of 是 is asked: its next open row
+    await expect(at(0, 1)).toBeFocused();
+    await at(1, 4).focus();
+    await page.keyboard.press("ArrowRight"); // 在 has four: its last
+    await expect(at(2, 3)).toBeFocused();
+    await page.keyboard.press("ArrowRight"); // nowhere to go
+    await expect(at(2, 3)).toBeFocused();
+  });
+
+  test("typing in the find field is not a shortcut", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    const field = panel(page).getByRole("combobox");
+    await field.focus();
+    await page.keyboard.type("nap");
+    await expect(field).toHaveValue("nap");
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+    await expect(page.getByRole("checkbox", { name: /Pinyin/ })).not.toBeChecked();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
+  test("keys that do not apply do nothing, and a held key acts once", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    await expect(cards(page)).toHaveCount(24);
+    for (const key of ["p", "/", "a", "Backspace", "n", "1", "l"]) await page.keyboard.press(key);
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+    await page.keyboard.press("Control+g");
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+    // t held down switches once, not back and forth.
+    await page.keyboard.down("t");
+    for (let i = 0; i < 3; i++) await page.keyboard.down("t");
+    await page.keyboard.up("t");
+    await expect(
+      panel(page)
+        .getByRole("group", { name: "Ask about him or her" })
+        .getByRole("button", { name: /她/ }),
+    ).toHaveAttribute("aria-pressed", "true");
+    // Esc cancels a guess.
+    await page.keyboard.press("g");
+    await page.keyboard.press("Escape");
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+  });
+
+  test("? and the menu open the shortcuts; no shortcut works behind a dialog or the menu", async ({
+    page,
+  }) => {
+    await page.goto("/zh/play?seed=1");
+    await expect(cards(page)).toHaveCount(24);
+    await page.keyboard.press("?");
+    const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+    await expect(dialog).toBeVisible();
+    expect((await box(dialog)).width).toBe(576); // 36rem
+    for (const text of [
+      "Go to the board",
+      "type pinyin to find a word",
+      "Answer the computer",
+      "round log",
+    ])
+      await expect(dialog).toContainText(text);
+    await page.keyboard.press("g"); // behind the dialog: nothing
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+
+    await page.getByRole("button", { name: "Menu" }).click();
+    await page.keyboard.press("g"); // behind the menu: nothing
+    await expect(panel(page)).toContainText("Your turn: ask a question, or guess.");
+    await page.getByRole("menuitem", { name: "Keyboard shortcuts" }).click();
+    await expect(dialog).toBeVisible();
+  });
+
+  test("controls show their keys and carry aria-keyshortcuts", async ({ page }) => {
+    await page.goto("/zh/play?level=2&seed=8");
+    for (const [name, key] of [
+      ["Guess", "g"],
+      ["Ask", "a"],
+    ] as const) {
+      const button = panel(page).getByRole("button", { name, exact: true });
+      await expect(button).toHaveAttribute("aria-keyshortcuts", key);
+      await expect(button.locator("kbd")).toHaveText(key.toUpperCase());
+    }
+    await expect(panel(page).getByRole("combobox")).toHaveAttribute("aria-keyshortcuts", "/");
+    await build(page, "他", "有", "狗", "吗");
+    await page.keyboard.press("a");
+    await expect(panel(page).getByRole("button", { name: "Next" }).locator("kbd")).toHaveText("N");
+    await page.keyboard.press("n");
+    const answers = page.getByRole("group", { name: "Your answer" }).getByRole("button");
+    await expect(answers).toHaveCount(7);
+    await expect(answers.nth(6)).toHaveAttribute("aria-keyshortcuts", "7");
+    await expect(answers.nth(6)).toContainText("7");
   });
 });
 
