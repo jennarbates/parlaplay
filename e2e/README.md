@@ -2,7 +2,7 @@
 
 Playwright, run against the production build (`vite build` + `vite preview`) in four profiles: two phones, Chromium as a Pixel 7 and WebKit as an iPhone 15 (spec 10.2), and two desktops, `desktop-chromium` and `desktop-webkit` at 1440 × 900 (desktop spec DS 13.3).
 
-Chi è?'s specs are in this folder and Shéi's in `zh/`, each as its own game spec's test plan lists them. Shéi's run only on the phone profiles until it has a desktop layout. The specs for what the two share (the platform spec's 10.2) are here too: `platform.spec.ts`, `settings.spec.ts`, `privacy.spec.ts`, `logo.spec.ts`, and the sign-in and sync specs.
+Chi è?'s specs are in this folder and Shéi's in `zh/`, each as its own game spec's test plan lists them. Shéi's phone specs run only on the phone profiles; its desktop layout has its own file, `zh/desktop.spec.ts`, on the desktop profiles (below). The specs for what the two share (the platform spec's 10.2) are here too: `platform.spec.ts`, `settings.spec.ts`, `privacy.spec.ts`, `logo.spec.ts`, and the sign-in and sync specs.
 
 `desktop.spec.ts` runs only on the desktop profiles. The specs written for the phone's bottom sheet, list board and tabs (`phoneOnly` in `playwright.config.ts`) run only on the phones. Everything else runs on all four.
 
@@ -45,7 +45,7 @@ And by file:
 | `level2.spec.ts` | The tile builder and every kind of feedback |
 | `round.spec.ts` | Round end, quit and continue, Home |
 | `progress.spec.ts` | The Progress screen |
-| `a11y.spec.ts` | Italian card names, keyboard-only play, 44 px targets |
+| `a11y.spec.ts` | Italian card names, keyboard-only play, 44 px targets, and axe over Chi è? and the shared screens |
 | `privacy.spec.ts`, `settings.spec.ts` | Those pages |
 | `states.spec.ts` | Playing on after the connection drops |
 | `sign-in.spec.ts`, `outbox.spec.ts`, `guest-upload.spec.ts`, `merge.spec.ts`, `sign-out.spec.ts` | Accounts and sync (need Supabase) |
@@ -85,6 +85,23 @@ The desktop spec's DS 13.3 cases, all in `desktop.spec.ts`:
 | Screens | "no horizontal scroll on any screen at 1024 and 1440 wide" |
 | Nav | "DesktopNav is on every screen but /play, marking the current one" |
 | Progress | "no tabs: four totals and both lists side by side" |
+
+## Shéi on desktop
+
+`zh/desktop.spec.ts` holds every case of `zh-desktop.md` ZS 13.3 and runs on the two desktop profiles only:
+
+| Case | Tests under |
+|---|---|
+| Fits, Layout, No sheet | "layout: board on the left, panel on the right", "phase areas fit 1024 × 640" |
+| Groups | "Level 1: questions grouped by verb" |
+| Type-to-find, Find edge cases, Committed phrase | "Level 2 type-to-find" |
+| Log, Log at Level 2 | "round log" |
+| Glosses | "word glosses" |
+| Hover preview, right-click | "mouse and board keys" |
+| Keyboard rounds, Shortcuts ignored, Held keys, Focus | "keyboard" |
+| Resize | "resize across 1024px" |
+| Screens, Progress | "Home and Progress" |
+| axe | "axe (WCAG 2.2 AA)": every screen and phase, with `@axe-core/playwright` |
 
 `a11y.spec.ts` runs on the desktop profiles too: Italian card names and 44 px targets on every screen. Its Tab-order round is phone-only, since on desktop the board is one tab stop and the keyboard round above covers it.
 

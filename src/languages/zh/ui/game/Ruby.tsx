@@ -57,7 +57,7 @@ export function Word({
   return (
     <span className="flex flex-col items-center leading-tight">
       {showPinyin && (
-        <span lang="zh-Latn-pinyin" className="text-[0.65em] font-normal opacity-80">
+        <span lang="zh-Latn-pinyin" className="text-[0.65em] font-normal opacity-90">
           {pinyin}
         </span>
       )}

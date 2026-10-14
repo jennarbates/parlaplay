@@ -67,8 +67,8 @@ export function CpuQuestion({
           const colour =
             level === 1
               ? a.polarity
-                ? "bg-emerald-600 text-white active:bg-emerald-700"
-                : "bg-rose-600 text-white active:bg-rose-700"
+                ? "bg-emerald-700 text-white active:bg-emerald-800"
+                : "bg-rose-700 text-white active:bg-rose-800"
               : "bg-stone-100 ring-1 ring-stone-300 active:bg-stone-200";
           return (
             <button
