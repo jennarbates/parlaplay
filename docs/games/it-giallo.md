@@ -96,7 +96,7 @@ Each lemma is a lexicon entry with `pos: "qword"` (GS 4.1) and is one FSRS card 
 | `q.cosa` | `che cosa`, `cosa`, `cos'`, `che` | a thing or an action | `Che cosa faceva tra le otto e le nove?` |
 | `q.dove` | `dove`, `dov'` | a place | `Dov'era tra le otto e le nove?` |
 | `q.quando` | `quando` | a time | `Quando è arrivata alla villa?` |
-| `q.perche` | `perché` | a reason | `Perché è venuta alla villa?` |
+| `q.perche` | `perché` | a reason | `Perché è arrivata alla villa?` |
 | `q.come` | `come`, `com'` | a manner or means | `Com'è arrivato alla villa?` |
 | `q.quale` | `quale`, `quali`, `qual` | which one(s) | `Qual è il Suo lavoro?`, `Quali scarpe portava?` |
 | `q.quanto` | `quanto`, `quanta`, `quanti`, `quante`, `quant'` | how much, how many | `Quante persone c'erano in cucina?` |
@@ -121,7 +121,7 @@ The last four are lemmas of their own because the preposition is what the learne
 | `prep.conChi` | Company needs *con* | `Con chi era…?` | `Chi era con…?` is not built by the tiles; `Chi era tra le otto e le nove?` is meaningless | Rejected as nonsense (no mistake) |
 | `prep.aCheOra` | A clock time needs *a* | `A che ora è arrivata…?` | `Che ora è arrivata…?` | Rejected, mistake logged |
 | `prep.daDove` | Origin needs *da* | `Da dove viene?` | `Dove viene?` | Rejected, mistake logged |
-| `word.choice` | The word must fit the frame's meaning | `Perché è venuta alla villa?` | `Quanto è venuta alla villa?` | Rejected as nonsense (no mistake) |
+| `word.choice` | The word must fit the frame's meaning | `Perché è arrivata alla villa?` | `Quanto è arrivata alla villa?` | Rejected as nonsense (no mistake) |
 
 **Not errors.** These are accepted with no slip, because they are correct Italian (GD4, GD5):
 
@@ -197,15 +197,15 @@ The frames of the MVP:
 | `f.doing.slot` | `faceva {slot}?` | `che cosa` | what they were doing |
 | `f.saw.slot` | `ha visto {slot}?` | `chi`, `che cosa` | a person or a thing they saw |
 | `f.arrive` | `è arrivato/arrivata alla villa?` | `quando`, `a che ora`, `come`, `perché`, `con chi` | when, what time, how, why, with whom |
-| `f.stolen` | `è sparita la torta?` (each case its own) | `quando` | when the thing went missing (the witness) |
+| `f.stolen.torta` | `è sparita la torta?` (each case has its own) | `quando` | when the thing went missing (the witness) |
 | `f.from` | `viene?` | `da dove` | origin (`teaches`: `dove` → `prep.daDove`) |
 | `f.job` | `è il Suo lavoro?` | `qual` | job |
 | `f.shoes` | `scarpe portava?` (fp) | `quali` | shoes worn |
-| `f.people.slot` | `persone c'erano in {room} {slot}?` (fp) | `quante` | how many people were in a room |
+| `f.people.cucina.slot` | `persone c'erano in cucina {slot}?` (fp) | `quante` | how many people were in a room |
 | `f.age` | `anni ha?` (mp) | `quanti` | age |
 | `f.time.garden` | `tempo è rimasto/rimasta in giardino?` (ms) | `quanto` | how long |
 | `f.cake` | `torta ha mangiato?` (fs) | `quanta` | how much cake (flavour, and a joke) |
-| `f.owner` | `è questo ombrello?`, `sono queste chiavi?` | `di chi` | owner of a piece of evidence |
+| `f.owner.umbrella`, `f.owner.keys` | `è questo ombrello?`, `sono queste chiavi?` | `di chi` | owner of a piece of evidence |
 
 Example, with the teaching combo for `prep.diChi`:
 
@@ -223,30 +223,40 @@ In `f.at.slot` one body asks two facts: the question word decides which, which i
 
 ### GS 4.3 Cases
 
+All cases are one array in `cases.json`. Case 1 is written: `src/languages/it/giallo/content/cases.json`.
+
 ```ts
+const Gendered = z.union([z.string(), z.strictObject({ m: z.string(), f: z.string() })]);
+// a plain string when the text is the same for a man and a woman
+
 const Case = z.strictObject({
   id: z.string(),                           // "case.torta"
   title: z.string(),                        // "La torta sparita"
   setting: z.string(),                      // "Villa Rosa"
   stolen: z.string(),                       // "la torta"
-  people: z.array(z.strictObject({
-    role: z.string(),                       // "r.culprit", "r.s2", "r.s3", "r.s4", "r.witness"
-    pool: z.array(z.string()),              // character ids the seed may cast in this role
-  })),
-  rooms: z.array(z.string()),               // "la cucina", ... (4 to 5)
-  hidePlaces: z.array(z.string()),          // rooms the seed may pick as dove
+  difficulty: z.int().min(1).max(3),
+  roles: z.array(z.string()),               // story roles: "r.culprit", "r.pairA", ..., "r.witness"
+  suspects: z.array(z.string()),            // the roles that can be accused
+  jobs: z.array(z.strictObject({ id: z.string(), text: Gendered })), // one per suspect
+  witnessJob: Gendered,                     // "il maggiordomo" / "la governante"
+  rooms: z.array(z.strictObject({ id: z.string(), name: z.string(), in: z.string() })),
+                                            // { "room.cucina", "la cucina", "in cucina" }
+  hidePlaces: z.array(z.string()),          // room ids the seed may pick as dove
   slots: z.array(z.string()).length(3),     // the three time slots
   crimeSlots: z.array(z.int().min(0).max(2)), // slots the seed may pick as quando
+  evidence: z.array(z.string()),            // owner frames shown on the scene card
+  frames: z.array(z.string()),              // frames that can be asked in this case
   answers: z.array(z.strictObject({
-    role: z.string(),
+    who: z.string(),                        // a role, a job id, or "*" for anyone
     frame: z.string(),
-    slot: z.int().min(0).max(2).optional(),
+    slot: z.enum(["crime", "other"]).optional(), // for frames that take a slot
     qword: z.string(),
-    text: z.record(z.enum(["m", "f"]), z.string()), // "Ero in {hide}." ; placeholders below
+    text: Gendered,                         // the speaker's gender picks m or f
     lie: z.boolean().optional(),
+    contradictedBy: z.array(z.string()).optional(), // answer keys; required when lie is true
     proves: z.array(Proof).optional(),
   })),
-  default: z.record(z.enum(["m", "f"]), z.string()), // answer for a valid question with no entry
+  default: z.string(),                      // answer for an accepted question with no entry
 });
 
 const Proof = z.discriminatedUnion("kind", [
@@ -256,31 +266,34 @@ const Proof = z.discriminatedUnion("kind", [
 ]);
 ```
 
-**Placeholders.** `{culprit}`, `{s2}`, `{s3}`, `{s4}`, `{witness}` become the name cast in that role; `{hide}` the hiding room; `{crime}` the crime slot; `{room:N}` a room by index. `requires` lists answer keys (`role:frame:slot:qword`) that must also be in the notebook before the proof counts, which is how a lie is caught: an innocent suspect is cleared only by their own alibi plus the answer that confirms it.
+**Roles and jobs are cast separately.** The seed casts a character in each role, and separately gives each suspect a job. Story roles (who did it, who alibis whom) and jobs (the cook, the gardener) are independent, so a replay never teaches "it is always the cook". Answers about the crime are keyed by role; answers about a person's life (where they come from, their age, how they arrived) are keyed by job.
 
-**Seeded variants.** The seed picks one character per role from its pool, one hiding place and one crime slot. Case 1 has 4 × 3 × 2 = 24 variants for each casting. Characters are drawn from a giallo `characters.json` that uses Chi è?'s face format, so they render with Chi è?'s `Face` component and art layers.
+**Lookup.** For a question to a person, the engine takes the first answer whose `who` matches, in this order: their role, their job, `"*"`. With none, it answers `default`. `slot` is `"crime"` when the question's slot is the case's crime slot, `"other"` otherwise.
+
+**Placeholders.** `{r.culprit}`, `{r.pairA}` and every other role become the name cast in that role; `{job}` the speaker's job; `{hide}` the hiding room's `in` form (`in biblioteca`); `{crime}` the crime slot. An answer key is `who:frame:slot:qword`, with `-` for no slot (`r.pairB:f.at.slot:crime:q.con_chi`). `requires` lists answer keys that must also be in the notebook before the proof counts: an innocent suspect is cleared only by their own alibi plus the answer that confirms it.
+
+**Seeded variants.** The seed picks 5 distinct characters for the 5 roles, a job for each suspect, one hiding place and one crime slot. Case 1 has 3 hiding places × 3 crime slots = 9 variants of its logic, times every casting and job assignment. Characters are Chi è?'s 24 (`it.md` 3.2), so they render with Chi è?'s `Face` component and need no new art (GD13). The speaker's gender comes from the character's `gender` attribute.
 
 **The three cases.**
 
 | Id | Title | Setting | Stolen | Difficulty |
 |---|---|---|---|---|
-| `case.torta` | La torta sparita | Villa Rosa, a birthday dinner | la torta | 1: the witness gives the time directly |
+| `case.torta` | La torta sparita | Villa Rosa, a birthday dinner | la torta | 1: the witness gives the time directly; 5 questions solve it |
 | `case.valigia` | La valigia sul treno | the night train to Napoli | una valigia | 2: the time needs two answers together |
 | `case.ricetta` | La ricetta segreta | Trattoria da Nino | la ricetta della nonna | 3: two suspects lie |
 
-A sketch of case 1 (casting shown for one seed: Marta the culprit, hidden in the library, taken between 8 and 9):
+**Case 1, the story.** Everyone has dinner in the dining room in the two slots that are not the crime slot. In the crime slot, two suspects (`r.pairA`, `r.pairB`) wash up together in the kitchen and each confirms the other; one (`r.seen`) reads the paper alone in the dining room, and the witness sees them there through the door; the culprit says they were having a coffee in the dining room, which both `r.seen` (`Non è entrato nessuno.`) and the witness contradict. The witness also gives the time the cake went missing and has seen cake crumbs where it was hidden. The shortest solution, found by the checker:
 
-| Who | Question | Answer |
-|---|---|---|
-| Bruno (witness) | `Quando è sparita la torta?` | `È sparita tra le otto e le nove.` (proves time) |
-| Marta (culprit) | `Dov'era tra le otto e le nove?` | `Ero in cucina, da sola.` (lie) |
-| Paolo | `Chi ha visto tra le otto e le nove?` | `Ho visto Marta in biblioteca.` (contradicts Marta) |
-| Paolo | `Che cosa ha visto tra le otto e le nove?` | `Ho visto delle briciole in biblioteca.` (proves place) |
-| Luca | `Con chi era tra le otto e le nove?` | `Ero con Giulia, in giardino.` |
-| Giulia | `Con chi era tra le otto e le nove?` | `Ero con Luca. Abbiamo parlato tutto il tempo.` (with Luca's: clears both) |
-| Paolo | `Di chi sono queste chiavi?` | `Sono di Marta. Sono le chiavi della biblioteca.` |
+| Who | Question | Answer (one variant) | Proves |
+|---|---|---|---|
+| witness | `Quando è sparita la torta?` | `È sparita tra le otto e le nove.` | time |
+| witness | `Che cosa ha visto tra le otto e le nove?` | `Ho visto delle briciole di torta in biblioteca.` | place |
+| witness | `Chi ha visto tra le otto e le nove?` | `Ho visto Paolo in sala da pranzo, dalla porta. Leggeva il giornale.` | clears `r.seen` |
+| `r.pairA` | `Con chi era tra le otto e le nove?` | `Ero con Giulia.` | with the next: clears both |
+| `r.pairB` | `Con chi era tra le otto e le nove?` | `Ero con Luca.` | |
 
-`TBD:` the full text of all three cases, written with the Italian reviewer (cards PLAY-085 and PLAY-098).
+`TBD:` the full text of cases 2 and 3, written with the Italian reviewer (card PLAY-098).
+
 
 ### GS 4.4 Ids and versions
 
@@ -543,6 +556,7 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 | GD10 | Hand-written cases with seeded casting, hiding place and slot | Every sentence is reviewed by a person, and replays still differ; fully generated cases would produce unreviewed Italian |
 | GD11 | Questions use formal *Lei*, third person singular | One verb form for every question, so the learner's attention stays on the question word; *Lei* is also what a detective would use |
 | GD12 | Recognition comes from the inspector's multiple-choice questions, capped at `hard` | Without a CPU opponent asking, the learner still has to read question words; guess-proofing as Chi è? |
+| GD13 | The giallo casts Chi è?'s 24 characters; story roles and jobs are cast separately | No new art, and a replay never ties the culprit to a job |
 
 ---
 
