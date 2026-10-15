@@ -97,6 +97,11 @@
    "name": "epic: Shéi desktop",
    "color": "a14dcb",
    "description": "Card belongs to the Shéi desktop epic"
+  },
+  {
+   "name": "epic: Chi è stato?",
+   "color": "cf7a24",
+   "description": "Card belongs to the Chi è stato? epic"
   }
  ],
  "milestones": [
@@ -129,6 +134,30 @@
    "title": "Sprint 5: Cleanup",
    "description": "Fri Nov 27 to Fri Nov 27. Goal: Compatibility defaults removed and the old repos archived.",
    "due_on": "2026-11-27T23:59:59Z"
+  },
+  {
+   "key": "S6",
+   "title": "Sprint 6: Chi è stato? spec",
+   "description": "Mon Nov 30 to Fri Dec 4. Goal: Chi è stato? spec tagged v1, case 1 written and reviewed, and playtesters booked.",
+   "due_on": "2026-12-04T23:59:59Z"
+  },
+  {
+   "key": "S7",
+   "title": "Sprint 7: Chi è stato? platform and engine",
+   "description": "Mon Dec 7 to Fri Dec 11. Goal: Migration 3 on staging, and the engine and content invariants pass for case 1.",
+   "due_on": "2026-12-11T23:59:59Z"
+  },
+  {
+   "key": "S8",
+   "title": "Sprint 8: Chi è stato? screens and learning",
+   "description": "Mon Dec 14 to Fri Dec 18. Goal: Case 1 playable end to end on staging at both levels, and cases 2 and 3 written.",
+   "due_on": "2026-12-18T23:59:59Z"
+  },
+  {
+   "key": "S9",
+   "title": "Sprint 9: Chi è stato? playtest and launch",
+   "description": "Mon Jan 4 to Fri Jan 8. Goal: Playtest run, must-fix findings closed, and /it/giallo live.",
+   "due_on": "2027-01-08T23:59:59Z"
   }
  ],
  "epics": [
@@ -238,6 +267,15 @@
    "labels": [
     "epic",
     "epic: Shéi desktop"
+   ]
+  },
+  {
+   "key": "E12",
+   "title": "Epic: Chi è stato?",
+   "body": "Epic for the parlaplay platform. 27 cards, 69 story points.\n\nThe cards are attached as sub-issues below. Full backlog: [backlog.md](https://github.com/jennarbates/parlaplay/blob/main/planning/backlog.md).",
+   "labels": [
+    "epic",
+    "epic: Chi è stato?"
    ]
   }
  ],
@@ -1457,6 +1495,450 @@
    ],
    "points": 1,
    "target_date": "2026-11-27"
+  },
+  {
+   "key": "PLAY-076",
+   "title": "PLAY-076 Write the Chi è stato? spec",
+   "body": "**Sprint 6: Chi è stato? spec** · Day 18, Mon Nov 30 · **2 points** · task\nEpic: {{E12}}\n\nDraft written Oct 15: rules, question-word grammar, content, engine, learning and platform changes.\n\n### Acceptance criteria\n\n- [ ] docs/games/it-giallo.md covers GS 1 to GS 13\n- [ ] Every open question is a TBD in the section it belongs to\n- [ ] The backlog has a card for every GS section with a deliverable\n\n### Spec\n\n[GS 1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-1-scope-and-non-goals) · [GS 11.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-111-spec-sign-off-before-building)",
+   "labels": [
+    "type: task",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S6",
+   "epic": "E12",
+   "deps": [],
+   "points": 2,
+   "target_date": "2026-11-30"
+  },
+  {
+   "key": "PLAY-077",
+   "title": "PLAY-077 Ask the Italian reviewer to check the question words",
+   "body": "**Sprint 6: Chi è stato? spec** · Day 18, Mon Nov 30 · **1 point** · task\nEpic: {{E12}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nSend GS 3, the frames of GS 4.2 and case 1's text, with a return date of Wed Dec 2.\n\n### Acceptance criteria\n\n- [ ] GS 3, GS 4.2 and case 1 sent with a return date of Wed Dec 2\n- [ ] The cos'ha and feedback-string TBDs are named as questions for the reviewer\n\n### Spec\n\n[GS 11.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-111-spec-sign-off-before-building) · [GS 3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-3-question-words) · [GS 4.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-42-frames)",
+   "labels": [
+    "type: task",
+    "epic: Chi è stato?",
+    "waits on others"
+   ],
+   "milestone": "S6",
+   "epic": "E12",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-11-30"
+  },
+  {
+   "key": "PLAY-078",
+   "title": "PLAY-078 Book three A1 learners for the Chi è stato? playtest",
+   "body": "**Sprint 6: Chi è stato? spec** · Day 18, Mon Nov 30 · **1 point** · chore\nEpic: {{E12}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nBook sessions for Tue Jan 5, on phones and one laptop.\n\n### Acceptance criteria\n\n- [ ] Three A1 learners booked for Tue Jan 5\n- [ ] At least one plays on a laptop and one on an iPhone\n\n### Spec\n\n[GS 11.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-113-definition-of-done)",
+   "labels": [
+    "type: chore",
+    "epic: Chi è stato?",
+    "waits on others"
+   ],
+   "milestone": "S6",
+   "epic": "E12",
+   "deps": [],
+   "points": 1,
+   "target_date": "2026-11-30"
+  },
+  {
+   "key": "PLAY-079",
+   "title": "PLAY-079 Write case 1 with its seeded variants",
+   "body": "**Sprint 6: Chi è stato? spec** · Day 19, Tue Dec 1 · **3 points** · task\nEpic: {{E12}}\n\nLa torta sparita: cast pools, rooms, slots and every answer, in content JSON.\n\n### Acceptance criteria\n\n- [ ] case.torta has 4 suspects, a witness, 2 pieces of evidence and answers for every frame\n- [ ] Every answer has m and f text where the person's gender changes it\n- [ ] Each lie has a truthful answer that contradicts it\n- [ ] A hand solve of two variants finds the culprit in 10 questions or fewer\n\n### Depends on\n\n- {{PLAY-076}}\n\n### Spec\n\n[GS 4.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-43-cases) · [GD7](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log) · [GD10](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log) · [GD11](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log)",
+   "labels": [
+    "type: task",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S6",
+   "epic": "E12",
+   "deps": [
+    "PLAY-076"
+   ],
+   "points": 3,
+   "target_date": "2026-12-01"
+  },
+  {
+   "key": "PLAY-080",
+   "title": "PLAY-080 Paper-trace case 1 and tag the Chi è stato? spec v1",
+   "body": "**Sprint 6: Chi è stato? spec** · Day 20, Wed Dec 2 · **2 points** · task\nEpic: {{E12}}\n\nWalk case 1 at each level using only the spec, fold in the Italian review, and tag v1.\n\n### Acceptance criteria\n\n- [ ] Case 1 traced at Level 1 and Level 2\n- [ ] Every guess logged as a fix or a TBD\n- [ ] The reviewer's changes applied to GS 3, GS 4.2 and case 1\n- [ ] Spec tagged v1\n\n### Depends on\n\n- {{PLAY-077}}\n- {{PLAY-079}}\n\n### Spec\n\n[GS 11.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-111-spec-sign-off-before-building)",
+   "labels": [
+    "type: task",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S6",
+   "epic": "E12",
+   "deps": [
+    "PLAY-077",
+    "PLAY-079"
+   ],
+   "points": 2,
+   "target_date": "2026-12-02"
+  },
+  {
+   "key": "PLAY-081",
+   "title": "PLAY-081 Add a game id to games rows and saved rounds",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 23, Mon Dec 7 · **3 points** · story\nEpic: {{E12}}\n\nGameRow gains game and caseId; round:{code} becomes round:{code}:{game}; per-game content versions.\n\n### Acceptance criteria\n\n- [ ] GameRow and the module contract change as GS 8 says, and platform spec 3.1 to 3.3 are updated\n- [ ] A row without game reads as chie\n- [ ] A round saved under round:it before the change resumes as a Chi è? round\n- [ ] Chi è?'s tests and the separation tests pass unedited\n\n### Depends on\n\n- {{PLAY-080}}\n\n### Spec\n\n[GS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-8-platform-changes) · [GD1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log) · [GD3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-080"
+   ],
+   "points": 3,
+   "target_date": "2026-12-07"
+  },
+  {
+   "key": "PLAY-082",
+   "title": "PLAY-082 Add migration 3 for games.game and case_id",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 23, Mon Dec 7 · **2 points** · chore\nEpic: {{E12}}\n\nThe column, its check, and the read filter for clients from before the change.\n\n### Acceptance criteria\n\n- [ ] Migration 3 adds game (default chie, checked to chie or giallo) and case_id\n- [ ] Every existing games row reads as chie after it runs locally\n- [ ] Platform spec 6.1 and 6.2 updated in the same pull request\n\n### Depends on\n\n- {{PLAY-054}}\n- {{PLAY-080}}\n\n### Spec\n\n[GS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-8-platform-changes)",
+   "labels": [
+    "type: chore",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-054",
+    "PLAY-080"
+   ],
+   "points": 2,
+   "target_date": "2026-12-07"
+  },
+  {
+   "key": "PLAY-083",
+   "title": "PLAY-083 Add the giallo content schemas and lexicon",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 23, Mon Dec 7 · **3 points** · story\nEpic: {{E12}}\n\nZod schemas for qwords, frames and cases, the giallo lexicon, messages and version.json.\n\n### Acceptance criteria\n\n- [ ] Schemas of GS 4.1 to GS 4.3 are strict and fail the build on a bad file\n- [ ] The 12 qwords, 4 prepositions and every frame of GS 4.2 are in content\n- [ ] Ids are disjoint from Chi è?'s and Shéi's, checked by a test\n- [ ] released-ids.json lists every giallo id\n\n### Depends on\n\n- {{PLAY-080}}\n\n### Spec\n\n[GS 4.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-41-lexicon-additions) · [GS 4.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-42-frames) · [GS 4.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-44-ids-and-versions)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-080"
+   ],
+   "points": 3,
+   "target_date": "2026-12-07"
+  },
+  {
+   "key": "PLAY-084",
+   "title": "PLAY-084 Build the case solver and content invariants",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 24, Tue Dec 8 · **3 points** · story\nEpic: {{E12}}\n\nsolve() and the seven GS 5.4 invariants, run for every case and variant at build time.\n\n### Acceptance criteria\n\n- [ ] solve() is pure and has unit tests for requires and lies\n- [ ] Each GS 5.4 invariant is a test that runs for every variant of every case\n- [ ] A broken case (no 10-question solution) fails pnpm build\n\n### Depends on\n\n- {{PLAY-079}}\n- {{PLAY-083}}\n\n### Spec\n\n[GS 5.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-54-solver-and-invariants-each-becomes-a-test) · [GS 4.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-43-cases) · [GD8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-079",
+    "PLAY-083"
+   ],
+   "points": 3,
+   "target_date": "2026-12-08"
+  },
+  {
+   "key": "PLAY-085",
+   "title": "PLAY-085 Build the giallo engine's start, step and transitions",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 24, Tue Dec 8 · **5 points** · story\nEpic: {{E12}}\n\nSeeded casting, the budget, marking, accusing, stars and quitting.\n\n### Acceptance criteria\n\n- [ ] start(seed, caseId, level) casts roles, hide and crime from the seed only\n- [ ] Every cell of GS 5.2 is a test\n- [ ] Stars are right at 9, 10, 12, 13 and 15 questions used\n- [ ] A wrong accusation ends the case unsolved and shows the solution's answers\n\n### Depends on\n\n- {{PLAY-083}}\n\n### Spec\n\n[GS 5.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-51-types) · [GS 5.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-52-transition-table) · [GS 2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-2-game-rules) · [GD8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log) · [GD9](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-083"
+   ],
+   "points": 5,
+   "target_date": "2026-12-08"
+  },
+  {
+   "key": "PLAY-086",
+   "title": "PLAY-086 Validate questions and give question-word feedback",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 25, Wed Dec 9 · **5 points** · story\nEpic: {{E12}}\n\nThe six-step ASK validation of GS 5.3, joining, and every rule of GS 3.2.\n\n### Acceptance criteria\n\n- [ ] Each row of GS 3.2 gives its result: slip, rejection with a mistake, or nonsense\n- [ ] Each 'not an error' of GS 3.2 is accepted with no slip\n- [ ] Elided forms join with no space and a capital first letter\n- [ ] A question with two errors returns both, as it.md 4.3\n- [ ] GS 5.5 is a test\n\n### Depends on\n\n- {{PLAY-085}}\n\n### Spec\n\n[GS 5.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-53-ask-validation-order) · [GS 3.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-32-the-rules-and-what-happens-when-one-is-broken) · [GD4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log) · [GD5](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log) · [GD6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-085"
+   ],
+   "points": 5,
+   "target_date": "2026-12-09"
+  },
+  {
+   "key": "PLAY-087",
+   "title": "PLAY-087 Add the inspector's questions to the engine",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 25, Wed Dec 9 · **2 points** · story\nEpic: {{E12}}\n\nEvery 4th accepted question, a three-option question built from the notebook.\n\n### Acceptance criteria\n\n- [ ] The inspector asks after every 4th accepted question and never uses the budget\n- [ ] Options are always a place, a time or companion, and a thing or person, from the notebook\n- [ ] She skips her turn when the notebook cannot answer any question\n\n### Depends on\n\n- {{PLAY-085}}\n\n### Spec\n\n[GS 6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-6-the-inspectors-questions) · [GD12](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-122-decision-log)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-085"
+   ],
+   "points": 2,
+   "target_date": "2026-12-09"
+  },
+  {
+   "key": "PLAY-088",
+   "title": "PLAY-088 List both games on Italian Home",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 26, Thu Dec 10 · **2 points** · story\nEpic: {{E12}}\n\nTwo game cards on /it, each with Play or Continue, and the /it/giallo routes.\n\n### Acceptance criteria\n\n- [ ] /it shows Chi è? and Chi è stato? cards, each with its own Play or Continue\n- [ ] /it/giallo and /it/giallo/play load the giallo as its own lazy chunk\n- [ ] Chi è?'s Home e2e tests pass unedited\n\n### Depends on\n\n- {{PLAY-081}}\n\n### Spec\n\n[GS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-8-platform-changes) · [GS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-91-screens-and-flow-phone-first)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-081"
+   ],
+   "points": 2,
+   "target_date": "2026-12-10"
+  },
+  {
+   "key": "PLAY-089",
+   "title": "PLAY-089 Emit giallo ratings and slips into the review log",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 26, Thu Dec 10 · **3 points** · story\nEpic: {{E12}}\n\nEach event of the GS 7 table becomes review log rows in the shared Italian log.\n\n### Acceptance criteria\n\n- [ ] Each row of the GS 7 table is a test\n- [ ] One rating per card per turn, as it.md 6\n- [ ] Rows carry the giallo games row's id and sync like Chi è?'s\n\n### Depends on\n\n- {{PLAY-086}}\n- {{PLAY-087}}\n\n### Spec\n\n[GS 7](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-7-learning-model)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-086",
+    "PLAY-087"
+   ],
+   "points": 3,
+   "target_date": "2026-12-10"
+  },
+  {
+   "key": "PLAY-090",
+   "title": "PLAY-090 Apply migration 3 on staging",
+   "body": "**Sprint 7: Chi è stato? platform and engine** · Day 27, Fri Dec 11 · **1 point** · chore\nEpic: {{E12}}\n\nRun migration 3 on staging and check a pre-change client still syncs.\n\n### Acceptance criteria\n\n- [ ] Migration 3 applied on staging\n- [ ] A build from before the change syncs a Chi è? round on staging without errors\n\n### Depends on\n\n- {{PLAY-082}}\n\n### Spec\n\n[GS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-8-platform-changes)",
+   "labels": [
+    "type: chore",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S7",
+   "epic": "E12",
+   "deps": [
+    "PLAY-082"
+   ],
+   "points": 1,
+   "target_date": "2026-12-11"
+  },
+  {
+   "key": "PLAY-091",
+   "title": "PLAY-091 Build the case list and case screen",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 28, Mon Dec 14 · **3 points** · story\nEpic: {{E12}}\n\nThe case list, top bar with questions left, people strip, scene card, menu and quit.\n\n### Acceptance criteria\n\n- [ ] The case list shows the 3 cases and the best result on this device\n- [ ] Selecting a face selects the person asked; faces are named buttons (GS 10)\n- [ ] Quit case records abandoned; reload resumes the case\n\n### Depends on\n\n- {{PLAY-085}}\n- {{PLAY-088}}\n\n### Spec\n\n[GS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-91-screens-and-flow-phone-first) · [GS 9.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-93-states)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-085",
+    "PLAY-088"
+   ],
+   "points": 3,
+   "target_date": "2026-12-14"
+  },
+  {
+   "key": "PLAY-092",
+   "title": "PLAY-092 Build the giallo Level 1 question picker",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 28, Mon Dec 14 · **2 points** · story\nEpic: {{E12}}\n\nQuestions for the selected person, grouped by question word, with Show hint.\n\n### Acceptance criteria\n\n- [ ] Questions are grouped by question word, each with a Show hint toggle\n- [ ] Asked questions are greyed out and show their answer\n\n### Depends on\n\n- {{PLAY-091}}\n\n### Spec\n\n[GS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-91-screens-and-flow-phone-first)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-091"
+   ],
+   "points": 2,
+   "target_date": "2026-12-14"
+  },
+  {
+   "key": "PLAY-093",
+   "title": "PLAY-093 Build the Level 2 question-word builder",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 29, Tue Dec 15 · **3 points** · story\nEpic: {{E12}}\n\nPreposition, question word and body slots, with every form of GS 3.1 as a tile.\n\n### Acceptance criteria\n\n- [ ] Every form of GS 3.1, plus qual', is a tile\n- [ ] The slot picker appears for bodies that take a slot\n- [ ] Feedback for each GS 3.2 rule shows in the sheet\n\n### Depends on\n\n- {{PLAY-086}}\n- {{PLAY-091}}\n\n### Spec\n\n[GS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-91-screens-and-flow-phone-first) · [GS 3.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-31-lemmas-and-forms)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-086",
+    "PLAY-091"
+   ],
+   "points": 3,
+   "target_date": "2026-12-15"
+  },
+  {
+   "key": "PLAY-094",
+   "title": "PLAY-094 Build the notebook and the inspector sheet",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 29, Tue Dec 15 · **3 points** · story\nEpic: {{E12}}\n\nAnswers by person with Cleared toggles, and the inspector's three-option sheet.\n\n### Acceptance criteria\n\n- [ ] The notebook groups answers by person, with headings, in order\n- [ ] Cleared toggles are free and reversible\n- [ ] The inspector sheet blocks asking until answered, and Show hint removes the rating\n\n### Depends on\n\n- {{PLAY-087}}\n- {{PLAY-091}}\n\n### Spec\n\n[GS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-91-screens-and-flow-phone-first) · [GS 6](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-6-the-inspectors-questions)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-087",
+    "PLAY-091"
+   ],
+   "points": 3,
+   "target_date": "2026-12-15"
+  },
+  {
+   "key": "PLAY-095",
+   "title": "PLAY-095 Build the accusation and case end",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 30, Wed Dec 16 · **2 points** · story\nEpic: {{E12}}\n\nThe accuse sheet with its sentence, and the case end with stars and the solution.\n\n### Acceptance criteria\n\n- [ ] The accuse sheet shows the sentence it will say and warns about a cleared suspect\n- [ ] At 0 questions only Accusa is available\n- [ ] Case end shows the result, stars, solution, proving answers and mistakes\n\n### Depends on\n\n- {{PLAY-091}}\n\n### Spec\n\n[GS 2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-2-game-rules) · [GS 9.1](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-91-screens-and-flow-phone-first)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-091"
+   ],
+   "points": 2,
+   "target_date": "2026-12-16"
+  },
+  {
+   "key": "PLAY-096",
+   "title": "PLAY-096 Show question words and slips in Italian Progress",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 30, Wed Dec 16 · **2 points** · story\nEpic: {{E12}}\n\nlabelFor covers qwords and rule ids, so Due and Mistakes show the giallo's cards.\n\n### Acceptance criteria\n\n- [ ] labelFor returns a word label for each qword and a grammar label for each GS 3.2 rule\n- [ ] Due and Mistakes show giallo cards next to Chi è?'s\n- [ ] Progress history names the game and case of each row\n\n### Depends on\n\n- {{PLAY-089}}\n\n### Spec\n\n[GS 7](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-7-learning-model)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-089"
+   ],
+   "points": 2,
+   "target_date": "2026-12-16"
+  },
+  {
+   "key": "PLAY-097",
+   "title": "PLAY-097 Lay out the giallo for desktop and keyboard",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 31, Thu Dec 17 · **3 points** · story\nEpic: {{E12}}\n\nBoard and side panel at lg, as DS, and the shortcut table written into GS 9.2.\n\n### Acceptance criteria\n\n- [ ] At 1024 x 640 the people, scene, builder and notebook fit with no page scroll\n- [ ] The full shortcut table is in GS 9.2 and each shortcut has a unit test\n- [ ] A case plays to the end by keyboard only\n\n### Depends on\n\n- {{PLAY-093}}\n- {{PLAY-094}}\n- {{PLAY-095}}\n\n### Spec\n\n[GS 9.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-92-desktop-and-keyboard)",
+   "labels": [
+    "type: story",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-093",
+    "PLAY-094",
+    "PLAY-095"
+   ],
+   "points": 3,
+   "target_date": "2026-12-17"
+  },
+  {
+   "key": "PLAY-098",
+   "title": "PLAY-098 Write cases 2 and 3 with the Italian reviewer",
+   "body": "**Sprint 8: Chi è stato? screens and learning** · Day 32, Fri Dec 18 · **3 points** · task\nEpic: {{E12}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nLa valigia sul treno and La ricetta segreta, reviewed and passing every invariant.\n\n### Acceptance criteria\n\n- [ ] case.valigia and case.ricetta pass every GS 5.4 invariant for every variant\n- [ ] The reviewer has approved every sentence in both\n- [ ] case.ricetta has two suspects who lie\n\n### Depends on\n\n- {{PLAY-084}}\n\n### Spec\n\n[GS 4.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-43-cases)",
+   "labels": [
+    "type: task",
+    "epic: Chi è stato?",
+    "waits on others"
+   ],
+   "milestone": "S8",
+   "epic": "E12",
+   "deps": [
+    "PLAY-084"
+   ],
+   "points": 3,
+   "target_date": "2026-12-18"
+  },
+  {
+   "key": "PLAY-099",
+   "title": "PLAY-099 Test Chi è stato? end to end with axe",
+   "body": "**Sprint 9: Chi è stato? playtest and launch** · Day 33, Mon Jan 4 · **3 points** · test\nEpic: {{E12}}\n\nThe e2e rows of GS 11.2 on phone and desktop projects, plus axe and the bundle budget.\n\n### Acceptance criteria\n\n- [ ] Case 1 solved at Level 1 and Level 2 on the phone projects\n- [ ] A wrong accusation, quit and resume each have a spec\n- [ ] Desktop by keyboard only passes\n- [ ] axe clean on every giallo screen; the giallo chunk is under 60 KB gzipped\n\n### Depends on\n\n- {{PLAY-092}}\n- {{PLAY-096}}\n- {{PLAY-097}}\n- {{PLAY-098}}\n\n### Spec\n\n[GS 11.2](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-112-tests) · [GS 10](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-10-non-functional)",
+   "labels": [
+    "type: test",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S9",
+   "epic": "E12",
+   "deps": [
+    "PLAY-092",
+    "PLAY-096",
+    "PLAY-097",
+    "PLAY-098"
+   ],
+   "points": 3,
+   "target_date": "2027-01-04"
+  },
+  {
+   "key": "PLAY-100",
+   "title": "PLAY-100 Run the Chi è stato? playtest",
+   "body": "**Sprint 9: Chi è stato? playtest and launch** · Day 34, Tue Jan 5 · **2 points** · test\nEpic: {{E12}}\n\n> [!NOTE]\n> Waits on someone outside the build. Start it early and chase it.\n\nThree A1 learners each play a case on staging; findings logged and triaged.\n\n### Acceptance criteria\n\n- [ ] Three learners played a case, at least one on a laptop\n- [ ] Findings logged and marked must-fix or later\n\n### Depends on\n\n- {{PLAY-078}}\n- {{PLAY-099}}\n\n### Spec\n\n[GS 11.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-113-definition-of-done)",
+   "labels": [
+    "type: test",
+    "epic: Chi è stato?",
+    "waits on others"
+   ],
+   "milestone": "S9",
+   "epic": "E12",
+   "deps": [
+    "PLAY-078",
+    "PLAY-099"
+   ],
+   "points": 2,
+   "target_date": "2027-01-05"
+  },
+  {
+   "key": "PLAY-101",
+   "title": "PLAY-101 Fix the must-fix Chi è stato? findings",
+   "body": "**Sprint 9: Chi è stato? playtest and launch** · Day 36, Thu Jan 7 · **3 points** · task\nEpic: {{E12}}\n\nClose every must-fix playtest finding.\n\n### Acceptance criteria\n\n- [ ] Every must-fix finding fixed and retested\n- [ ] Later findings moved to GS 12.1\n\n### Depends on\n\n- {{PLAY-100}}\n\n### Spec\n\n[GS 11.3](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-113-definition-of-done)",
+   "labels": [
+    "type: task",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S9",
+   "epic": "E12",
+   "deps": [
+    "PLAY-100"
+   ],
+   "points": 3,
+   "target_date": "2027-01-07"
+  },
+  {
+   "key": "PLAY-102",
+   "title": "PLAY-102 Launch Chi è stato? at /it/giallo",
+   "body": "**Sprint 9: Chi è stato? playtest and launch** · Day 37, Fri Jan 8 · **2 points** · chore\nEpic: {{E12}}\n\nMigration 3 in production, then the giallo live, then the GS 11.3 sweep.\n\n### Acceptance criteria\n\n- [ ] Migration 3 applied in production and every existing games row reads as chie\n- [ ] /it/giallo plays case 1 in production\n- [ ] Every GS 11.3 box checked\n\n### Depends on\n\n- {{PLAY-090}}\n- {{PLAY-101}}\n\n### Spec\n\n[GS 11.4](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-114-milestones) · [GS 8](https://github.com/jennarbates/parlaplay/blob/main/docs/games/it-giallo.md#gs-8-platform-changes)",
+   "labels": [
+    "type: chore",
+    "epic: Chi è stato?"
+   ],
+   "milestone": "S9",
+   "epic": "E12",
+   "deps": [
+    "PLAY-090",
+    "PLAY-101"
+   ],
+   "points": 2,
+   "target_date": "2027-01-08"
   }
  ]
 }

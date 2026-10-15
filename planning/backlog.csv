@@ -234,3 +234,86 @@ Migration 2 applied local, staging, then production
 The compatibility test is removed from CI in the same pull request"
 PLAY-055,Archive the Italian and Chinese repos,To do,Launch and cleanup,chore,Sprint 5: Cleanup,Day 17,Fri Nov 27,1,PLAY-051,no,"10.3, D4",Point both old repos at the new one and archive them.,"Each README's first line points to jennarbates/parlaplay
 Both repos archived on GitHub"
+PLAY-076,Write the Chi è stato? spec,To do,Chi è stato?,task,Sprint 6: Chi è stato? spec,Day 18,Mon Nov 30,2,,no,"GS 1, GS 11.1","Draft written Oct 15: rules, question-word grammar, content, engine, learning and platform changes.","docs/games/it-giallo.md covers GS 1 to GS 13
+Every open question is a TBD in the section it belongs to
+The backlog has a card for every GS section with a deliverable"
+PLAY-077,Ask the Italian reviewer to check the question words,To do,Chi è stato?,task,Sprint 6: Chi è stato? spec,Day 18,Mon Nov 30,1,,yes,"GS 11.1, GS 3, GS 4.2","Send GS 3, the frames of GS 4.2 and case 1's text, with a return date of Wed Dec 2.","GS 3, GS 4.2 and case 1 sent with a return date of Wed Dec 2
+The cos'ha and feedback-string TBDs are named as questions for the reviewer"
+PLAY-078,Book three A1 learners for the Chi è stato? playtest,To do,Chi è stato?,chore,Sprint 6: Chi è stato? spec,Day 18,Mon Nov 30,1,,yes,GS 11.3,"Book sessions for Tue Jan 5, on phones and one laptop.","Three A1 learners booked for Tue Jan 5
+At least one plays on a laptop and one on an iPhone"
+PLAY-079,Write case 1 with its seeded variants,To do,Chi è stato?,task,Sprint 6: Chi è stato? spec,Day 19,Tue Dec 1,3,PLAY-076,no,"GS 4.3, GD7, GD10, GD11","La torta sparita: cast pools, rooms, slots and every answer, in content JSON.","case.torta has 4 suspects, a witness, 2 pieces of evidence and answers for every frame
+Every answer has m and f text where the person's gender changes it
+Each lie has a truthful answer that contradicts it
+A hand solve of two variants finds the culprit in 10 questions or fewer"
+PLAY-080,Paper-trace case 1 and tag the Chi è stato? spec v1,To do,Chi è stato?,task,Sprint 6: Chi è stato? spec,Day 20,Wed Dec 2,2,"PLAY-077, PLAY-079",no,GS 11.1,"Walk case 1 at each level using only the spec, fold in the Italian review, and tag v1.","Case 1 traced at Level 1 and Level 2
+Every guess logged as a fix or a TBD
+The reviewer's changes applied to GS 3, GS 4.2 and case 1
+Spec tagged v1"
+PLAY-081,Add a game id to games rows and saved rounds,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 23,Mon Dec 7,3,PLAY-080,no,"GS 8, GD1, GD3",GameRow gains game and caseId; round:{code} becomes round:{code}:{game}; per-game content versions.,"GameRow and the module contract change as GS 8 says, and platform spec 3.1 to 3.3 are updated
+A row without game reads as chie
+A round saved under round:it before the change resumes as a Chi è? round
+Chi è?'s tests and the separation tests pass unedited"
+PLAY-082,Add migration 3 for games.game and case_id,To do,Chi è stato?,chore,Sprint 7: Chi è stato? platform and engine,Day 23,Mon Dec 7,2,"PLAY-054, PLAY-080",no,GS 8,"The column, its check, and the read filter for clients from before the change.","Migration 3 adds game (default chie, checked to chie or giallo) and case_id
+Every existing games row reads as chie after it runs locally
+Platform spec 6.1 and 6.2 updated in the same pull request"
+PLAY-083,Add the giallo content schemas and lexicon,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 23,Mon Dec 7,3,PLAY-080,no,"GS 4.1, GS 4.2, GS 4.4","Zod schemas for qwords, frames and cases, the giallo lexicon, messages and version.json.","Schemas of GS 4.1 to GS 4.3 are strict and fail the build on a bad file
+The 12 qwords, 4 prepositions and every frame of GS 4.2 are in content
+Ids are disjoint from Chi è?'s and Shéi's, checked by a test
+released-ids.json lists every giallo id"
+PLAY-084,Build the case solver and content invariants,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 24,Tue Dec 8,3,"PLAY-079, PLAY-083",no,"GS 5.4, GS 4.3, GD8","solve() and the seven GS 5.4 invariants, run for every case and variant at build time.","solve() is pure and has unit tests for requires and lies
+Each GS 5.4 invariant is a test that runs for every variant of every case
+A broken case (no 10-question solution) fails pnpm build"
+PLAY-085,"Build the giallo engine's start, step and transitions",To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 24,Tue Dec 8,5,PLAY-083,no,"GS 5.1, GS 5.2, GS 2, GD8, GD9","Seeded casting, the budget, marking, accusing, stars and quitting.","start(seed, caseId, level) casts roles, hide and crime from the seed only
+Every cell of GS 5.2 is a test
+Stars are right at 9, 10, 12, 13 and 15 questions used
+A wrong accusation ends the case unsolved and shows the solution's answers"
+PLAY-086,Validate questions and give question-word feedback,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 25,Wed Dec 9,5,PLAY-085,no,"GS 5.3, GS 3.2, GD4, GD5, GD6","The six-step ASK validation of GS 5.3, joining, and every rule of GS 3.2.","Each row of GS 3.2 gives its result: slip, rejection with a mistake, or nonsense
+Each 'not an error' of GS 3.2 is accepted with no slip
+Elided forms join with no space and a capital first letter
+A question with two errors returns both, as it.md 4.3
+GS 5.5 is a test"
+PLAY-087,Add the inspector's questions to the engine,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 25,Wed Dec 9,2,PLAY-085,no,"GS 6, GD12","Every 4th accepted question, a three-option question built from the notebook.","The inspector asks after every 4th accepted question and never uses the budget
+Options are always a place, a time or companion, and a thing or person, from the notebook
+She skips her turn when the notebook cannot answer any question"
+PLAY-088,List both games on Italian Home,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 26,Thu Dec 10,2,PLAY-081,no,"GS 8, GS 9.1","Two game cards on /it, each with Play or Continue, and the /it/giallo routes.","/it shows Chi è? and Chi è stato? cards, each with its own Play or Continue
+/it/giallo and /it/giallo/play load the giallo as its own lazy chunk
+Chi è?'s Home e2e tests pass unedited"
+PLAY-089,Emit giallo ratings and slips into the review log,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 26,Thu Dec 10,3,"PLAY-086, PLAY-087",no,GS 7,Each event of the GS 7 table becomes review log rows in the shared Italian log.,"Each row of the GS 7 table is a test
+One rating per card per turn, as it.md 6
+Rows carry the giallo games row's id and sync like Chi è?'s"
+PLAY-090,Apply migration 3 on staging,To do,Chi è stato?,chore,Sprint 7: Chi è stato? platform and engine,Day 27,Fri Dec 11,1,PLAY-082,no,GS 8,Run migration 3 on staging and check a pre-change client still syncs.,"Migration 3 applied on staging
+A build from before the change syncs a Chi è? round on staging without errors"
+PLAY-091,Build the case list and case screen,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 28,Mon Dec 14,3,"PLAY-085, PLAY-088",no,"GS 9.1, GS 9.3","The case list, top bar with questions left, people strip, scene card, menu and quit.","The case list shows the 3 cases and the best result on this device
+Selecting a face selects the person asked; faces are named buttons (GS 10)
+Quit case records abandoned; reload resumes the case"
+PLAY-092,Build the giallo Level 1 question picker,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 28,Mon Dec 14,2,PLAY-091,no,GS 9.1,"Questions for the selected person, grouped by question word, with Show hint.","Questions are grouped by question word, each with a Show hint toggle
+Asked questions are greyed out and show their answer"
+PLAY-093,Build the Level 2 question-word builder,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 29,Tue Dec 15,3,"PLAY-086, PLAY-091",no,"GS 9.1, GS 3.1","Preposition, question word and body slots, with every form of GS 3.1 as a tile.","Every form of GS 3.1, plus qual', is a tile
+The slot picker appears for bodies that take a slot
+Feedback for each GS 3.2 rule shows in the sheet"
+PLAY-094,Build the notebook and the inspector sheet,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 29,Tue Dec 15,3,"PLAY-087, PLAY-091",no,"GS 9.1, GS 6","Answers by person with Cleared toggles, and the inspector's three-option sheet.","The notebook groups answers by person, with headings, in order
+Cleared toggles are free and reversible
+The inspector sheet blocks asking until answered, and Show hint removes the rating"
+PLAY-095,Build the accusation and case end,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 30,Wed Dec 16,2,PLAY-091,no,"GS 2, GS 9.1","The accuse sheet with its sentence, and the case end with stars and the solution.","The accuse sheet shows the sentence it will say and warns about a cleared suspect
+At 0 questions only Accusa is available
+Case end shows the result, stars, solution, proving answers and mistakes"
+PLAY-096,Show question words and slips in Italian Progress,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 30,Wed Dec 16,2,PLAY-089,no,GS 7,"labelFor covers qwords and rule ids, so Due and Mistakes show the giallo's cards.","labelFor returns a word label for each qword and a grammar label for each GS 3.2 rule
+Due and Mistakes show giallo cards next to Chi è?'s
+Progress history names the game and case of each row"
+PLAY-097,Lay out the giallo for desktop and keyboard,To do,Chi è stato?,story,Sprint 8: Chi è stato? screens and learning,Day 31,Thu Dec 17,3,"PLAY-093, PLAY-094, PLAY-095",no,GS 9.2,"Board and side panel at lg, as DS, and the shortcut table written into GS 9.2.","At 1024 x 640 the people, scene, builder and notebook fit with no page scroll
+The full shortcut table is in GS 9.2 and each shortcut has a unit test
+A case plays to the end by keyboard only"
+PLAY-098,Write cases 2 and 3 with the Italian reviewer,To do,Chi è stato?,task,Sprint 8: Chi è stato? screens and learning,Day 32,Fri Dec 18,3,PLAY-084,yes,GS 4.3,"La valigia sul treno and La ricetta segreta, reviewed and passing every invariant.","case.valigia and case.ricetta pass every GS 5.4 invariant for every variant
+The reviewer has approved every sentence in both
+case.ricetta has two suspects who lie"
+PLAY-099,Test Chi è stato? end to end with axe,To do,Chi è stato?,test,Sprint 9: Chi è stato? playtest and launch,Day 33,Mon Jan 4,3,"PLAY-092, PLAY-096, PLAY-097, PLAY-098",no,"GS 11.2, GS 10","The e2e rows of GS 11.2 on phone and desktop projects, plus axe and the bundle budget.","Case 1 solved at Level 1 and Level 2 on the phone projects
+A wrong accusation, quit and resume each have a spec
+Desktop by keyboard only passes
+axe clean on every giallo screen; the giallo chunk is under 60 KB gzipped"
+PLAY-100,Run the Chi è stato? playtest,To do,Chi è stato?,test,Sprint 9: Chi è stato? playtest and launch,Day 34,Tue Jan 5,2,"PLAY-078, PLAY-099",yes,GS 11.3,Three A1 learners each play a case on staging; findings logged and triaged.,"Three learners played a case, at least one on a laptop
+Findings logged and marked must-fix or later"
+PLAY-101,Fix the must-fix Chi è stato? findings,To do,Chi è stato?,task,Sprint 9: Chi è stato? playtest and launch,Day 36,Thu Jan 7,3,PLAY-100,no,GS 11.3,Close every must-fix playtest finding.,"Every must-fix finding fixed and retested
+Later findings moved to GS 12.1"
+PLAY-102,Launch Chi è stato? at /it/giallo,To do,Chi è stato?,chore,Sprint 9: Chi è stato? playtest and launch,Day 37,Fri Jan 8,2,"PLAY-090, PLAY-101",no,"GS 11.4, GS 8","Migration 3 in production, then the giallo live, then the GS 11.3 sweep.","Migration 3 applied in production and every existing games row reads as chie
+/it/giallo plays case 1 in production
+Every GS 11.3 box checked"

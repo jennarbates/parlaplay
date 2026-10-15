@@ -1,0 +1,660 @@
+[
+  {
+    "id": "case.torta",
+    "title": "La torta sparita",
+    "setting": "Villa Rosa",
+    "stolen": "la torta",
+    "difficulty": 1,
+    "roles": ["r.culprit", "r.pairA", "r.pairB", "r.seen", "r.witness"],
+    "suspects": ["r.culprit", "r.pairA", "r.pairB", "r.seen"],
+    "jobs": [
+      { "id": "j.cuoco", "text": { "m": "il cuoco", "f": "la cuoca" } },
+      { "id": "j.giardiniere", "text": { "m": "il giardiniere", "f": "la giardiniera" } },
+      {
+        "id": "j.nipote",
+        "text": { "m": "il nipote della signora Rosa", "f": "la nipote della signora Rosa" }
+      },
+      { "id": "j.vicino", "text": { "m": "il vicino di casa", "f": "la vicina di casa" } }
+    ],
+    "witnessJob": { "m": "il maggiordomo", "f": "la governante" },
+    "rooms": [
+      { "id": "room.cucina", "name": "la cucina", "in": "in cucina" },
+      { "id": "room.sala", "name": "la sala da pranzo", "in": "in sala da pranzo" },
+      { "id": "room.biblioteca", "name": "la biblioteca", "in": "in biblioteca" },
+      { "id": "room.salotto", "name": "il salotto", "in": "in salotto" },
+      { "id": "room.giardino", "name": "il giardino", "in": "in giardino" }
+    ],
+    "hidePlaces": ["room.biblioteca", "room.salotto", "room.giardino"],
+    "slots": ["tra le sette e le otto", "tra le otto e le nove", "tra le nove e le dieci"],
+    "crimeSlots": [0, 1, 2],
+    "evidence": ["f.owner.umbrella", "f.owner.keys"],
+    "frames": [
+      "f.at.slot",
+      "f.doing.slot",
+      "f.saw.slot",
+      "f.people.cucina.slot",
+      "f.stolen.torta",
+      "f.arrive",
+      "f.from",
+      "f.job",
+      "f.age",
+      "f.shoes",
+      "f.time.garden",
+      "f.cake",
+      "f.owner.umbrella",
+      "f.owner.keys"
+    ],
+    "default": "Non lo so.",
+    "answers": [
+      {
+        "who": "r.culprit",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.dove",
+        "text": "Ero in sala da pranzo.",
+        "lie": true,
+        "contradictedBy": ["r.seen:f.at.slot:crime:q.con_chi", "r.witness:f.saw.slot:crime:q.chi"]
+      },
+      {
+        "who": "r.culprit",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.con_chi",
+        "text": { "m": "Ero da solo.", "f": "Ero da sola." }
+      },
+      {
+        "who": "r.culprit",
+        "frame": "f.doing.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Bevevo un caffè in sala da pranzo.",
+        "lie": true,
+        "contradictedBy": ["r.seen:f.at.slot:crime:q.con_chi", "r.witness:f.saw.slot:crime:q.chi"]
+      },
+      {
+        "who": "r.culprit",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.chi",
+        "text": "Non ho visto nessuno."
+      },
+      {
+        "who": "r.culprit",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Niente di strano."
+      },
+      {
+        "who": "r.culprit",
+        "frame": "f.people.cucina.slot",
+        "slot": "crime",
+        "qword": "q.quanto",
+        "text": "Non lo so: non ero in cucina."
+      },
+
+      {
+        "who": "r.pairA",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.dove",
+        "text": "Ero in cucina."
+      },
+      {
+        "who": "r.pairA",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.con_chi",
+        "text": "Ero con {r.pairB}.",
+        "proves": [
+          { "kind": "clears", "role": "r.pairA", "requires": ["r.pairB:f.at.slot:crime:q.con_chi"] }
+        ]
+      },
+      {
+        "who": "r.pairA",
+        "frame": "f.doing.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Lavavo i piatti con {r.pairB}."
+      },
+      {
+        "who": "r.pairA",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.chi",
+        "text": "Ho visto solo {r.pairB}."
+      },
+      {
+        "who": "r.pairA",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Niente di strano: lavavo i piatti."
+      },
+      {
+        "who": "r.pairA",
+        "frame": "f.people.cucina.slot",
+        "slot": "crime",
+        "qword": "q.quanto",
+        "text": "Due: io e {r.pairB}."
+      },
+
+      {
+        "who": "r.pairB",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.dove",
+        "text": "Ero in cucina."
+      },
+      {
+        "who": "r.pairB",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.con_chi",
+        "text": "Ero con {r.pairA}.",
+        "proves": [
+          { "kind": "clears", "role": "r.pairB", "requires": ["r.pairA:f.at.slot:crime:q.con_chi"] }
+        ]
+      },
+      {
+        "who": "r.pairB",
+        "frame": "f.doing.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Asciugavo i piatti. {r.pairA} li lavava."
+      },
+      {
+        "who": "r.pairB",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.chi",
+        "text": "Ho visto solo {r.pairA}."
+      },
+      {
+        "who": "r.pairB",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Niente di strano."
+      },
+      {
+        "who": "r.pairB",
+        "frame": "f.people.cucina.slot",
+        "slot": "crime",
+        "qword": "q.quanto",
+        "text": "Due: io e {r.pairA}."
+      },
+
+      {
+        "who": "r.seen",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.dove",
+        "text": "Ero in sala da pranzo."
+      },
+      {
+        "who": "r.seen",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.con_chi",
+        "text": {
+          "m": "Ero da solo. Non è entrato nessuno.",
+          "f": "Ero da sola. Non è entrato nessuno."
+        }
+      },
+      {
+        "who": "r.seen",
+        "frame": "f.doing.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Leggevo il giornale."
+      },
+      {
+        "who": "r.seen",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.chi",
+        "text": "Non ho visto nessuno."
+      },
+      {
+        "who": "r.seen",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Niente di strano."
+      },
+      {
+        "who": "r.seen",
+        "frame": "f.people.cucina.slot",
+        "slot": "crime",
+        "qword": "q.quanto",
+        "text": "Non lo so: non ero in cucina."
+      },
+
+      {
+        "who": "r.witness",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.dove",
+        "text": "Ero in giro per la villa."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.at.slot",
+        "slot": "crime",
+        "qword": "q.con_chi",
+        "text": { "m": "Ero da solo.", "f": "Ero da sola." }
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.doing.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Controllavo le porte e le finestre."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.chi",
+        "text": "Ho visto {r.seen} in sala da pranzo, dalla porta. Leggeva il giornale.",
+        "proves": [{ "kind": "clears", "role": "r.seen" }]
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.saw.slot",
+        "slot": "crime",
+        "qword": "q.cosa",
+        "text": "Ho visto delle briciole di torta {hide}.",
+        "proves": [{ "kind": "place" }]
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.people.cucina.slot",
+        "slot": "crime",
+        "qword": "q.quanto",
+        "text": "Due, credo. Ho sentito due voci."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.stolen.torta",
+        "qword": "q.quando",
+        "text": "È sparita {crime}.",
+        "proves": [{ "kind": "time" }]
+      },
+      {
+        "who": "*",
+        "frame": "f.stolen.torta",
+        "qword": "q.quando",
+        "text": "Non lo so. Chieda a {r.witness}."
+      },
+
+      {
+        "who": "r.witness",
+        "frame": "f.at.slot",
+        "slot": "other",
+        "qword": "q.dove",
+        "text": "Ero in sala da pranzo: servivo la cena."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.at.slot",
+        "slot": "other",
+        "qword": "q.con_chi",
+        "text": "Ero con tutti gli ospiti."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.doing.slot",
+        "slot": "other",
+        "qword": "q.cosa",
+        "text": "Servivo la cena."
+      },
+      {
+        "who": "*",
+        "frame": "f.at.slot",
+        "slot": "other",
+        "qword": "q.dove",
+        "text": "Ero in sala da pranzo, a cena."
+      },
+      {
+        "who": "*",
+        "frame": "f.at.slot",
+        "slot": "other",
+        "qword": "q.con_chi",
+        "text": "Ero con tutti gli altri."
+      },
+      {
+        "who": "*",
+        "frame": "f.doing.slot",
+        "slot": "other",
+        "qword": "q.cosa",
+        "text": "Cenavo con gli altri."
+      },
+      {
+        "who": "*",
+        "frame": "f.saw.slot",
+        "slot": "other",
+        "qword": "q.chi",
+        "text": "Ho visto tutti a tavola."
+      },
+      {
+        "who": "*",
+        "frame": "f.saw.slot",
+        "slot": "other",
+        "qword": "q.cosa",
+        "text": "Niente di strano."
+      },
+      {
+        "who": "*",
+        "frame": "f.people.cucina.slot",
+        "slot": "other",
+        "qword": "q.quanto",
+        "text": "Nessuna: eravamo tutti a cena."
+      },
+
+      {
+        "who": "r.witness",
+        "frame": "f.job",
+        "qword": "q.quale",
+        "text": { "m": "Sono il maggiordomo.", "f": "Sono la governante." }
+      },
+      { "who": "*", "frame": "f.job", "qword": "q.quale", "text": "Sono {job}." },
+
+      {
+        "who": "r.witness",
+        "frame": "f.arrive",
+        "qword": "q.quando",
+        "text": "Io abito qui, alla villa."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.arrive",
+        "qword": "q.a_che_ora",
+        "text": "Io abito qui, alla villa."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.arrive",
+        "qword": "q.come",
+        "text": "Io abito qui, alla villa."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.arrive",
+        "qword": "q.perche",
+        "text": "Io abito qui, alla villa."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.arrive",
+        "qword": "q.con_chi",
+        "text": "Io abito qui, alla villa."
+      },
+      { "who": "r.witness", "frame": "f.from", "qword": "q.da_dove", "text": "Vengo da Lucca." },
+      { "who": "r.witness", "frame": "f.age", "qword": "q.quanto", "text": "Ho sessantatré anni." },
+      {
+        "who": "r.witness",
+        "frame": "f.shoes",
+        "qword": "q.quale",
+        "text": "Portavo le scarpe nere, come sempre."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.time.garden",
+        "qword": "q.quanto",
+        "text": {
+          "m": "Oggi non sono andato in giardino.",
+          "f": "Oggi non sono andata in giardino."
+        }
+      },
+
+      {
+        "who": "j.cuoco",
+        "frame": "f.arrive",
+        "qword": "q.quando",
+        "text": { "m": "Sono arrivato nel pomeriggio.", "f": "Sono arrivata nel pomeriggio." }
+      },
+      {
+        "who": "j.cuoco",
+        "frame": "f.arrive",
+        "qword": "q.a_che_ora",
+        "text": { "m": "Sono arrivato alle quattro.", "f": "Sono arrivata alle quattro." }
+      },
+      {
+        "who": "j.cuoco",
+        "frame": "f.arrive",
+        "qword": "q.come",
+        "text": { "m": "Sono arrivato in autobus.", "f": "Sono arrivata in autobus." }
+      },
+      {
+        "who": "j.cuoco",
+        "frame": "f.arrive",
+        "qword": "q.perche",
+        "text": "Per preparare la cena della festa."
+      },
+      {
+        "who": "j.cuoco",
+        "frame": "f.arrive",
+        "qword": "q.con_chi",
+        "text": { "m": "Sono arrivato da solo.", "f": "Sono arrivata da sola." }
+      },
+      { "who": "j.cuoco", "frame": "f.from", "qword": "q.da_dove", "text": "Vengo da Napoli." },
+      {
+        "who": "j.cuoco",
+        "frame": "f.age",
+        "qword": "q.quanto",
+        "text": "Ho quarantacinque anni."
+      },
+      {
+        "who": "j.cuoco",
+        "frame": "f.shoes",
+        "qword": "q.quale",
+        "text": "Portavo le scarpe bianche da lavoro."
+      },
+      {
+        "who": "j.cuoco",
+        "frame": "f.time.garden",
+        "qword": "q.quanto",
+        "text": "Cinque minuti, prima di cena. Ho preso il basilico."
+      },
+
+      {
+        "who": "j.giardiniere",
+        "frame": "f.arrive",
+        "qword": "q.quando",
+        "text": { "m": "Sono arrivato stamattina.", "f": "Sono arrivata stamattina." }
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.arrive",
+        "qword": "q.a_che_ora",
+        "text": {
+          "m": "Sono arrivato alle sette di mattina.",
+          "f": "Sono arrivata alle sette di mattina."
+        }
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.arrive",
+        "qword": "q.come",
+        "text": { "m": "Sono arrivato in bicicletta.", "f": "Sono arrivata in bicicletta." }
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.arrive",
+        "qword": "q.perche",
+        "text": "Per lavorare in giardino, e poi per la festa."
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.arrive",
+        "qword": "q.con_chi",
+        "text": { "m": "Sono arrivato da solo.", "f": "Sono arrivata da sola." }
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.from",
+        "qword": "q.da_dove",
+        "text": "Vengo da Siena."
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.age",
+        "qword": "q.quanto",
+        "text": "Ho cinquantotto anni."
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.shoes",
+        "qword": "q.quale",
+        "text": "Portavo gli stivali."
+      },
+      {
+        "who": "j.giardiniere",
+        "frame": "f.time.garden",
+        "qword": "q.quanto",
+        "text": "Tutto il giorno: è il mio lavoro!"
+      },
+
+      {
+        "who": "j.nipote",
+        "frame": "f.arrive",
+        "qword": "q.quando",
+        "text": { "m": "Sono arrivato ieri sera.", "f": "Sono arrivata ieri sera." }
+      },
+      {
+        "who": "j.nipote",
+        "frame": "f.arrive",
+        "qword": "q.a_che_ora",
+        "text": {
+          "m": "Sono arrivato alle nove di sera, ieri.",
+          "f": "Sono arrivata alle nove di sera, ieri."
+        }
+      },
+      {
+        "who": "j.nipote",
+        "frame": "f.arrive",
+        "qword": "q.come",
+        "text": { "m": "Sono arrivato in treno.", "f": "Sono arrivata in treno." }
+      },
+      {
+        "who": "j.nipote",
+        "frame": "f.arrive",
+        "qword": "q.perche",
+        "text": "Per il compleanno di mia zia."
+      },
+      {
+        "who": "j.nipote",
+        "frame": "f.arrive",
+        "qword": "q.con_chi",
+        "text": { "m": "Sono arrivato da solo.", "f": "Sono arrivata da sola." }
+      },
+      { "who": "j.nipote", "frame": "f.from", "qword": "q.da_dove", "text": "Vengo da Milano." },
+      { "who": "j.nipote", "frame": "f.age", "qword": "q.quanto", "text": "Ho diciannove anni." },
+      {
+        "who": "j.nipote",
+        "frame": "f.shoes",
+        "qword": "q.quale",
+        "text": "Portavo le scarpe da ginnastica."
+      },
+      {
+        "who": "j.nipote",
+        "frame": "f.time.garden",
+        "qword": "q.quanto",
+        "text": "Dieci minuti, prima di cena. Ho fatto una telefonata."
+      },
+
+      {
+        "who": "j.vicino",
+        "frame": "f.arrive",
+        "qword": "q.quando",
+        "text": {
+          "m": "Sono arrivato poco prima di cena.",
+          "f": "Sono arrivata poco prima di cena."
+        }
+      },
+      {
+        "who": "j.vicino",
+        "frame": "f.arrive",
+        "qword": "q.a_che_ora",
+        "text": { "m": "Sono arrivato alle sei e mezza.", "f": "Sono arrivata alle sei e mezza." }
+      },
+      {
+        "who": "j.vicino",
+        "frame": "f.arrive",
+        "qword": "q.come",
+        "text": {
+          "m": "Sono arrivato a piedi. Abito qui accanto.",
+          "f": "Sono arrivata a piedi. Abito qui accanto."
+        }
+      },
+      {
+        "who": "j.vicino",
+        "frame": "f.arrive",
+        "qword": "q.perche",
+        "text": {
+          "m": "La signora Rosa mi ha invitato alla festa.",
+          "f": "La signora Rosa mi ha invitata alla festa."
+        }
+      },
+      {
+        "who": "j.vicino",
+        "frame": "f.arrive",
+        "qword": "q.con_chi",
+        "text": { "m": "Sono arrivato con il mio cane.", "f": "Sono arrivata con il mio cane." }
+      },
+      { "who": "j.vicino", "frame": "f.from", "qword": "q.da_dove", "text": "Vengo da Firenze." },
+      {
+        "who": "j.vicino",
+        "frame": "f.age",
+        "qword": "q.quanto",
+        "text": "Ho sessantasette anni."
+      },
+      {
+        "who": "j.vicino",
+        "frame": "f.shoes",
+        "qword": "q.quale",
+        "text": "Portavo le scarpe nere."
+      },
+      {
+        "who": "j.vicino",
+        "frame": "f.time.garden",
+        "qword": "q.quanto",
+        "text": "Mezz'ora, prima di cena. Ho portato fuori il cane."
+      },
+
+      {
+        "who": "*",
+        "frame": "f.cake",
+        "qword": "q.quanto",
+        "text": "Niente! La torta è sparita prima del dolce."
+      },
+
+      {
+        "who": "r.witness",
+        "frame": "f.owner.umbrella",
+        "qword": "q.di_chi",
+        "text": "È di {r.pairB}."
+      },
+      {
+        "who": "r.pairB",
+        "frame": "f.owner.umbrella",
+        "qword": "q.di_chi",
+        "text": "È mio. L'ho lasciato all'ingresso."
+      },
+      {
+        "who": "r.witness",
+        "frame": "f.owner.keys",
+        "qword": "q.di_chi",
+        "text": "Sono di {r.seen}."
+      },
+      {
+        "who": "r.seen",
+        "frame": "f.owner.keys",
+        "qword": "q.di_chi",
+        "text": "Sono mie! Le cercavo."
+      }
+    ]
+  }
+]
