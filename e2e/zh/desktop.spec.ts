@@ -851,6 +851,17 @@ test.describe("mouse and board keys (ZS 8, ZS 9.4)", () => {
     await expect(tooltip(page)).toHaveCount(0);
   });
 
+  test("clicking a card before the preview shows flips it, with no preview", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    const c = cards(page).nth(7);
+    await c.hover();
+    await page.waitForTimeout(300);
+    await c.click();
+    await expect(c).toHaveAttribute("aria-pressed", "true");
+    await page.waitForTimeout(800);
+    await expect(tooltip(page)).toHaveCount(0);
+  });
+
   test("no preview while guessing", async ({ page }) => {
     await page.goto("/zh/play?seed=1");
     await panel(page).getByRole("button", { name: "Guess" }).click();
