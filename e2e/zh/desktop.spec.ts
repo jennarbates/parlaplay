@@ -1,7 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { content } from "../../src/languages/zh/content/index.ts";
-import { answersFor, build, card, chineseText, guessCard, savedRound, zh } from "./game.ts";
+import {
+  answersFor,
+  build,
+  card,
+  chineseText,
+  guessCard,
+  pendingRound,
+  savedRound,
+  zh,
+} from "./game.ts";
 import { answerIds } from "../../src/languages/zh/ui/game/answers.ts";
 
 // zh-desktop.md ZS 13.3: Shéi at desktop size. Runs on the desktop profiles only
@@ -538,10 +547,10 @@ test.describe("keyboard (ZS 9)", () => {
   // The computer's turn, by number key: the right answer's place among the buttons.
   async function answerByNumber(page: Page) {
     await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
-    const round = await savedRound(page);
-    const key = round?.pendingCpuQuestion?.key ?? "";
-    const [right] = answersFor(key, round?.playerSecret ?? "");
-    const place = answerIds(key, round?.level ?? 1).indexOf(right);
+    const round = await pendingRound(page);
+    const { key } = round.pendingCpuQuestion;
+    const [right] = answersFor(key, round.playerSecret);
+    const place = answerIds(key, round.level).indexOf(right);
     await page.keyboard.press(String(place + 1));
     await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
     await expect(panel(page)).toContainText("Right!");
@@ -636,7 +645,9 @@ test.describe("keyboard (ZS 9)", () => {
     await page.keyboard.press("Escape"); // out of the empty field
     await page.keyboard.press("a");
     await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
-    expect((await savedRound(page))?.history.at(-1)?.text).toBe("他有猫吗？");
+    await expect
+      .poll(async () => (await savedRound(page))?.history.at(-1)?.text)
+      .toBe("他有猫吗？");
     await page.keyboard.press("n");
     await answerByNumber(page);
     await page.keyboard.press("n");

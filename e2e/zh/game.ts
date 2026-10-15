@@ -98,11 +98,20 @@ export async function waitForPhase(page: Page, phase: GameState["phase"]) {
   throw new Error(`round never reached ${phase}`);
 }
 
+// The saved round once the CPU's question is in it. The answer buttons can show
+// before the round is written, so wait for the save rather than the screen.
+export async function pendingRound(page: Page) {
+  let round: GameState | undefined;
+  await expect
+    .poll(async () => (round = await savedRound(page))?.pendingCpuQuestion?.key)
+    .toBeTruthy();
+  return round as GameState & Required<Pick<GameState, "pendingCpuQuestion">>;
+}
+
 // In the CPU's turn: answer its pending question rightly or wrongly. Returns the
 // question key and the answer id tapped.
 export async function answerCpu(page: Page, right: boolean, secret: string) {
-  await waitForPhase(page, "cpuTurn");
-  const key = (await savedRound(page))?.pendingCpuQuestion?.key ?? "";
+  const { key } = (await pendingRound(page)).pendingCpuQuestion;
   const [yes, no] = answersFor(key, secret);
   const id = right ? yes : no;
   await zh(answers(page), hanziOf(id)).click();
