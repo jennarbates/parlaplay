@@ -20,6 +20,9 @@ SPEC_URL = f"https://github.com/{REPO}/blob/main/docs/spec.md"
 # The Shéi desktop spec: cards in epic E11 cite its sections (ZS n) and decisions (ZD n).
 DESKTOP_SPEC_PATH = os.path.join(ROOT, "docs", "games", "zh-desktop.md")
 DESKTOP_URL = f"https://github.com/{REPO}/blob/main/docs/games/zh-desktop.md"
+# The Chi è stato? spec: cards in epic E12 cite its sections (GS n) and decisions (GD n).
+GIALLO_SPEC_PATH = os.path.join(ROOT, "docs", "games", "it-giallo.md")
+GIALLO_URL = f"https://github.com/{REPO}/blob/main/docs/games/it-giallo.md"
 BACKLOG_URL = f"https://github.com/{REPO}/blob/main/planning/backlog.md"
 
 # Day -> (date label, ISO date, capacity). From spec 10.4.
@@ -40,6 +43,27 @@ DAYS = {
     15: ("Thu Nov 12", "2026-11-12", "full"),
     16: ("Fri Nov 13", "2026-11-13", "full"),
     17: ("Fri Nov 27", "2026-11-27", "half"),
+    # Chi è stato? (it-giallo.md GS 11.4), after the platform launch
+    18: ("Mon Nov 30", "2026-11-30", "full"),
+    19: ("Tue Dec 1", "2026-12-01", "full"),
+    20: ("Wed Dec 2", "2026-12-02", "full"),
+    21: ("Thu Dec 3", "2026-12-03", "full"),
+    22: ("Fri Dec 4", "2026-12-04", "full"),
+    23: ("Mon Dec 7", "2026-12-07", "full"),
+    24: ("Tue Dec 8", "2026-12-08", "full"),
+    25: ("Wed Dec 9", "2026-12-09", "full"),
+    26: ("Thu Dec 10", "2026-12-10", "full"),
+    27: ("Fri Dec 11", "2026-12-11", "full"),
+    28: ("Mon Dec 14", "2026-12-14", "full"),
+    29: ("Tue Dec 15", "2026-12-15", "full"),
+    30: ("Wed Dec 16", "2026-12-16", "full"),
+    31: ("Thu Dec 17", "2026-12-17", "full"),
+    32: ("Fri Dec 18", "2026-12-18", "full"),
+    33: ("Mon Jan 4", "2027-01-04", "full"),
+    34: ("Tue Jan 5", "2027-01-05", "full"),
+    35: ("Wed Jan 6", "2027-01-06", "full"),
+    36: ("Thu Jan 7", "2027-01-07", "full"),
+    37: ("Fri Jan 8", "2027-01-08", "full"),
 }
 # Points a day can hold: about 5 on a half day, about 12 on a full day (one person).
 CAPACITY = {"half": 5, "full": 12}
@@ -55,6 +79,14 @@ SPRINTS = [  # key, title, first day, last day, due date, goal
      "Must-fix findings closed, migration rehearsed, and parlaplay.games live with redirects and the handoff."),
     ("S5", "Sprint 5: Cleanup", 17, 17, "2026-11-27",
      "Compatibility defaults removed and the old repos archived."),
+    ("S6", "Sprint 6: Chi è stato? spec", 18, 22, "2026-12-04",
+     "Chi è stato? spec tagged v1, case 1 written and reviewed, and playtesters booked."),
+    ("S7", "Sprint 7: Chi è stato? platform and engine", 23, 27, "2026-12-11",
+     "Migration 3 on staging, and the engine and content invariants pass for case 1."),
+    ("S8", "Sprint 8: Chi è stato? screens and learning", 28, 32, "2026-12-18",
+     "Case 1 playable end to end on staging at both levels, and cases 2 and 3 written."),
+    ("S9", "Sprint 9: Chi è stato? playtest and launch", 33, 37, "2027-01-08",
+     "Playtest run, must-fix findings closed, and /it/giallo live."),
 ]
 
 EPICS = [  # key, name
@@ -70,6 +102,7 @@ EPICS = [  # key, name
     ("E9", "Playtest and fixes"),
     ("E10", "Launch and cleanup"),
     ("E11", "Shéi desktop"),
+    ("E12", "Chi è stato?"),
 ]
 
 # id, title, epic, type, points, day, depends on, waits on others, spec refs, description, acceptance criteria
@@ -612,6 +645,209 @@ CARDS = [
      "Point both old repos at the new one and archive them.",
      ["Each README's first line points to jennarbates/parlaplay",
       "Both repos archived on GitHub"]),
+    # Chi è stato? (E12): docs/games/it-giallo.md. Spec refs GS n and GD n link there.
+    # Day 18
+    ("PLAY-076", "Write the Chi è stato? spec", "E12", "task", 2, 18, [], False,
+     ["GS 1", "GS 11.1"],
+     "Draft written Oct 15: rules, question-word grammar, content, engine, learning and platform changes.",
+     ["docs/games/it-giallo.md covers GS 1 to GS 13",
+      "Every open question is a TBD in the section it belongs to",
+      "The backlog has a card for every GS section with a deliverable"]),
+    ("PLAY-077", "Ask the Italian reviewer to check the question words", "E12", "task", 1, 18,
+     [], True,
+     ["GS 11.1", "GS 3", "GS 4.2"],
+     "Send GS 3, the frames of GS 4.2 and case 1's text, with a return date of Wed Dec 2.",
+     ["GS 3, GS 4.2 and case 1 sent with a return date of Wed Dec 2",
+      "The cos'ha and feedback-string TBDs are named as questions for the reviewer"]),
+    ("PLAY-078", "Book three A1 learners for the Chi è stato? playtest", "E12", "chore", 1, 18,
+     [], True,
+     ["GS 11.3"],
+     "Book sessions for Tue Jan 5, on phones and one laptop.",
+     ["Three A1 learners booked for Tue Jan 5",
+      "At least one plays on a laptop and one on an iPhone"]),
+    # Day 19
+    ("PLAY-079", "Write case 1 with its seeded variants", "E12", "task", 3, 19, ["PLAY-076"], False,
+     ["GS 4.3", "GD7", "GD10", "GD11"],
+     "La torta sparita: cast pools, rooms, slots and every answer, in content JSON.",
+     ["case.torta has 4 suspects, a witness, 2 pieces of evidence and answers for every frame",
+      "Every answer has m and f text where the person's gender changes it",
+      "Each lie has a truthful answer that contradicts it",
+      "A hand solve of two variants finds the culprit in 10 questions or fewer"]),
+    # Day 20
+    ("PLAY-080", "Paper-trace case 1 and tag the Chi è stato? spec v1", "E12", "task", 2, 20,
+     ["PLAY-077", "PLAY-079"], False,
+     ["GS 11.1"],
+     "Walk case 1 at each level using only the spec, fold in the Italian review, and tag v1.",
+     ["Case 1 traced at Level 1 and Level 2",
+      "Every guess logged as a fix or a TBD",
+      "The reviewer's changes applied to GS 3, GS 4.2 and case 1",
+      "Spec tagged v1"]),
+    # Day 23
+    ("PLAY-081", "Add a game id to games rows and saved rounds", "E12", "story", 3, 23,
+     ["PLAY-080"], False,
+     ["GS 8", "GD1", "GD3"],
+     "GameRow gains game and caseId; round:{code} becomes round:{code}:{game}; per-game content versions.",
+     ["GameRow and the module contract change as GS 8 says, and platform spec 3.1 to 3.3 are updated",
+      "A row without game reads as chie",
+      "A round saved under round:it before the change resumes as a Chi è? round",
+      "Chi è?'s tests and the separation tests pass unedited"]),
+    ("PLAY-082", "Add migration 3 for games.game and case_id", "E12", "chore", 2, 23,
+     ["PLAY-054", "PLAY-080"], False,
+     ["GS 8"],
+     "The column, its check, and the read filter for clients from before the change.",
+     ["Migration 3 adds game (default chie, checked to chie or giallo) and case_id",
+      "Every existing games row reads as chie after it runs locally",
+      "Platform spec 6.1 and 6.2 updated in the same pull request"]),
+    ("PLAY-083", "Add the giallo content schemas and lexicon", "E12", "story", 3, 23,
+     ["PLAY-080"], False,
+     ["GS 4.1", "GS 4.2", "GS 4.4"],
+     "Zod schemas for qwords, frames and cases, the giallo lexicon, messages and version.json.",
+     ["Schemas of GS 4.1 to GS 4.3 are strict and fail the build on a bad file",
+      "The 12 qwords, 4 prepositions and every frame of GS 4.2 are in content",
+      "Ids are disjoint from Chi è?'s and Shéi's, checked by a test",
+      "released-ids.json lists every giallo id"]),
+    # Day 24
+    ("PLAY-084", "Build the case solver and content invariants", "E12", "story", 3, 24,
+     ["PLAY-079", "PLAY-083"], False,
+     ["GS 5.4", "GS 4.3", "GD8"],
+     "solve() and the seven GS 5.4 invariants, run for every case and variant at build time.",
+     ["solve() is pure and has unit tests for requires and lies",
+      "Each GS 5.4 invariant is a test that runs for every variant of every case",
+      "A broken case (no 10-question solution) fails pnpm build"]),
+    ("PLAY-085", "Build the giallo engine's start, step and transitions", "E12", "story", 5, 24,
+     ["PLAY-083"], False,
+     ["GS 5.1", "GS 5.2", "GS 2", "GD8", "GD9"],
+     "Seeded casting, the budget, marking, accusing, stars and quitting.",
+     ["start(seed, caseId, level) casts roles, hide and crime from the seed only",
+      "Every cell of GS 5.2 is a test",
+      "Stars are right at 9, 10, 12, 13 and 15 questions used",
+      "A wrong accusation ends the case unsolved and shows the solution's answers"]),
+    # Day 25
+    ("PLAY-086", "Validate questions and give question-word feedback", "E12", "story", 5, 25,
+     ["PLAY-085"], False,
+     ["GS 5.3", "GS 3.2", "GD4", "GD5", "GD6"],
+     "The six-step ASK validation of GS 5.3, joining, and every rule of GS 3.2.",
+     ["Each row of GS 3.2 gives its result: slip, rejection with a mistake, or nonsense",
+      "Each 'not an error' of GS 3.2 is accepted with no slip",
+      "Elided forms join with no space and a capital first letter",
+      "A question with two errors returns both, as it.md 4.3",
+      "GS 5.5 is a test"]),
+    ("PLAY-087", "Add the inspector's questions to the engine", "E12", "story", 2, 25,
+     ["PLAY-085"], False,
+     ["GS 6", "GD12"],
+     "Every 4th accepted question, a three-option question built from the notebook.",
+     ["The inspector asks after every 4th accepted question and never uses the budget",
+      "Options are always a place, a time or companion, and a thing or person, from the notebook",
+      "She skips her turn when the notebook cannot answer any question"]),
+    # Day 26
+    ("PLAY-088", "List both games on Italian Home", "E12", "story", 2, 26, ["PLAY-081"], False,
+     ["GS 8", "GS 9.1"],
+     "Two game cards on /it, each with Play or Continue, and the /it/giallo routes.",
+     ["/it shows Chi è? and Chi è stato? cards, each with its own Play or Continue",
+      "/it/giallo and /it/giallo/play load the giallo as its own lazy chunk",
+      "Chi è?'s Home e2e tests pass unedited"]),
+    ("PLAY-089", "Emit giallo ratings and slips into the review log", "E12", "story", 3, 26,
+     ["PLAY-086", "PLAY-087"], False,
+     ["GS 7"],
+     "Each event of the GS 7 table becomes review log rows in the shared Italian log.",
+     ["Each row of the GS 7 table is a test",
+      "One rating per card per turn, as it.md 6",
+      "Rows carry the giallo games row's id and sync like Chi è?'s"]),
+    # Day 27
+    ("PLAY-090", "Apply migration 3 on staging", "E12", "chore", 1, 27, ["PLAY-082"], False,
+     ["GS 8"],
+     "Run migration 3 on staging and check a pre-change client still syncs.",
+     ["Migration 3 applied on staging",
+      "A build from before the change syncs a Chi è? round on staging without errors"]),
+    # Day 28
+    ("PLAY-091", "Build the case list and case screen", "E12", "story", 3, 28,
+     ["PLAY-085", "PLAY-088"], False,
+     ["GS 9.1", "GS 9.3"],
+     "The case list, top bar with questions left, people strip, scene card, menu and quit.",
+     ["The case list shows the 3 cases and the best result on this device",
+      "Selecting a face selects the person asked; faces are named buttons (GS 10)",
+      "Quit case records abandoned; reload resumes the case"]),
+    ("PLAY-092", "Build the giallo Level 1 question picker", "E12", "story", 2, 28,
+     ["PLAY-091"], False,
+     ["GS 9.1"],
+     "Questions for the selected person, grouped by question word, with Show hint.",
+     ["Questions are grouped by question word, each with a Show hint toggle",
+      "Asked questions are greyed out and show their answer"]),
+    # Day 29
+    ("PLAY-093", "Build the Level 2 question-word builder", "E12", "story", 3, 29,
+     ["PLAY-086", "PLAY-091"], False,
+     ["GS 9.1", "GS 3.1"],
+     "Preposition, question word and body slots, with every form of GS 3.1 as a tile.",
+     ["Every form of GS 3.1, plus qual', is a tile",
+      "The slot picker appears for bodies that take a slot",
+      "Feedback for each GS 3.2 rule shows in the sheet"]),
+    ("PLAY-094", "Build the notebook and the inspector sheet", "E12", "story", 3, 29,
+     ["PLAY-087", "PLAY-091"], False,
+     ["GS 9.1", "GS 6"],
+     "Answers by person with Cleared toggles, and the inspector's three-option sheet.",
+     ["The notebook groups answers by person, with headings, in order",
+      "Cleared toggles are free and reversible",
+      "The inspector sheet blocks asking until answered, and Show hint removes the rating"]),
+    # Day 30
+    ("PLAY-095", "Build the accusation and case end", "E12", "story", 2, 30, ["PLAY-091"], False,
+     ["GS 2", "GS 9.1"],
+     "The accuse sheet with its sentence, and the case end with stars and the solution.",
+     ["The accuse sheet shows the sentence it will say and warns about a cleared suspect",
+      "At 0 questions only Accusa is available",
+      "Case end shows the result, stars, solution, proving answers and mistakes"]),
+    ("PLAY-096", "Show question words and slips in Italian Progress", "E12", "story", 2, 30,
+     ["PLAY-089"], False,
+     ["GS 7"],
+     "labelFor covers qwords and rule ids, so Due and Mistakes show the giallo's cards.",
+     ["labelFor returns a word label for each qword and a grammar label for each GS 3.2 rule",
+      "Due and Mistakes show giallo cards next to Chi è?'s",
+      "Progress history names the game and case of each row"]),
+    # Day 31
+    ("PLAY-097", "Lay out the giallo for desktop and keyboard", "E12", "story", 3, 31,
+     ["PLAY-093", "PLAY-094", "PLAY-095"], False,
+     ["GS 9.2"],
+     "Board and side panel at lg, as DS, and the shortcut table written into GS 9.2.",
+     ["At 1024 x 640 the people, scene, builder and notebook fit with no page scroll",
+      "The full shortcut table is in GS 9.2 and each shortcut has a unit test",
+      "A case plays to the end by keyboard only"]),
+    # Day 32
+    ("PLAY-098", "Write cases 2 and 3 with the Italian reviewer", "E12", "task", 3, 32,
+     ["PLAY-084"], True,
+     ["GS 4.3"],
+     "La valigia sul treno and La ricetta segreta, reviewed and passing every invariant.",
+     ["case.valigia and case.ricetta pass every GS 5.4 invariant for every variant",
+      "The reviewer has approved every sentence in both",
+      "case.ricetta has two suspects who lie"]),
+    # Day 33
+    ("PLAY-099", "Test Chi è stato? end to end with axe", "E12", "test", 3, 33,
+     ["PLAY-092", "PLAY-096", "PLAY-097", "PLAY-098"], False,
+     ["GS 11.2", "GS 10"],
+     "The e2e rows of GS 11.2 on phone and desktop projects, plus axe and the bundle budget.",
+     ["Case 1 solved at Level 1 and Level 2 on the phone projects",
+      "A wrong accusation, quit and resume each have a spec",
+      "Desktop by keyboard only passes",
+      "axe clean on every giallo screen; the giallo chunk is under 60 KB gzipped"]),
+    # Day 34
+    ("PLAY-100", "Run the Chi è stato? playtest", "E12", "test", 2, 34,
+     ["PLAY-078", "PLAY-099"], True,
+     ["GS 11.3"],
+     "Three A1 learners each play a case on staging; findings logged and triaged.",
+     ["Three learners played a case, at least one on a laptop",
+      "Findings logged and marked must-fix or later"]),
+    # Day 36
+    ("PLAY-101", "Fix the must-fix Chi è stato? findings", "E12", "task", 3, 36, ["PLAY-100"], False,
+     ["GS 11.3"],
+     "Close every must-fix playtest finding.",
+     ["Every must-fix finding fixed and retested",
+      "Later findings moved to GS 12.1"]),
+    # Day 37
+    ("PLAY-102", "Launch Chi è stato? at /it/giallo", "E12", "chore", 2, 37,
+     ["PLAY-090", "PLAY-101"], False,
+     ["GS 11.4", "GS 8"],
+     "Migration 3 in production, then the giallo live, then the GS 11.3 sweep.",
+     ["Migration 3 applied in production and every existing games row reads as chie",
+      "/it/giallo plays case 1 in production",
+      "Every GS 11.3 box checked"]),
 ]
 
 DOD = [  # spec 10.3 item -> cards
@@ -655,6 +891,23 @@ DESKTOP_DOD = [  # zh-desktop.md ZS 13.5 item -> cards
 ]
 DESKTOP_SECTIONS_WITH_DELIVERABLES = ["ZS 3", "ZS 4", "ZS 5", "ZS 6", "ZS 7.1", "ZS 7.2", "ZS 7.3",
                                       "ZS 7.4", "ZS 8", "ZS 9", "ZS 10", "ZS 13"]
+
+GIALLO_DOD = [  # it-giallo.md GS 11.3 item -> cards
+    ("`it-giallo.md` reviewed by the Italian reviewer and tagged `v1`", ["PLAY-076", "PLAY-077", "PLAY-080"]),
+    ("Chi è?'s tests pass unedited, and a round saved before the change still resumes", ["PLAY-081"]),
+    ("Migration 3 applied to production, and every existing games row reads as `chie`",
+     ["PLAY-082", "PLAY-102"]),
+    ("All three cases pass every content invariant for every variant", ["PLAY-079", "PLAY-084", "PLAY-098"]),
+    ("Case 1 solves at each level on an iPhone, an Android phone and a laptop at 1024 × 640",
+     ["PLAY-099", "PLAY-100"]),
+    ("Every row of GS 3.2 gives its feedback in the app", ["PLAY-086", "PLAY-093"]),
+    ("Question-word cards and slips show on the Italian Progress screen", ["PLAY-096"]),
+    ("e2e and axe green in CI for `/it/giallo`", ["PLAY-099"]),
+    ("At least 3 A1 learners have played a case; findings logged and must-fix ones closed",
+     ["PLAY-078", "PLAY-100", "PLAY-101"]),
+]
+GIALLO_SECTIONS_WITH_DELIVERABLES = ["GS 2", "GS 3", "GS 4", "GS 5", "GS 6", "GS 7", "GS 8", "GS 9",
+                                     "GS 10", "GS 11"]
 
 SECTIONS_WITH_DELIVERABLES = ["1", "2", "3.1", "3.2", "3.3", "3.4", "4.1", "4.2", "4.3", "4.4",
                               "4.5", "5.1", "5.2", "5.3", "5.4", "6.1", "6.2", "6.3", "7", "8.1",
@@ -748,13 +1001,29 @@ def validate():
                 problems.append(f"{c['id']}: desktop ref {r} has no heading")
             if re.fullmatch(r"ZD\d+", r) and r not in DESKTOP_DECISIONS:
                 problems.append(f"{c['id']}: {r} is not in the desktop decision log")
+    # Chi è stato? spec: the same checks with GS and GD
+    for item, refs in GIALLO_DOD:
+        for r in refs:
+            if r not in by_id:
+                problems.append(f"giallo DoD '{item}': unknown card {r}")
+    if sorted(i for i, _ in GIALLO_DOD) != sorted(GIALLO_DOD_ITEMS):
+        problems.append("GIALLO_DOD does not match it-giallo.md GS 11.3")
+    for sec in GIALLO_SECTIONS_WITH_DELIVERABLES:
+        if not any(r == sec or r.startswith(sec + ".") for r in covered):
+            problems.append(f"giallo spec {sec} has no card")
+    for c in cards:
+        for r in c["refs"]:
+            if r.startswith("GS ") and r not in GIALLO_ANCHORS:
+                problems.append(f"{c['id']}: giallo ref {r} has no heading")
+            if re.fullmatch(r"GD\d+", r) and r not in GIALLO_DECISIONS:
+                problems.append(f"{c['id']}: {r} is not in the giallo decision log")
     # spec refs resolve to headings
     for c in cards:
         for r in c["refs"]:
             if re.fullmatch(r"\d+(\.\d+)*", r) and r not in ANCHORS:
                 problems.append(f"{c['id']}: spec ref {r} has no heading")
     # no em dashes anywhere
-    blob = json.dumps(CARDS + SPRINTS + EPICS + DOD, ensure_ascii=False)
+    blob = json.dumps(CARDS + SPRINTS + EPICS + DOD + GIALLO_DOD, ensure_ascii=False)
     if "\u2014" in blob:
         problems.append("em dash found in backlog data")
     # load per day
@@ -796,12 +1065,30 @@ for line in open(DESKTOP_SPEC_PATH, encoding="utf-8"):
     if _in_dod and line.startswith("- [ ] "):
         DESKTOP_DOD_ITEMS.append(line[6:])
 
+GIALLO_ANCHORS, GIALLO_DECISIONS, GIALLO_DOD_ITEMS = {}, set(), []
+_in_dod = False
+for line in open(GIALLO_SPEC_PATH, encoding="utf-8"):
+    line = line.rstrip()
+    m = re.match(r"^#{2,3} ((GS \d+(?:\.\d+)*)\.? .*)$", line)
+    if m:
+        GIALLO_ANCHORS[m.group(2)] = github_slug(m.group(1))
+        _in_dod = m.group(2) == "GS 11.3"
+    m = re.match(r"^\| (GD\d+) \|", line)
+    if m:
+        GIALLO_DECISIONS.add(m.group(1))
+    if _in_dod and line.startswith("- [ ] "):
+        GIALLO_DOD_ITEMS.append(line[6:])
+
 
 def ref_link(r):
     if r in DESKTOP_ANCHORS:
         return f"[{r}]({DESKTOP_URL}#{DESKTOP_ANCHORS[r]})"
     if r in DESKTOP_DECISIONS:
         return f"[{r}]({DESKTOP_URL}#{DESKTOP_ANCHORS['ZS 14.2']})"
+    if r in GIALLO_ANCHORS:
+        return f"[{r}]({GIALLO_URL}#{GIALLO_ANCHORS[r]})"
+    if r in GIALLO_DECISIONS:
+        return f"[{r}]({GIALLO_URL}#{GIALLO_ANCHORS['GS 12.2']})"
     if r in ANCHORS:
         return f"[{r}]({SPEC_URL}#{ANCHORS[r]})"
     if r.startswith("D"):
@@ -853,6 +1140,9 @@ def write_outputs(load):
         w(f"| {item} | {', '.join(refs)} |\n")
     w("\n## Shéi desktop definition of done mapping\n\n| zh-desktop.md ZS 13.5 item | Cards |\n|---|---|\n")
     for item, refs in DESKTOP_DOD:
+        w(f"| {item} | {', '.join(refs)} |\n")
+    w("\n## Chi è stato? definition of done mapping\n\n| it-giallo.md GS 11.3 item | Cards |\n|---|---|\n")
+    for item, refs in GIALLO_DOD:
         w(f"| {item} | {', '.join(refs)} |\n")
     open(os.path.join(HERE, "backlog.md"), "w", encoding="utf-8").write(md.getvalue())
 
