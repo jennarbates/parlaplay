@@ -345,11 +345,11 @@ The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is w
 
 **Decision: at `lg` the panel shows every question and answer of the round, newest first, below the phase area (ZD8).** The reason: on a phone the history waits for round end; on a laptop there is room to keep it in view, which helps the learner reason about the board and rereads correct Chinese every turn.
 
-- Heading "Round log", with the count: "Round log (5)". Empty: "Questions you and the computer ask show up here."
+- The second tab of the panel's section under the phase area, "Round log (5)", after What you know (ZS 7.5). Empty: "Questions you and the computer ask show up here."
 - Each entry is `roundLog()` (ZS 3), rendered as: "You asked" or "The computer asked" in `text-xs text-stone-600`, the question, then the answer in `font-medium`. A CPU entry the learner got wrong adds "(you said 不有)" in rose, as round end does today. Pinyin shows as ruby at Level 1, and at Level 2 when the toggle is on.
 - Every Chinese word is glossable (ZS 7.4).
 - When the log has room for less than its header and one entry (under 116px, which is every phase at 1024 × 640), the header is a button, "Round log (5) ▸", that opens the log as an overlay over the phase area, with focus on the newest entry; Esc, `l` or the button closes it and returns focus to the button. While the overlay is open it counts as a dialog for shortcuts (ZS 9.1), so Esc closes it and does nothing else, even while guessing.
-- Keyboard: `l` moves focus to the newest entry, opening the overlay first when the log is only its header. The list has roving tabindex (one tab stop); ↑ ↓ move between entries. A focused entry shows its `english` line under it, when `glossShowsEnglish()` is true.
+- Keyboard: `l` chooses the Round log tab and moves focus to the newest entry, opening the overlay first when the log is only its header. The list has roving tabindex (one tab stop); ↑ ↓ move between entries. A focused entry shows its `english` line under it, when `glossShowsEnglish()` is true.
 - Round end shows the same component, full height, in its right column (ZS 10.2), replacing today's "Questions" list at `lg` only.
 - **At Level 2 the log stays closed while the learner builds a question (ZD17).** The log shows whole correct questions, and the CPU asks from the same 14, so an open log would often show the very question the learner is about to build: the CPU asks `他有手机吗？`, and next turn the learner could copy 他, 有, 手机, 吗 and be rated `good` for producing 手机 with the right verb (`zh.md` 6). On the phone that question is gone once the turn ends. So in `playerTurn` at Level 2 the log is only its header button at every window size, and opens as the overlay when the learner asks for it (`l` or the button). In every other phase, and at Level 1 (whose questions are ready-made and unrated), it shows as far as the height allows. No rating changes.
 
@@ -363,6 +363,18 @@ The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is w
 - **WCAG 1.4.13 (Content on Hover or Focus, AA):** the gloss is dismissible with Esc without moving the pointer, hoverable (the pointer can move onto it, with a 100ms grace on leaving the word), and persistent until the pointer leaves both, Esc, or a click.
 - `Tooltip` is `role="tooltip"`; the word gets `aria-describedby` while it shows. Chinese inside it has `lang="zh-Hans"`, pinyin `lang="zh-Latn-pinyin"`.
 - **Motion.** 120ms fade; none under `prefers-reduced-motion`.
+
+### ZS 7.5 What you know
+
+**Decision: at `lg` the panel's section under the phase area has two tabs, "What you know" and "Round log", and What you know is the one shown first (ZD21, #132).** The reason: the round log mixes in the computer's questions about the learner's own card, and at Level 2 it is closed while they build (ZD17). What you know is only what the learner's questions have told them about the computer's card, which is what narrows the board.
+
+- One fact per question the learner asked, newest first: the full sentence after the short answer, `她没有狗。` from `没有，她没有狗。` (`factsOf()` in `game/facts.ts`). Built from the history, so it survives a reload.
+- **Chinese only.** Pinyin as ruby at Level 1, and at Level 2 when the toggle is on. No English, and not glossable in any phase: it is reading practice, decided by the owner on 2026-10-14.
+- Tabs: "What you know (3)" and "Round log (6)", ← → between them. The chosen tab is kept for the round. Empty: "Ask a question to find out about the computer's card."
+- It is not closed at Level 2: facts are statements, not the questions the learner is about to build, so ZD17 does not apply. While the log is closed, its tab opens it as the overlay, as ZS 7.3.
+- With room for less than the header and one entry (every phase at 1024 × 640), both tabs are buttons, "What you know (3) ▸" and "Round log (6) ▸", each opening its tab as the overlay of ZS 7.3. `l` chooses the Round log tab; it opens the overlay only when the log has no room in place or is closed.
+- `PanelTabs` and `PanelTabsOverlay` (`src/core/ui/PanelTabs.tsx`) draw the section for both games; Chi è? has the What you know tab alone (DS 6.2).
+- The phone: a "What you know (3)" button at the top of the sheet, once there is a fact, opens the list in a dialog (`zh.md` 8.1).
 
 ## ZS 8. Mouse
 
@@ -707,6 +719,7 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 | ZD17 | At Level 2 the round log is closed during `playerTurn`, opened on request | An always-open log shows the question about to be built, and the `produce` rating would measure copying. Decided for the owner on 2026-10-13, to be confirmed |
 | ZD18 | Feedback for two or more mistakes may make the Level 2 phase area scroll at 1024 × 640 | Measured: the builder is 318px and one mistake's feedback brings it to 362px, inside 378px; three mistakes need 431px. Shrinking the tiles below 44px to fit the rare case would cost every turn |
 | ZD19 | CardDetail shows no attribute list at `lg` | v0.1 asked for the attributes in Chinese with pinyin. Words beside the picture label it, and the learner is rated on recognising those words when the CPU asks about their card. `zh.md` 3.5 keeps the detail view text-free for the same reason. Decided for the owner on 2026-10-13, to be confirmed |
+| ZD21 | "What you know" is the first tab of the panel's section under the phase area, before the round log, and is not closed at Level 2 | The learner's own findings are what narrow the board; facts are statements, not questions the learner could copy, so ZD17's reason does not apply. Decided by the owner on 2026-10-15 (#132) |
 
 ## ZS 15. References
 
@@ -736,3 +749,4 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-13: Shortcuts and keyboard navigation built (PLAY-061, PLAY-071). ZS 9.1: Backspace outside a field never navigates back. The Level 1 groups keep every question a tab stop (arrows are added, not a roving tabindex); the tile rows and the log rove as ZS 9.4 says.
 - 2026-10-13: Desktop e2e complete with axe (PLAY-063). axe found two faults, both on the phone too, both fixed: feedback's `role="status"` sat on the list and hid its items from assistive technology, and the pinyin on Level 1's green and red answer buttons was below 4.5:1 (the buttons are now emerald-700 and rose-700, and button pinyin is 90% opaque).
 - 2026-10-15: #130. ZS 8: the card hover preview follows DS 7.2's new timing: 700ms, 250ms when moving straight to the next card, and cancelled by a click before it shows.
+- 2026-10-15: #132. ZS 7.5, ZD21: "What you know", the facts the learner's questions have found out, in Chinese only, as the first tab of the panel's section under the phase area, with the round log second (ZS 7.3). The phone has a button in the sheet that opens them in a dialog.

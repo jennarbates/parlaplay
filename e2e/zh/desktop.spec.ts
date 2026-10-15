@@ -274,7 +274,8 @@ test.describe("phase areas fit 1024 × 640 (ZS 6.3)", () => {
 
 test.describe("round log (ZS 7.3)", () => {
   const log = (page: Page) => panel(page).getByRole("list", { name: "Round log" });
-  const header = (page: Page) => panel(page).getByRole("button", { name: /^Round log/ });
+  // The Round log's tab (#132): a tab in place, a button with only the header.
+  const header = (page: Page) => panel(page).locator('[data-tab="log"]');
   const next = (page: Page) => panel(page).getByRole("button", { name: "Next" }).click();
 
   // One whole turn at Level 1: ask the first question still open, then answer the
@@ -288,9 +289,18 @@ test.describe("round log (ZS 7.3)", () => {
 
   test("starts empty, then holds every question and answer, newest first", async ({ page }) => {
     await page.goto("/zh/play?seed=1");
+    // What you know shows first (#132); the log's tab shows the log.
+    await expect(panel(page)).toContainText(
+      "Ask a question to find out about the computer's card.",
+    );
+    await header(page).click();
     await expect(panel(page)).toContainText("Questions you and the computer ask show up here.");
     await turn(page);
-    await expect(panel(page).getByRole("heading", { name: "Round log (2)" })).toBeVisible();
+    await header(page).click();
+    await expect(panel(page).getByRole("tab", { name: "Round log (2)" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     const entries = log(page).getByRole("listitem");
     await expect(entries).toHaveCount(2);
     await expect(entries.nth(0)).toContainText("The computer asked");
@@ -299,6 +309,7 @@ test.describe("round log (ZS 7.3)", () => {
 
     // A reload mid-round rebuilds it from the saved history.
     await page.reload();
+    await header(page).click();
     await expect(log(page).getByRole("listitem")).toHaveCount(2);
   });
 
@@ -307,6 +318,7 @@ test.describe("round log (ZS 7.3)", () => {
   }) => {
     await page.goto("/zh/play?seed=1");
     await turn(page);
+    await header(page).click();
     await expect(log(page).locator('[tabindex="0"]')).toHaveCount(1);
     const entries = log(page).getByRole("listitem");
     await entries.nth(0).focus();
@@ -330,6 +342,7 @@ test.describe("round log (ZS 7.3)", () => {
     await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
     await next(page);
     await page.getByRole("group", { name: "Your answer" }).getByRole("button").nth(4).click(); // 不有
+    await header(page).click();
     await expect(log(page).getByRole("listitem").first()).toContainText("(you said 不有)");
   });
 
@@ -344,7 +357,7 @@ test.describe("round log (ZS 7.3)", () => {
     await expect(log(page).getByRole("listitem")).toHaveCount(2);
     await expect(log(page).getByRole("listitem").first()).toBeFocused();
     // It covers the phase area, from under the summary to above the actions.
-    const over = await box(page.locator("[data-log-overlay]"));
+    const over = await box(page.locator("[data-panel-overlay]"));
     const under = await box(questions(page));
     expect(over.y).toBeLessThanOrEqual(under.y);
     expect(over.y + over.height).toBeGreaterThanOrEqual(under.y + under.height);
@@ -357,6 +370,7 @@ test.describe("round log (ZS 7.3)", () => {
     await page.goto("/zh/play?level=2&seed=8"); // 1440 × 900: room to spare
     await build(page, "他", "有", "狗", "吗");
     await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
+    await header(page).click();
     await expect(log(page).getByRole("listitem")).toHaveCount(1); // open in playerReview
     await next(page);
     await page.getByRole("group", { name: "Your answer" }).getByRole("button").first().click();
@@ -792,6 +806,7 @@ test.describe("word glosses (ZS 7.4)", () => {
     await build(page, "他", "有", "狗", "吗");
     await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
     // playerReview: nothing is being rated, so English shows.
+    await panel(page).locator('[data-tab="log"]').click();
     const entry = panel(page)
       .getByRole("list", { name: "Round log" })
       .getByRole("listitem")
@@ -819,6 +834,7 @@ test.describe("word glosses (ZS 7.4)", () => {
     await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
     await panel(page).getByRole("button", { name: "Next" }).click();
     await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
+    await panel(page).locator('[data-tab="log"]').click();
     const entry = panel(page)
       .getByRole("list", { name: "Round log" })
       .getByRole("listitem")
