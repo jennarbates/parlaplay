@@ -43,10 +43,12 @@ export async function chieData(page: Page): Promise<Handoff> {
   await page.getByRole("button", { name: "Chiedi" }).click(); // a mistake: la barba
   await expect.poll(async () => (await stored<Guest>(page, "guest:it"))?.reviewLog.length).toBe(1);
   const guest = await stored<Guest>(page, "guest:it");
-  const round = await stored<Handoff["round"]>(page, "round:it");
+  const round = await stored<Handoff["round"]>(page, "round:it:chie");
   if (!guest || !round) throw new Error("the round was not saved");
   const plain = (row: Row) =>
-    Object.fromEntries(Object.entries(row).filter(([field]) => field !== "language"));
+    Object.fromEntries(
+      Object.entries(row).filter(([field]) => field !== "language" && field !== "game"),
+    );
   // Parsed as the handoff page's data must be: these are Chi è?'s shapes.
   return Handoff.parse({
     v: 1,

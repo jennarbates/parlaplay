@@ -23,7 +23,7 @@ function labelFor(id: string): Label | undefined {
 // clear a round (core/store/rounds.ts).
 void useGameStore.getState().hydrate();
 void useSettings.getState().hydrate();
-useRounds.getState().register("zh", {
+useRounds.getState().register("shei", {
   newRound(level) {
     const { status, game, start } = useGameStore.getState();
     if (status === "ready" && !inProgress(game)) start(level);
@@ -35,7 +35,16 @@ useRounds.getState().register("zh", {
 
 const chinese: LanguageModule = {
   code: "zh",
-  contentVersion,
+  games: [
+    {
+      id: "shei",
+      title: "谁？",
+      titleLang: "zh-Hans",
+      blurb: "Find the hidden person with simple Mandarin questions.",
+      path: "/zh",
+    },
+  ],
+  contentVersions: { shei: contentVersion },
   routes: [
     // zh-desktop.md ZS 5.1: each screen's width at lg; the game takes the whole window.
     { index: true, Component: Home, handle: { width: "lg:max-w-5xl" } },
@@ -44,7 +53,7 @@ const chinese: LanguageModule = {
   ],
   cardIds,
   labelFor,
-  isResumable,
+  isResumable: (saved, game) => game === "shei" && isResumable(saved),
   deviceSettings: DeviceSettings,
 };
 

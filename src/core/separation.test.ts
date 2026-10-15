@@ -13,6 +13,7 @@ import { cardIds as zhCardIds } from "../languages/zh/cards.ts";
 import { content as zhContent } from "../languages/zh/content/index.ts";
 import { groupMistakes as zhMistakes } from "../languages/zh/ui/mistakes.ts";
 import { LanguageCode } from "./languages.ts";
+import { firstGameOf } from "./registry.ts";
 import { localDay } from "./services/localDay.ts";
 import { cardKey, replay } from "./services/srs.ts";
 import type { GameRow, GuestData, ReviewLogRow } from "./store/progressStore.ts";
@@ -82,6 +83,7 @@ const gameArb = (language: LanguageCode): fc.Arbitrary<GameRow> =>
     .map(({ at, result, ...game }) => ({
       ...game,
       language,
+      game: firstGameOf(language),
       startedAt: minutes(start, at).toISOString(),
       ...(result && { endedAt: minutes(start, at + 15).toISOString(), result }),
     }));

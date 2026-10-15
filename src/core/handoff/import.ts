@@ -2,7 +2,7 @@
 // chie.parlaplay.games. Everything is decoded and validated before anything is
 // saved, and a failed save stops the import, so the failure screen never follows
 // a half-saved handoff that Try again could not repair (every step is a union).
-import { languageOf } from "../registry.ts";
+import { contentVersionOf } from "../registry.ts";
 import { read, write } from "../services/storage.ts";
 import { useAccountStore } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
@@ -20,7 +20,7 @@ import {
   type GuestData,
   type ReviewLogRow,
 } from "../store/progressStore.ts";
-import { useRounds } from "../store/rounds.ts";
+import { moveOldRounds, roundKey, useRounds } from "../store/rounds.ts";
 import { decodeHandoff } from "./codec.ts";
 import {
   keepsExistingRound,
@@ -32,6 +32,7 @@ import {
 } from "./merge.ts";
 
 const code = "it" as const;
+const game = "chie" as const; // every handed-off round is a Chi è? round
 
 async function save(...args: Parameters<typeof write>) {
   if (!(await write(...args))) throw new Error(`could not save ${args[0]}`);
@@ -87,12 +88,13 @@ export async function importHandoff(hash: string, now = new Date()): Promise<str
   // The saved round, for a guest only: its games row is a guest row, so played
   // under an account its review rows would point at a game the server never gets.
   if (incoming.round && !signedIn) {
-    const existing = await read<{ gameId?: unknown }>(`round:${code}`);
+    await moveOldRounds();
+    const existing = await read<{ gameId?: unknown }>(roundKey(code, game));
     if (!keepsExistingRound(existing, incoming.round, guest.games)) {
-      await save(`round:${code}`, incoming.round);
+      await save(roundKey(code, game), incoming.round);
       useRounds
         .getState()
-        .setSaved(code, incoming.round.contentVersion === languageOf(code).contentVersion);
+        .setSaved(game, incoming.round.contentVersion === contentVersionOf(code, game));
     }
   }
 

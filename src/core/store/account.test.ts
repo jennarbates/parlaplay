@@ -212,22 +212,23 @@ describe("one save-guest prompt for every language", () => {
   test("Don't save deletes both, and their saved rounds (F4)", async () => {
     await playItalian();
     await playChinese();
-    await write("round:it", { contentVersion: 1, gameId: "g1", state: {} });
-    await write("round:zh", { contentVersion: 1, gameId: "g-zh", state: {} });
+    await write("round:it:chie", { contentVersion: 1, gameId: "g1", state: {} });
+    await write("round:zh:shei", { contentVersion: 1, gameId: "g-zh", state: {} });
     await signInAnswering("no");
     expect(calls).toEqual([]);
     for (const code of ["it", "zh"]) {
       expect(await read(`guest:${code}`)).toBeUndefined();
-      expect(await read(`round:${code}`)).toBeUndefined();
     }
+    for (const key of ["round:it:chie", "round:zh:shei"] as const)
+      expect(await read(key)).toBeUndefined();
     expect(zh.getState()).toMatchObject({ owner: user, games: [], reviewLog: [] });
   });
 
   test("Save keeps the saved rounds: their games rows go to the account", async () => {
     await playItalian();
-    await write("round:it", { contentVersion: 1, gameId: "g1", state: {} });
+    await write("round:it:chie", { contentVersion: 1, gameId: "g1", state: {} });
     await signInAnswering("yes");
-    expect(await read("round:it")).toMatchObject({ gameId: "g1" });
+    expect(await read("round:it:chie")).toMatchObject({ gameId: "g1" });
   });
 
   test("a session that ends before the answer closes the prompt and keeps the guest data", async () => {

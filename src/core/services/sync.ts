@@ -3,7 +3,7 @@
 // log row points at its game. A failed flush keeps everything and tries again on
 // the next round end, app start or `online` event; play is never blocked.
 import { create } from "zustand";
-import { knownCode } from "../registry.ts";
+import { firstGameOf, knownCode } from "../registry.ts";
 import type { GameRow, ReviewLogRow } from "../store/progressStore.ts";
 import { replay } from "./srs.ts";
 import { read, write } from "./storage.ts";
@@ -139,6 +139,9 @@ export const gameFromDb = (g: DbGame): GameRow | null => {
     language && {
       id: g.id,
       language,
+      // The games table has no game column until migration 3 (PLAY-082), so every
+      // row there is its language's first game.
+      game: firstGameOf(language),
       seed: Number(g.seed),
       level: g.level,
       contentVersion: g.content_version,

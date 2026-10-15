@@ -3,7 +3,8 @@
 // under "guest:{code}" for a guest or "user:{userId}:{code}" when signed in. Every
 // row carries its language, and a store only ever holds rows of its own (3.4.1).
 import { create, type StoreApi, type UseBoundStore } from "zustand";
-import type { LanguageCode } from "../languages.ts";
+import type { GameId, LanguageCode } from "../languages.ts";
+import { gameOf } from "../registry.ts";
 import type { Direction, Level, SlotDetail } from "../types.ts";
 import { localDay } from "../services/localDay.ts";
 import { read, write, type StorageKey } from "../services/storage.ts";
@@ -12,6 +13,8 @@ import { useSyncStore, type Op } from "../services/sync.ts";
 export type GameRow = {
   id: string; // client uuid
   language: LanguageCode;
+  game: GameId; // which of the language's games (Chi è stato? GS 8)
+  caseId?: string; // the giallo's case
   seed: number;
   level: Level;
   contentVersion: number;
@@ -32,8 +35,11 @@ export type ReviewLogRow = {
   createdAt: string; // ISO
 };
 
-// Rows as a language's game makes them; its store adds the language.
-export type NewGame = Omit<GameRow, "language" | "endedAt" | "result">;
+// Rows as a language's game makes them; its store adds the language, and the
+// language's first game when there is no game.
+export type NewGame = Omit<GameRow, "language" | "game" | "endedAt" | "result"> & {
+  game?: GameId;
+};
 export type NewReview = Omit<ReviewLogRow, "language">;
 
 export type GuestData = { games: GameRow[]; reviewLog: ReviewLogRow[] };
@@ -86,6 +92,9 @@ export function progressStore(code: LanguageCode): ProgressStoreHook {
 function createProgressStore(code: LanguageCode): ProgressStoreHook {
   const ours = <T extends { language?: unknown }>(rows: unknown): T[] =>
     Array.isArray(rows) ? (rows as T[]).filter((r) => r?.language === code) : [];
+  // A row saved before games had ids belongs to the language's first game (GS 8).
+  const withGame = (games: GameRow[]): GameRow[] =>
+    games.map((g) => (g.game === gameOf(code, g.game) ? g : { ...g, game: gameOf(code, g.game) }));
   const persist = (owner: string, data: GuestData) => {
     saving = saving.then(() => write(storageKeyFor(owner, code), data));
   };
@@ -111,18 +120,23 @@ function createProgressStore(code: LanguageCode): ProgressStoreHook {
       // matched by id, so loading twice never duplicates them.
       set((s) => ({
         loaded: true,
-        games: unique([...ours<GameRow>(saved?.games), ...s.games]),
+        games: unique([...withGame(ours<GameRow>(saved?.games)), ...s.games]),
         reviewLog: unique([...ours<ReviewLogRow>(saved?.reviewLog), ...s.reviewLog]),
       }));
     },
 
     mergeRemote(remote) {
-      set(mergeData(get(), { games: ours(remote.games), reviewLog: ours(remote.reviewLog) }));
+      set(
+        mergeData(get(), {
+          games: withGame(ours(remote.games)),
+          reviewLog: ours(remote.reviewLog),
+        }),
+      );
       persist(get().owner, snapshot(get()));
     },
 
     recordGameStart(newGame) {
-      const game: GameRow = { ...newGame, language: code };
+      const game: GameRow = { ...newGame, language: code, game: gameOf(code, newGame.game) };
       set((s) => ({ games: [...s.games.filter((g) => g.id !== game.id), game] }));
       persist(get().owner, snapshot(get()));
       sync(get().owner, [{ kind: "game", row: game }]);

@@ -6,7 +6,7 @@
 // all of them, whether to save it to the account.
 import { create } from "zustand";
 import type { LanguageCode } from "../languages.ts";
-import { knownCode, registry } from "../registry.ts";
+import { knownCode, languageOf, registry } from "../registry.ts";
 import { read, remove, write } from "../services/storage.ts";
 import { supabase } from "../services/supabase.ts";
 import { pull, syncSaved, useSyncStore, type Op } from "../services/sync.ts";
@@ -14,7 +14,7 @@ import { useAuthStore } from "./authStore.ts";
 import { adoptPendingHandoff } from "./pendingHandoff.ts";
 import { loadLevels } from "./prefs.ts";
 import { progressSaved, progressStore, storageKeyFor, type GuestData } from "./progressStore.ts";
-import { useRounds } from "./rounds.ts";
+import { moveOldRounds, roundKey, useRounds } from "./rounds.ts";
 import { handleAccountEffects, useShell } from "./shell.ts";
 
 type AccountStore = {
@@ -27,12 +27,15 @@ export const useAccountStore = create<AccountStore>(() => ({ settled: false }));
 
 const hasData = (d: Partial<GuestData> | undefined) => !!(d?.games?.length || d?.reviewLog?.length);
 
-// Forget a language's saved round, in memory and on disk (3.3).
+// Forget a language's saved rounds, one per game, in memory and on disk (3.3).
 async function clearRound(code: LanguageCode) {
+  await moveOldRounds(); // else a round still under round:{code} would come back
   const rounds = useRounds.getState();
-  rounds.hooks[code]?.clearRound();
-  rounds.setSaved(code, false);
-  await remove(`round:${code}`);
+  for (const game of languageOf(code).games) {
+    rounds.hooks[game]?.clearRound();
+    rounds.setSaved(game, false);
+    await remove(roundKey(code, game));
+  }
 }
 
 // Save: in each language, the guest's rows become this user's (locally, then

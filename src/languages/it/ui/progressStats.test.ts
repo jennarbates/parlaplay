@@ -30,6 +30,7 @@ function row(over: Partial<ReviewLogRow> & { at: Date }): ReviewLogRow {
 const game = (id: string, endedAt?: string): GameRow => ({
   id,
   language: "it",
+  game: "chie",
   seed: 1,
   level: 1,
   contentVersion: 1,

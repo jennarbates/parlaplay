@@ -17,7 +17,7 @@ const games = [
     answer: (page: Page) => page.getByRole("button", { name: "Sì", exact: true }),
     // The saved round's facts, worked out by the game's own code.
     expected: async (page: Page) =>
-      itFacts((await stored<{ state: ItState }>(page, "round:it"))?.state.history ?? []),
+      itFacts((await stored<{ state: ItState }>(page, "round:it:chie"))?.state.history ?? []),
     text: (l: Locator) => l.innerText(),
     // English the facts must never show: the first question's hint.
     english: "Does this person have blond hair?",
@@ -29,8 +29,8 @@ const games = [
     answer: (page: Page) =>
       page.getByRole("group", { name: "Your answer" }).getByRole("button").first(),
     expected: async (page: Page) =>
-      zhFacts((await stored<{ state: ZhState }>(page, "round:zh"))?.state.history ?? []).map((f) =>
-        f.map((s) => s.hanzi).join(""),
+      zhFacts((await stored<{ state: ZhState }>(page, "round:zh:shei"))?.state.history ?? []).map(
+        (f) => f.map((s) => s.hanzi).join(""),
       ),
     text: chineseText,
     english: "Is this person a man?",

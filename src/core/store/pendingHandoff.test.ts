@@ -84,7 +84,7 @@ test("the rows wait under outbox:pending-handoff with their user id", async () =
     {
       userId: user,
       ops: [
-        { kind: "game", row: { ...game, language: "it" } },
+        { kind: "game", row: { ...game, language: "it", game: "chie" } },
         { kind: "review", row: { ...review, language: "it" } },
       ],
     },

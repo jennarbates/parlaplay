@@ -5,7 +5,8 @@
     "gameTitle": "Chi è?",
     "gameTitleLang": "it",
     "blurb": "Guess the hidden face by asking questions in Italian.",
-    "level": "A1 to A2"
+    "level": "A1 to A2",
+    "games": ["chie", "giallo"]
   },
   {
     "code": "zh",
@@ -14,6 +15,7 @@
     "gameTitleLang": "zh-Hans",
     "titlePinyin": "Shéi?",
     "blurb": "Find the hidden person with simple Mandarin questions.",
-    "level": "HSK 1"
+    "level": "HSK 1",
+    "games": ["shei"]
   }
 ]

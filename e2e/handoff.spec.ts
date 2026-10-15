@@ -171,7 +171,7 @@ test("a signed-in player's unsynced rows wait for them; their synced copy stays 
   await page.goto(`${chie}/progress`);
   await arrived(page, "/it/progress");
   expect(await stored(page, "outbox:pending-handoff")).toEqual([
-    { userId: user, ops: [{ kind: "game", row: { ...g, language: "it" } }] },
+    { userId: user, ops: [{ kind: "game", row: { ...g, language: "it", game: "chie" } }] },
   ]);
   expect(await stored<Guest>(page, "guest:it")).toEqual({ games: [], reviewLog: [] });
 });
@@ -208,7 +208,7 @@ test("damaged Chi è? data shows the failure screen and saves nothing", async ({
     page.getByRole("heading", { name: "We couldn't bring your progress over." }),
   ).toBeVisible();
   await arrived(page, "/import");
-  for (const key of ["guest:it", "round:it", "handoff"])
+  for (const key of ["guest:it", "round:it:chie", "handoff"])
     expect(await stored(page, key)).toBeUndefined();
   expect(await chieKeys(page)).toEqual(["guest", "round"]);
 });

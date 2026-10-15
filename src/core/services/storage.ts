@@ -12,7 +12,7 @@ const storeName = "kv";
 export type StorageKey =
   | "app" // the last language chosen on this device
   | `guest:${string}` // guest:{code}: a guest's games and review log
-  | `round:${string}` // round:{code}: the round in progress
+  | `round:${string}` // round:{code}:{game}: a game's round in progress (round:{code} before PLAY-081)
   | `settings:${string}` // settings:{code}: device-only settings
   | `user:${string}:${string}` // user:{userId}:{code}: a signed-in user's local copy
   | `outbox:${string}` // outbox:{userId}: queued rows of every language; also outbox:pending-handoff

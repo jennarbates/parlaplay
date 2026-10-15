@@ -126,7 +126,7 @@ describe("validateRegistryFile", () => {
   const registry = (text: string) =>
     join(contentFolder({ "languages.json": text }), "languages.json");
   const it =
-    '{ "code": "it", "englishName": "Italian", "gameTitle": "Chi è?", "gameTitleLang": "it", "blurb": "b", "level": "A1" }';
+    '{ "code": "it", "englishName": "Italian", "gameTitle": "Chi è?", "gameTitleLang": "it", "blurb": "b", "level": "A1", "games": ["chie"] }';
 
   test("the real registry is valid", () => {
     expect(validateRegistryFile(registryFile)).toEqual([]);
@@ -152,6 +152,7 @@ describe("validateRegistryFile", () => {
   test("a code listed twice fails", () => {
     expect(validateRegistryFile(registry(`[${it}, ${it}]`))).toEqual([
       "languages.json: each language code appears once",
+      "languages.json: each game appears once, in one language",
     ]);
   });
 

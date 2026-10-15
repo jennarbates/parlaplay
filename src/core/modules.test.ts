@@ -8,7 +8,8 @@ import { patchLanguageRoutes } from "./modules.ts";
 
 const fakeModule = (code: LanguageCode): LanguageModule => ({
   code,
-  contentVersion: 1,
+  games: [],
+  contentVersions: {},
   routes: [
     { index: true, handle: { page: `${code} home` } },
     { path: "play", handle: { page: `${code} play` } },

@@ -433,11 +433,11 @@ The platform today has one game per language (platform spec 3.2, 3.3). The giall
 
 | Platform spec | Change |
 |---|---|
-| 3.3 `GameRow` | Gains `game: z.enum(["chie", "giallo"])` and `caseId: z.string().optional()`. A row without `game` (from before this ships) is read as `chie` |
-| 3.3 storage keys | `round:{code}` becomes `round:{code}:{game}`. On first load, `round:it` is moved to `round:it:chie` |
+| 3.3 `GameRow` | Gains `game: z.enum(["chie", "giallo", "shei"])` and `caseId: z.string().optional()`. A row without `game` (from before this ships) is read as its language's first game: `chie` for Italian, `shei` for Chinese |
+| 3.3 storage keys | `round:{code}` becomes `round:{code}:{game}` for every language. On first load, `round:it` is moved to `round:it:chie` and `round:zh` to `round:zh:shei` |
 | 3.2 module contract | Gains `games: { id, title, titleLang, blurb, path }[]` so Home and the shell can list them; `isResumable(saved, game)` takes the game |
-| 3.1 registry | `contentVersion` becomes `contentVersions: Record<game, number>`, copied from each game's `version.json` |
-| 6.1 tables | Migration 3: `alter table public.games add column game text not null default 'chie', add column case_id text`, plus a check that `game` is `chie` or `giallo` |
+| 3.1 registry | Each entry lists its `games` (the first is the language's first game), and `contentVersion` becomes `contentVersions: Record<game, number>`, copied from each game's `version.json`: `src/languages/it/content/version.json` for Chi è?, `src/languages/it/giallo/content/version.json` for the giallo |
+| 6.1 tables | Migration 3: `alter table public.games add column game text, add column case_id text`, existing rows set to their language's first game (`chie` for `it`, `shei` for `zh`), then `not null` and a check that `game` is `chie`, `giallo` or `shei` |
 | 6.3 sync | Rows carry `game`; nothing else changes. A client from before this ships never sees giallo rows (they are filtered on read by `game`) |
 | 8.1 screens | Italian Home lists both games, each with its own Play or Continue |
 
@@ -563,3 +563,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 ## GS 13. Changelog
 
 - 2026-10-15: v0.1 draft. Rules, question-word grammar, content model, engine contract, learning model, platform changes and milestones. Backlog cards PLAY-076 to PLAY-102.
+- 2026-10-15: GS 8 after PLAY-081. Shéi's rows get the game id `shei`, so the enum is `chie`, `giallo` or `shei`, and a row without `game` reads as its language's first game, not always `chie`. `round:zh` moves to `round:zh:shei` too. Migration 3 sets each existing row's game from its language instead of defaulting every row to `chie`.

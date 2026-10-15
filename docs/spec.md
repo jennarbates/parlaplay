@@ -100,6 +100,7 @@ The registry is the one list of languages. Adding a language is adding an entry 
 
 ```ts
 const LanguageCode = z.enum(["it", "zh"]); // BCP 47 primary subtags, also the URL segment
+const GameId = z.enum(["chie", "giallo", "shei"]); // every game; permanent like codes
 
 const Language = z.strictObject({
   code: LanguageCode,
@@ -109,21 +110,23 @@ const Language = z.strictObject({
   titlePinyin: z.string().optional(), // shown under the title when present
   blurb: z.string(),         // one English line on the picker card
   level: z.string(),         // the learner level the game targets
-  contentVersion: z.int().positive(), // copied from src/languages/{code}/content/version.json at build time
+  games: z.array(GameId).min(1), // the language's games; the first is its first game
+  contentVersions: z.partialRecord(GameId, z.int().positive()), // copied from each game's version.json at build time
 });
 ```
 
 ```json
 [
   { "code": "it", "englishName": "Italian", "gameTitle": "Chi è?", "gameTitleLang": "it",
-    "blurb": "Guess the hidden face by asking questions in Italian.", "level": "A1 to A2" },
+    "blurb": "Guess the hidden face by asking questions in Italian.", "level": "A1 to A2",
+    "games": ["chie", "giallo"] },
   { "code": "zh", "englishName": "Chinese", "gameTitle": "谁？", "gameTitleLang": "zh-Hans",
     "titlePinyin": "Shéi?", "blurb": "Find the hidden person with simple Mandarin questions.",
-    "level": "HSK 1" }
+    "level": "HSK 1", "games": ["shei"] }
 ]
 ```
 
-The registry lives in `src/core/languages.json`, validated with Zod at build time like all content. The `contentVersion` field is not written by hand: the build copies it from each language's `version.json`, and a test checks the two agree. It lets the picker check a saved round without loading the language (8.1).
+The registry lives in `src/core/languages.json`, validated with Zod at build time like all content. Each game appears in one language only. A language's first game (Chi è?, Shéi) is the one a row without a game belongs to, and the one the picker card and the desktop nav's Play are about; other games (Chi è stato?, `docs/games/it-giallo.md` GS 8) live inside the language's module. The `contentVersions` field is not written by hand: the build copies each game's from its `version.json`, `src/languages/{code}/content/version.json` for the first game and `src/languages/{code}/{game}/content/version.json` for any other, and a test checks they agree. It lets the picker check a saved round without loading the language (8.1).
 
 ### 3.2 Language module contract
 
@@ -132,12 +135,21 @@ Each language is a folder `src/languages/{code}/` that exports one module. The s
 ```ts
 type LanguageModule = {
   code: LanguageCode;
-  contentVersion: number;                  // from the language's version.json
+  games: GameEntry[];                      // in registry order: the first is the language's first game
+  contentVersions: Partial<Record<GameId, number>>; // from each game's version.json
   routes: RouteObject[];                   // React Router routes under /{code}: "", "play", "progress"
   cardIds: () => string[];                 // lexicon ids that have FSRS cards (game spec section 6)
   labelFor: (id: string) => Label;         // how a review-log id shows in Progress
-  isResumable: (saved: unknown) => boolean; // validates a saved round for this content version
+  isResumable: (saved: unknown, game: GameId) => boolean; // validates a saved round of that game for its content version
   deviceSettings: z.ZodType;               // the game spec's device-only settings, with defaults
+};
+
+type GameEntry = {
+  id: GameId;
+  title: string;     // "Chi è stato?"
+  titleLang: string; // lang attribute for the title
+  blurb: string;     // one English line on its card
+  path: string;      // its Home: "/it" for the first game, "/it/giallo" for another; its game screen is path + "/play"
 };
 
 type Label =
@@ -155,17 +167,22 @@ One IndexedDB database, `parlaplay`, with one key-value store `kv`. Every per-la
 |---|---|---|
 | `app` | `{ lastLanguage?: LanguageCode }` | shared |
 | `guest:{code}` | `{ games: GameRow[], reviewLog: ReviewLogRow[] }` | per language |
-| `round:{code}` | `{ contentVersion, gameId, state }` | per language |
+| `round:{code}:{game}` | `{ contentVersion, gameId, state }`, one round per game | per language |
 | `settings:{code}` | the module's `deviceSettings` | per language |
 | `user:{userId}:{code}` | the signed-in user's local copy | per language |
 | `outbox:{userId}` | queued rows; each row has `language` | shared |
 | `handoff` | `{ from: "chie", at: string }` once a handoff has been saved (5.3) | shared |
 
+Builds before PLAY-081 kept one round per language under `round:{code}`. On app start, before any round is read, that key moves to `round:{code}:{first game}` (a round already under the new key is newer and is kept), and the old key is removed.
+
 The level shown before sign-in comes from `localStorage` key `parlaplay.level.{code}` (as both game specs keep it there), and from `language_settings` after sign-in (6.1).
 
 ```ts
 const GameRow = z.strictObject({
-  id: z.uuid(), language: LanguageCode, seed: z.int(), level: z.union([z.literal(1), z.literal(2)]),
+  id: z.uuid(), language: LanguageCode,
+  game: GameId,                  // a row without one (saved before PLAY-081) reads as its language's first game
+  caseId: z.string().optional(), // the giallo's case
+  seed: z.int(), level: z.union([z.literal(1), z.literal(2)]),
   contentVersion: z.int().positive(), startedAt: z.iso.datetime(),
   endedAt: z.iso.datetime().optional(), result: z.enum(["won", "lost", "abandoned"]).optional(),
 });
@@ -194,9 +211,9 @@ const ReviewLogRow = z.strictObject({
 3. Lexicon ids of all languages are disjoint (no id appears in two languages). Needed by the compatibility window in 5.2.
 4. The registry's codes equal the rows of the database `languages` table (6.1), checked against the migration files.
 5. Every registry code has a module folder, and every module folder has a registry entry.
-6. Every storage key a language writes matches one of the per-language patterns in 3.3 with its own code.
+6. Every storage key a language writes matches one of the per-language patterns in 3.3 with its own code (`round:{code}:{game}` with one of its own games).
 7. The sign-in prompt names exactly the languages with guest rows, in registry order.
-8. Each registry `contentVersion` equals that language's `version.json`.
+8. Each registry `contentVersions` entry equals that game's `version.json`.
 
 ### 3.5 Content and ids
 
@@ -327,7 +344,7 @@ The existing Chi è? Supabase projects (staging and production) become parlaplay
 
 1. Read the fragment, then remove it from the address bar with `history.replaceState`.
 2. Decode and validate with Zod: Chi è?'s `GameRow`, `ReviewLogRow` and saved round shapes. Add `language: "it"` to every row.
-3. Merge into `guest:it` by id (union). The saved round goes to `round:it` unless one already exists whose games row has a later `startedAt`; if either games row is missing, the existing round is kept.
+3. Merge into `guest:it` by id (union). The saved round goes to `round:it:chie` unless one already exists whose games row has a later `startedAt`; if either games row is missing, the existing round is kept.
 4. Outbox rows go to `outbox:pending-handoff`, keeping their `user_id`. They are flushed only when that same user signs in on `parlaplay.games`. If a different account signs in, they stay untouched; they are deleted when the `handoff` key is older than 30 days.
 5. Save `handoff`, dispatch CHOOSE `it` (so `/` opens Italian next time), then navigate to `next`. `next` must be exactly `/it`, `/it/play` or `/it/progress`; any other value becomes `/it`, so a crafted link cannot redirect anywhere else.
 6. On any failure: `We couldn't bring your progress over.` with `Try again` (back to `https://chie.parlaplay.games/`) and `Start fresh` (to `/it`).
@@ -546,10 +563,10 @@ As Chi è? spec 7.3 in full, with these changes.
   ```
 
   The local `supabase/config.toml` sets `otp_length = 6` and `otp_expiry = 3600` (1 hour). `TBD: verify` the production project's Email OTP Expiration is also 3600 seconds (dashboard: Authentication, Email provider); the CLI cannot read it.
-- **Guest to account.** One prompt for every language with guest data (section 2 strings), naming the languages in registry order. `Save` uploads all of them; `Don't save` deletes all of them and removes `round:{code}` for those languages, since a saved round's games row would never reach the server. The upload sends every language's `games` rows, then every language's `review_log` rows, with `on conflict (id) do nothing`.
+- **Guest to account.** One prompt for every language with guest data (section 2 strings), naming the languages in registry order. `Save` uploads all of them; `Don't save` deletes all of them and removes every game's `round:{code}:{game}` for those languages, since a saved round's games row would never reach the server. The upload sends every language's `games` rows, then every language's `review_log` rows, with `on conflict (id) do nothing`.
 - **Sync.** Each row carries `language`. The outbox flushes `games` before `review_log` across all languages. A pull downloads the user's rows of every language (RLS allows it) and splits them into `user:{userId}:{code}`. Each language replays only its own rows and upserts its own `cards` with `log_count` set to that language's row count.
 - **Settings.** Level is read from `language_settings` for the open language and written with an upsert on `(user_id, language)`. At sign-in, for each language with no row, the device's level (`parlaplay.level.{code}`, default 1) is upserted; where a row exists, the row wins and is copied to the device. `last_language` is written to `profiles` on CHOOSE (4.2).
-- **Sign-out.** Clears `user:{userId}:*` and `round:{code}` for every language, and `outbox:{userId}`, after the unsynced warning if any row is queued in any language. Keeps `settings:*` and `app` (device settings, as Shéi 7.3).
+- **Sign-out.** Clears `user:{userId}:*` and `round:{code}:{game}` for every game of every language, and `outbox:{userId}`, after the unsynced warning if any row is queued in any language. Keeps `settings:*` and `app` (device settings, as Shéi 7.3).
 - **Account deletion.** By email request to `privacy@parlaplay.games`, handled within one month. Deleting the auth user cascades to every language's rows. The privacy note says that deleting the account deletes progress in every language.
 
 ---
@@ -832,5 +849,6 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 - 2026-10-08: Logo at the top left of every screen, linking to `/` (8.4, D23, PLAY-064, PLAY-065), drawn by `scripts/logo.py`. DesktopNav's `parlaplay` fallback link is replaced by it.
 - 2026-10-12: `/import` built (PLAY-035). 5.3 gains the fragment's data shape and the details its steps left open: validate everything before saving, the same round arriving twice keeps the copy here, waiting for the account, the shape of `outbox:pending-handoff`, Back never returning to `/import`, and `VITE_CHIE_URL`. After a code review the same day: a finished round, or one without its games row, is refused; signed in, the round is not taken and rows the account has are not offered again; row strings are capped.
 - 2026-10-12: Handoff page built (PLAY-036) and tested end to end across two origins (PLAY-037). 5.3 gains "The handoff page as built": which keys it reads, that it never creates or changes `chi-e`, `location.replace`, and `VITE_PARLAPLAY_URL`.
+- 2026-10-15: Games inside a language (PLAY-081, `docs/games/it-giallo.md` GS 8). The registry lists each language's games and copies each game's content version (3.1); the module contract gains `games` and `contentVersions`, and `isResumable` takes the game (3.2); `GameRow` gains `game` and `caseId`, and saved rounds move from `round:{code}` to `round:{code}:{game}` (3.3). Shéi's game id is `shei`. The games table gains its column in migration 3 (PLAY-082); until then rows pulled from it read as their language's first game.
 - 2026-10-07: v0.2. Epic "Domain, email and vendors" renamed "Vendors and email" in the backlog (GitHub label names cannot contain commas). The repo is created now from Chi è? `main` to hold the spec and backlog; `chie-launch` is merged into it on Oct 30 instead of being its starting point (5.1, D4).
 - 2026-10-07: v0.1. Milestones days 9 to 11 rebalanced to match the backlog (accessibility pass, Sentry and privacy note move to day 11).
