@@ -5,21 +5,36 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Plugin } from "vite";
 import type { ZodType } from "zod";
-import { RegistryFile, type LanguageCode } from "../src/core/languages.ts";
+import { RegistryFile, type GameId, type LanguageCode } from "../src/core/languages.ts";
+import { contentFiles as gialloFiles } from "../src/languages/it/giallo/content/schemas.ts";
 import { contentFiles as itFiles } from "../src/languages/it/content/schemas.ts";
 import { contentFiles as zhFiles } from "../src/languages/zh/content/schemas.ts";
 
 // One schema per file name, from the language's content/schemas.ts.
 export type Schemas = Record<string, ZodType>;
-export type LanguageContent = { code: LanguageCode; dir: string; schemas: Schemas };
+// folder is the content folder's place under src/languages/, without "content":
+// "it" for a language's first game, "it/giallo" for another (platform spec 3.1).
+export type LanguageContent = {
+  code: LanguageCode;
+  game: GameId;
+  folder: string;
+  dir: string;
+  schemas: Schemas;
+};
 
-const dirOf = (code: LanguageCode) =>
-  new URL(`../src/languages/${code}/content/`, import.meta.url).pathname;
+const content = (code: LanguageCode, game: GameId, folder: string, schemas: Schemas) => ({
+  code,
+  game,
+  folder,
+  dir: new URL(`../src/languages/${folder}/content/`, import.meta.url).pathname,
+  schemas,
+});
 
-// Every language's content folder. A test checks the codes match the registry.
+// Every game's content folder. A test checks the games match the registry.
 export const languageContent: LanguageContent[] = [
-  { code: "it", dir: dirOf("it"), schemas: itFiles },
-  { code: "zh", dir: dirOf("zh"), schemas: zhFiles },
+  content("it", "chie", "it", itFiles),
+  content("it", "giallo", "it/giallo", gialloFiles),
+  content("zh", "shei", "zh", zhFiles),
 ];
 
 export function validateContentDir(
@@ -87,8 +102,8 @@ export function contentCheck(
 ): Plugin {
   const check = () => {
     const problems = [
-      ...languages.flatMap(({ code, dir, schemas }) =>
-        validateContentDir(dir, schemas, options).map((p) => `${code}/${p}`),
+      ...languages.flatMap(({ folder, dir, schemas }) =>
+        validateContentDir(dir, schemas, options).map((p) => `${folder}/${p}`),
       ),
       ...validateRegistryFile(registry),
     ];

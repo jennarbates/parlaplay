@@ -1,0 +1,233 @@
+[
+  {
+    "id": "q.chi",
+    "pos": "qword",
+    "gloss": "who",
+    "forms": [
+      {
+        "text": "chi",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.cosa",
+    "pos": "qword",
+    "gloss": "what",
+    "forms": [
+      {
+        "text": "che cosa",
+        "key": "checosa"
+      },
+      {
+        "text": "cosa",
+        "key": "cosa"
+      },
+      {
+        "text": "cos'",
+        "key": "elided",
+        "elided": true
+      },
+      {
+        "text": "che",
+        "key": "che"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.dove",
+    "pos": "qword",
+    "gloss": "where",
+    "forms": [
+      {
+        "text": "dove",
+        "key": "base"
+      },
+      {
+        "text": "dov'",
+        "key": "elided",
+        "elided": true
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.quando",
+    "pos": "qword",
+    "gloss": "when",
+    "forms": [
+      {
+        "text": "quando",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.perche",
+    "pos": "qword",
+    "gloss": "why",
+    "forms": [
+      {
+        "text": "perché",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.come",
+    "pos": "qword",
+    "gloss": "how",
+    "forms": [
+      {
+        "text": "come",
+        "key": "base"
+      },
+      {
+        "text": "com'",
+        "key": "elided",
+        "elided": true
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.quale",
+    "pos": "qword",
+    "gloss": "which",
+    "forms": [
+      {
+        "text": "quale",
+        "key": "sg"
+      },
+      {
+        "text": "quali",
+        "key": "pl"
+      },
+      {
+        "text": "qual",
+        "key": "trunc"
+      },
+      {
+        "text": "qual'",
+        "key": "apostrophe",
+        "distractor": true
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.quanto",
+    "pos": "qword",
+    "gloss": "how much, how many",
+    "forms": [
+      {
+        "text": "quanto",
+        "key": "ms"
+      },
+      {
+        "text": "quanta",
+        "key": "fs"
+      },
+      {
+        "text": "quanti",
+        "key": "mp"
+      },
+      {
+        "text": "quante",
+        "key": "fp"
+      },
+      {
+        "text": "quant'",
+        "key": "elided",
+        "elided": true
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.con_chi",
+    "pos": "qword",
+    "gloss": "with whom",
+    "prep": "prep.con",
+    "forms": [
+      {
+        "text": "chi",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.di_chi",
+    "pos": "qword",
+    "gloss": "whose",
+    "prep": "prep.di",
+    "forms": [
+      {
+        "text": "chi",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.a_che_ora",
+    "pos": "qword",
+    "gloss": "at what time",
+    "prep": "prep.a",
+    "forms": [
+      {
+        "text": "che ora",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "q.da_dove",
+    "pos": "qword",
+    "gloss": "where from",
+    "prep": "prep.da",
+    "forms": [
+      {
+        "text": "dove",
+        "key": "base"
+      }
+    ],
+    "level": "A1"
+  },
+  {
+    "id": "prep.con",
+    "pos": "prep",
+    "text": "con",
+    "gloss": "with"
+  },
+  {
+    "id": "prep.di",
+    "pos": "prep",
+    "text": "di",
+    "gloss": "of"
+  },
+  {
+    "id": "prep.a",
+    "pos": "prep",
+    "text": "a",
+    "gloss": "at, to"
+  },
+  {
+    "id": "prep.da",
+    "pos": "prep",
+    "text": "da",
+    "gloss": "from"
+  },
+  {
+    "id": "w.ora",
+    "pos": "word",
+    "text": "ora",
+    "gloss": "hour, time"
+  }
+]

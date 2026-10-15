@@ -159,10 +159,13 @@ const QWord = z.strictObject({
     text: z.string(),                       // "quante"
     key: z.string(),                        // "fp"; "base" for words with one form
     elided: z.boolean().optional(),         // true for dov', com', cos', quant'
+    distractor: z.boolean().optional(),     // a tile that is never right: qual'
   })),
   level: z.enum(["A1", "A2"]),
 });
 ```
+
+Prepositions are `{ id: "prep.con", pos: "prep", text, gloss }` and `ora` is `{ id: "w.ora", pos: "word", text, gloss }`. A word with a preposition lists only the words after it as its form: `q.a_che_ora` is `prep.a` plus the form `che ora`. Every level is `A1` until the reviewer's levels come back (PLAY-077, PLAY-080).
 
 `lexicon.json` for the giallo holds the 12 qwords, the prepositions `con`, `di`, `a`, `da` and the tile `ora`. Ids are disjoint from Chi è?'s and from every other language's (platform D21): question words start `q.`, prepositions `prep.`.
 
@@ -180,12 +183,12 @@ const Frame = z.strictObject({
   asks: z.array(z.strictObject({            // accepted question words and the fact each asks
     qword: z.string(),                      // "q.dove"
     fact: z.string(),                       // "where"
+    hint: z.string(),                       // English for Level 1: "Where were you {slotEn}?"
   })),
   teaches: z.array(z.strictObject({         // known errors: built as given, rejected with a rule
-    built: z.string(),                      // "q.chi" (without its preposition)
+    built: z.string(),                      // the qword the tiles make without its preposition: "q.chi"
     rule: z.string(),                       // "prep.diChi"
   })).optional(),
-  hint: z.string(),                         // English for Level 1, per accepted qword: see below
 });
 ```
 
@@ -212,9 +215,8 @@ Example, with the teaching combo for `prep.diChi`:
 ```json
 { "id": "f.owner.umbrella", "body": { "m": "è questo ombrello?", "f": "è questo ombrello?" },
   "vowelStart": true, "slotParam": false,
-  "asks": [{ "qword": "q.di_chi", "fact": "owner" }],
-  "teaches": [{ "built": "q.chi", "rule": "prep.diChi" }],
-  "hint": "Whose umbrella is this?" }
+  "asks": [{ "qword": "q.di_chi", "fact": "owner", "hint": "Whose umbrella is this?" }],
+  "teaches": [{ "built": "q.chi", "rule": "prep.diChi" }] }
 ```
 
 In `f.at.slot` one body asks two facts: the question word decides which, which is exactly the lesson.
@@ -564,3 +566,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 
 - 2026-10-15: v0.1 draft. Rules, question-word grammar, content model, engine contract, learning model, platform changes and milestones. Backlog cards PLAY-076 to PLAY-102.
 - 2026-10-15: GS 8 after PLAY-081. Shéi's rows get the game id `shei`, so the enum is `chie`, `giallo` or `shei`, and a row without `game` reads as its language's first game, not always `chie`. `round:zh` moves to `round:zh:shei` too. Migration 3 sets each existing row's game from its language instead of defaulting every row to `chie`.
+- 2026-10-15: GS 4.1 to GS 4.3 as built in PLAY-083. A frame's Level 1 hint moves into each of its `asks`, since one body can ask two facts (`f.at.slot`); slot hints use `{slotEn}`. Prepositions and `ora` get their own lexicon shapes (`prep.`, `w.`), `qual'` is a form marked `distractor`, and `q.a_che_ora`'s `teaches` names itself for *che ora* built without *a*. Ids keep their prefixes (`q.`, `prep.`, `w.`, `f.`, `case.`, `r.`, `j.`, `room.`) and a lie without `contradictedBy` fails the build.

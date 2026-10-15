@@ -1,0 +1,304 @@
+[
+  {
+    "id": "f.at.slot",
+    "body": {
+      "m": "era {slot}?",
+      "f": "era {slot}?"
+    },
+    "vowelStart": true,
+    "slotParam": true,
+    "asks": [
+      {
+        "qword": "q.dove",
+        "fact": "where",
+        "hint": "Where were you {slotEn}?"
+      },
+      {
+        "qword": "q.con_chi",
+        "fact": "with",
+        "hint": "Who were you with {slotEn}?"
+      }
+    ]
+  },
+  {
+    "id": "f.doing.slot",
+    "body": {
+      "m": "faceva {slot}?",
+      "f": "faceva {slot}?"
+    },
+    "vowelStart": false,
+    "slotParam": true,
+    "asks": [
+      {
+        "qword": "q.cosa",
+        "fact": "doing",
+        "hint": "What were you doing {slotEn}?"
+      }
+    ]
+  },
+  {
+    "id": "f.saw.slot",
+    "body": {
+      "m": "ha visto {slot}?",
+      "f": "ha visto {slot}?"
+    },
+    "vowelStart": false,
+    "slotParam": true,
+    "asks": [
+      {
+        "qword": "q.chi",
+        "fact": "person seen",
+        "hint": "Who did you see {slotEn}?"
+      },
+      {
+        "qword": "q.cosa",
+        "fact": "thing seen",
+        "hint": "What did you see {slotEn}?"
+      }
+    ]
+  },
+  {
+    "id": "f.arrive",
+    "body": {
+      "m": "è arrivato alla villa?",
+      "f": "è arrivata alla villa?"
+    },
+    "vowelStart": true,
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quando",
+        "fact": "arrived when",
+        "hint": "When did you arrive at the villa?"
+      },
+      {
+        "qword": "q.a_che_ora",
+        "fact": "arrived at",
+        "hint": "What time did you arrive at the villa?"
+      },
+      {
+        "qword": "q.come",
+        "fact": "arrived how",
+        "hint": "How did you get to the villa?"
+      },
+      {
+        "qword": "q.perche",
+        "fact": "arrived why",
+        "hint": "Why did you come to the villa?"
+      },
+      {
+        "qword": "q.con_chi",
+        "fact": "arrived with",
+        "hint": "Who did you come to the villa with?"
+      }
+    ],
+    "teaches": [
+      {
+        "built": "q.a_che_ora",
+        "rule": "prep.aCheOra"
+      }
+    ]
+  },
+  {
+    "id": "f.stolen.torta",
+    "body": {
+      "m": "è sparita la torta?",
+      "f": "è sparita la torta?"
+    },
+    "vowelStart": true,
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quando",
+        "fact": "time",
+        "hint": "When did the cake go missing?"
+      }
+    ]
+  },
+  {
+    "id": "f.from",
+    "body": {
+      "m": "viene?",
+      "f": "viene?"
+    },
+    "vowelStart": false,
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.da_dove",
+        "fact": "from",
+        "hint": "Where are you from?"
+      }
+    ],
+    "teaches": [
+      {
+        "built": "q.dove",
+        "rule": "prep.daDove"
+      }
+    ]
+  },
+  {
+    "id": "f.job",
+    "body": {
+      "m": "è il Suo lavoro?",
+      "f": "è il Suo lavoro?"
+    },
+    "vowelStart": true,
+    "noun": {
+      "gender": "m",
+      "number": "sg"
+    },
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quale",
+        "fact": "job",
+        "hint": "What is your job?"
+      }
+    ]
+  },
+  {
+    "id": "f.shoes",
+    "body": {
+      "m": "scarpe portava?",
+      "f": "scarpe portava?"
+    },
+    "vowelStart": false,
+    "noun": {
+      "gender": "f",
+      "number": "pl"
+    },
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quale",
+        "fact": "shoes",
+        "hint": "Which shoes were you wearing?"
+      }
+    ]
+  },
+  {
+    "id": "f.people.cucina.slot",
+    "body": {
+      "m": "persone c'erano in cucina {slot}?",
+      "f": "persone c'erano in cucina {slot}?"
+    },
+    "vowelStart": false,
+    "noun": {
+      "gender": "f",
+      "number": "pl"
+    },
+    "slotParam": true,
+    "asks": [
+      {
+        "qword": "q.quanto",
+        "fact": "people in the kitchen",
+        "hint": "How many people were in the kitchen {slotEn}?"
+      }
+    ]
+  },
+  {
+    "id": "f.age",
+    "body": {
+      "m": "anni ha?",
+      "f": "anni ha?"
+    },
+    "vowelStart": true,
+    "noun": {
+      "gender": "m",
+      "number": "pl"
+    },
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quanto",
+        "fact": "age",
+        "hint": "How old are you?"
+      }
+    ]
+  },
+  {
+    "id": "f.time.garden",
+    "body": {
+      "m": "tempo è rimasto in giardino?",
+      "f": "tempo è rimasta in giardino?"
+    },
+    "vowelStart": false,
+    "noun": {
+      "gender": "m",
+      "number": "sg"
+    },
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quanto",
+        "fact": "time in the garden",
+        "hint": "How long did you stay in the garden?"
+      }
+    ]
+  },
+  {
+    "id": "f.cake",
+    "body": {
+      "m": "torta ha mangiato?",
+      "f": "torta ha mangiato?"
+    },
+    "vowelStart": false,
+    "noun": {
+      "gender": "f",
+      "number": "sg"
+    },
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.quanto",
+        "fact": "cake eaten",
+        "hint": "How much cake did you eat?"
+      }
+    ]
+  },
+  {
+    "id": "f.owner.umbrella",
+    "body": {
+      "m": "è questo ombrello?",
+      "f": "è questo ombrello?"
+    },
+    "vowelStart": true,
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.di_chi",
+        "fact": "owner",
+        "hint": "Whose umbrella is this?"
+      }
+    ],
+    "teaches": [
+      {
+        "built": "q.chi",
+        "rule": "prep.diChi"
+      }
+    ]
+  },
+  {
+    "id": "f.owner.keys",
+    "body": {
+      "m": "sono queste chiavi?",
+      "f": "sono queste chiavi?"
+    },
+    "vowelStart": false,
+    "slotParam": false,
+    "asks": [
+      {
+        "qword": "q.di_chi",
+        "fact": "owner",
+        "hint": "Whose keys are these?"
+      }
+    ],
+    "teaches": [
+      {
+        "built": "q.chi",
+        "rule": "prep.diChi"
+      }
+    ]
+  }
+]

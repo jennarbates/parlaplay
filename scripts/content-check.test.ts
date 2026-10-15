@@ -15,7 +15,9 @@ import {
 } from "./content-check.ts";
 
 // Chi è?'s schemas, for the tests that are about the checker itself.
-const italian = (dir: string) => [{ code: "it" as const, dir, schemas: itFiles }];
+const italian = (dir: string) => [
+  { code: "it" as const, game: "chie" as const, folder: "it", dir, schemas: itFiles },
+];
 
 // Folders in these tests hold only the files under test.
 const partial = { requireAll: false };
@@ -31,16 +33,18 @@ afterEach(() => {
 });
 
 describe("validateContentDir", () => {
-  test.each(languageContent.map((l) => [l.code, l] as const))(
+  test.each(languageContent.map((l) => [l.folder, l] as const))(
     "the real %s content folder is valid",
     (_, { dir, schemas }) => {
       expect(validateContentDir(dir, schemas)).toEqual([]);
     },
   );
 
-  test("every registry language has a content folder, and no other (3.4.5)", () => {
+  test("every registry game has a content folder, and no other (3.4.5)", () => {
     const registry = RegistryFile.parse(JSON.parse(readFileSync(registryFile, "utf8")));
-    expect(languageContent.map((l) => l.code)).toEqual(registry.map((l) => l.code));
+    expect(languageContent.map((l) => [l.code, l.game])).toEqual(
+      registry.flatMap((l) => l.games.map((game) => [l.code, game])),
+    );
   });
 
   test("every content file is required", () => {
