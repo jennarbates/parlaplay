@@ -200,7 +200,7 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
     await page.goto("/it/play?seed=1");
     const chiara = card(page, "Chiara");
     await chiara.hover();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(500);
     await expect(tooltip(page)).toHaveCount(0); // not before the delay
     await page.waitForTimeout(300);
     await expect(tooltip(page)).toBeVisible();
@@ -214,10 +214,22 @@ test.describe("mouse: hover preview and right-click (DS 7)", () => {
     expect(t.x < c.x + c.width && t.x + t.width > c.x).toBe(true);
     expect(t.y < c.y + c.height && t.y + t.height > c.y).toBe(true);
     expect(t.width).toBeCloseTo(Math.min(c.width * 2, 256), 0);
-    // Straight on to the next card: it swaps at once.
+    // Straight on to the next card: it swaps after a shorter delay.
     await card(page, "Davide").hover();
-    await expect(tooltip(page)).toHaveText("Davide", { timeout: 200 });
+    await expect(tooltip(page)).toHaveCount(0);
+    await expect(tooltip(page)).toHaveText("Davide", { timeout: 500 });
     await page.mouse.move(5, 300);
+    await expect(tooltip(page)).toHaveCount(0);
+  });
+
+  test("clicking a card before the preview shows flips it, with no preview", async ({ page }) => {
+    await page.goto("/it/play?seed=1");
+    const chiara = card(page, "Chiara");
+    await chiara.hover();
+    await page.waitForTimeout(300);
+    await chiara.click();
+    await expect(chiara).toHaveAttribute("aria-pressed", "true");
+    await page.waitForTimeout(800);
     await expect(tooltip(page)).toHaveCount(0);
   });
 

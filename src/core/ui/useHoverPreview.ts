@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState, type PointerEvent, type RefObject } from "react";
 import { previewSpot, type PreviewSpot } from "./boardLayout.ts";
 
-const delay = 350; // ms the pointer rests on a card before the preview shows
-const swapWindow = 150; // ms after one preview hides in which the next shows at once
+const delay = 700; // ms the pointer rests on a card before the preview shows
+const swapDelay = 250; // the same, when it moves on from a preview that just hid
+const swapWindow = 150; // ms after one preview hides in which swapDelay applies
 
 // Desktop spec DS 7.2: which card's preview shows, and where. It shows after the
-// mouse rests on a card, hides when it leaves, and swaps at once when it moves
+// mouse rests on a card, hides when it leaves, and swaps sooner when it moves
 // straight to the next card. Any click, key or right-click hides it, so it is
-// gone before a dialog opens; it never shows while a dialog is open.
+// gone before a dialog opens; it never shows while a dialog is open. A click on
+// the card before it shows cancels it until the pointer leaves the card.
 export function useHoverPreview(
   enabled: boolean,
   area: RefObject<HTMLElement | null>,
@@ -59,9 +61,10 @@ export function useHoverPreview(
         if (!allowed.current || e.pointerType !== "mouse") return;
         const card = e.currentTarget;
         clearTimeout(timer.current);
-        if (performance.now() - hiddenAt.current < swapWindow) show(id, card);
-        else timer.current = setTimeout(() => show(id, card), delay);
+        const swap = performance.now() - hiddenAt.current < swapWindow;
+        timer.current = setTimeout(() => show(id, card), swap ? swapDelay : delay);
       },
+      onPointerDown: () => clearTimeout(timer.current),
       onPointerLeave: hide,
     }),
   };
