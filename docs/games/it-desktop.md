@@ -321,6 +321,7 @@ Below `lg`: the `max-w-md` column, no nav, no change.
 - Three parts:
   - **Summary**, at the top: the same line as the collapsed sheet, full size and not truncated, in an `aria-live="polite"` region.
   - **Body**, which scrolls on its own (`min-h-0 overflow-y-auto overscroll-contain`).
+  - **What you know** (#132, DD16), under the body: the facts the learner's questions have found out about the computer's card, newest first, in Italian only ("Non ha i capelli biondi."), from `factsOf()` in `game/facts.ts`. Heading "What you know (3)"; empty: "Ask a question to find out about the computer's card." Once there is a fact it keeps at least 10rem, and the body scrolls in what is left. With less room than that, the heading is a button that opens the list over the body, as Shéi's round log (`zh-desktop.md` ZS 7.3, ZS 7.5).
   - **Actions**, pinned at the bottom, then the hint "Press ? for shortcuts" in `text-sm text-stone-600`.
 - No collapse toggle and no `aria-expanded`. `Game`'s `sheetOpen` state is ignored at `lg` but kept, so a resize back to the phone restores it.
 - Buttons show their key on the right in a `<kbd>` at `lg` only: "Indovina G", "Avanti A", "Sì S", "No N", "Cancel guess Esc". The `<kbd>` is `aria-hidden`; the button gets `aria-keyshortcuts` (e.g. `aria-keyshortcuts="a"`).
@@ -651,6 +652,7 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 | DD12 | Desktop work runs before launch, by Day 11 | The user's choice; the MVP build is ahead of plan, and finishing by Day 11 lets the existing playtest cover desktop |
 | DD13 | Desktop is tested by the MVP playtesters | No separate recruiting; at least 2 play one round on a laptop |
 | DD14 | The board grid uses rows of `gridcell`s (ARIA grid) | Arrow-key movement then follows the WAI-ARIA grid pattern that screen readers expect |
+| DD16 | "What you know" sits under the side panel's body and keeps at least 10rem once there is a fact (#132) | Chi è? has no round log; the facts are what narrow the board, and the body already scrolls. Decided by the owner on 2026-10-15 |
 
 ## DS 15. References
 
@@ -674,3 +676,4 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 - 2026-10-07: CHI-125. DS 3: `dueToday` counts due cards (word × direction), not words, so it equals the Due list's "Due today (n)" as the last invariant asks; the first invariant, which assumed words, now bounds it by the reviewed cards. `localDay()` moved to `src/services/localDay.ts` so e2e tests can use it.
 - 2026-10-12: PLAY-029. DS 9.4: the "Game" section becomes one section per language ("Italian", "Chinese"), after "Account", each with its Default level row ("The level Play starts at in Italian.") and its device settings as rows (Chinese: "Show pinyin at Level 2"), following platform `spec.md` §8.1.
 - 2026-10-12: DS 9.2, DS 9.6: the buttons that take focus on their own (GuessConfirm's confirm, round end's "Play again") ignore a held Enter's repeats. Before, holding Enter on a card while guessing picked the card, confirmed the guess and started the next round. Found by the Shéi desktop paper trace (F2).
+- 2026-10-15: #132. DS 6.2, DD16: "What you know" under the panel's body. The phone has a button in the sheet that opens the facts in a dialog (`it.md` 8.1).

@@ -7,9 +7,16 @@ import { useAccountStore } from "../../../core/store/account.ts";
 import { boardVars } from "../../../core/ui/boardLayout.ts";
 import { Kbd } from "../../../core/ui/Kbd.tsx";
 import { ShortcutsDialog } from "../../../core/ui/ShortcutsDialog.tsx";
+import { PanelTabs, PanelTabsOverlay, type PanelTab } from "../../../core/ui/PanelTabs.tsx";
 import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
 import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
+import {
+  FactItems,
+  factsTitle,
+  WhatYouKnowButton,
+  WhatYouKnowDialog,
+} from "../../../core/ui/WhatYouKnow.tsx";
 import { useGameStore } from "../store/gameStore.ts";
 import { useSettings, type Pronoun } from "../store/settings.ts";
 import { answerIds } from "./game/answers.ts";
@@ -24,7 +31,8 @@ import { boardLayout } from "./game/layout.ts";
 import { QuestionGroups } from "./game/QuestionGroups.tsx";
 import { QuestionPicker } from "./game/QuestionPicker.tsx";
 import { RoundEnd } from "./game/RoundEnd.tsx";
-import { RoundLog, RoundLogOverlay } from "./game/RoundLog.tsx";
+import { LogEntries } from "./game/RoundLog.tsx";
+import { factsOf } from "./game/facts.ts";
 import { Ruby } from "./game/Ruby.tsx";
 import { answer as answerOf, logOf, question as questionOf } from "./game/sentences.ts";
 import { Sheet } from "./game/Sheet.tsx";
@@ -90,7 +98,7 @@ export function Game() {
     guessing: false,
     hintShown: false,
     tray: [] as string[],
-    logOpen: false, // the round log's overlay (ZS 7.3)
+    panelOpen: undefined as PanelId | undefined, // the panel section's overlay (ZS 7.3)
   });
   if (ui.phaseKey !== phaseKey) {
     setUi({
@@ -100,14 +108,17 @@ export function Game() {
       guessing: false,
       hintShown: false,
       tray: ui.turn === game?.turn ? ui.tray : [],
-      logOpen: false,
+      panelOpen: undefined,
     });
   }
-  const { sheetOpen, guessing, hintShown, tray, logOpen } = ui;
+  const { sheetOpen, guessing, hintShown, tray, panelOpen } = ui;
   const setSheetOpen = (open: boolean) => setUi((u) => ({ ...u, sheetOpen: open }));
   const setGuessing = (on: boolean) => setUi((u) => ({ ...u, guessing: on }));
 
   const [help, setHelp] = useState(false);
+  // #132: the panel section's tab, kept for the round; the phone's dialog of facts.
+  const [panelTab, setPanelTab] = useState<PanelId>("facts");
+  const [factsOpen, setFactsOpen] = useState(false);
 
   // zh-desktop.md ZS 9: one keydown listener for the game's shortcut keys. The
   // pure keyToAction() decides; this carries it out with the same handlers the
@@ -131,8 +142,8 @@ export function Game() {
         phase: game.phase,
         level: game.level,
         guessing,
-        // ZS 9.1: a dialog, the menu popover or the log's overlay.
-        dialogOpen: !!document.querySelector('dialog[open], [role="menu"], [data-log-overlay]'),
+        // ZS 9.1: a dialog, the menu popover or the panel section's overlay.
+        dialogOpen: !!document.querySelector('dialog[open], [role="menu"], [data-panel-overlay]'),
         answers: game.phase === "cpuTurn" && q ? answerIds(q.key, game.level).length : 0,
         trayEmpty: tray.length === 0,
         logEmpty: game.history.length === 0,
@@ -193,10 +204,13 @@ export function Game() {
         setPronoun(pronoun === "pr.ta.m" ? "pr.ta.f" : "pr.ta.m");
         break;
       case "focusLog": {
-        // With only its header showing, l opens the log; its overlay takes focus.
-        const toggle = document.querySelector<HTMLElement>("[data-log-toggle]");
-        if (toggle) setUi((u) => ({ ...u, logOpen: true }));
-        else document.querySelector<HTMLElement>('[data-log-entry][tabindex="0"]')?.focus();
+        // l chooses the log's tab and its entry takes focus. With no room for it in
+        // place, or while it is closed (ZD17), l opens it over the phase area,
+        // and the overlay takes focus.
+        flushSync(() => setPanelTab("log"));
+        const entry = document.querySelector<HTMLElement>('[data-log-entry][tabindex="0"]');
+        if (entry) entry.focus();
+        else setUi((u) => ({ ...u, panelOpen: "log" }));
         break;
       }
       case "openHelp":
@@ -231,10 +245,16 @@ export function Game() {
     if (document.activeElement === document.body) focusBoard();
   }, [desktop]);
 
-  // Closing the log's overlay gives focus back to the header button that opened it.
-  const closeLog = useCallback(() => {
-    flushSync(() => setUi((u) => ({ ...u, logOpen: false })));
-    document.querySelector<HTMLElement>("[data-log-toggle]")?.focus();
+  // Closing the panel section's overlay gives focus back to the tab that opened it.
+  const closePanel = useCallback(() => {
+    let was: PanelId | undefined;
+    flushSync(() =>
+      setUi((u) => {
+        was = u.panelOpen;
+        return { ...u, panelOpen: undefined };
+      }),
+    );
+    document.querySelector<HTMLElement>(`[data-tab="${was}"]`)?.focus();
   }, []);
 
   if (status !== "ready" || !settled || !game) return <SkeletonBoard desktop={desktop} />;
@@ -311,6 +331,30 @@ export function Game() {
   const log = logOf(game.history);
   const showPinyin = game.level === 1 || pinyin;
   const english = glossShowsEnglish(game.phase, game.level);
+  // #132: what the learner's questions have found out, in Chinese only: pinyin as
+  // the level shows it, never English, never glossable.
+  const facts = factsOf(game.history).map((f, i) => (
+    <Ruby key={i} segments={f} pinyin={showPinyin} className="text-base" />
+  ));
+  const panelTabs: PanelTab[] = [
+    { id: "facts", title: factsTitle, count: facts.length, content: <FactItems items={facts} /> },
+    {
+      id: "log",
+      title: "Round log",
+      count: log.length,
+      // ZD17: closed while a Level 2 question is being built, so the log cannot be
+      // copied from; the learner may still open it.
+      closed: game.level === 2 && game.phase === "playerTurn",
+      content: (
+        <LogEntries
+          entries={log}
+          pinyin={showPinyin}
+          english={english}
+          className="min-h-0 flex-1"
+        />
+      ),
+    },
+  ];
 
   // zh-desktop.md ZS 5.2: the board on the left, the always-open panel on the
   // right, the top bar (and the sync banner, ZS 11) across both.
@@ -325,23 +369,21 @@ export function Game() {
         summary={summary}
         actions={actions}
         log={
-          <RoundLog
-            entries={log}
-            pinyin={showPinyin}
-            english={english}
-            // ZD17: closed while a Level 2 question is being built, so the log
-            // cannot be copied from; the learner may still open it.
-            closed={game.level === 2 && game.phase === "playerTurn"}
-            onOpen={() => setUi((u) => ({ ...u, logOpen: true }))}
+          <PanelTabs
+            tabs={panelTabs}
+            selected={panelTab}
+            onSelect={(id) => setPanelTab(id as PanelId)}
+            onOpen={(id) => setUi((u) => ({ ...u, panelOpen: id as PanelId }))}
           />
         }
         overlay={
-          logOpen && (
-            <RoundLogOverlay
-              entries={log}
-              pinyin={showPinyin}
-              english={english}
-              onClose={closeLog}
+          panelOpen && (
+            <PanelTabsOverlay
+              tabs={panelTabs}
+              selected={panelOpen}
+              onSelect={(id) => setUi((u) => ({ ...u, panelOpen: id as PanelId }))}
+              onClose={closePanel}
+              closeKey="l"
             />
           )
         }
@@ -360,6 +402,9 @@ export function Game() {
         onToggle={() => setSheetOpen(!sheetOpen)}
         actions={actions}
       >
+        {facts.length > 0 && (
+          <WhatYouKnowButton count={facts.length} onOpen={() => setFactsOpen(true)} />
+        )}
         {body}
       </Sheet>
     </div>
@@ -373,6 +418,9 @@ export function Game() {
         onClose={() => setZoomed(undefined)}
       />
       <ShortcutsDialog open={help} onClose={() => setHelp(false)} rows={shortcutRows} wide />
+      <WhatYouKnowDialog open={factsOpen} onClose={() => setFactsOpen(false)}>
+        <FactItems items={facts} />
+      </WhatYouKnowDialog>
       <GuessConfirm
         character={guessFor ? byId.get(guessFor) : undefined}
         flipped={!!guessFor && game.flipped.includes(guessFor)}
@@ -386,6 +434,9 @@ export function Game() {
     </>
   );
 }
+
+// The side panel's section under the phase area: its two tabs (#132, ZS 7.3).
+type PanelId = "facts" | "log";
 
 // ZS 5.2 (ZD3): the panel is 2rem wider than Chi è?'s, for Level 2's row of 7 tiles.
 const desktopGrid = "grid h-dvh grid-cols-[1fr_minmax(24rem,28rem)] grid-rows-[auto_1fr]";

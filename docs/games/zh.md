@@ -719,6 +719,7 @@ Same screens, flow and routes (`/`, `/play`, `/progress`, `/settings`, `/privacy
 | Game: Level 1 picker | Pronoun switch at the top (`他` / `她`, default `他`). The 14 questions, each with ruby pinyin and its English gloss ("Is he a doctor?"). Asked questions greyed out with their answer |
 | Game: Level 2 builder | A tray line above the tiles: one row with the pronouns `他 她 你`, the verbs `是 有 在` and `吗` (7 tiles), then the 14 nouns in three rows. Tapping a tile appends it to the tray; tapping a tile in the tray removes it; "Clear" empties it; the tray holds at most 6 tiles and ignores further taps. "Ask" submits. A "Pinyin" toggle shows ruby pinyin on every tile and in the tray |
 | Game: CPU question | The question with ruby pinyin at Level 1 (characters only at Level 2 unless the toggle is on); "Show hint" reveals English at Level 1; answer buttons as section 2 |
+| Game: What you know | As Chi è? 8.1: once you have asked a question, "What you know (n)" at the top of the sheet opens the facts your questions have found out, newest first: `她没有狗。` from `没有，她没有狗。`. Chinese only, with pinyin as the level shows it; no English, not glossable (#132). Desktop: `zh-desktop.md` ZS 7.5 |
 | Game: buttons | English: "Guess", "Next", "Ask", "Quit round". Reason: HSK 1 has no word for "guess", and English chrome matches the rest of the UI |
 | Progress: Mistakes | Grouped by noun or by grammar point; a grammar point shows its title and explanation from 3.6 |
 | Privacy | As Chi è?, with Shéi's domain and the note that accounts are separate from Chi è? |
@@ -933,3 +934,4 @@ Also queued, as Chi è?: final art, Easy CPU setting, championship mode, Google 
 - 2026-10-07: v0 draft.
 - 2026-10-07: Repo (section 9) starts from Chi è?'s history instead of a files-only copy, with an `italian` remote for cherry-picking fixes; Chi è?'s spec kept as `docs/chi-e-spec.md`.
 - 2026-10-08: Desktop now points at `it-desktop.md` and `zh-desktop.md` (PLAY-057). 8.3: `a` asks, instead of Enter in the tray.
+- 2026-10-15: #132. 8.1: "What you know", the facts your questions have found out, in Chinese only. Desktop: `zh-desktop.md` ZS 7.5.

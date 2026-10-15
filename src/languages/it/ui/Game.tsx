@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router";
 import { content } from "../content/index.ts";
@@ -19,11 +19,19 @@ import { keyToAction } from "./game/shortcuts.ts";
 import { ShortcutsDialog } from "../../../core/ui/ShortcutsDialog.tsx";
 import { shortcutRows } from "./game/shortcutRows.ts";
 import { Sheet } from "./game/Sheet.tsx";
+import { PanelTabs, PanelTabsOverlay, type PanelTab } from "../../../core/ui/PanelTabs.tsx";
 import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { TileBuilder, type TileDraft } from "./game/TileBuilder.tsx";
 import { TopBar } from "./game/TopBar.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
 import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
+import {
+  FactItems,
+  factsTitle,
+  WhatYouKnowButton,
+  WhatYouKnowDialog,
+} from "../../../core/ui/WhatYouKnow.tsx";
+import { factsOf } from "./game/facts.ts";
 import { paths } from "../paths.ts";
 
 const emptyDraft: TileDraft = { tiles: {} };
@@ -80,6 +88,7 @@ export function Game() {
     guessing: false,
     hintShown: false,
     draft: emptyDraft,
+    factsOver: false, // "What you know" opened over the phase area (#132)
   });
   if (ui.phaseKey !== phaseKey) {
     setUi({
@@ -88,12 +97,14 @@ export function Game() {
       guessing: false,
       hintShown: false,
       draft: emptyDraft,
+      factsOver: false,
     });
   }
-  const { sheetOpen, guessing, hintShown, draft } = ui;
+  const { sheetOpen, guessing, hintShown, draft, factsOver } = ui;
   const setSheetOpen = (open: boolean) => setUi((u) => ({ ...u, sheetOpen: open }));
   const setGuessing = (on: boolean) => setUi((u) => ({ ...u, guessing: on }));
   const [help, setHelp] = useState(false);
+  const [factsOpen, setFactsOpen] = useState(false); // the phone's dialog (#132)
 
   // Desktop spec DS 4: one keydown listener for the game's shortcut keys. The
   // pure keyToAction() decides; this carries it out with the same handlers the
@@ -114,7 +125,7 @@ export function Game() {
         phase: game.phase,
         level: game.level,
         guessing,
-        dialogOpen: !!document.querySelector("dialog[open]"),
+        dialogOpen: !!document.querySelector("dialog[open], [data-panel-overlay]"),
       },
     );
     if (!action) return;
@@ -167,6 +178,12 @@ export function Game() {
     wasDesktop.current = desktop;
     if (document.activeElement === document.body) focusBoard();
   }, [desktop]);
+
+  // Closing "What you know" over the phase area gives focus back to its header.
+  const closeFacts = useCallback(() => {
+    flushSync(() => setUi((u) => ({ ...u, factsOver: false })));
+    document.querySelector<HTMLElement>('[data-tab="facts"]')?.focus();
+  }, []);
 
   if (status !== "ready" || !settled || !game) return <SkeletonBoard desktop={desktop} />;
   const secret = byId.get(game.playerSecret);
@@ -235,6 +252,16 @@ export function Game() {
     />
   );
 
+  // #132: what the learner's questions have found out, in Italian only.
+  const facts = factsOf(game.history).map((f, i) => (
+    <p key={i} lang="it" className="text-base">
+      {f}
+    </p>
+  ));
+  const panelTabs: PanelTab[] = [
+    { id: "facts", title: factsTitle, count: facts.length, content: <FactItems items={facts} /> },
+  ];
+
   // Desktop spec DS 6: the board on the left, the always-open panel on the right,
   // the top bar (and the sync banner, DS 11) across both.
   const screen = desktop ? (
@@ -244,7 +271,31 @@ export function Game() {
         <SyncBanner />
       </div>
       <div className="flex min-h-0 flex-col">{board}</div>
-      <SidePanel summary={summary} actions={actions}>
+      <SidePanel
+        summary={summary}
+        actions={actions}
+        // The questions scroll here (DS 6.2), so once there are facts the section
+        // keeps room for a few in place.
+        logRoom={facts.length > 0}
+        log={
+          <PanelTabs
+            tabs={panelTabs}
+            selected="facts"
+            onSelect={() => undefined}
+            onOpen={() => setUi((u) => ({ ...u, factsOver: true }))}
+          />
+        }
+        overlay={
+          factsOver && (
+            <PanelTabsOverlay
+              tabs={panelTabs}
+              selected="facts"
+              onSelect={() => undefined}
+              onClose={closeFacts}
+            />
+          )
+        }
+      >
         {body}
       </SidePanel>
     </div>
@@ -259,6 +310,9 @@ export function Game() {
         onToggle={() => setSheetOpen(!sheetOpen)}
         actions={actions}
       >
+        {facts.length > 0 && (
+          <WhatYouKnowButton count={facts.length} onOpen={() => setFactsOpen(true)} />
+        )}
         {body}
       </Sheet>
     </div>
@@ -272,6 +326,9 @@ export function Game() {
         onClose={() => setZoomed(undefined)}
       />
       <ShortcutsDialog open={help} onClose={() => setHelp(false)} rows={shortcutRows} />
+      <WhatYouKnowDialog open={factsOpen} onClose={() => setFactsOpen(false)}>
+        <FactItems items={facts} />
+      </WhatYouKnowDialog>
       <GuessConfirm
         character={guessFor ? byId.get(guessFor) : undefined}
         flipped={!!guessFor && game.flipped.includes(guessFor)}
