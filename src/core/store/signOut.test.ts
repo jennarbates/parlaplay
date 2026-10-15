@@ -85,7 +85,7 @@ describe("sign-out (CHI-087)", () => {
     expect(useShell.getState().state.account).toEqual({ kind: "guest" });
     expect(await read(`user:${user}:it`)).toBeUndefined();
     expect(await read(`outbox:${user}`)).toBeUndefined();
-    expect(await read("round:it")).toBeUndefined();
+    expect(await read("round:it:chie")).toBeUndefined();
     expect(useGameStore.getState().game).toBeNull();
     expect(useProgressStore.getState()).toMatchObject({
       owner: "guest",
@@ -136,11 +136,11 @@ describe("sign-out (CHI-087)", () => {
 
 // PLAY-025, platform spec 2, 6.3, D16: one sign-out covers every language.
 describe("sign-out covers every language", () => {
-  test("clears user:{userId}:* and round:{code} for every language, keeps settings:* and app", async () => {
+  test("clears user:{userId}:* and round:{code}:{game} for every language, keeps settings:* and app", async () => {
     await write(`user:${user}:it`, { games: [{ id: "a" }], reviewLog: [] });
     await write(`user:${user}:zh`, { games: [{ id: "b" }], reviewLog: [] });
-    await write("round:it", { contentVersion: 1, gameId: "a", state: {} });
-    await write("round:zh", { contentVersion: 1, gameId: "b", state: {} });
+    await write("round:it:chie", { contentVersion: 1, gameId: "a", state: {} });
+    await write("round:zh:shei", { contentVersion: 1, gameId: "b", state: {} });
     await write("settings:it", { sound: false });
     await write("settings:zh", { pinyinAtLevel2: true });
     await write("app", { lastLanguage: "zh" });
@@ -149,8 +149,9 @@ describe("sign-out covers every language", () => {
     await vi.waitFor(() => expect(zh.getState().owner).toBe("guest"));
     for (const code of ["it", "zh"]) {
       expect(await read(`user:${user}:${code}`)).toBeUndefined();
-      expect(await read(`round:${code}`)).toBeUndefined();
     }
+    for (const key of ["round:it:chie", "round:zh:shei"] as const)
+      expect(await read(key)).toBeUndefined();
     expect(await read("settings:it")).toEqual({ sound: false });
     expect(await read("settings:zh")).toEqual({ pinyinAtLevel2: true });
     expect(await read("app")).toEqual({ lastLanguage: "zh" });

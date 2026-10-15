@@ -178,7 +178,10 @@ describe("the rows", () => {
   });
 
   test("outboxes merge per user, each op once", () => {
-    const start = { kind: "game" as const, row: { ...game(3), language: "it" as const } };
+    const start = {
+      kind: "game" as const,
+      row: { ...game(3), language: "it" as const, game: "chie" as const },
+    };
     const end = { kind: "game" as const, row: { ...start.row, result: "won" as const } };
     const merged = mergeOutboxes(
       [{ userId: user, ops: [start] }],
@@ -236,8 +239,8 @@ describe("importHandoff", () => {
     expect(saved?.reviewLog.map((r) => r.id)).toEqual([uuid(101), uuid(102)]);
     for (const row of [...(saved?.games ?? []), ...(saved?.reviewLog ?? [])])
       expect(row.language).toBe("it");
-    expect(await read("round:it")).toEqual(round(2));
-    expect(useRounds.getState().saved.it).toBe(true);
+    expect(await read("round:it:chie")).toEqual(round(2));
+    expect(useRounds.getState().saved.chie).toBe(true);
     expect(await read("handoff")).toEqual({ from: "chie", at: now.toISOString() });
     // The guest's open copy has them too, and Chinese has nothing.
     expect(italian.getState().games).toHaveLength(2);
@@ -253,10 +256,11 @@ describe("importHandoff", () => {
         {
           ...game(2),
           language: "it" as const,
+          game: "chie" as const,
           endedAt: "2026-10-02T10:09:00.000Z",
           result: "lost" as const,
         },
-        { ...game(5), language: "it" as const },
+        { ...game(5), language: "it" as const, game: "chie" as const },
       ],
       reviewLog: [
         { ...review(2, 2), language: "it" as const },
@@ -277,27 +281,30 @@ describe("importHandoff", () => {
 
   test("a second import adds nothing", async () => {
     await importHandoff(await fragment(handoff), now);
-    const first = { guest: await guest(), round: await read("round:it") };
+    const first = { guest: await guest(), round: await read("round:it:chie") };
     await importHandoff(await fragment(handoff), now);
     await progressSaved();
-    expect({ guest: await guest(), round: await read("round:it") }).toEqual(first);
+    expect({ guest: await guest(), round: await read("round:it:chie") }).toEqual(first);
     expect(italian.getState().games).toHaveLength(2);
     expect(italian.getState().reviewLog).toHaveLength(2);
   });
 
   test("the newer saved round is kept", async () => {
     // The device's round started on Oct 9; the one handed off, on Oct 2.
-    const here = { games: [{ ...game(9), language: "it" as const }], reviewLog: [] };
+    const here = {
+      games: [{ ...game(9), language: "it" as const, game: "chie" as const }],
+      reviewLog: [],
+    };
     await write("guest:it", here);
     italian.setState(here);
-    await write("round:it", round(9));
+    await write("round:it:chie", round(9));
     await importHandoff(await fragment(handoff), now);
-    expect(await read("round:it")).toEqual(round(9));
+    expect(await read("round:it:chie")).toEqual(round(9));
 
     // And the other way round: the handed-off round is the newer one.
-    await write("round:it", round(1));
+    await write("round:it:chie", round(1));
     await importHandoff(await fragment(handoff), now);
-    expect(await read("round:it")).toEqual(round(2));
+    expect(await read("round:it:chie")).toEqual(round(2));
   });
 
   test("a round of another content version is saved but not offered", async () => {
@@ -309,8 +316,8 @@ describe("importHandoff", () => {
       }),
       now,
     );
-    expect(await read("round:it")).toMatchObject({ contentVersion: 99 });
-    expect(useRounds.getState().saved.it).toBe(false);
+    expect(await read("round:it:chie")).toMatchObject({ contentVersion: 99 });
+    expect(useRounds.getState().saved.chie).toBe(false);
   });
 
   test("a round finished here does not come back when the old link is opened again", async () => {
@@ -319,18 +326,18 @@ describe("importHandoff", () => {
     italian.getState().recordGameEnd(uuid(2), "won");
     await progressSaved();
     const { remove } = await import("../services/storage.ts");
-    await remove("round:it");
-    useRounds.getState().setSaved("it", false);
+    await remove("round:it:chie");
+    useRounds.getState().setSaved("chie", false);
 
     await importHandoff(await fragment(handoff), now);
-    expect(await read("round:it")).toBeUndefined();
-    expect(useRounds.getState().saved.it).toBe(false);
+    expect(await read("round:it:chie")).toBeUndefined();
+    expect(useRounds.getState().saved.chie).toBe(false);
     expect((await guest())?.games.find((g) => g.id === uuid(2))?.result).toBe("won");
   });
 
   test("a round without its games row is not saved", async () => {
     await importHandoff(await fragment({ v: 1, round: round(2) }), now);
-    expect(await read("round:it")).toBeUndefined();
+    expect(await read("round:it:chie")).toBeUndefined();
     expect(await read("handoff")).toBeDefined();
   });
 
@@ -353,7 +360,7 @@ describe("importHandoff", () => {
     ["data Zod rejects", async () => fragment({ ...handoff, v: 3 } as unknown as Handoff)],
   ])("with %s, nothing is saved", async (_, make) => {
     await expect(importHandoff(await make(), now)).rejects.toThrow();
-    for (const key of ["guest:it", "round:it", "handoff", "outbox:pending-handoff"] as const)
+    for (const key of ["guest:it", "round:it:chie", "handoff", "outbox:pending-handoff"] as const)
       expect(await read(key)).toBeUndefined();
     expect(italian.getState().games).toHaveLength(0);
   });
@@ -367,7 +374,7 @@ describe("importHandoff", () => {
     expect(await read(`user:${other}:it`)).toBeUndefined();
     // The round stays behind: played under this account, its review rows would
     // point at a game that is only in the guest rows.
-    expect(await read("round:it")).toBeUndefined();
+    expect(await read("round:it:chie")).toBeUndefined();
   });
 
   test("signed in here, rows the account already has are not offered again", async () => {
@@ -375,7 +382,7 @@ describe("importHandoff", () => {
     // Saved to the account after an earlier handoff: both games, one of the reviews.
     italian.setState({
       owner: other,
-      games: [1, 2].map((n) => ({ ...game(n), language: "it" as const })),
+      games: [1, 2].map((n) => ({ ...game(n), language: "it" as const, game: "chie" as const })),
       reviewLog: [{ ...review(1, 1), language: "it" as const }],
     });
     await importHandoff(await fragment(handoff), now);

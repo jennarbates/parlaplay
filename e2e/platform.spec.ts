@@ -106,7 +106,8 @@ async function saved(page: Page, code: "it" | "zh") {
       `:${code}`,
     );
   await expect.poll(rows).toBe(1);
-  await expect.poll(() => stored(page, `round:${code}`)).toBeDefined();
+  const round = code === "it" ? "round:it:chie" : "round:zh:shei";
+  await expect.poll(() => stored(page, round)).toBeDefined();
 }
 
 // A Level 2 mistake in each game, each on a word of its own.
@@ -271,7 +272,7 @@ test.describe("one account, two languages (2, 6.3)", () => {
       await page.goto(path);
       await expect(page.getByText("Play a round to see your words here.")).toBeVisible();
     }
-    for (const key of ["guest:it", "guest:zh", "round:it", "round:zh"])
+    for (const key of ["guest:it", "guest:zh", "round:it:chie", "round:zh:shei"])
       expect(await stored(page, key)).toBeUndefined();
   });
 });

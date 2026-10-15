@@ -70,7 +70,7 @@ describe("games rows (CHI-071)", () => {
     store.recordGameEnd("g1", "lost", at);
     store.recordGameEnd("g1", "abandoned", at); // a second end is ignored
     expect(useProgressStore.getState().games).toEqual([
-      { ...row, language: "it", endedAt: at.toISOString(), result: "lost" },
+      { ...row, language: "it", game: "chie", endedAt: at.toISOString(), result: "lost" },
     ]);
   });
 });
@@ -104,6 +104,19 @@ describe("persistence", () => {
       games: saved?.games,
       reviewLog: saved?.reviewLog,
     });
+  });
+
+  test("a games row saved before games had ids reads as Chi è?'s (GS 8)", async () => {
+    const old = { id: "g0", language: "it", seed: 1, level: 1, contentVersion: 1, startedAt: "x" };
+    const giallo = { ...old, id: "g1", game: "giallo", caseId: "case.torta" };
+    await write("guest:it", { games: [old, giallo], reviewLog: [] });
+    await useProgressStore.getState().hydrate();
+    expect(useProgressStore.getState().games).toEqual([{ ...old, game: "chie" }, giallo]);
+
+    useProgressStore
+      .getState()
+      .mergeRemote({ games: [{ ...old, id: "g2" }], reviewLog: [] } as never);
+    expect(useProgressStore.getState().games.at(-1)).toMatchObject({ id: "g2", game: "chie" });
   });
 
   test("rows recorded before the saved data loads are kept after it", async () => {

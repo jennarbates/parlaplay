@@ -921,9 +921,9 @@ Chi è stato? · story · 3 pts · spec GS 8, GD1, GD3 · depends on PLAY-080
 GameRow gains game and caseId; round:{code} becomes round:{code}:{game}; per-game content versions.
 
 - [ ] GameRow and the module contract change as GS 8 says, and platform spec 3.1 to 3.3 are updated
-- [ ] A row without game reads as chie
+- [ ] A row without game reads as its language's first game: chie, or shei for Chinese
 - [ ] A round saved under round:it before the change resumes as a Chi è? round
-- [ ] Chi è?'s tests and the separation tests pass unedited
+- [ ] Chi è?'s, Shéi's and the separation tests pass, changed only for the round keys and the game field
 
 #### PLAY-082 Add migration 3 for games.game and case_id
 
@@ -931,8 +931,8 @@ Chi è stato? · chore · 2 pts · spec GS 8 · depends on PLAY-054, PLAY-080
 
 The column, its check, and the read filter for clients from before the change.
 
-- [ ] Migration 3 adds game (default chie, checked to chie or giallo) and case_id
-- [ ] Every existing games row reads as chie after it runs locally
+- [ ] Migration 3 adds game (checked to chie, giallo or shei) and case_id
+- [ ] Every existing games row reads as its language's first game (chie or shei) after it runs locally
 - [ ] Platform spec 6.1 and 6.2 updated in the same pull request
 
 #### PLAY-083 Add the giallo content schemas and lexicon

@@ -44,7 +44,7 @@ export function stored<T>(page: Page, key: string): Promise<T | undefined> {
   );
 }
 export const savedRound = async (page: Page) =>
-  (await stored<{ state: GameState }>(page, "round:zh"))?.state;
+  (await stored<{ state: GameState }>(page, "round:zh:shei"))?.state;
 
 type Guest = {
   games?: { id: string; result?: string }[];

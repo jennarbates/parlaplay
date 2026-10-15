@@ -682,6 +682,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
         {
           id: "g1",
           language: "it",
+          game: "chie",
           seed: 1,
           level: 1,
           contentVersion: 1,
@@ -692,6 +693,7 @@ test.describe("Progress dashboard (DS 9.3)", () => {
         {
           id: "g2",
           language: "it",
+          game: "chie",
           seed: 2,
           level: 1,
           contentVersion: 1,

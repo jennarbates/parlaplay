@@ -48,7 +48,7 @@ export function LanguagePicker() {
                   {l.titlePinyin}
                 </span>
               )}
-              {saved[l.code] && (
+              {l.games.some((game) => saved[game]) && (
                 <span className="self-start rounded-full bg-stone-900 px-3 py-1 text-sm font-semibold text-white">
                   Continue round
                 </span>

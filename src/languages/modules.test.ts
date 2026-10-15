@@ -12,9 +12,17 @@ const loaded: [string, LanguageModule][] = await Promise.all(
 );
 
 describe.each(loaded)("%s", (code, module) => {
-  test("is the module of its own folder and content version", () => {
+  test("is the module of its own folder, games and content versions", () => {
+    const language = registry.find((l) => l.code === code);
     expect(module.code).toBe(code);
-    expect(module.contentVersion).toBe(registry.find((l) => l.code === code)?.contentVersion);
+    expect(module.games.map((g) => g.id)).toEqual(language?.games);
+    expect(module.contentVersions).toEqual(language?.contentVersions);
+  });
+
+  test("the first game is the language's Home, every other game a path under it", () => {
+    const [first, ...rest] = module.games;
+    expect(first?.path).toBe(`/${code}`);
+    for (const game of rest) expect(game.path).toBe(`/${code}/${game.id}`);
   });
 
   test("routes are Home, play and progress (8.1)", () => {
@@ -29,8 +37,9 @@ describe.each(loaded)("%s", (code, module) => {
   });
 
   test("isResumable refuses what is not a saved round of this version", () => {
-    for (const value of [null, undefined, 42, "x", {}, { contentVersion: -1, gameId: "g" }])
-      expect(module.isResumable(value)).toBe(false);
+    for (const { id } of module.games)
+      for (const value of [null, undefined, 42, "x", {}, { contentVersion: -1, gameId: "g" }])
+        expect(module.isResumable(value, id)).toBe(false);
   });
 
   test("device settings have defaults for a missing value", () => {

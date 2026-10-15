@@ -36,7 +36,7 @@ function savedPhase(page: Page): Promise<string | undefined> {
       new Promise((resolve) => {
         const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("round:it");
+          const get = open.result.transaction("kv").objectStore("kv").get("round:it:chie");
           get.onsuccess = () => {
             open.result.close();
             resolve((get.result as { state?: { phase?: string } } | undefined)?.state?.phase);

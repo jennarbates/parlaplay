@@ -12,7 +12,7 @@ import {
 } from "../engine/index.ts";
 import { read, remove, write } from "../../../core/services/storage.ts";
 import { syncNow } from "../../../core/store/account.ts";
-import { useRounds } from "../../../core/store/rounds.ts";
+import { moveOldRounds, roundKey, useRounds } from "../../../core/store/rounds.ts";
 import { useShell } from "../../../core/store/shell.ts";
 import { rowsFor } from "./rows.ts";
 import { useProgressStore } from "../stores.ts";
@@ -37,11 +37,11 @@ type GameStore = {
 // Saves happen in order, one after another, so a slow write can't land after a
 // newer one.
 let saving: Promise<unknown> = Promise.resolve();
-const key = "round:it"; // platform spec 3.3
+const key = roundKey("it", "chie"); // platform spec 3.3
 
 function persist(game: GameState | null, gameId: string | null) {
   const keep = !!game && !!gameId && game.phase !== "over" && game.phase !== "setup";
-  useRounds.getState().setSaved("it", keep);
+  useRounds.getState().setSaved("chie", keep);
   saving = saving.then(() =>
     keep ? write(key, { contentVersion, gameId, state: game } satisfies SavedRound) : remove(key),
   );
@@ -63,9 +63,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastEvents: [],
 
   async hydrate() {
+    await moveOldRounds(); // a round saved under round:{code} (platform spec 3.3)
     const saved = await read<SavedRound>(key);
     if (saved && isResumable(saved)) {
-      useRounds.getState().setSaved("it", true);
+      useRounds.getState().setSaved("chie", true);
       set({ status: "ready", game: saved.state, gameId: saved.gameId, lastEvents: [] });
       return;
     }
@@ -76,7 +77,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         useProgressStore.getState().recordGameEnd(saved.gameId, "abandoned");
       await remove(key);
     }
-    useRounds.getState().setSaved("it", false);
+    useRounds.getState().setSaved("chie", false);
     set({ status: "ready", game: null, gameId: null, lastEvents: [] });
   },
 
@@ -94,6 +95,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // The games row exists before any review row points at it (spec 7.3).
     useProgressStore.getState().recordGameStart({
       id: gameId,
+      game: "chie",
       seed,
       level,
       contentVersion,

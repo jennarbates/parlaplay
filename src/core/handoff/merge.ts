@@ -5,8 +5,9 @@ import type { Op } from "../services/sync.ts";
 import type { GameRow, GuestData } from "../store/progressStore.ts";
 import type { ChieRound, Handoff } from "./schema.ts";
 
-// Everything handed off is Chi è?'s, so every row is Italian.
+// Everything handed off is Chi è?'s, so every row is Italian and of game chie.
 const language = "it" as const;
+const game = "chie" as const;
 
 export const nextPaths = ["/it", "/it/play", "/it/progress"] as const;
 
@@ -31,11 +32,11 @@ export type Incoming = {
   outboxes: PendingOutbox[];
 };
 
-// Step 2: every row gets language "it".
+// Step 2: every row gets language "it", and every games row game "chie".
 export function withLanguage(handoff: Handoff): Incoming {
   return {
     guest: {
-      games: (handoff.guest?.games ?? []).map((g) => ({ ...g, language })),
+      games: (handoff.guest?.games ?? []).map((g) => ({ ...g, language, game })),
       reviewLog: (handoff.guest?.reviewLog ?? []).map((r) => ({ ...r, language })),
     },
     round: handoff.round,
@@ -45,7 +46,7 @@ export function withLanguage(handoff: Handoff): Incoming {
         userId,
         ops: ops.map((op): Op =>
           op.kind === "game"
-            ? { kind: "game", row: { ...op.row, language } }
+            ? { kind: "game", row: { ...op.row, language, game } }
             : { kind: "review", row: { ...op.row, language } },
         ),
       })),

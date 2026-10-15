@@ -53,6 +53,7 @@ async function signedIn(email: string, password: string): Promise<SupabaseClient
 const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
   id,
   language: "it",
+  game: "chie",
   seed: 1,
   level: 2,
   contentVersion: 1,

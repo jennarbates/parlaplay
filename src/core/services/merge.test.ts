@@ -58,6 +58,7 @@ const user = "00000000-0000-4000-8000-00000000000a";
 const game = (id: string, over: Partial<GameRow> = {}): GameRow => ({
   id,
   language: "it",
+  game: "chie",
   seed: 1,
   level: 2,
   contentVersion: 1,

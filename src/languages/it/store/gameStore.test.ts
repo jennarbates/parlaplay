@@ -3,7 +3,8 @@ import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { contentVersion } from "../content/index.ts";
 import { allQuestions } from "../engine/index.ts";
-import { read, resetForTests, write } from "../../../core/services/storage.ts";
+import { read, remove, resetForTests, write } from "../../../core/services/storage.ts";
+import { resetMoveForTests } from "../../../core/store/rounds.ts";
 import { randomSeed, savesSettled, useGameStore, type SavedRound } from "./gameStore.ts";
 import { progressSaved } from "../../../core/store/progressStore.ts";
 import { useProgressStore } from "../stores.ts";
@@ -27,7 +28,7 @@ const withId = (state: unknown) => ({
 
 async function saved() {
   await savesSettled();
-  return read<SavedRound>("round:it");
+  return read<SavedRound>("round:it:chie");
 }
 
 describe("start and dispatch", () => {
@@ -118,6 +119,23 @@ describe("hydrate", () => {
     expect(useGameStore.getState().game?.phase).toBe("cpuTurn");
   });
 
+  test("a round saved under round:it before games had ids resumes as Chi è? (GS 8)", async () => {
+    useGameStore.getState().start(1, 5);
+    const before = useGameStore.getState().game;
+    await savesSettled();
+    // The same round, as a build from before PLAY-081 saved it, and an app start.
+    const old = await read<SavedRound>("round:it:chie");
+    await write("round:it", old);
+    await remove("round:it:chie");
+    useGameStore.setState({ status: "loading", game: null, gameId: null, lastEvents: [] });
+    resetForTests();
+    resetMoveForTests();
+    await useGameStore.getState().hydrate();
+    expect(useGameStore.getState()).toMatchObject({ status: "ready", game: before });
+    expect(await read("round:it")).toBeUndefined();
+    expect(await read("round:it:chie")).toEqual(old);
+  });
+
   test("with nothing saved, ready with no round", async () => {
     await useGameStore.getState().hydrate();
     expect(useGameStore.getState()).toMatchObject({ status: "ready", game: null });
@@ -127,11 +145,11 @@ describe("hydrate", () => {
     useGameStore.getState().start(1, 5);
     const state = useGameStore.getState().game;
     await savesSettled();
-    await write("round:it", { contentVersion: contentVersion - 1, gameId: "g", state });
+    await write("round:it:chie", { contentVersion: contentVersion - 1, gameId: "g", state });
     useGameStore.setState({ status: "loading", game: null });
     await useGameStore.getState().hydrate();
     expect(useGameStore.getState().game).toBeNull();
-    expect(await read("round:it")).toBeUndefined();
+    expect(await read("round:it:chie")).toBeUndefined();
   });
 
   test.each([
@@ -154,11 +172,11 @@ describe("hydrate", () => {
             : kind === "noGameId"
               ? { contentVersion, state }
               : kind;
-    await write("round:it", damaged);
+    await write("round:it:chie", damaged);
     useGameStore.setState({ status: "loading", game: null });
     await useGameStore.getState().hydrate();
     expect(useGameStore.getState().game).toBeNull();
-    expect(await read("round:it")).toBeUndefined();
+    expect(await read("round:it:chie")).toBeUndefined();
   });
 
   test("broken storage still gets the app to ready", async () => {
@@ -187,6 +205,7 @@ describe("games rows and the review log (CHI-070, CHI-071)", () => {
       {
         id: gameId,
         language: "it",
+        game: "chie",
         seed: 99,
         level: 2,
         contentVersion,

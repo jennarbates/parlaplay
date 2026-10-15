@@ -46,8 +46,11 @@ test.each([
     useSettings.getState().setPinyin(true);
     useSettings.getState().setPronoun("pr.ta.f");
   }
+  // Every per-language key ends with the code, but a round's, which is round:{code}:{game}.
   for (const key of await keys()) {
-    expect(shared.includes(key) || key.endsWith(`:${code}`), key).toBe(true);
+    const ours = key.endsWith(`:${code}`) || key.startsWith(`round:${code}:`);
+    expect(shared.includes(key) || ours, key).toBe(true);
   }
-  expect(await keys()).toEqual(expect.arrayContaining([`guest:${code}`, `round:${code}`, "app"]));
+  const round = `round:${code}:${code === "it" ? "chie" : "shei"}`;
+  expect(await keys()).toEqual(expect.arrayContaining([`guest:${code}`, round, "app"]));
 });

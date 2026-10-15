@@ -5,6 +5,7 @@ import type { Label, LanguageModule } from "../../core/language-module.ts";
 import { useRounds } from "../../core/store/rounds.ts";
 import { cardIds } from "./cards.ts";
 import { content, contentVersion } from "./content/index.ts";
+import gialloVersion from "./giallo/content/version.json" with { type: "json" };
 import { inProgress, isResumable, useGameStore } from "./store/gameStore.ts";
 import { Game } from "./ui/Game.tsx";
 import { Home } from "./ui/Home.tsx";
@@ -22,7 +23,7 @@ const labels = new Map<string, Label>(
 
 // Resume a saved round, and let the shell start or clear one (core/store/rounds.ts).
 void useGameStore.getState().hydrate();
-useRounds.getState().register("it", {
+useRounds.getState().register("chie", {
   newRound(level) {
     const { status, game, start } = useGameStore.getState();
     if (status === "ready" && !inProgress(game)) start(level);
@@ -34,7 +35,24 @@ useRounds.getState().register("it", {
 
 const italian: LanguageModule = {
   code: "it",
-  contentVersion,
+  games: [
+    {
+      id: "chie",
+      title: "Chi è?",
+      titleLang: "it",
+      blurb: "Guess the hidden face by asking questions in Italian.",
+      path: "/it",
+    },
+    // Chi è stato? GS 8: listed now, playable once its screens land (PLAY-088).
+    {
+      id: "giallo",
+      title: "Chi è stato?",
+      titleLang: "it",
+      blurb: "Solve a theft by asking the suspects questions in Italian.",
+      path: "/it/giallo",
+    },
+  ],
+  contentVersions: { chie: contentVersion, giallo: gialloVersion.contentVersion },
   // Desktop spec DS 5: each screen's width at lg; the game takes the whole window.
   routes: [
     { index: true, Component: Home, handle: { width: "lg:max-w-5xl" } },
@@ -43,7 +61,8 @@ const italian: LanguageModule = {
   ],
   cardIds,
   labelFor: (id) => labels.get(id),
-  isResumable,
+  // The giallo has no engine yet, so no round of it resumes.
+  isResumable: (saved, game) => game === "chie" && isResumable(saved),
   deviceSettings: z.strictObject({}), // Chi è? has none
 };
 

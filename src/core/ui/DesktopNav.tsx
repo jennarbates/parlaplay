@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router";
-import { firstCode, languageOf } from "../registry.ts";
+import { firstCode, firstGameOf, languageOf } from "../registry.ts";
 import { useAccountStore } from "../store/account.ts";
 import { useAuthStore } from "../store/authStore.ts";
 import { useStore } from "zustand";
@@ -19,7 +19,8 @@ const link =
 // current route gets aria-current="page" (from NavLink) and an underline.
 export function DesktopNav() {
   const code = useShell((s) => s.state.language ?? s.recent ?? s.state.lastLanguage);
-  const saved = useRounds((r) => (code ? r.saved[code] === true : false));
+  // Play is the language's first game's (Chi è stato? GS 8).
+  const saved = useRounds((r) => (code ? r.saved[firstGameOf(code)] === true : false));
   const settled = useAccountStore((a) => a.settled);
   const auth = useAuthStore();
   // Hooks can't be conditional: with no language yet, read the first one's level unused.
@@ -47,7 +48,7 @@ export function DesktopNav() {
                 e.preventDefault();
                 const { code } = language;
                 void Promise.resolve(navigate(`/${code}/play?level=${level}`)).then(() =>
-                  useRounds.getState().hooks[code]?.newRound(level),
+                  useRounds.getState().hooks[firstGameOf(code)]?.newRound(level),
                 );
               }}
               className={link}

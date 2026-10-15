@@ -12,7 +12,7 @@ function savedFlipped(page: Page): Promise<string[] | undefined> {
       new Promise<string[] | undefined>((resolve) => {
         const open = indexedDB.open("parlaplay");
         open.onsuccess = () => {
-          const get = open.result.transaction("kv").objectStore("kv").get("round:it");
+          const get = open.result.transaction("kv").objectStore("kv").get("round:it:chie");
           get.onsuccess = () => {
             open.result.close();
             resolve((get.result as { state?: { flipped?: string[] } } | undefined)?.state?.flipped);
