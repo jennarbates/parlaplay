@@ -716,6 +716,7 @@ Same screens, flow and routes (`/`, `/play`, `/progress`, `/settings`, `/privacy
 |---|---|
 | Home | Title `谁？` with `Shéi?` below it |
 | Game: card | Face art, then the name in characters with its pinyin below, both on the card at every level |
+| Game: your card | As Chi è? 8.1: your secret card fills the top bar's height in an amber frame, with "You are", the name and its pinyin beside it (#131) |
 | Game: Level 1 picker | Pronoun switch at the top (`他` / `她`, default `他`). The 14 questions, each with ruby pinyin and its English gloss ("Is he a doctor?"). Asked questions greyed out with their answer |
 | Game: Level 2 builder | A tray line above the tiles: one row with the pronouns `他 她 你`, the verbs `是 有 在` and `吗` (7 tiles), then the 14 nouns in three rows. Tapping a tile appends it to the tray; tapping a tile in the tray removes it; "Clear" empties it; the tray holds at most 6 tiles and ignores further taps. "Ask" submits. A "Pinyin" toggle shows ruby pinyin on every tile and in the tray |
 | Game: CPU question | The question with ruby pinyin at Level 1 (characters only at Level 2 unless the toggle is on); "Show hint" reveals English at Level 1; answer buttons as section 2 |
@@ -933,3 +934,4 @@ Also queued, as Chi è?: final art, Easy CPU setting, championship mode, Google 
 - 2026-10-07: v0 draft.
 - 2026-10-07: Repo (section 9) starts from Chi è?'s history instead of a files-only copy, with an `italian` remote for cherry-picking fixes; Chi è?'s spec kept as `docs/chi-e-spec.md`.
 - 2026-10-08: Desktop now points at `it-desktop.md` and `zh-desktop.md` (PLAY-057). 8.3: `a` asks, instead of Enter in the tray.
+- 2026-10-15: #131. 8.1: your secret card in the top bar is bigger, as Chi è?'s. On desktop a larger copy heads the side panel (`zh-desktop.md` ZD20).

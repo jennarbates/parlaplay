@@ -10,6 +10,8 @@ import { answerIds } from "../../src/languages/zh/ui/game/answers.ts";
 const names = content.characters.map((c) => c.name);
 const first = names[0] ?? "";
 const panel = (page: Page) => page.getByRole("complementary", { name: "Questions" });
+// The panel's middle, under the summary, holds the phase area first.
+const phaseArea = (page: Page) => panel(page).locator(":scope > div:nth-child(2) > div").first();
 const cards = (page: Page) => page.locator('[aria-label="Board"] [data-card]');
 // Level 1's questions: three columns at desktop size (ZS 7.1).
 const questions = (page: Page) => panel(page).getByRole("group", { name: "Questions to ask" });
@@ -796,7 +798,7 @@ test.describe("word glosses (ZS 7.4)", () => {
     await expect(gloss(page)).toHaveCount(0);
     await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
     // The phase area's own sentence is glossable too.
-    await word(panel(page).locator("div").first(), "有").first().hover();
+    await word(phaseArea(page), "有").first().hover();
     await expect(gloss(page)).toContainText("yǒu");
     await page.mouse.move(5, 300);
     await expect(gloss(page)).toHaveCount(0);

@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
 type Props = {
+  // Above the summary: the player's own card, larger, where the screen is tall
+  // enough (#131).
+  top?: ReactNode;
   summary: ReactNode;
   actions?: ReactNode;
   // Shéi's round log (zh-desktop.md ZS 7.3), between the phase area and the
@@ -15,15 +18,19 @@ type Props = {
 // Desktop spec DS 6.2, DD2, DD3: at lg the questions sit beside the board in an
 // always-open panel, showing what the phone's sheet shows (sheetFor() in Game).
 // Its width is fixed by the grid, so its content never resizes the board.
-export function SidePanel({ summary, actions, log, overlay, children }: Props) {
+export function SidePanel({ top, summary, actions, log, overlay, children }: Props) {
   return (
     <aside
       aria-label="Questions"
       className="flex min-h-0 flex-col border-l border-stone-200 bg-white"
     >
-      <p aria-live="polite" className="shrink-0 border-b border-stone-100 px-5 py-4 text-lg">
-        {summary}
-      </p>
+      {/* One child with the summary, so the panel stays header, middle, actions. */}
+      <div className="shrink-0">
+        {top}
+        <p aria-live="polite" className="border-b border-stone-100 px-5 py-4 text-lg">
+          {summary}
+        </p>
+      </div>
       <div className="relative flex min-h-0 flex-1 flex-col">
         <div
           className={`min-h-0 overflow-y-auto overscroll-contain px-5 ${log ? "shrink" : "flex-1"}`}

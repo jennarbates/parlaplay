@@ -21,7 +21,7 @@ import { shortcutRows } from "./game/shortcutRows.ts";
 import { Sheet } from "./game/Sheet.tsx";
 import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { TileBuilder, type TileDraft } from "./game/TileBuilder.tsx";
-import { TopBar } from "./game/TopBar.tsx";
+import { PanelCard, TopBar } from "./game/TopBar.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
 import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
 import { paths } from "../paths.ts";
@@ -244,7 +244,7 @@ export function Game() {
         <SyncBanner />
       </div>
       <div className="flex min-h-0 flex-col">{board}</div>
-      <SidePanel summary={summary} actions={actions}>
+      <SidePanel top={<PanelCard secret={secret} />} summary={summary} actions={actions}>
         {body}
       </SidePanel>
     </div>
