@@ -46,7 +46,7 @@ Rule: anything not in the left column is out. New ideas go to DS 14.1, not into 
 
 1. The learner opens `chie.parlaplay.games` in a 1280 × 800 window. DesktopNav shows across the top; Home shows two columns (DS 9.1).
 2. They pick Level 1 and click **Play** (or press Enter on it). `/play` opens with no DesktopNav: TopBar on top, the 6 × 4 board on the left, the side panel on the right with the summary "Your turn: ask a question, or guess." and the question list.
-3. They hover a card for 350 ms; a larger preview appears over it (DS 7.2). They move the pointer away and it disappears.
+3. They hover a card for 700 ms; a larger preview appears over it (DS 7.2). They move the pointer away and it disappears.
 4. They press `q`; focus moves to the first enabled question. ↓ twice, Enter: the question is asked. The panel shows the answer (phase `playerReview`).
 5. They press `b`; focus moves to the board. They use the arrow keys and Enter to flip down the cards the answer rules out, then press `a` (Avanti).
 6. The CPU asks its question (phase `cpuTurn`). The panel shows it with **Sì** / **No**. They press `s`. The panel shows ✓ or ✗ (phase `cpuReview`). They press `a`.
@@ -347,7 +347,7 @@ Click works exactly like tap does today: click a card to flip it, click "Indovin
 
 **Decision: hovering a card shows a larger read-only preview after a short delay (DD6).** The reason: long-press is how the phone shows a face up close, and with a mouse it is slow and nobody finds it.
 
-- **When.** Only at `lg` with `(hover: hover) and (pointer: fine)`. It appears after the pointer rests on one card for **350 ms**, and hides as soon as the pointer leaves. Moving straight from one card to another while a preview is open swaps it at once, with no new delay.
+- **When.** Only at `lg` with `(hover: hover) and (pointer: fine)`. It appears after the pointer rests on one card for **700 ms**, and hides as soon as the pointer leaves. Moving straight from one card to another while a preview is open swaps it after a shorter **250 ms**, so sweeping across the board does not pop a preview over every card. Clicking a card before its preview appears cancels the preview until the pointer leaves that card, so a flip never flashes one.
 - **What.** The card's face at 2× its board width, capped at `16rem`, with the name under it. No attribute list (that is CardDetail).
 - **Where.** Centred over the hovered card, clamped inside the board area. It grows out of the card rather than sitting beside it, so it covers the card itself and not one side of neighbours; `pointer-events-none` keeps the card under it hoverable and clickable. Its position is computed once when it shows, from `getBoundingClientRect`.
 - **How.** A new `src/ui/game/CardPreview.tsx`: `role="tooltip"`, `pointer-events-none`, no focus. While it is open the card has `aria-describedby` pointing to it.
@@ -676,4 +676,5 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 - 2026-10-07: CHI-125. DS 3: `dueToday` counts due cards (word × direction), not words, so it equals the Due list's "Due today (n)" as the last invariant asks; the first invariant, which assumed words, now bounds it by the reviewed cards. `localDay()` moved to `src/services/localDay.ts` so e2e tests can use it.
 - 2026-10-12: PLAY-029. DS 9.4: the "Game" section becomes one section per language ("Italian", "Chinese"), after "Account", each with its Default level row ("The level Play starts at in Italian.") and its device settings as rows (Chinese: "Show pinyin at Level 2"), following platform `spec.md` §8.1.
 - 2026-10-12: DS 9.2, DS 9.6: the buttons that take focus on their own (GuessConfirm's confirm, round end's "Play again") ignore a held Enter's repeats. Before, holding Enter on a card while guessing picked the card, confirmed the guess and started the next round. Found by the Shéi desktop paper trace (F2).
+- 2026-10-15: #130. DS 7.2: the hover preview waits 700 ms, not 350 ms, and moving straight to the next card waits 250 ms instead of swapping at once. Moving to a card and clicking it often took longer than 350 ms, so the preview zoomed in mid-aim. A click before the preview shows now cancels it.
 - 2026-10-15: #131. DS 6, DD15: your card is bigger in the TopBar, and a larger copy heads the side panel on screens at least 800px tall.
