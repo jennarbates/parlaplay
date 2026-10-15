@@ -39,7 +39,7 @@ import { Sheet } from "./game/Sheet.tsx";
 import { shortcutRows } from "./game/shortcutRows.ts";
 import { keyToAction } from "./game/shortcuts.ts";
 import { TileBuilder } from "./game/TileBuilder.tsx";
-import { TopBar } from "./game/TopBar.tsx";
+import { PanelCard, TopBar } from "./game/TopBar.tsx";
 import { paths } from "../paths.ts";
 
 const byId = new Map(content.characters.map((c) => [c.id, c]));
@@ -366,6 +366,7 @@ export function Game() {
       </div>
       <div className="flex min-h-0 flex-col bg-stone-50">{board}</div>
       <SidePanel
+        top={<PanelCard secret={secret} />}
         summary={summary}
         actions={actions}
         log={

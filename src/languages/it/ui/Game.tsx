@@ -22,7 +22,7 @@ import { Sheet } from "./game/Sheet.tsx";
 import { PanelTabs, PanelTabsOverlay, type PanelTab } from "../../../core/ui/PanelTabs.tsx";
 import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { TileBuilder, type TileDraft } from "./game/TileBuilder.tsx";
-import { TopBar } from "./game/TopBar.tsx";
+import { PanelCard, TopBar } from "./game/TopBar.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
 import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
 import {
@@ -272,6 +272,7 @@ export function Game() {
       </div>
       <div className="flex min-h-0 flex-col">{board}</div>
       <SidePanel
+        top={<PanelCard secret={secret} />}
         summary={summary}
         actions={actions}
         // The questions scroll here (DS 6.2), so once there are facts the section

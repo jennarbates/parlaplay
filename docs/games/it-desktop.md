@@ -293,6 +293,7 @@ Below `lg`: the `max-w-md` column, no nav, no change.
 ### DS 6.1 Grid and board sizing
 
 - The root is `grid h-dvh grid-rows-[auto_1fr] grid-cols-[1fr_minmax(22rem,26rem)]`; TopBar spans both columns.
+- Your card (DD15): in TopBar it is 48px tall in an amber frame. On screens at least 800px tall (`[@media(min-height:50rem)]`), a 128px copy with "You are" and the name heads the side panel, above the summary, as `SidePanel`'s `top`.
 - **The board is 6 columns × 4 rows on desktop (DD4)**, instead of 4 × 6. The reason: the board area is wider than it is tall, and a landscape grid gives bigger cards. At 1440 × 900 the cards are about 170px wide; 4 × 6 in the same space would give about 110px.
 - The `--card-w` formula in `src/ui/game/Board.tsx` becomes generic:
 
@@ -652,6 +653,7 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 | DD12 | Desktop work runs before launch, by Day 11 | The user's choice; the MVP build is ahead of plan, and finishing by Day 11 lets the existing playtest cover desktop |
 | DD13 | Desktop is tested by the MVP playtesters | No separate recruiting; at least 2 play one round on a laptop |
 | DD14 | The board grid uses rows of `gridcell`s (ARIA grid) | Arrow-key movement then follows the WAI-ARIA grid pattern that screen readers expect |
+| DD15 | Your card is bigger within the 56px bar, and a larger copy (128px tall) heads the side panel on screens at least 800px tall (#131) | It was easy to miss and too small to read details like eye colour. A taller bar would shrink every board card and break platform spec 8.4. The panel copy needs 153px, which at 1024 × 640 the panel does not have (ZS 6.3), so it shows only from 800px tall, and is hidden from assistive technology because the bar's card is the one to click. Decided by the owner on 2026-10-15 |
 | DD16 | "What you know" sits under the side panel's body and keeps at least 10rem once there is a fact (#132) | Chi è? has no round log; the facts are what narrow the board, and the body already scrolls. Decided by the owner on 2026-10-15 |
 
 ## DS 15. References
@@ -677,4 +679,5 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 - 2026-10-12: PLAY-029. DS 9.4: the "Game" section becomes one section per language ("Italian", "Chinese"), after "Account", each with its Default level row ("The level Play starts at in Italian.") and its device settings as rows (Chinese: "Show pinyin at Level 2"), following platform `spec.md` §8.1.
 - 2026-10-12: DS 9.2, DS 9.6: the buttons that take focus on their own (GuessConfirm's confirm, round end's "Play again") ignore a held Enter's repeats. Before, holding Enter on a card while guessing picked the card, confirmed the guess and started the next round. Found by the Shéi desktop paper trace (F2).
 - 2026-10-15: #130. DS 7.2: the hover preview waits 700 ms, not 350 ms, and moving straight to the next card waits 250 ms instead of swapping at once. Moving to a card and clicking it often took longer than 350 ms, so the preview zoomed in mid-aim. A click before the preview shows now cancels it.
+- 2026-10-15: #131. DS 6, DD15: your card is bigger in the TopBar, and a larger copy heads the side panel on screens at least 800px tall.
 - 2026-10-15: #132. DS 6.2, DD16: "What you know" under the panel's body. The phone has a button in the sheet that opens the facts in a dialog (`it.md` 8.1).

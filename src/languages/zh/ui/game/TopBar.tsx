@@ -13,7 +13,8 @@ const whoseTurn: Record<GameState["phase"], string> = {
 };
 
 // Spec 8.1: turn, whose turn, and the player's own secret card, always visible.
-// The card is small here, so clicking it opens the detail view to check it.
+// The card fills the bar's height in an amber frame so it stands out (#131);
+// clicking it opens the detail view to check it.
 export function TopBar({
   game,
   secret,
@@ -38,11 +39,11 @@ export function TopBar({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <figure className="flex items-center gap-1.5">
+        <figure className="flex items-center gap-2 rounded-lg bg-amber-50 pl-2 ring-1 ring-amber-300">
           <figcaption className="text-right text-xs leading-tight text-stone-600">
             You are
             <br />
-            <span lang="zh-Hans" className="text-sm font-medium text-stone-900">
+            <span lang="zh-Hans" className="text-sm font-semibold text-stone-900">
               {secret.name}
             </span>
             <br />
@@ -52,12 +53,12 @@ export function TopBar({
             type="button"
             onClick={onZoom}
             title="Zoom your card"
-            className="flex min-w-11 justify-center rounded hover:ring-2 hover:ring-stone-400 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
+            className="flex min-w-11 justify-center rounded-r-lg hover:ring-2 hover:ring-stone-400 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
           >
             <Face
               character={secret}
               label={`Your card: ${secret.name}`}
-              className="h-11 rounded ring-1 ring-stone-300"
+              className="h-12 rounded-r-lg"
             />
             <span className="sr-only">Zoom your card</span>
           </button>
@@ -65,5 +66,32 @@ export function TopBar({
         {menu}
       </div>
     </header>
+  );
+}
+
+// Desktop (#131): a larger copy of the player's card at the top of the side panel,
+// big enough to read details like eye colour. Only on screens at least 800px
+// tall, so at 1024 × 640 the panel keeps its height budget (ZS 6.3) and the board
+// keeps its size. The bar's card stays the one to click and the one a screen
+// reader hears, so this copy is hidden from assistive technology.
+export function PanelCard({ secret }: { secret: Character }) {
+  return (
+    <figure
+      aria-hidden="true"
+      className="hidden shrink-0 items-center gap-4 border-b border-amber-200 bg-amber-50 px-5 py-3 [@media(min-height:50rem)]:flex"
+    >
+      <Face character={secret} className="h-32 rounded-lg ring-1 ring-amber-300" />
+      <figcaption className="leading-tight">
+        <span className="text-sm text-stone-600">You are</span>
+        <br />
+        <span lang="zh-Hans" className="text-2xl font-bold text-stone-900">
+          {secret.name}
+        </span>
+        <br />
+        <span lang="zh-Latn-pinyin" className="text-base text-stone-700">
+          {secret.namePinyin}
+        </span>
+      </figcaption>
+    </figure>
   );
 }
