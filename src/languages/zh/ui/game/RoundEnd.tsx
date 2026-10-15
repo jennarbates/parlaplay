@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { content } from "../../content/index.ts";
 import type { GameState } from "../../engine/index.ts";
 import { requestPersistence } from "../../../../core/services/storage.ts";
+import { useAuthStore } from "../../../../core/store/authStore.ts";
 import { ignoreHeldEnter } from "../../../../core/ui/dialog.ts";
 import { useIsDesktop } from "../../../../core/ui/useMediaQuery.ts";
 import { Face } from "../Face.tsx";
@@ -35,6 +36,9 @@ export function RoundEnd({
   useEffect(() => {
     void requestPersistence();
   }, []);
+  // Only a guest is nudged: not while sign-in is still loading, so it doesn't flash,
+  // and not in a build without sign-in.
+  const guest = useAuthStore((s) => s.status === "guest");
   // zh-desktop.md ZS 10.2: Play again has focus when the screen appears, so Enter
   // starts the next round; a key still held from the guess does not (ZS 2.2).
   const desktop = useIsDesktop();
@@ -184,7 +188,7 @@ export function RoundEnd({
             english
             className="max-h-[calc(100dvh-14rem)] !px-0"
           />
-          {nudge}
+          {guest && nudge}
         </section>
       </div>
     );
@@ -227,7 +231,7 @@ export function RoundEnd({
         </ol>
       </section>
 
-      {nudge}
+      {guest && nudge}
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 border-t border-stone-200 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {buttons}
       </div>

@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { content } from "../../content/index.ts";
 import type { GameState } from "../../engine/index.ts";
 import { requestPersistence } from "../../../../core/services/storage.ts";
+import { useAuthStore } from "../../../../core/store/authStore.ts";
 import { Face } from "../Face.tsx";
 import { renderMessage } from "../messages.ts";
 import { ignoreHeldEnter } from "../../../../core/ui/dialog.ts";
@@ -36,6 +37,9 @@ export function RoundEnd({
 }) {
   const reviewLog = useProgressStore((s) => s.reviewLog);
   const desktop = useIsDesktop();
+  // Only a guest is nudged: not while sign-in is still loading, so it doesn't flash,
+  // and not in a build without sign-in.
+  const guest = useAuthStore((s) => s.status === "guest");
   // Ask the browser to keep this device's progress now that there is some.
   useEffect(() => {
     void requestPersistence();
@@ -209,7 +213,7 @@ export function RoundEnd({
         <div className="flex flex-col gap-6">
           {history}
           {mistakesList}
-          {nudge}
+          {guest && nudge}
         </div>
       </div>
     );
@@ -221,7 +225,7 @@ export function RoundEnd({
       {cards}
       {mistakesList}
       {history}
-      {nudge}
+      {guest && nudge}
       {actions}
     </div>
   );

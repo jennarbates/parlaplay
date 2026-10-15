@@ -53,7 +53,7 @@ async function cpuQuestionText(page: Page) {
 }
 
 test.describe("round end (CHI-060)", () => {
-  test("after a round with a mistake: result, both cards, history, mistakes, nudge, Play again", async ({
+  test("after a round with a mistake: result, both cards, history, mistakes, Play again", async ({
     page,
   }) => {
     const seed = 8;
@@ -109,10 +109,6 @@ test.describe("round end (CHI-060)", () => {
     await expect(mistakes.getByRole("listitem")).toHaveCount(cpuQ.fill.adj ? 3 : 2);
     await expect(mistakes).toContainText("barba: il → la");
     await expect(mistakes).toContainText(`${truth ? "No" : "Sì"} → ${truth ? "Sì" : "No"}`);
-
-    await expect(
-      page.getByRole("link", { name: "Sign in to keep your progress safe" }),
-    ).toBeVisible();
 
     await page.getByRole("button", { name: "Play again" }).click();
     await expect(page.locator("header")).toContainText("Turn 1");

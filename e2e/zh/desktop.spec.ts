@@ -1,7 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { content } from "../../src/languages/zh/content/index.ts";
-import { answersFor, build, card, chineseText, guessCard, savedRound, zh } from "./game.ts";
+import {
+  answersFor,
+  build,
+  card,
+  chineseText,
+  guessCard,
+  pendingRound,
+  savedRound,
+  zh,
+} from "./game.ts";
 import { answerIds } from "../../src/languages/zh/ui/game/answers.ts";
 
 // zh-desktop.md ZS 13.3: Shéi at desktop size. Runs on the desktop profiles only
@@ -552,10 +561,10 @@ test.describe("keyboard (ZS 9)", () => {
   // The computer's turn, by number key: the right answer's place among the buttons.
   async function answerByNumber(page: Page) {
     await expect(page.getByRole("group", { name: "Your answer" })).toBeVisible();
-    const round = await savedRound(page);
-    const key = round?.pendingCpuQuestion?.key ?? "";
-    const [right] = answersFor(key, round?.playerSecret ?? "");
-    const place = answerIds(key, round?.level ?? 1).indexOf(right);
+    const round = await pendingRound(page);
+    const { key } = round.pendingCpuQuestion;
+    const [right] = answersFor(key, round.playerSecret);
+    const place = answerIds(key, round.level).indexOf(right);
     await page.keyboard.press(String(place + 1));
     await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
     await expect(panel(page)).toContainText("Right!");
@@ -650,7 +659,9 @@ test.describe("keyboard (ZS 9)", () => {
     await page.keyboard.press("Escape"); // out of the empty field
     await page.keyboard.press("a");
     await expect(panel(page).getByRole("button", { name: "Next" })).toBeVisible();
-    expect((await savedRound(page))?.history.at(-1)?.text).toBe("他有猫吗？");
+    await expect
+      .poll(async () => (await savedRound(page))?.history.at(-1)?.text)
+      .toBe("他有猫吗？");
     await page.keyboard.press("n");
     await answerByNumber(page);
     await page.keyboard.press("n");
@@ -864,6 +875,17 @@ test.describe("mouse and board keys (ZS 8, ZS 9.4)", () => {
     expect(tb.y < cb.y + cb.height && tb.y + tb.height > cb.y).toBe(true);
     expect(tb.width).toBeCloseTo(Math.min(cb.width * 2, 256), 0);
     await page.mouse.move(5, 300);
+    await expect(tooltip(page)).toHaveCount(0);
+  });
+
+  test("clicking a card before the preview shows flips it, with no preview", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    const c = cards(page).nth(7);
+    await c.hover();
+    await page.waitForTimeout(300);
+    await c.click();
+    await expect(c).toHaveAttribute("aria-pressed", "true");
+    await page.waitForTimeout(800);
     await expect(tooltip(page)).toHaveCount(0);
   });
 
