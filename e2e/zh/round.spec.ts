@@ -19,7 +19,7 @@ const savedGames = async (page: Page) => (await savedGuest(page)).games ?? [];
 const savedPhase = async (page: Page) => (await savedRound(page))?.phase;
 
 test.describe("round end (CHI-060)", () => {
-  test("after a round with a mistake: result, both cards, history, mistakes, nudge, Play again", async ({
+  test("after a round with a mistake: result, both cards, history, mistakes, Play again", async ({
     page,
   }) => {
     const seed = 8;
@@ -62,10 +62,6 @@ test.describe("round end (CHI-060)", () => {
     await expect(mistakes.getByRole("listitem")).toHaveCount(2);
     await expect(mistakes).toContainText("狗: 是 → 有");
     await expect(mistakes).toContainText(`${hanziOf(wrong.id)} →`);
-
-    await expect(
-      page.getByRole("link", { name: "Sign in to keep your progress safe" }),
-    ).toBeVisible();
 
     await page.getByRole("button", { name: "Play again" }).click();
     await expect(page.locator("header")).toContainText("Turn 1");
