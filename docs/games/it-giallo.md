@@ -159,10 +159,13 @@ const QWord = z.strictObject({
     text: z.string(),                       // "quante"
     key: z.string(),                        // "fp"; "base" for words with one form
     elided: z.boolean().optional(),         // true for dov', com', cos', quant'
+    distractor: z.boolean().optional(),     // a tile that is never right: qual'
   })),
   level: z.enum(["A1", "A2"]),
 });
 ```
+
+Prepositions are `{ id: "prep.con", pos: "prep", text, gloss }` and `ora` is `{ id: "w.ora", pos: "word", text, gloss }`. A word with a preposition lists only the words after it as its form: `q.a_che_ora` is `prep.a` plus the form `che ora`. Every level is `A1` until the reviewer's levels come back (PLAY-077, PLAY-080).
 
 `lexicon.json` for the giallo holds the 12 qwords, the prepositions `con`, `di`, `a`, `da` and the tile `ora`. Ids are disjoint from Chi è?'s and from every other language's (platform D21): question words start `q.`, prepositions `prep.`.
 
@@ -180,12 +183,12 @@ const Frame = z.strictObject({
   asks: z.array(z.strictObject({            // accepted question words and the fact each asks
     qword: z.string(),                      // "q.dove"
     fact: z.string(),                       // "where"
+    hint: z.string(),                       // English for Level 1: "Where were you {slotEn}?"
   })),
   teaches: z.array(z.strictObject({         // known errors: built as given, rejected with a rule
-    built: z.string(),                      // "q.chi" (without its preposition)
+    built: z.string(),                      // the qword the tiles make without its preposition: "q.chi"
     rule: z.string(),                       // "prep.diChi"
   })).optional(),
-  hint: z.string(),                         // English for Level 1, per accepted qword: see below
 });
 ```
 
@@ -212,9 +215,8 @@ Example, with the teaching combo for `prep.diChi`:
 ```json
 { "id": "f.owner.umbrella", "body": { "m": "è questo ombrello?", "f": "è questo ombrello?" },
   "vowelStart": true, "slotParam": false,
-  "asks": [{ "qword": "q.di_chi", "fact": "owner" }],
-  "teaches": [{ "built": "q.chi", "rule": "prep.diChi" }],
-  "hint": "Whose umbrella is this?" }
+  "asks": [{ "qword": "q.di_chi", "fact": "owner", "hint": "Whose umbrella is this?" }],
+  "teaches": [{ "built": "q.chi", "rule": "prep.diChi" }] }
 ```
 
 In `f.at.slot` one body asks two facts: the question word decides which, which is exactly the lesson.
@@ -376,15 +378,17 @@ Joining: an `elided` form joins the body with no space (`dov'` + `era` = `dov'er
 
 ### GS 5.4 Solver and invariants (each becomes a test)
 
-`solve(case, cast, hide, crime, notebook)` returns what the notebook proves: `{ time: boolean, place: boolean, cleared: role[] }`, applying every `proves` entry whose `requires` are all present.
+`solve(case, notebook)` returns what the notebook proves: `{ time: boolean, place: boolean, cleared: role[] }`, applying every `proves` entry whose `requires` are all present. Each notebook entry carries the key of the answer it got (`null` for the case's `default`), so the casting, hiding place and crime slot are already in it. A case is solved when the time and place are proved and every suspect but `r.culprit` is cleared. Code: `src/languages/it/giallo/engine/` (`answers.ts` for lookup and placeholders, `solve.ts`, `invariants.ts`).
 
-1. **Unique solution.** With every possible question in the notebook, `solve` proves time and place, and clears every suspect but the culprit, for every seeded variant.
-2. **Solvable in budget.** For every variant, some set of at most **10** questions proves all three. (Exact search: cases are small enough to enumerate answer sets by their `proves` entries.) This leaves 5 questions of slack, and 3 stars are reachable with 9 or fewer.
-3. **Every lie is caught.** Every `lie: true` answer contradicts at least one truthful answer, and no suspect can be cleared by a lie alone.
-4. **No dead answers.** Every frame and qword in `asks` has an answer or falls to `default` for every role.
-5. **Placeholders resolve.** No answer text keeps a `{…}` after filling, for every variant.
-6. **Deterministic.** The same seed and actions give the same states and events.
-7. **Budget.** The budget never goes below 0 and only accepted questions lower it.
+A **variant** is a hiding place, a crime slot and an order of jobs over the suspects: case 1 has 3 × 3 × 24 = 216. Invariants 1 to 5 run for every variant of every case in the content tests and in the build (`scripts/content-check.ts`), so a case that breaks one fails `pnpm build`.
+
+1. **Unique solution.** With every possible question in the notebook, `solve` proves time and place, and clears every suspect but the culprit, for every seeded variant. The culprit is never cleared.
+2. **Solvable in budget.** For every variant, some set of at most **10** questions proves all three. (Exact search over subsets of the answers that have `proves` and the answers they require, smallest first.) This leaves 5 questions of slack, and 3 stars are reachable with 9 or fewer. Case 1's shortest solution is 5.
+3. **Every lie is caught.** Every `lie: true` answer names in `contradictedBy` a truthful answer that can be heard in every variant; a lie proves nothing, and no proof requires a lie.
+4. **No dead answers.** Every question gets an answer or `default` (lookup guarantees it), and every answer written can be heard by some question: none is hidden behind another.
+5. **Placeholders resolve.** No answer text keeps a `{…}` after filling, for a man and a woman speaking, for every variant.
+6. **Deterministic.** The same seed and actions give the same states and events. Tested with `step()` (PLAY-085).
+7. **Budget.** The budget never goes below 0 and only accepted questions lower it. Tested with `step()` (PLAY-085).
 
 ### GS 5.5 Traced example
 
@@ -564,3 +568,5 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 
 - 2026-10-15: v0.1 draft. Rules, question-word grammar, content model, engine contract, learning model, platform changes and milestones. Backlog cards PLAY-076 to PLAY-102.
 - 2026-10-15: GS 8 after PLAY-081. Shéi's rows get the game id `shei`, so the enum is `chie`, `giallo` or `shei`, and a row without `game` reads as its language's first game, not always `chie`. `round:zh` moves to `round:zh:shei` too. Migration 3 sets each existing row's game from its language instead of defaulting every row to `chie`.
+- 2026-10-15: GS 4.1 to GS 4.3 as built in PLAY-083. A frame's Level 1 hint moves into each of its `asks`, since one body can ask two facts (`f.at.slot`); slot hints use `{slotEn}`. Prepositions and `ora` get their own lexicon shapes (`prep.`, `w.`), `qual'` is a form marked `distractor`, and `q.a_che_ora`'s `teaches` names itself for *che ora* built without *a*. Ids keep their prefixes (`q.`, `prep.`, `w.`, `f.`, `case.`, `r.`, `j.`, `room.`) and a lie without `contradictedBy` fails the build.
+- 2026-10-15: GS 5.4 as built in PLAY-084. `solve` takes the case and the notebook, whose entries carry their answer keys. A variant includes the job order (216 for case 1). Invariant 3 requires a contradiction that is true and can be heard; invariant 4 means every written answer can be heard. Invariants 1 to 5 also run in the build; 6 and 7 move to PLAY-085 with `step()`.

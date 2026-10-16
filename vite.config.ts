@@ -13,10 +13,11 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      // Spec 10.3: engine/ line coverage, in every language, at or above 90%, or the test run fails.
-      include: ["src/languages/*/engine/**/*.ts"],
+      // Spec 10.3: engine/ line coverage, in every language and game (the giallo's is
+      // it/giallo/engine), at or above 90%, or the test run fails.
+      include: ["src/languages/*/engine/**/*.ts", "src/languages/*/*/engine/**/*.ts"],
       thresholds: { lines: 90 },
-      exclude: ["src/languages/*/engine/**/*.test.ts"],
+      exclude: ["src/languages/*/engine/**/*.test.ts", "src/languages/*/*/engine/**/*.test.ts"],
       reporter: ["text", "html", "lcov"],
     },
   },

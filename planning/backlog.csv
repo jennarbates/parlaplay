@@ -266,6 +266,7 @@ A broken case (no 10-question solution) fails pnpm build"
 PLAY-085,"Build the giallo engine's start, step and transitions",To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 24,Tue Dec 8,5,PLAY-083,no,"GS 5.1, GS 5.2, GS 2, GD8, GD9","Seeded casting, the budget, marking, accusing, stars and quitting.","start(seed, caseId, level) casts roles, hide and crime from the seed only
 Every cell of GS 5.2 is a test
 Stars are right at 9, 10, 12, 13 and 15 questions used
+GS 5.4 invariants 6 (deterministic) and 7 (budget) are tests, replacing the todos of PLAY-084
 A wrong accusation ends the case unsolved and shows the solution's answers"
 PLAY-086,Validate questions and give question-word feedback,To do,Chi è stato?,story,Sprint 7: Chi è stato? platform and engine,Day 25,Wed Dec 9,5,PLAY-085,no,"GS 5.3, GS 3.2, GD4, GD5, GD6","The six-step ASK validation of GS 5.3, joining, and every rule of GS 3.2.","Each row of GS 3.2 gives its result: slip, rejection with a mistake, or nonsense
 Each 'not an error' of GS 3.2 is accepted with no slip

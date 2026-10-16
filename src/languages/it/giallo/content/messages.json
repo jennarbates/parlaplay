@@ -1,0 +1,11 @@
+{
+  "agree.quanto": "*{noun}* is {genderNumber}, so *{expected}*.",
+  "agree.quale": "*{noun}* is plural, so *quali*.",
+  "trunc.qualE": "*Qual è* never takes an apostrophe.",
+  "elide.consonant": "Use *{full}* here: *{given}* only goes before a vowel.",
+  "prep.diChi": "To ask whose, Italian says *di chi*.",
+  "prep.aCheOra": "To ask what time, Italian says *a che ora*.",
+  "prep.daDove": "To ask where from, Italian says *da dove*.",
+  "nonsense": "Non capisco la domanda.",
+  "budget.empty": "Hai finito le domande. Chi è stato?"
+}

@@ -5,9 +5,11 @@ import { build } from "vite";
 import { afterEach, describe, expect, test } from "vitest";
 import { RegistryFile } from "../src/core/languages.ts";
 import { contentFiles as itFiles } from "../src/languages/it/content/schemas.ts";
+import { contentFiles as gialloFiles } from "../src/languages/it/giallo/content/schemas.ts";
 import { contentFiles as zhFiles } from "../src/languages/zh/content/schemas.ts";
 import {
   contentCheck,
+  gialloCases,
   languageContent,
   registryFile,
   validateContentDir,
@@ -15,7 +17,9 @@ import {
 } from "./content-check.ts";
 
 // Chi è?'s schemas, for the tests that are about the checker itself.
-const italian = (dir: string) => [{ code: "it" as const, dir, schemas: itFiles }];
+const italian = (dir: string) => [
+  { code: "it" as const, game: "chie" as const, folder: "it", dir, schemas: itFiles },
+];
 
 // Folders in these tests hold only the files under test.
 const partial = { requireAll: false };
@@ -31,16 +35,18 @@ afterEach(() => {
 });
 
 describe("validateContentDir", () => {
-  test.each(languageContent.map((l) => [l.code, l] as const))(
+  test.each(languageContent.map((l) => [l.folder, l] as const))(
     "the real %s content folder is valid",
     (_, { dir, schemas }) => {
       expect(validateContentDir(dir, schemas)).toEqual([]);
     },
   );
 
-  test("every registry language has a content folder, and no other (3.4.5)", () => {
+  test("every registry game has a content folder, and no other (3.4.5)", () => {
     const registry = RegistryFile.parse(JSON.parse(readFileSync(registryFile, "utf8")));
-    expect(languageContent.map((l) => l.code)).toEqual(registry.map((l) => l.code));
+    expect(languageContent.map((l) => [l.code, l.game])).toEqual(
+      registry.flatMap((l) => l.games.map((game) => [l.code, game])),
+    );
   });
 
   test("every content file is required", () => {
@@ -187,6 +193,46 @@ describe("the build fails on invalid content", () => {
         build: { write: false },
       }),
     ).rejects.toThrow(/version\.json: contentVersion: /);
+  });
+
+  test("vite build throws on a giallo case that cannot be solved (GS 5.4)", async () => {
+    const real = new URL("../src/languages/it/giallo/content/", import.meta.url).pathname;
+    const cases = JSON.parse(readFileSync(join(real, "cases.json"), "utf8")) as {
+      answers: { proves?: unknown }[];
+    }[];
+    // Nothing proves the time any more.
+    for (const a of cases[0]?.answers ?? [])
+      if (JSON.stringify(a.proves ?? []).includes('"time"')) delete a.proves;
+    const dir = contentFolder({
+      "frames.json": readFileSync(join(real, "frames.json"), "utf8"),
+      "cases.json": JSON.stringify(cases),
+    });
+    const giallo = [
+      {
+        code: "it" as const,
+        game: "giallo" as const,
+        folder: "it/giallo",
+        dir,
+        schemas: gialloFiles,
+        check: gialloCases,
+      },
+    ];
+    await expect(
+      build({
+        configFile: false,
+        logLevel: "silent",
+        root: contentFolder({ "index.html": "<!doctype html><title>x</title>" }),
+        plugins: [contentCheck(giallo, partial)],
+        build: { write: false },
+      }),
+    ).rejects.toThrow(
+      /it\/giallo\/case\.torta: hiding room\.\w+, crime slot \d: nothing proves the time/,
+    );
+  });
+
+  test("the real giallo cases pass their invariants", () => {
+    const real = new URL("../src/languages/it/giallo/content/", import.meta.url).pathname;
+    expect(gialloCases(real)).toEqual([]);
   });
 
   test("vite build passes on valid content", async () => {
