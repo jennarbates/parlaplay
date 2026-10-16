@@ -310,22 +310,27 @@ The giallo has its own `version.json`. Bumping it discards saved giallo cases on
 ### GS 5.1 Types
 
 ```ts
-type Phase = "asking" | "inspector" | "accusing" | "ended";
+type Phase = "asking" | "inspector" | "ended"; // the accuse confirm sheet is UI state
 
 type CaseState = {
   caseId: string;
   seed: number;
   level: 1 | 2;
   cast: Record<string, string>;             // role -> character id
+  jobs: Record<string, string>;             // suspect role -> job id
   hide: number;                             // room index
-  crime: 0 | 1 | 2;                         // slot index
+  crime: number;                            // slot index
   phase: Phase;
   budget: number;                           // starts at 15
   notebook: NotebookEntry[];                // accepted questions and answers, in order
   cleared: string[];                        // roles the learner marked, never read by the engine's logic
   inspector?: InspectorQuestion;            // set while phase is "inspector"
-  result?: { solved: boolean; stars?: 1 | 2 | 3 };
+  result?: Result;
 };
+
+type Result = { solved: boolean; stars?: 1 | 2 | 3; abandoned?: true }; // abandoned: QUIT
+
+type NotebookEntry = { built: Built; key: string | null; answer: string }; // key: GS 5.4
 
 type Built = { prep?: string; qword: string; form: string; frame: string; slot?: number; to: string };
 
@@ -338,11 +343,11 @@ type Action =
 
 type Event =
   | { type: "asked"; entry: NotebookEntry; slip?: SlotError }
-  | { type: "rejected"; reason: "nonsense" | "duplicate" | "grammar"; errors?: SlotError[] }
+  | { type: "rejected"; reason: "shape" | "nonsense" | "duplicate" | "grammar" | "noBudget"; errors?: SlotError[]; earlier?: NotebookEntry }
   | { type: "rating"; lexiconId: string; direction: "recognize" | "produce"; rating: "again" | "hard" | "good" }
   | { type: "slip"; error: SlotError }
   | { type: "inspectorAsked"; question: InspectorQuestion }
-  | { type: "ended"; solved: boolean; stars?: 1 | 2 | 3 };
+  | ({ type: "ended" } & Result);
 ```
 
 `SlotError` is Chi è?'s type (`it.md` 4.1), with `rule` taking the ids of GS 3.2.
@@ -570,3 +575,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-10-15: GS 8 after PLAY-081. Shéi's rows get the game id `shei`, so the enum is `chie`, `giallo` or `shei`, and a row without `game` reads as its language's first game, not always `chie`. `round:zh` moves to `round:zh:shei` too. Migration 3 sets each existing row's game from its language instead of defaulting every row to `chie`.
 - 2026-10-15: GS 4.1 to GS 4.3 as built in PLAY-083. A frame's Level 1 hint moves into each of its `asks`, since one body can ask two facts (`f.at.slot`); slot hints use `{slotEn}`. Prepositions and `ora` get their own lexicon shapes (`prep.`, `w.`), `qual'` is a form marked `distractor`, and `q.a_che_ora`'s `teaches` names itself for *che ora* built without *a*. Ids keep their prefixes (`q.`, `prep.`, `w.`, `f.`, `case.`, `r.`, `j.`, `room.`) and a lie without `contradictedBy` fails the build.
 - 2026-10-15: GS 5.4 as built in PLAY-084. `solve` takes the case and the notebook, whose entries carry their answer keys. A variant includes the job order (216 for case 1). Invariant 3 requires a contradiction that is true and can be heard; invariant 4 means every written answer can be heard. Invariants 1 to 5 also run in the build; 6 and 7 move to PLAY-085 with `step()`.
+- 2026-10-15: GS 5.1 and GS 5.2 as built in PLAY-085. No `accusing` phase: the confirm sheet is UI state and ACCUSE goes straight to `ended`. The state keeps each suspect's `jobs`. QUIT ends with `{ solved: false, abandoned: true }`. Rejections add `shape` and `noBudget`, and a duplicate carries the `earlier` entry. Actions outside the table are ignored with no event. `solution()` gives the shortest solution's answers for the case end.

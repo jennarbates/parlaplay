@@ -4,7 +4,12 @@ import { describe, expect, test } from "vitest";
 import { content } from "../content/index.ts";
 import type { Case } from "../content/schemas.ts";
 import { answerKey } from "./answers.ts";
+import { pickOne, seeded } from "../../engine/random.ts";
 import { caseProblems, invariants, maxSolution, shortestSolution, variants } from "./invariants.ts";
+import { start } from "./start.ts";
+import { step } from "./step.ts";
+import { askOf, engineContent, everyQuestion } from "./testing.ts";
+import type { Action } from "./types.ts";
 
 const torta = content.cases.find((c) => c.id === "case.torta");
 if (!torta) throw new Error("no case.torta");
@@ -19,8 +24,59 @@ describe.each(content.cases.map((c) => [c.id, c] as const))("%s", (_, c) => {
       expect(shortestSolution(c, content.frames, v)?.length).toBeLessThanOrEqual(maxSolution);
   });
 
-  test.todo("6. deterministic: the same seed and actions give the same states (PLAY-085)");
-  test.todo("7. the budget never goes below 0, and only accepted questions lower it (PLAY-085)");
+  // Random play: mostly questions, some repeated or nonsense, with marks,
+  // inspector answers, and now and then an accusation or a quit.
+  const plays = Array.from({ length: 40 }, (_, i) => {
+    const random = seeded(i + 1);
+    const questions = everyQuestion(c.id);
+    const actions = Array.from({ length: 30 }, (): Action => {
+      const roll = random();
+      if (roll < 0.75) {
+        const built = pickOne(random, questions);
+        return askOf(random() < 0.1 ? { ...built, qword: "q.nope" } : built);
+      }
+      if (roll < 0.85)
+        return { type: "MARK", role: pickOne(random, c.suspects), cleared: random() < 0.5 };
+      if (roll < 0.95) return { type: "ANSWER_INSPECTOR", choice: "x" };
+      if (roll < 0.98)
+        return {
+          type: "ACCUSE",
+          role: pickOne(random, c.suspects),
+          room: 0,
+          slot: pickOne(random, [0, 1, 2]),
+        };
+      return { type: "QUIT" };
+    });
+    return { seed: i * 31 + 5, level: i % 2 === 0 ? (1 as const) : (2 as const), actions };
+  });
+
+  test("6. deterministic: the same seed and actions give the same states and events", () => {
+    for (const { seed, level, actions } of plays) {
+      const once = () => {
+        let s = start(seed, c.id, level, engineContent);
+        return actions.map((a) => {
+          const r = step(s, a, engineContent);
+          s = r.state;
+          return r;
+        });
+      };
+      expect(once()).toEqual(once());
+    }
+  });
+
+  test("7. the budget never goes below 0, and only accepted questions lower it", () => {
+    for (const { seed, level, actions } of plays) {
+      let s = start(seed, c.id, level, engineContent);
+      const spend = [...actions, ...everyQuestion(c.id).map(askOf)];
+      for (const a of spend) {
+        const r = step(s, a, engineContent);
+        const accepted = r.events.filter((e) => e.type === "asked").length;
+        expect(r.state.budget).toBeGreaterThanOrEqual(0);
+        expect(s.budget - r.state.budget).toBe(accepted);
+        s = r.state;
+      }
+    }
+  });
 });
 
 test("case 1 has 216 variants: 3 hiding places, 3 crime slots, 24 job orders", () => {
