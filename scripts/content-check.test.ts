@@ -5,9 +5,11 @@ import { build } from "vite";
 import { afterEach, describe, expect, test } from "vitest";
 import { RegistryFile } from "../src/core/languages.ts";
 import { contentFiles as itFiles } from "../src/languages/it/content/schemas.ts";
+import { contentFiles as gialloFiles } from "../src/languages/it/giallo/content/schemas.ts";
 import { contentFiles as zhFiles } from "../src/languages/zh/content/schemas.ts";
 import {
   contentCheck,
+  gialloCases,
   languageContent,
   registryFile,
   validateContentDir,
@@ -191,6 +193,46 @@ describe("the build fails on invalid content", () => {
         build: { write: false },
       }),
     ).rejects.toThrow(/version\.json: contentVersion: /);
+  });
+
+  test("vite build throws on a giallo case that cannot be solved (GS 5.4)", async () => {
+    const real = new URL("../src/languages/it/giallo/content/", import.meta.url).pathname;
+    const cases = JSON.parse(readFileSync(join(real, "cases.json"), "utf8")) as {
+      answers: { proves?: unknown }[];
+    }[];
+    // Nothing proves the time any more.
+    for (const a of cases[0]?.answers ?? [])
+      if (JSON.stringify(a.proves ?? []).includes('"time"')) delete a.proves;
+    const dir = contentFolder({
+      "frames.json": readFileSync(join(real, "frames.json"), "utf8"),
+      "cases.json": JSON.stringify(cases),
+    });
+    const giallo = [
+      {
+        code: "it" as const,
+        game: "giallo" as const,
+        folder: "it/giallo",
+        dir,
+        schemas: gialloFiles,
+        check: gialloCases,
+      },
+    ];
+    await expect(
+      build({
+        configFile: false,
+        logLevel: "silent",
+        root: contentFolder({ "index.html": "<!doctype html><title>x</title>" }),
+        plugins: [contentCheck(giallo, partial)],
+        build: { write: false },
+      }),
+    ).rejects.toThrow(
+      /it\/giallo\/case\.torta: hiding room\.\w+, crime slot \d: nothing proves the time/,
+    );
+  });
+
+  test("the real giallo cases pass their invariants", () => {
+    const real = new URL("../src/languages/it/giallo/content/", import.meta.url).pathname;
+    expect(gialloCases(real)).toEqual([]);
   });
 
   test("vite build passes on valid content", async () => {

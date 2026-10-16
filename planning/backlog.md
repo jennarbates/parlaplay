@@ -967,6 +967,7 @@ Seeded casting, the budget, marking, accusing, stars and quitting.
 - [ ] start(seed, caseId, level) casts roles, hide and crime from the seed only
 - [ ] Every cell of GS 5.2 is a test
 - [ ] Stars are right at 9, 10, 12, 13 and 15 questions used
+- [ ] GS 5.4 invariants 6 (deterministic) and 7 (budget) are tests, replacing the todos of PLAY-084
 - [ ] A wrong accusation ends the case unsolved and shows the solution's answers
 
 ### Day 25, Wed Dec 9 (7 pts, full day)
