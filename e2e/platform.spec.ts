@@ -9,26 +9,32 @@ import { build, mistakes, savedRound, stored } from "./zh/game.ts";
 // each language is level1.spec.ts and zh/level1.spec.ts; the handoff is
 // handoff.spec.ts.
 
-test("a first visit to / shows the picker, one card per language", async ({ page }) => {
+test("/ is the home page: every language, each with its games", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveURL(/\/languages$/);
-  await expect(page.getByRole("heading", { name: "Choose a language" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Chi è\?/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /谁？/ })).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
+  await expect(page.getByRole("heading", { name: "Choose a game" })).toBeVisible();
+  for (const language of ["Italian", "Chinese"])
+    await expect(page.getByRole("heading", { name: new RegExp(`^${language}`) })).toBeVisible();
+  await expect(pickerCard(page, /Chi è\?/)).toHaveAttribute("href", "/it");
+  await expect(pickerCard(page, /谁？/)).toHaveAttribute("href", "/zh");
+  // Not playable yet, so listed without a link.
+  await expect(page.getByText("Chi è stato?")).toBeVisible();
+  await expect(pickerCard(page, /Chi è stato\?/)).toHaveCount(0);
+  await page.getByRole("link", { name: "Chinese progress" }).click();
+  await expect(page).toHaveURL(/\/zh\/progress$/);
 });
 
-test("choosing Chinese, then reloading /, opens /zh (D13)", async ({ page }) => {
+test("choosing Chinese, then reloading /, still shows the home page", async ({ page }) => {
   await chooseLanguage(page, /谁？/, "zh");
   await page.goto("/");
-  await expect(page).toHaveURL(/\/zh$/);
-  await expect(page.getByRole("heading", { name: "谁？" })).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
+  await expect(page.getByRole("heading", { name: "Choose a game" })).toBeVisible();
 });
 
 test("following a link to a language does not change the default (D14)", async ({ page }) => {
   await chooseItalian(page);
   await page.goto("/zh/progress");
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/it$/);
+  expect(await stored(page, "app")).toEqual({ lastLanguage: "it" });
 });
 
 test("Change language on Home goes back to the picker", async ({ page }) => {
@@ -71,8 +77,7 @@ test("Progress switches language without changing the default (8.1, D14)", async
 
   await languages.getByRole("button", { name: "Chinese" }).click();
   await expect(page).toHaveURL(/\/zh\/progress$/);
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/it$/);
+  expect(await stored(page, "app")).toEqual({ lastLanguage: "it" });
 });
 
 // A picker card. On desktop the nav may link to a game by its title too.

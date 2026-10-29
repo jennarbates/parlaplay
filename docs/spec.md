@@ -46,7 +46,7 @@ Anything not in the left column is out. New ideas go to section 11, not into the
 
 **Choosing a language.**
 
-1. A first visit to `/` shows the language picker (route `/languages`). It shows one card per language, in registry order (section 3.1).
+1. `/` shows the home page (also at `/languages`): each language in registry order (section 3.1), with a card per game.
 2. Tapping a card goes to that language's Home, `/{code}`, and records it as the last language (section 3.3).
 3. A later visit to `/` goes straight to `/{lastLanguage}`. Every language Home has a `Change language` link to `/languages`.
 4. A signed-in user on a device with no last language gets `profiles.last_language` from the server, if set.
@@ -275,12 +275,10 @@ SIGNED_OUT means the session ended without SIGN_OUT: another tab signed out, or 
 
 The first rule that matches decides.
 
-0. Path is `/` and `hydrated` is false: render the skeleton and wait. HYDRATED sets `hydrated` and `lastLanguage`, then re-runs OPEN for the current path.
-1. Path is `/` and `lastLanguage` is set: `navigate /{lastLanguage}` with `replace: true`.
-2. Path is `/` and `lastLanguage` is null: `navigate /languages` with `replace: true`.
-3. Path is `/languages`, `/settings`, `/privacy` or `/import`: language becomes null; render that page.
-4. First segment is a registry code: language becomes that code. `lastLanguage` and the `app` key change only on CHOOSE, never on OPEN, so following a link does not change the default. Starting a round in a language dispatches CHOOSE for it, so the language last played becomes the default.
-5. Anything else: language null; render the not-found screen (section 2).
+1. Path is `/`: language becomes null; render the home page (8.1), whatever `lastLanguage` is. HYDRATED sets `hydrated` and `lastLanguage`, then re-runs OPEN for the current path.
+2. Path is `/languages`, `/settings`, `/privacy` or `/import`: language becomes null; render that page.
+3. First segment is a registry code: language becomes that code. `lastLanguage` and the `app` key change only on CHOOSE, never on OPEN, so following a link does not change the default. Starting a round in a language dispatches CHOOSE for it, so the language last played becomes the default.
+4. Anything else: language null; render the not-found screen (section 2).
 
 ### 4.4 Invariants (each a test)
 
@@ -592,8 +590,8 @@ Each game ships exactly as its own spec and definition of done describe, with th
 ### 8.1 Screens and flow
 
 ```
-/ ──► /languages (first visit) ──► /{code} Home ──► /{code}/play ──► Round end
- └──► /{code} (returning)              │                 └──► /{code} Home
+/ home page ──► /{code} Home ──► /{code}/play ──► Round end
+     │              │                 └──► /{code} Home
                                        ├──► /{code}/progress ◄──► other language's progress
                                        ├──► /settings ──► Sign-in sheet
                                        │            └──► /privacy
@@ -602,7 +600,7 @@ Each game ships exactly as its own spec and definition of done describe, with th
 
 | Screen | Contents |
 |---|---|
-| Language picker `/languages` | Heading `Choose a language`. One card per registry entry: game title (with `lang`, and pinyin under 谁？), English name, level, blurb, and `Continue round` under the title if that language has a saved round. Sign-in status in the corner as on each Home |
+| Home page `/` (also `/languages`) | Heading `Choose a game`. One section per registry entry, headed by its English name and level, with a `Progress` link to `/{code}/progress`. In it, one card per game (`src/core/games.ts`): title (with `lang`, and pinyin after 谁？), blurb, and `Continue round` if that game has a saved round. A game not yet playable shows `Coming soon` and is not a link. Sign-in status in the corner as on each Home |
 | Language Home `/{code}` | The game spec's Home, plus `Change language` (link to `/languages`) and the English name under the title |
 | Game `/{code}/play` | The game spec's game screen, unchanged |
 | Progress `/{code}/progress` | The game spec's Progress, with a language switch above the tabs: one segmented button per language, the current one pressed. Switching navigates to `/{other}/progress` |
@@ -624,11 +622,11 @@ Each game ships exactly as its own spec and definition of done describe, with th
 
 ### 8.3 Layout
 
-The picker fits 360 × 560 without scrolling for two languages: each card at least 44 px tall, full width with 16 px side margins. From 1024 px wide the cards sit side by side, at most 480 px each. Inside a language, the game spec's phone and desktop layouts apply unchanged, except for the logo in 8.4.
+The home page fits 360 × 560 without scrolling for the current registry: each card at least 44 px tall, full width with 16 px side margins. From 1024 px wide the languages sit side by side in two columns. Inside a language, the game spec's phone and desktop layouts apply unchanged, except for the logo in 8.4.
 
 ### 8.4 Logo
 
-Every screen shows the parlaplay logo at its top left, and it links to `/` (D23). The reason: one way home from anywhere, including the game, where the desktop nav is hidden. `/` then routes by 4.3, so a returning player lands on their last language's Home and a first visitor on the picker. This section overrides the game specs' Home, Progress and game screen headers, and desktop spec DS 5, where it says so below.
+Every screen shows the parlaplay logo at its top left, and it links to `/` (D23). The reason: one way home from anywhere, including the game, where the desktop nav is hidden. `/` is the home page (4.3), listing every language and game. This section overrides the game specs' Home, Progress and game screen headers, and desktop spec DS 5, where it says so below.
 
 **Artwork.** A rose-600 speech bubble holding a white play triangle ("parla" is "speak"), then the wordmark `parlaplay` in lowercase, with `parla` in stone-900 and `play` in rose-700. The wordmark is drawn from round-capped strokes, not set in a font, so it renders the same on every device and needs no font licence. `scripts/logo.py` draws it and writes two files, imported so Vite fingerprints them: `src/core/ui/logo.svg` (bubble and wordmark, 234.5 × 56 viewBox) and `src/core/ui/logo-mark.svg` (the bubble alone). Both are shown 28 px tall, width from the aspect ratio: the full logo is 117 px wide (at most 140 px). Both read on `bg-white` and `bg-stone-50`, and together are under 1.2 KB, counted in the 250 KB page budget (9).
 
@@ -643,17 +641,16 @@ Every screen shows the parlaplay logo at its top left, and it links to `/` (D23)
 | `/import` | Not shown: leaving mid-import would drop the handoff | Not shown |
 | Round end | As the game screen it sits in | As the game screen |
 
-DesktopNav's fallback link `parlaplay` (shown when no language is known) is removed: the logo replaces it, and `/` with no language opens the picker anyway.
+DesktopNav's fallback link `parlaplay` (shown when no language is known) is removed: the logo replaces it, and `/` is the home page.
 
-**Layout limits.** On phones the logo row adds at most 44 px. The picker still fits 360 × 560 without scrolling for two languages (8.3). The game TopBar stays 56 px tall (`h-14`), and at 360 px wide its existing items still fit on one line without truncating their labels.
+**Layout limits.** On phones the logo row adds at most 44 px. The home page still fits 360 × 560 without scrolling (8.3). The game TopBar stays 56 px tall (`h-14`), and at 360 px wide its existing items still fit on one line without truncating their labels.
 
 **Edge cases.**
 
 | Situation | Rule |
 |---|---|
-| Logo clicked mid-round | The round is already saved (game spec); `/` opens that language's Home, which shows `Continue round` |
-| Logo clicked on `/{code}` Home when it is already the last language | `/` replaces to `/{code}`; the screen does not change |
-| Logo clicked from a shared link's language (D14) | `/` goes to the last language chosen, not the one being viewed; following the logo is not a CHOOSE |
+| Logo clicked mid-round | The round is already saved (game spec); the home page shows `Continue round` on that game's card |
+| Logo clicked from a shared link's language (D14) | `/` opens the home page; following the logo is not a CHOOSE, so the last language does not change |
 | Save-guest prompt open | The dialog is modal; the logo is not reachable until it closes |
 | Logo image fails to load | The `alt` text `parlaplay home` shows as the link text; the link still works |
 | Cmd or Ctrl click | Opens `/` in a new tab, as any link |
@@ -728,7 +725,7 @@ The engine purity lint rule and test cover `src/languages/*/engine/` and `src/co
 | Migration | Vitest + local Supabase | Migration 1 on a database holding `init.sql` data: every old row becomes `it`, levels copy to `language_settings`, row counts unchanged; migration 2 applies after it |
 | Compatibility | Vitest + local Supabase | Chi è? `chie-launch` sync code (pinned copy in `e2e/compat/`) uploads, pulls and upserts cards against the migrated schema without errors (5.2) |
 | Handoff | Vitest | Encoding round-trip; Zod rejects damaged data; merge into existing `guest:it` is a union; second import adds nothing; `next` outside the three allowed paths becomes `/it`; the newer saved round is kept |
-| E2E | Playwright (Chromium, WebKit) | First visit to `/` shows the picker; choosing `zh` then reloading `/` opens `/zh`; a full round in each language; a saved round in each language survives switching; Progress switch shows only that language; sign-in with guest data in both languages shows the combined prompt and uploads both; sign-out clears both; `/fr` shows the not-found screen; handoff from a seeded `chi-e` database at a second origin lands the rows in `/it/progress`; a 500 KB handoff payload works |
+| E2E | Playwright (Chromium, WebKit) | `/` shows the home page with every language and game, also after choosing a language; a full round in each language; a saved round in each language survives switching; Progress switch shows only that language; sign-in with guest data in both languages shows the combined prompt and uploads both; sign-out clears both; `/fr` shows the not-found screen; handoff from a seeded `chi-e` database at a second origin lands the rows in `/it/progress`; a 500 KB handoff payload works |
 | Each game | As its game spec | Every test in both game specs passes inside the merged repo |
 | Bundle | Script | Budgets in 9; `/languages` loads no language module; `/zh` does not load `it` |
 | Manual | Real iPhone, Android phone, Windows laptop, Mac laptop | Picker fits 360 × 560; switching languages; handoff from a real Chi è? guest on Safari iOS; sign-in email from `hello@parlaplay.games` arrives |
@@ -808,7 +805,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 | D10 | Keep the handoff page 6 months, then a plain redirect | Long enough for occasional players to return once |
 | D11 | Separation enforced in the client and by tests; RLS checks only the user | A user may read all their own languages; RLS by language would add nothing for privacy |
 | D12 | Level per language in `language_settings`; device settings per language in IndexedDB | A learner is often at different levels in different languages |
-| D13 | `/` opens the last language; the picker is at `/languages` | Returning players land in their game in one step |
+| D13 | `/` is the home page, listing every language and its games; `/languages` shows the same page. (Was: `/` opens the last language.) | With more than one game per language, one page that reaches every game and language beats skipping to the last one |
 | D14 | Following a link does not change the last language; choosing or playing does | A shared link should not change someone's default |
 | D15 | One save-guest prompt for all languages | One decision per sign-in, not one per language |
 | D16 | Sign-out and account deletion cover every language | One account is one person's data |
@@ -818,7 +815,7 @@ Capacity follows the Shéi spec: half days until Thu Oct 29 (the Chi è? launch)
 | D20 | Chi è? launches unchanged on Oct 29; the merged site launches with Shéi on Nov 13 | Keeps the merge from risking Chi è?'s launch |
 | D21 | Lexicon ids must be disjoint across languages | Makes the compatibility window safe and keeps Progress labels unambiguous |
 | D22 | The handoff gzips its data and refuses above 900 KB encoded | Measured: 1 MB fragments arrive and 2 MB are refused on desktop; gzip makes JSON several times smaller, and a clear refusal beats a silent failure |
-| D23 | A logo (speech bubble and stroke-drawn wordmark) at the top left of every screen but `/import`, including the game, linking to `/`; the bubble alone in the game's top bar on phones | One way home from anywhere; `/` already picks the right home (4.3). The round is saved, so leaving the game loses nothing. `/import` is excluded so a handoff cannot be abandoned halfway. The full logo would push the game bar's items off one line at 360 px |
+| D23 | A logo (speech bubble and stroke-drawn wordmark) at the top left of every screen but `/import`, including the game, linking to `/`; the bubble alone in the game's top bar on phones | One way home from anywhere; `/` is the home page, listing every language and game (4.3). The round is saved, so leaving the game loses nothing. `/import` is excluded so a handoff cannot be abandoned halfway. The full logo would push the game bar's items off one line at 360 px |
 
 ---
 

@@ -13,7 +13,16 @@ async function box(locator: Locator) {
 
 test("exactly one logo on every screen, at the top left", async ({ page }) => {
   await chooseItalian(page);
-  for (const path of ["/languages", "/it", "/it/progress", "/zh", "/settings", "/privacy", "/fr"]) {
+  for (const path of [
+    "/",
+    "/languages",
+    "/it",
+    "/it/progress",
+    "/zh",
+    "/settings",
+    "/privacy",
+    "/fr",
+  ]) {
     await page.goto(path);
     await expect(logo(page)).toHaveCount(1);
     const b = await box(logo(page));
@@ -24,37 +33,36 @@ test("exactly one logo on every screen, at the top left", async ({ page }) => {
   }
 });
 
-test("mid-round, the logo goes Home, which offers Continue round", async ({ page }) => {
+test("mid-round, the logo goes to the home page, which offers Continue round", async ({ page }) => {
   await chooseItalian(page);
   await page.goto("/it/play?seed=5");
   await expect(page.locator("header")).toContainText("Turn 1");
   await expect(logo(page)).toHaveCount(1);
   await page.getByRole("list", { name: "Questions to ask" }).getByRole("button").first().click();
   await logo(page).click();
-  await expect(page).toHaveURL(/\/it$/);
-  await expect(page.getByRole("link", { name: "Continue round" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choose a game" })).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
+  await expect(
+    page
+      .getByRole("main")
+      .getByRole("link", { name: /Chi è\?/ })
+      .first(),
+  ).toContainText("Continue round");
 });
 
-test("the logo goes to the last language chosen, not the one being viewed (D14)", async ({
-  page,
-}) => {
+test("from a language's page, the logo still opens the home page", async ({ page }) => {
   await chooseItalian(page);
   await page.goto("/zh/progress");
   await logo(page).click();
-  await expect(page).toHaveURL(/\/it$/);
-});
-
-test("with no language chosen, the logo opens the picker", async ({ page }) => {
-  await page.goto("/privacy");
-  await logo(page).click();
-  await expect(page).toHaveURL(/\/languages$/);
+  await expect(page.getByRole("heading", { name: "Choose a game" })).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
 });
 
 test.describe("on a 360 × 560 phone (spec 8.3, 8.4)", () => {
   test.use({ viewport: { width: 360, height: 560 } });
 
-  test("the picker still fits without scrolling", async ({ page }) => {
-    await page.goto("/languages");
+  test("the home page still fits without scrolling", async ({ page }) => {
+    await page.goto("/");
     await expect(logo(page)).toBeVisible();
     const scroll = await page.evaluate(() => [
       document.documentElement.scrollWidth,

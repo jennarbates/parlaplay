@@ -1,6 +1,7 @@
 // Platform spec 3.2: Chi è? as the shell sees it. Loaded with import() the first
 // time an /it route is visited (D17).
 import { z } from "zod";
+import { gameEntries } from "../../core/games.ts";
 import type { Label, LanguageModule } from "../../core/language-module.ts";
 import { useRounds } from "../../core/store/rounds.ts";
 import { cardIds } from "./cards.ts";
@@ -35,23 +36,7 @@ useRounds.getState().register("chie", {
 
 const italian: LanguageModule = {
   code: "it",
-  games: [
-    {
-      id: "chie",
-      title: "Chi è?",
-      titleLang: "it",
-      blurb: "Guess the hidden face by asking questions in Italian.",
-      path: "/it",
-    },
-    // Chi è stato? GS 8: listed now, playable once its screens land (PLAY-088).
-    {
-      id: "giallo",
-      title: "Chi è stato?",
-      titleLang: "it",
-      blurb: "Solve a theft by asking the suspects questions in Italian.",
-      path: "/it/giallo",
-    },
-  ],
+  games: gameEntries("it"),
   contentVersions: { chie: contentVersion, giallo: gialloVersion.contentVersion },
   // Desktop spec DS 5: each screen's width at lg; the game takes the whole window.
   routes: [

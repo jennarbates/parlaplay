@@ -126,9 +126,8 @@ test("seeded Chi è? progress appears in /it/progress, and stays on the old site
   expect(guest?.games).toHaveLength(1);
   expect(guest?.reviewLog).toHaveLength(1);
 
-  // / opens Italian, with the round to continue.
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/it$/);
+  // Italian's Home offers the round to continue.
+  await page.goto("/it");
   await expect(page.getByRole("link", { name: "Continue round" })).toBeVisible();
 
   // The handoff page deleted nothing, so the move can be run again and adds nothing.

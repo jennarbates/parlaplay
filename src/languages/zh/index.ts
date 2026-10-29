@@ -1,5 +1,6 @@
 // Platform spec 3.2: Shéi as the shell sees it. Loaded with import() the first
 // time a /zh route is visited (D17).
+import { gameEntries } from "../../core/games.ts";
 import type { Label, LanguageModule } from "../../core/language-module.ts";
 import { useRounds } from "../../core/store/rounds.ts";
 import { cardIds } from "./cards.ts";
@@ -35,15 +36,7 @@ useRounds.getState().register("shei", {
 
 const chinese: LanguageModule = {
   code: "zh",
-  games: [
-    {
-      id: "shei",
-      title: "谁？",
-      titleLang: "zh-Hans",
-      blurb: "Find the hidden person with simple Mandarin questions.",
-      path: "/zh",
-    },
-  ],
+  games: gameEntries("zh"),
   contentVersions: { shei: contentVersion },
   routes: [
     // zh-desktop.md ZS 5.1: each screen's width at lg; the game takes the whole window.
