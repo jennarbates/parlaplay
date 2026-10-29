@@ -123,8 +123,9 @@ describe("asking", () => {
   });
 
   test("ASK, rejected as a duplicate: budget unchanged, the earlier answer shown again", () => {
-    const once = run(begin(), askOf(witnessWhen)).state;
-    const { state, events } = run(once, askOf({ ...witnessWhen, form: "Quando" }));
+    const doing = { to: "r.witness", frame: "f.doing.slot", slot: 0, qword: "q.cosa" };
+    const once = run(begin(), askOf({ ...doing, form: "cosa" })).state;
+    const { state, events } = run(once, askOf({ ...doing, form: "che cosa" }));
     expect(state).toBe(once);
     expect(events).toEqual([{ type: "rejected", reason: "duplicate", earlier: once.notebook[0] }]);
   });

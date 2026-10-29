@@ -50,6 +50,7 @@ export type CaseState = {
   budget: number; // starts at 15
   notebook: NotebookEntry[]; // accepted questions and answers, in order
   cleared: string[]; // roles the learner marked, never read by the engine's logic
+  ratedThisTurn: string[]; // "lexiconId|direction"; cleared when a question is accepted
   inspector?: InspectorQuestion; // set while phase is "inspector"
   result?: Result; // set when phase is "ended"
 };
