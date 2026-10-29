@@ -10,6 +10,7 @@ import {
   type Action,
   type CaseState,
   type EngineContent,
+  type Event,
   type Result,
   type StepResult,
 } from "./types.ts";
@@ -46,10 +47,33 @@ export function step(state: CaseState, action: Action, content: EngineContent): 
       };
     }
 
-    case "ANSWER_INSPECTOR":
-      // Rating the answer comes with PLAY-087.
-      if (phase !== "inspector") return ignored(state);
-      return { state: { ...state, phase: "asking", inspector: undefined }, events: [] };
+    case "ANSWER_INSPECTOR": {
+      const question = state.inspector;
+      if (phase !== "inspector" || !question?.options.includes(action.choice))
+        return ignored(state);
+      // GS 6: right is hard for the qword's recognize card (guess-proofing), wrong
+      // is again, and a shown hint means no rating at all.
+      const right = action.choice === question.answer;
+      const events: Event[] = action.hintShown
+        ? []
+        : [
+            {
+              type: "rating",
+              lexiconId: question.qword,
+              direction: "recognize",
+              rating: right ? "hard" : "again",
+              ...(!right && {
+                detail: {
+                  slot: "answer",
+                  given: action.choice,
+                  expected: question.answer,
+                  rule: "answer.wrong",
+                },
+              }),
+            },
+          ];
+      return { state: { ...state, phase: "asking", inspector: undefined }, events };
+    }
 
     case "ASK": {
       if (phase !== "asking") return ignored(state);

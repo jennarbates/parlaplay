@@ -55,6 +55,9 @@ export const Frame = z.strictObject({
   vowelStart: z.boolean(), // the body starts with a vowel, so an elided form may go before it
   noun: z.strictObject({ gender, number: z.enum(["sg", "pl"]) }).optional(), // what quanto/quale agree with
   slotParam: z.boolean(), // the body takes one of the three time slots: {slot}
+  // GS 6: the inspector names the person after this many words of the body
+  // ("Dov'era Paolo…?"). Without it, the body is not about them: "Secondo Paolo, …".
+  nameAt: z.int().min(1).optional(),
   asks: z
     .array(
       z.strictObject({
