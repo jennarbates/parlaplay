@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import { seeded, shuffled } from "../../engine/random.ts";
 import { answerFor } from "./ask.ts";
 import { inspectorQuestion, kinds } from "./inspector.ts";
+import { qwordById, usualForm } from "./question.ts";
 import { start } from "./start.ts";
 import { askOf, engineContent, everyQuestion, run } from "./testing.ts";
 import type { Built, CaseState } from "./types.ts";
@@ -20,20 +21,21 @@ const kindOf = (qword: string) => kinds.findIndex((k) => k.includes(qword));
 const name = (s: CaseState, role: string) =>
   engineContent.characters.find((c) => c.id === s.cast[role])?.name;
 
-const at = (to: string, qword: string, slot = 0): Built => ({
-  to,
-  frame: "f.at.slot",
-  qword,
-  form: "",
-  slot,
-});
-const doing = (to: string, slot = 0): Built => ({
-  to,
-  frame: "f.doing.slot",
-  qword: "q.cosa",
-  form: "",
-  slot,
-});
+// As the learner would build it: the usual form, with the lemma's preposition.
+const tiles = (to: string, frame: string, qword: string, slot: number): Built => {
+  const q = qwordById(engineContent.lexicon, qword);
+  const f = engineContent.frames.find((x) => x.id === frame);
+  return {
+    to,
+    frame,
+    qword,
+    form: q && f ? usualForm(q, f) : "",
+    slot,
+    ...(q?.prep && { prep: q.prep }),
+  };
+};
+const at = (to: string, qword: string, slot = 0) => tiles(to, "f.at.slot", qword, slot);
+const doing = (to: string, slot = 0) => tiles(to, "f.doing.slot", "q.cosa", slot);
 
 describe("options", () => {
   test("are always a place, a time or companion, and a thing or person, from the notebook", () => {
