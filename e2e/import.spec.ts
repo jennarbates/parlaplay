@@ -5,7 +5,9 @@ import { arrived, chieData, freshDevice, stored, type Guest } from "./handoff.ts
 // PLAY-035, platform spec 5.3: /import takes a Chi è? player's device data from
 // the URL fragment. The handoff page that sends it is PLAY-036.
 
-test("a Chi è? guest's progress and round arrive, and / opens Italian", async ({ page }) => {
+test("a Chi è? guest's progress and round arrive, and Italian's Home offers it", async ({
+  page,
+}) => {
   const handoff = await chieData(page);
   await freshDevice(page);
 
@@ -21,9 +23,8 @@ test("a Chi è? guest's progress and round arrive, and / opens Italian", async (
     expect(row.language).toBe("it");
   expect(await stored(page, "handoff")).toMatchObject({ from: "chie" });
 
-  // / opens Italian now, and the round can be continued.
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/it$/);
+  // Italian's Home offers the round to continue.
+  await page.goto("/it");
   await page.getByRole("link", { name: "Continue round" }).click();
   await expect(page.locator("header")).toContainText("Turn 1");
 

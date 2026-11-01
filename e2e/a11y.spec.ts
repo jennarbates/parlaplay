@@ -58,9 +58,9 @@ test.describe("touch targets are at least 44 × 44 px", () => {
 
   // PLAY-039, platform spec 10.2: the platform's own screens. Settings is above.
   test("the picker, the not-found screens and the handoff's failure screen", async ({ page }) => {
-    await page.goto("/languages");
-    await expect(page.getByRole("heading", { name: "Choose a language" })).toBeVisible();
-    expect(await smallTargets(page), "/languages").toEqual([]);
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Choose a game" })).toBeVisible();
+    expect(await smallTargets(page), "/").toEqual([]);
 
     for (const [path, heading] of [
       ["/fr", "We don't have that language yet."],
@@ -214,7 +214,7 @@ test.describe("axe finds nothing", () => {
 
   test("the picker, Home, Progress, Settings, Privacy and not-found", async ({ page }) => {
     for (const [path, heading] of [
-      ["/languages", "Choose a language"],
+      ["/", "Choose a game"],
       ["/it", "Chi è?"],
       ["/it/progress", "Progress"],
       ["/settings", "Settings"],

@@ -27,7 +27,7 @@ function known(code: LanguageCode | null, registry: Registry): LanguageCode | nu
   return code !== null && registry.some((l) => l.code === code) ? code : null;
 }
 
-// 4.3 rules 3 to 5. Rules 0 to 2 (the root) depend on state; see open().
+// 4.3: which route a path is.
 export function routeOf(path: string, registry: Registry): Route {
   const segments = path.split("/").filter(Boolean);
   const [first] = segments;
@@ -43,19 +43,11 @@ function open(state: ShellState, path: string, registry: Registry): ShellResult 
   const route = routeOf(path, registry);
   const next = { ...state, path };
   switch (route.kind) {
-    case "root": {
-      // Rule 0: wait for the app key, or a returning player lands on the picker.
-      if (!state.hydrated) return { state: { ...next, language: null }, effects: [] };
-      const to = state.lastLanguage ? `/${state.lastLanguage}` : "/languages"; // rules 1, 2
-      return {
-        state: { ...next, language: null },
-        effects: [{ type: "navigate", to, replace: true }],
-      };
-    }
-    case "language": // rule 4: following a link does not change the default
+    case "language": // rule 3: following a link does not change the default
       return { state: { ...next, language: route.code }, effects: [] };
-    case "page": // rule 3
-    case "notFound": // rule 5
+    case "root": // rule 1: the home page, whatever the last language
+    case "page": // rule 2
+    case "notFound": // rule 4
       return { state: { ...next, language: null }, effects: [] };
   }
 }
