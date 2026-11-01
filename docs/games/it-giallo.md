@@ -180,6 +180,7 @@ const Frame = z.strictObject({
   vowelStart: z.boolean(),                  // body starts with a vowel (elision allowed)
   noun: z.strictObject({ gender: z.enum(["m", "f"]), number: z.enum(["sg", "pl"]) }).optional(),
   slotParam: z.boolean(),                   // body takes one of the three time slots
+  nameAt: z.int().min(1).optional(),        // GS 6: the inspector names the person after this many words
   asks: z.array(z.strictObject({            // accepted question words and the fact each asks
     qword: z.string(),                      // "q.dove"
     fact: z.string(),                       // "where"
@@ -337,7 +338,7 @@ type Built = { prep?: string; qword: string; form: string; frame: string; slot?:
 
 type Action =
   | { type: "ASK"; built: Built }
-  | { type: "ANSWER_INSPECTOR"; choice: string }
+  | { type: "ANSWER_INSPECTOR"; choice: string; hintShown?: boolean }
   | { type: "MARK"; role: string; cleared: boolean }
   | { type: "ACCUSE"; role: string; room: number; slot: number }
   | { type: "QUIT" };
@@ -345,7 +346,7 @@ type Action =
 type Event =
   | { type: "asked"; entry: NotebookEntry; slip?: SlotError }
   | { type: "rejected"; reason: "shape" | "nonsense" | "duplicate" | "grammar" | "noBudget"; errors?: SlotError[]; earlier?: NotebookEntry }
-  | { type: "rating"; lexiconId: string; direction: "recognize" | "produce"; rating: "again" | "hard" | "good" }
+  | { type: "rating"; lexiconId: string; direction: "recognize" | "produce"; rating: "again" | "hard" | "good"; detail?: SlotError }
   | { type: "slip"; error: SlotError }
   | { type: "inspectorAsked"; question: InspectorQuestion }
   | ({ type: "ended" } & Result);
@@ -407,12 +408,20 @@ Level 2, case 1, the casting of GS 4.3, budget 15. The learner selects Paolo and
 
 ## GS 6. The inspector's questions
 
-The recognition half of the learning model. Ispettrice Bassi asks one multiple-choice question after every 4th accepted question: a question-word question about something already in the notebook, e.g. `Dov'era Paolo tra le otto e le nove?`, with 3 answer options taken from the notebook (`In biblioteca.`, `Tra le otto e le nove.`, `Con Marta.`). The options are always a place, a time or companion, and a thing or person, so choosing needs the question word, not the content.
+The recognition half of the learning model. Ispettrice Bassi asks one multiple-choice question after every 4th accepted question (the 4th, 8th and 12th): a question already in the notebook, asked again about the person, e.g. `Dov'era Paolo tra le otto e le nove?`, with 3 answer options taken from the notebook as they were given (`Ero in biblioteca.`, `Ero con Marta.`, `Leggevo il giornale.`). The options are always a place, a time or companion, and a thing or person, so choosing needs the question word, not the content. Her turn is free and never uses the budget. Code: `src/languages/it/giallo/engine/inspector.ts`.
 
+| Kind | Question words |
+|---|---|
+| a place | `dove`, `da dove` |
+| a time or companion | `quando`, `a che ora`, `con chi` |
+| a thing or person | `che cosa`, `chi`, `di chi` |
+
+- **What she asks.** Any notebook entry whose question word is in the table and that got a real answer (not the case's `default`), when the notebook also holds an answer of each of the other two kinds. She picks the entry and the two other options from the seed and the notebook's length, and shuffles the options, so the same state always gives the same question. Every option has a different text.
+- **How she says it.** `[prep] [form] [body]` as the learner would build it, with the elided form before a vowel (`dov'era`) and the body in the person's gender. The frame's `nameAt` puts the person's name after that many words of the body (`era Paolo tra…`, `ha visto Paolo tra…`, `è arrivata Giulia alla villa`). A frame without `nameAt` is not about the person (the stolen thing, a piece of evidence), so she asks `Secondo Paolo, quando è sparita la torta?`. `TBD:` the reviewer checks these, including `Chi ha visto Paolo…?`, which can also read as "who saw Paolo".
 - Right, hint not shown: `hard` for the qword's recognize card (guess-proofing, as `it.md` 6).
 - Wrong: `again`, with `detail` `{ slot: "answer", given, expected, rule: "answer.wrong" }`, and the right option is shown.
-- **Show hint** reveals the English and removes the rating.
-- The inspector only asks about qwords the notebook can answer; if none can be asked, she skips her turn.
+- **Show hint** reveals the English and removes the rating (`hintShown` on `ANSWER_INSPECTOR`). A choice that is not one of her options is ignored.
+- **Skipping.** If the notebook has no entry she can ask about, she skips her turn and the learner keeps asking; she next tries after the following 4th accepted question.
 
 ---
 
@@ -578,3 +587,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-10-15: GS 5.4 as built in PLAY-084. `solve` takes the case and the notebook, whose entries carry their answer keys. A variant includes the job order (216 for case 1). Invariant 3 requires a contradiction that is true and can be heard; invariant 4 means every written answer can be heard. Invariants 1 to 5 also run in the build; 6 and 7 move to PLAY-085 with `step()`.
 - 2026-10-15: GS 5.1 and GS 5.2 as built in PLAY-085. No `accusing` phase: the confirm sheet is UI state and ACCUSE goes straight to `ended`. The state keeps each suspect's `jobs`. QUIT ends with `{ solved: false, abandoned: true }`. Rejections add `shape` and `noBudget`, and a duplicate carries the `earlier` entry. Actions outside the table are ignored with no event. `solution()` gives the shortest solution's answers for the case end.
 - 2026-10-29: GS 5.3 as built in PLAY-086. Shape also checks the form and preposition tiles, and `lemmaOf` maps tiles to a lemma. A known error needs the qword built with no preposition; meaning also rejects a preposition the lemma doesn't take. Elision and known errors are both reported with agreement, each card rated `again`. `SlotError` adds `qword` and `prep` slots; the state keeps `ratedThisTurn`. `quale è` is accepted pending the reviewer.
+- 2026-10-29: GS 6 as built in PLAY-087. The question words she asks with are sorted into the three kinds of option, and she only asks about real answers. Options are notebook answers as given, not short forms. Frames get `nameAt` (GS 4.2) for where her question names the person, or `Secondo …,` when the frame is not about them. `ANSWER_INSPECTOR` takes `hintShown`, and a wrong answer's rating carries its `detail` (GS 5.1).

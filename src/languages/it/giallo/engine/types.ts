@@ -28,7 +28,7 @@ export type Built = {
 // (answers.ts), or null for the case's default, so solve() reads the notebook as is.
 export type NotebookEntry = { built: Built; key: string | null; answer: string };
 
-// GS 6. The engine only moves the phase; PLAY-087 builds the questions.
+// GS 6: one question the inspector asks (inspector.ts).
 export type InspectorQuestion = {
   qword: string; // the recognize card it rates
   text: string; // "Dov'era Paolo tra le otto e le nove?"
@@ -57,7 +57,7 @@ export type CaseState = {
 
 export type Action =
   | { type: "ASK"; built: Built }
-  | { type: "ANSWER_INSPECTOR"; choice: string }
+  | { type: "ANSWER_INSPECTOR"; choice: string; hintShown?: boolean }
   | { type: "MARK"; role: string; cleared: boolean }
   | { type: "ACCUSE"; role: string; room: number; slot: number }
   | { type: "QUIT" };
@@ -73,6 +73,7 @@ export type Event =
       lexiconId: string;
       direction: "recognize" | "produce";
       rating: "again" | "hard" | "good";
+      detail?: SlotError; // a wrong inspector answer (GS 6)
     }
   | { type: "slip"; error: SlotError }
   | { type: "inspectorAsked"; question: InspectorQuestion }

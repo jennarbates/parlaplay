@@ -7,6 +7,7 @@
     },
     "vowelStart": true,
     "slotParam": true,
+    "nameAt": 1,
     "asks": [
       {
         "qword": "q.dove",
@@ -28,6 +29,7 @@
     },
     "vowelStart": false,
     "slotParam": true,
+    "nameAt": 1,
     "asks": [
       {
         "qword": "q.cosa",
@@ -44,6 +46,7 @@
     },
     "vowelStart": false,
     "slotParam": true,
+    "nameAt": 2,
     "asks": [
       {
         "qword": "q.chi",
@@ -65,6 +68,7 @@
     },
     "vowelStart": true,
     "slotParam": false,
+    "nameAt": 2,
     "asks": [
       {
         "qword": "q.quando",
@@ -123,6 +127,7 @@
     },
     "vowelStart": false,
     "slotParam": false,
+    "nameAt": 1,
     "asks": [
       {
         "qword": "q.da_dove",

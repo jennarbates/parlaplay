@@ -42,8 +42,10 @@ const accuseRight = (s: CaseState): Action => ({
 
 const witnessWhen = { to: "r.witness", frame: "f.stolen.torta", qword: "q.quando", form: "quando" };
 
+// She skips her turn unless a test says otherwise; inspector.test.ts plays her
+// real questions.
 beforeEach(() => {
-  vi.mocked(inspector.inspectorQuestion).mockReset();
+  vi.mocked(inspector.inspectorQuestion).mockReset().mockReturnValue(undefined);
 });
 
 describe("asking", () => {
@@ -203,6 +205,52 @@ describe("inspector", () => {
   test("MARK still works", () => {
     const { state } = run(inspecting(), { type: "MARK", role: "r.seen", cleared: true });
     expect(state).toMatchObject({ phase: "inspector", cleared: ["r.seen"] });
+  });
+
+  test("a right answer rates the qword's recognize card hard (guess-proofing)", () => {
+    const { events } = run(inspecting(), { type: "ANSWER_INSPECTOR", choice: "In biblioteca." });
+    expect(events).toEqual([
+      { type: "rating", lexiconId: "q.dove", direction: "recognize", rating: "hard" },
+    ]);
+  });
+
+  test("a wrong answer rates it again, with the answer as detail", () => {
+    const { state, events } = run(inspecting(), { type: "ANSWER_INSPECTOR", choice: "Con Marta." });
+    expect(state.phase).toBe("asking");
+    expect(events).toEqual([
+      {
+        type: "rating",
+        lexiconId: "q.dove",
+        direction: "recognize",
+        rating: "again",
+        detail: {
+          slot: "answer",
+          given: "Con Marta.",
+          expected: "In biblioteca.",
+          rule: "answer.wrong",
+        },
+      },
+    ]);
+  });
+
+  test.each(["In biblioteca.", "Con Marta."])("a shown hint removes the rating (%s)", (choice) => {
+    const { state, events } = run(inspecting(), {
+      type: "ANSWER_INSPECTOR",
+      choice,
+      hintShown: true,
+    });
+    expect(state.phase).toBe("asking");
+    expect(events).toEqual([]);
+  });
+
+  test("answering never uses the budget", () => {
+    const s = inspecting();
+    expect(run(s, { type: "ANSWER_INSPECTOR", choice: "Con Marta." }).state.budget).toBe(s.budget);
+  });
+
+  test("a choice that is not one of her options is ignored", () => {
+    const s = inspecting();
+    expect(run(s, { type: "ANSWER_INSPECTOR", choice: "x" })).toEqual({ state: s, events: [] });
   });
 
   test("ANSWER_INSPECTOR outside her turn is ignored", () => {
