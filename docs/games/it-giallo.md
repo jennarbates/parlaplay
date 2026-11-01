@@ -126,7 +126,7 @@ The last four are lemmas of their own because the preposition is what the learne
 **Not errors.** These are accepted with no slip, because they are correct Italian (GD4, GD5):
 
 - `che cosa`, `cosa` and `che` are all accepted wherever one is.
-- Unelided `dove era`, `come è`, `cosa è` are accepted; the answer card shows the elided form as the usual spelling.
+- Unelided `dove era`, `come è`, `cosa è` are accepted; the answer card shows the elided form as the usual spelling. So is `quale è` beside `qual è` (`TBD:` the reviewer confirms).
 - `quando` and `a che ora` are both accepted in the arrival frame; they are different questions with different answers (`Sono arrivata dopo cena.`, `Sono arrivata alle sette.`).
 
 Feedback strings live in the giallo `messages.json` (GS 4.1), keyed by rule id. `TBD:` the reviewer writes or approves each one; drafts:
@@ -325,6 +325,7 @@ type CaseState = {
   budget: number;                           // starts at 15
   notebook: NotebookEntry[];                // accepted questions and answers, in order
   cleared: string[];                        // roles the learner marked, never read by the engine's logic
+  ratedThisTurn: string[];                  // "lexiconId|direction"; cleared when a question is accepted
   inspector?: InspectorQuestion;            // set while phase is "inspector"
   result?: Result;
 };
@@ -351,7 +352,7 @@ type Event =
   | ({ type: "ended" } & Result);
 ```
 
-`SlotError` is Chi è?'s type (`it.md` 4.1), with `rule` taking the ids of GS 3.2.
+`SlotError` is Chi è?'s type (`it.md` 4.1), with `rule` taking the ids of GS 3.2 and `slot` adding `qword` (elision, agreement, truncation) and `prep` (a known error; `given` is empty and `expected` is the missing preposition).
 
 ### GS 5.2 Transition table
 
@@ -369,18 +370,18 @@ type Event =
 
 ### GS 5.3 ASK validation order
 
-1. **Shape.** The built tiles parse as `[prep?] [qword form] [body]`, the person exists, and the slot is given when the frame needs one. Otherwise rejected (`shapeError`, no rating).
-2. **Elision.** An `elided` form before a body with `vowelStart: false` is rejected with `elide.consonant`; `again` for the qword's produce card.
-3. **Known errors.** If `(prep, qword)` matches a frame's `teaches` entry, rejected with that rule; `again` for the lemma the learner should have built (`q.di_chi` for `prep.diChi`).
-4. **Meaning.** If `(prep, qword)` is not in the frame's `asks`, rejected as `nonsense`, no rating, feedback `Non capisco la domanda.`
+1. **Shape.** The built tiles parse as `[prep?] [qword form] [body]`: the form is one of the lemma's, the preposition is a tile, the person exists, and the slot is given when the frame needs one. Otherwise rejected (`shape`, no rating). The builder maps its tiles to a lemma with `lemmaOf(prep, form)`: the lemma that takes that preposition, else one that takes none, so `chi` alone is `q.chi` and `che ora` alone is `q.a_che_ora`.
+2. **Elision.** An `elided` form before a body with `vowelStart: false` is rejected (`grammar`) with `elide.consonant`; `again` for the qword's produce card.
+3. **Known errors.** If the qword was built with no preposition and matches a frame's `teaches` entry, rejected (`grammar`) with that rule; `again` for the lemma the learner should have built: the frame's lemma with a preposition that shares a form with it (`q.di_chi` for `chi`, `q.da_dove` for `dov'`).
+4. **Meaning.** If the qword is not in the frame's `asks`, or was built with a preposition other than its own, rejected as `nonsense`, no rating, feedback `Non capisco la domanda.`
 5. **Duplicate.** Same person, frame, slot and qword lemma already in the notebook: rejected as `duplicate`, earlier answer shown.
-6. **Agreement and truncation.** A wrong form of the right lemma (`quanti` for `quante`, `quale` for `quali`, `qual'` for `qual`) is accepted as a slip: the correct form is shown and a slip row logged; the lemma's produce card is not rated.
+6. **Agreement and truncation.** A wrong form of the right lemma (`quanti` for `quante`, `quale` for `quali`, `qual'` for `qual`) is accepted as a slip: the notebook keeps the correct form, `asked` carries the slip and a `slip` event follows; the lemma's produce card is not rated. `qual'` is `trunc.qualE` where `qual` is right and `agree.quale` anywhere else. An elided form agrees with a singular noun.
 
 On success: look up the answer for `(role, frame, slot, qword)`, or the case's `default`; fill placeholders; append to the notebook; budget − 1; emit `asked` and, at Level 2 with no slip, `good` for the qword's produce card. At Level 1 nothing is rated (exposure only, as Chi è?).
 
-When step 2 or 3 fails, step 6 is still checked, so feedback shows every problem at once (as `it.md` 4.3).
+When step 2 or 3 fails, the other and step 6 are still checked, so feedback shows every problem at once (as `it.md` 4.3), with `again` for each card at fault. At Level 1 nothing is rated. A card is rated at most once per turn, and a turn ends when a question is accepted, so a card that failed and was then fixed keeps its `again` (GS 5.5).
 
-Joining: an `elided` form joins the body with no space (`dov'` + `era` = `dov'era`); everything else with one space; the first letter is capitalised.
+Joining: an `elided` form joins the body with no space (`dov'` + `era` = `dov'era`); everything else with one space; the first letter is capitalised. `questionFor(state, built)` gives the question with the body for the gender of the person asked and the slot filled in. A question the learner did not build (the Level 1 picker, the case end) uses `usualForm`: the agreed form, else the elided form before a vowel, else the first.
 
 ### GS 5.4 Solver and invariants (each becomes a test)
 
@@ -585,4 +586,5 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-10-15: GS 4.1 to GS 4.3 as built in PLAY-083. A frame's Level 1 hint moves into each of its `asks`, since one body can ask two facts (`f.at.slot`); slot hints use `{slotEn}`. Prepositions and `ora` get their own lexicon shapes (`prep.`, `w.`), `qual'` is a form marked `distractor`, and `q.a_che_ora`'s `teaches` names itself for *che ora* built without *a*. Ids keep their prefixes (`q.`, `prep.`, `w.`, `f.`, `case.`, `r.`, `j.`, `room.`) and a lie without `contradictedBy` fails the build.
 - 2026-10-15: GS 5.4 as built in PLAY-084. `solve` takes the case and the notebook, whose entries carry their answer keys. A variant includes the job order (216 for case 1). Invariant 3 requires a contradiction that is true and can be heard; invariant 4 means every written answer can be heard. Invariants 1 to 5 also run in the build; 6 and 7 move to PLAY-085 with `step()`.
 - 2026-10-15: GS 5.1 and GS 5.2 as built in PLAY-085. No `accusing` phase: the confirm sheet is UI state and ACCUSE goes straight to `ended`. The state keeps each suspect's `jobs`. QUIT ends with `{ solved: false, abandoned: true }`. Rejections add `shape` and `noBudget`, and a duplicate carries the `earlier` entry. Actions outside the table are ignored with no event. `solution()` gives the shortest solution's answers for the case end.
+- 2026-10-29: GS 5.3 as built in PLAY-086. Shape also checks the form and preposition tiles, and `lemmaOf` maps tiles to a lemma. A known error needs the qword built with no preposition; meaning also rejects a preposition the lemma doesn't take. Elision and known errors are both reported with agreement, each card rated `again`. `SlotError` adds `qword` and `prep` slots; the state keeps `ratedThisTurn`. `quale è` is accepted pending the reviewer.
 - 2026-10-29: GS 6 as built in PLAY-087. The question words she asks with are sorted into the three kinds of option, and she only asks about real answers. Options are notebook answers as given, not short forms. Frames get `nameAt` (GS 4.2) for where her question names the person, or `Secondo …,` when the frame is not about them. `ANSWER_INSPECTOR` takes `hintShown`, and a wrong answer's rating carries its `detail` (GS 5.1).

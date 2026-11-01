@@ -14,7 +14,7 @@ export type Fill = { verb: string; art: string; noun: string; adj?: string };
 export type QuestionKey = string;
 
 export type SlotError = {
-  slot: "verb" | "art" | "adj" | "answer";
+  slot: "verb" | "art" | "adj" | "answer" | "prep" | "qword"; // prep, qword: the giallo (GS 3.2)
   given: string; // text the player chose ("gli", "bionde", "Sì")
   expected: string; // correct text ("i", "biondi", "No")
   rule: string; // message key from 3.7
