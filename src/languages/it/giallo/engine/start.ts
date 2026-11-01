@@ -45,6 +45,7 @@ export function start(
     budget: budgetPerCase,
     notebook: [],
     cleared: [],
+    ratedThisTurn: [],
   };
 }
 
