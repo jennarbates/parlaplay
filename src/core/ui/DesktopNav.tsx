@@ -14,7 +14,7 @@ const link =
 // Desktop spec DS 5: the top nav on every screen but Game, at lg only. It belongs
 // to the language open, or on a shared page to the one open earlier this session or
 // else the last one chosen (platform spec 4.3). The logo comes first (platform spec
-// 8.4); with no language it is the way to the picker, since / opens it then. Play reads "Continue" when that
+// 8.4); it opens the home page, every language and game. Play reads "Continue" when that
 // language has a round saved, by the same rule as Home's "Continue round". The
 // current route gets aria-current="page" (from NavLink) and an underline.
 export function DesktopNav() {

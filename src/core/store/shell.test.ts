@@ -22,30 +22,16 @@ function start(path: string) {
   return router;
 }
 
-test("a first visit to / goes to the picker once the app key is read (rules 0, 2)", async () => {
-  const router = start("/");
-  await settle();
-  expect(router.state.location.pathname).toBe("/"); // rule 0: waits
-  await hydrateShell();
-  await settle();
-  expect(router.state.location.pathname).toBe("/languages");
-});
-
-test("a returning visit to / opens the last language (rule 1)", async () => {
-  await write("app", { lastLanguage: "zh" });
+test.each([undefined, "zh", "fr"])("/ stays the home page, app key %s (rule 1)", async (last) => {
+  if (last) await write("app", { lastLanguage: last });
   const router = start("/");
   await hydrateShell();
   await settle();
-  expect(router.state.location.pathname).toBe("/zh");
-  expect(useShell.getState().state.language).toBe("zh");
-});
-
-test("a damaged app key counts as no last language", async () => {
-  await write("app", { lastLanguage: "fr" });
-  const router = start("/");
-  await hydrateShell();
-  await settle();
-  expect(router.state.location.pathname).toBe("/languages");
+  expect(router.state.location.pathname).toBe("/");
+  expect(useShell.getState().state).toMatchObject({
+    language: null,
+    lastLanguage: last === "zh" ? "zh" : null, // a damaged key counts as none
+  });
 });
 
 test("following a link does not change the default; choosing does (D14)", async () => {

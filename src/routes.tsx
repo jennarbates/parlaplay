@@ -1,8 +1,8 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 import type { RouteHandle } from "./core/language-module.ts";
 import { patchLanguageRoutes } from "./core/modules.ts";
+import { GamePicker } from "./core/ui/GamePicker.tsx";
 import { LanguageFailed } from "./core/ui/LanguageFailed.tsx";
-import { LanguagePicker } from "./core/ui/LanguagePicker.tsx";
 import { Layout } from "./core/ui/Layout.tsx";
 import { NotFound } from "./core/ui/NotFound.tsx";
 import { Privacy } from "./core/ui/Privacy.tsx";
@@ -19,8 +19,9 @@ export const shellRoutes: RouteObject[] = [
     Component: Layout,
     HydrateFallback: Skeleton,
     children: [
-      { index: true, Component: Skeleton },
-      { path: "languages", Component: LanguagePicker, handle: shared("lg:max-w-5xl") },
+      // The home page: every language and its games (8.1). /languages is the same page.
+      { index: true, Component: GamePicker, handle: shared("lg:max-w-5xl") },
+      { path: "languages", Component: GamePicker, handle: shared("lg:max-w-5xl") },
       { path: "settings", Component: Settings, handle: shared("lg:max-w-3xl") },
       { path: "privacy", Component: Privacy, handle: shared("lg:max-w-3xl") },
       {

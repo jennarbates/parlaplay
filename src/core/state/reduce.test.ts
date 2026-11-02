@@ -221,11 +221,11 @@ describe("SIGNED_OUT", () => {
 describe("4.2: HYDRATED", () => {
   const fresh = initialShellState;
 
-  test("accepted once: sets hydrated and last, then re-runs OPEN", () => {
+  test("accepted once: sets hydrated and last, and / stays the home page", () => {
     const opened = run(fresh, { type: "OPEN", path: "/" }).state;
     expect(run(opened, { type: "HYDRATED", lastLanguage: "zh" })).toEqual({
       state: { ...opened, hydrated: true, lastLanguage: "zh" },
-      effects: [{ type: "navigate", to: "/zh", replace: true }],
+      effects: [],
     });
   });
 
@@ -248,35 +248,22 @@ describe("4.2: HYDRATED", () => {
   test("a stored code that is not in the registry counts as none", () => {
     const opened = run(fresh, { type: "OPEN", path: "/" }).state;
     const stale = { type: "HYDRATED", lastLanguage: "fr" } as unknown as ShellAction;
-    expect(run(opened, stale).effects).toEqual([
-      { type: "navigate", to: "/languages", replace: true },
-    ]);
+    expect(run(opened, stale).state.lastLanguage).toBeNull();
   });
 });
 
 describe("4.3: each rule is the first match", () => {
-  const unhydrated = { ...initialShellState, lastLanguage: "zh" as const };
-
-  test("0: / before hydration waits", () => {
-    expect(run(unhydrated, { type: "OPEN", path: "/" })).toEqual({
-      state: { ...unhydrated, path: "/" },
-      effects: [],
-    });
+  test.each([null, "zh"] as const)("1: / is the home page, last language %s", (lastLanguage) => {
+    for (const hydrated of [false, true]) {
+      const state = { ...guest, hydrated, lastLanguage };
+      expect(run(state, { type: "OPEN", path: "/" })).toEqual({
+        state: { ...state, path: "/", language: null },
+        effects: [],
+      });
+    }
   });
 
-  test("1: / with a last language", () => {
-    expect(run({ ...guest, lastLanguage: "zh" }, { type: "OPEN", path: "/" }).effects).toEqual([
-      { type: "navigate", to: "/zh", replace: true },
-    ]);
-  });
-
-  test("2: / with no last language", () => {
-    expect(run({ ...guest, lastLanguage: null }, { type: "OPEN", path: "/" }).effects).toEqual([
-      { type: "navigate", to: "/languages", replace: true },
-    ]);
-  });
-
-  test.each(["/languages", "/settings", "/privacy", "/import", "/settings/"])("3: %s", (path) => {
+  test.each(["/languages", "/settings", "/privacy", "/import", "/settings/"])("2: %s", (path) => {
     expect(run(guest, { type: "OPEN", path })).toEqual({
       state: { ...guest, path, language: null },
       effects: [],
@@ -284,7 +271,7 @@ describe("4.3: each rule is the first match", () => {
   });
 
   test.each(["/zh", "/zh/", "/zh/play", "/zh/progress"])(
-    "4: %s sets the language, not the default",
+    "3: %s sets the language, not the default",
     (path) => {
       expect(run(guest, { type: "OPEN", path })).toEqual({
         state: { ...guest, path, language: "zh" },
@@ -294,7 +281,7 @@ describe("4.3: each rule is the first match", () => {
   );
 
   test.each(["/fr", "/fr/play", "/settings/extra", "/IT", "/play"])(
-    "5: %s is not found",
+    "4: %s is not found",
     (path) => {
       expect(run(guest, { type: "OPEN", path })).toEqual({
         state: { ...guest, path, language: null },
