@@ -52,7 +52,7 @@ describe("GS 3.2: each rule's wrong form", () => {
     expect(entry?.built.form).toBe(expected);
     expect(events).toEqual([
       { type: "asked", entry, slip },
-      { type: "slip", error: slip },
+      { type: "slip", lexiconId: built.qword, error: slip },
     ]);
   });
 
@@ -89,7 +89,13 @@ describe("GS 3.2: each rule's wrong form", () => {
     expect(state.notebook).toEqual([]);
     expect(events).toEqual([
       { type: "rejected", reason: "grammar", errors: [{ ...error, rule }] },
-      { type: "rating", lexiconId: lemma, direction: "produce", rating: "again" },
+      {
+        type: "rating",
+        lexiconId: lemma,
+        direction: "produce",
+        rating: "again",
+        detail: { ...error, rule },
+      },
     ]);
   });
 
@@ -187,8 +193,20 @@ describe("two errors at once, as it.md 4.3", () => {
           { slot: "prep", given: "", expected: "da", rule: "prep.daDove" },
         ],
       },
-      { type: "rating", lexiconId: "q.dove", direction: "produce", rating: "again" },
-      { type: "rating", lexiconId: "q.da_dove", direction: "produce", rating: "again" },
+      {
+        type: "rating",
+        lexiconId: "q.dove",
+        direction: "produce",
+        rating: "again",
+        detail: { slot: "qword", given: "dov'", expected: "dove", rule: "elide.consonant" },
+      },
+      {
+        type: "rating",
+        lexiconId: "q.da_dove",
+        direction: "produce",
+        rating: "again",
+        detail: { slot: "prep", given: "", expected: "da", rule: "prep.daDove" },
+      },
     ]);
   });
 });
@@ -230,7 +248,13 @@ describe("GS 5.5, traced example", () => {
         reason: "grammar",
         errors: [{ slot: "prep", given: "", expected: "di", rule: "prep.diChi" }],
       },
-      { type: "rating", lexiconId: "q.di_chi", direction: "produce", rating: "again" },
+      {
+        type: "rating",
+        lexiconId: "q.di_chi",
+        direction: "produce",
+        rating: "again",
+        detail: { slot: "prep", given: "", expected: "di", rule: "prep.diChi" },
+      },
     ]);
     const right = tiles("r.witness", "f.owner.umbrella", "chi", "prep.di");
     expect(questionFor(wrong.state, right, engineContent)).toBe("Di chi è questo ombrello?");

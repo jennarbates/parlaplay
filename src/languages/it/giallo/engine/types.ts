@@ -75,7 +75,7 @@ export type Event =
       rating: "again" | "hard" | "good";
       detail?: SlotError; // a wrong inspector answer (GS 6)
     }
-  | { type: "slip"; error: SlotError }
+  | { type: "slip"; lexiconId: string; error: SlotError } // lexiconId: the qword it was built with
   | { type: "inspectorAsked"; question: InspectorQuestion }
   | ({ type: "ended" } & Result);
 

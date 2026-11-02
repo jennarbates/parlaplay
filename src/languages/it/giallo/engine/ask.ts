@@ -24,10 +24,22 @@ const reject = (state: CaseState, reason: RejectReason, earlier?: NotebookEntry)
 
 // GS 7, as it.md 6: at most one rating per card per turn, so a card that failed and
 // was then fixed keeps its again. A turn ends when a question is accepted.
-function rate(state: CaseState, events: Event[], lexiconId: string, rating: "again" | "good") {
+function rate(
+  state: CaseState,
+  events: Event[],
+  lexiconId: string,
+  rating: "again" | "good",
+  detail?: SlotError,
+) {
   const card = `${lexiconId}|produce`;
   if (state.level !== 2 || state.ratedThisTurn.includes(card)) return state;
-  events.push({ type: "rating", lexiconId, direction: "produce", rating });
+  events.push({
+    type: "rating",
+    lexiconId,
+    direction: "produce",
+    rating,
+    ...(detail && { detail }),
+  });
   return { ...state, ratedThisTurn: [...state.ratedThisTurn, card] };
 }
 
@@ -159,8 +171,8 @@ export function ask(state: CaseState, built: Built, content: EngineContent): Ste
   if (elision || known) {
     const events: Event[] = [];
     let s = state;
-    if (elision) s = rate(s, events, qword.id, "again");
-    if (known) s = rate(s, events, known.lemma, "again");
+    if (elision) s = rate(s, events, qword.id, "again", elision);
+    if (known) s = rate(s, events, known.lemma, "again", known.error);
     const errors = [elision, known?.error, slip].filter((e): e is SlotError => !!e);
     return { state: s, events: [{ type: "rejected", reason: "grammar", errors }, ...events] };
   }
@@ -173,11 +185,12 @@ export function ask(state: CaseState, built: Built, content: EngineContent): Ste
   const earlier = state.notebook.find((e) => sameQuestion(e.built, built));
   if (earlier) return reject(state, "duplicate", earlier);
 
-  // 6. A slip is accepted with the correct form; the card isn't rated, a slip row is.
+  // 6. A slip is accepted with the correct form; the card isn't rated. Level 2 logs
+  // a slip row (GS 7); Level 1 is exposure only.
   const entry = answerFor(state, slip ? { ...built, form: slip.expected } : built, content);
   const events: Event[] = [{ type: "asked", entry, ...(slip && { slip }) }];
   const rated = slip ? state : rate(state, events, built.qword, "good");
-  if (slip) events.push({ type: "slip", error: slip });
+  if (slip && state.level === 2) events.push({ type: "slip", lexiconId: built.qword, error: slip });
 
   return {
     state: {
