@@ -347,7 +347,7 @@ type Event =
   | { type: "asked"; entry: NotebookEntry; slip?: SlotError }
   | { type: "rejected"; reason: "shape" | "nonsense" | "duplicate" | "grammar" | "noBudget"; errors?: SlotError[]; earlier?: NotebookEntry }
   | { type: "rating"; lexiconId: string; direction: "recognize" | "produce"; rating: "again" | "hard" | "good"; detail?: SlotError }
-  | { type: "slip"; error: SlotError }
+  | { type: "slip"; lexiconId: string; error: SlotError }
   | { type: "inspectorAsked"; question: InspectorQuestion }
   | ({ type: "ended" } & Result);
 ```
@@ -441,6 +441,8 @@ As `it.md` 6 (FSRS, default parameters, desired retention 0.9; append-only revie
 | Inspector answered right, no hint | recognize: the qword | hard |
 | Inspector answered wrong | recognize: the qword | again, with detail |
 | Hint shown | none | none |
+
+**Rows.** `rowsFor(gameId, events, at)` in `src/languages/it/giallo/store/rows.ts` turns `rating` and `slip` events into rows, as Chi è?'s does; every other event is not learning data. An `again` row carries the error as its `detail`, so the Mistakes tab can show it, and a question with two errors makes one row per card. A question rejected with a wrong form too gets no slip row, because it was not accepted (`it.md` 4.3). Level 1 emits no `slip` event.
 
 **Labels.** `labelFor(id)` in the `it` module returns `{ kind: "word", text: "quante", gloss: "how much, how many", lang: "it" }` for a qword (showing its base form), and `{ kind: "grammar", title, explain }` for a slip's rule id (GS 3.2), so the Mistakes tab can show `Qual è never takes an apostrophe`.
 
@@ -588,3 +590,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-10-15: GS 5.1 and GS 5.2 as built in PLAY-085. No `accusing` phase: the confirm sheet is UI state and ACCUSE goes straight to `ended`. The state keeps each suspect's `jobs`. QUIT ends with `{ solved: false, abandoned: true }`. Rejections add `shape` and `noBudget`, and a duplicate carries the `earlier` entry. Actions outside the table are ignored with no event. `solution()` gives the shortest solution's answers for the case end.
 - 2026-10-29: GS 5.3 as built in PLAY-086. Shape also checks the form and preposition tiles, and `lemmaOf` maps tiles to a lemma. A known error needs the qword built with no preposition; meaning also rejects a preposition the lemma doesn't take. Elision and known errors are both reported with agreement, each card rated `again`. `SlotError` adds `qword` and `prep` slots; the state keeps `ratedThisTurn`. `quale è` is accepted pending the reviewer.
 - 2026-10-29: GS 6 as built in PLAY-087. The question words she asks with are sorted into the three kinds of option, and she only asks about real answers. Options are notebook answers as given, not short forms. Frames get `nameAt` (GS 4.2) for where her question names the person, or `Secondo …,` when the frame is not about them. `ANSWER_INSPECTOR` takes `hintShown`, and a wrong answer's rating carries its `detail` (GS 5.1).
+- 2026-11-02: GS 5.1 and GS 7 as built in PLAY-089. The `slip` event carries the qword's `lexiconId`, so it can become a row, and is only emitted at Level 2. An `again` rating from a rejection carries its error as `detail`. Review rows sync today, pointing at their games row; the games row's `game` and `case_id` wait for migration 3 (PLAY-082), and until then a giallo row reads back from the server as `chie`, so the giallo must not ship before PLAY-082.

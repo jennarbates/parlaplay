@@ -1,4 +1,5 @@
 import "fake-indexeddb/auto";
+import { rowsFor as gialloRowsFor } from "../../languages/it/giallo/store/rows.ts";
 import { rowsFor } from "../../languages/it/store/rows.ts";
 import { IDBFactory } from "fake-indexeddb";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -179,6 +180,53 @@ describe("the progress store feeds the outbox only when signed in", () => {
       kind: "game",
       row: { id: "g1", result: "lost" },
     });
+  });
+
+  test("a giallo case's rows go out like Chi è?'s, pointing at its games row", async () => {
+    await syncSaved(); // an earlier test's outbox save can land after beforeEach's load
+    useSyncStore.setState({ outbox: [] });
+    useProgressStore.setState({ owner: user });
+    const p = useProgressStore.getState();
+    p.recordGameStart(game("g1", { game: "giallo", caseId: "case.torta" }));
+    p.appendRows(
+      gialloRowsFor(
+        "g1",
+        [
+          {
+            type: "rating",
+            lexiconId: "q.di_chi",
+            direction: "produce",
+            rating: "again",
+            detail: { slot: "prep", given: "", expected: "di", rule: "prep.diChi" },
+          },
+          {
+            type: "slip",
+            lexiconId: "q.quale",
+            error: { slot: "qword", given: "quale", expected: "quali", rule: "agree.quale" },
+          },
+        ],
+        new Date(),
+      ),
+    );
+    expect(await useSyncStore.getState().flush()).toBe(true);
+    expect(calls.map((c) => c.table)).toEqual(["games", "review_log"]);
+    expect(calls[1]?.rows).toMatchObject([
+      {
+        language: "it",
+        game_id: "g1",
+        lexicon_id: "q.di_chi",
+        rating: "again",
+        detail: { rule: "prep.diChi" },
+      },
+      {
+        language: "it",
+        game_id: "g1",
+        lexicon_id: "q.quale",
+        rating: "slip",
+        detail: { rule: "agree.quale" },
+      },
+    ]);
+    expect(useSyncStore.getState().outbox).toEqual([]);
   });
 
   test("as a guest, nothing is queued", () => {
