@@ -5,6 +5,7 @@ import { useAuthStore } from "../../../core/store/authStore.ts";
 import { inProgress, useGameStore } from "../store/gameStore.ts";
 import { paths } from "../paths.ts";
 import { usePrefs } from "../stores.ts";
+import { GialloCard } from "./GialloCard.tsx";
 
 const levels: { level: Level; title: string; detail: string }[] = [
   { level: 1, title: "Level 1", detail: "Tap ready-made questions, with English hints" },
@@ -112,6 +113,8 @@ export function Home() {
         >
           {saved ? "New round" : "Play"}
         </button>
+
+        <GialloCard />
       </div>
 
       <nav className="flex flex-col gap-3 lg:hidden">

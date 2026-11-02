@@ -4,4 +4,6 @@ export const paths = {
   home: "/it",
   play: "/it/play",
   progress: "/it/progress",
+  giallo: "/it/giallo",
+  gialloPlay: "/it/giallo/play",
 } as const;
