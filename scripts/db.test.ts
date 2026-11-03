@@ -176,7 +176,20 @@ describe("Row Level Security (spec 7.2)", () => {
       { relname: "languages", relrowsecurity: true },
       { relname: "profiles", relrowsecurity: true },
       { relname: "review_log", relrowsecurity: true },
+      { relname: "workbook_progress", relrowsecurity: true },
     ]);
+  });
+
+  test("workbook_progress: your own row only", async () => {
+    const insert =
+      "insert into public.workbook_progress (user_id, workbook, data) values ($1, 'w', '{}')";
+    await as(db, A, insert, [A]);
+    await expect(as(db, A, insert.replace("'w'", "'other'"), [B])).rejects.toThrow();
+    expect((await as(db, B, "select * from public.workbook_progress")).rows).toEqual([]);
+    expect((await as(db, null, "select * from public.workbook_progress")).rows).toEqual([]);
+    const update = await as(db, B, "update public.workbook_progress set data = '[]' returning 1");
+    expect(update.rows).toEqual([]);
+    expect((await as(db, A, "select * from public.workbook_progress")).rows).toHaveLength(1);
   });
 
   test("review_log has no update or delete policy", async () => {

@@ -115,6 +115,7 @@ supabase link --project-ref <production ref> && supabase db push
 |---|---|---|
 | `20261019000000_init.sql` | Chi è?'s tables, RLS and triggers | Applied |
 | `20261103000000_languages.sql` (migration 1) | Adds `languages`, a `language` column everywhere (default `it`), `language_settings` and `profiles.last_language` | Staging first (PLAY-022); production in the launch hour |
+| `20261104000000_workbook_progress.sql` | Adds `workbook_progress`, the `/quaderno/` workbook's saved progress | Staging now; production after migration 1, in the launch hour |
 | `20261127000000_languages_cleanup.sql` (migration 2, not written yet; [spec 6.2](docs/spec.md#62-migrations) has its SQL) | Removes the defaults and the old `profiles.level` | No earlier than Fri Nov 27, once no Chi è? `chie-launch` client has synced for 7 days |
 
 Chi è? shares the staging and production projects until launch. Migration 1 is written so the live Chi è? app keeps working against it ([spec 5.2](docs/spec.md#52-database-migration)), and `scripts/chie-compat.integration.test.ts` runs Chi è?'s own sync code against the migrated schema in CI. `supabase/config.toml` configures the local Supabase only and is never pushed.

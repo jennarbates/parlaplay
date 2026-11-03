@@ -735,6 +735,29 @@
         font-size: 1.05rem;
         margin: 2px 0 2px;
       }
+      .best {
+        margin-left: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ok);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .linkbtn {
+        border: 0;
+        background: none;
+        padding: 0;
+        color: var(--muted);
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: inherit;
+      }
+      .linkbtn:hover {
+        color: var(--pen);
+      }
+      .linkbtn.danger {
+        color: var(--red);
+      }
       .ex-t .it {
         font-family: var(--display);
         font-style: italic;
@@ -1336,7 +1359,11 @@
           <h1 class="brand">
             Tutt* a tavola!<small>Quaderno interattivo · Volume 1, Capitoli 1–3</small>
           </h1>
-          <div class="overall" id="overall"></div>
+          <div class="overall">
+            <div id="overall"></div>
+            <div id="account">Saved on this device.</div>
+            <div id="reset"></div>
+          </div>
         </div>
         <nav class="tabs" role="tablist" id="tabs" aria-label="Capitoli"></nav>
       </header>
@@ -1355,8 +1382,8 @@
           games and writing prompts with example answers.
         </p>
         <p>
-          Your scores and writing are saved in this browser only. Click any dotted Italian word, or
-          a speaker button, to hear it if your browser has an Italian voice.
+          Click any dotted Italian word, or a speaker button, to hear it if your browser has an
+          Italian voice.
         </p>
       </footer>
     </div>
@@ -3929,16 +3956,110 @@
       ];
 
       /* ---------- progress ---------- */
-      let progress = store.get("progress", {});
-      let freeText = store.get("free", {});
-      let cando = store.get("cando", {});
+      // Each entry carries the time it was set, so copies on different devices can merge
+      // (src/quaderno/merge.ts). Scores and checks saved before that keep the time 1.
+      function loadDoc() {
+        const saved = store.get("doc", null);
+        if (saved) return saved;
+        const stamp = (old) =>
+          Object.fromEntries(Object.entries(old).map(([k, v]) => [k, { v, t: 1 }]));
+        return {
+          resetAt: 0,
+          progress: Object.fromEntries(
+            Object.entries(store.get("progress", {})).map(([k, p]) => [k, { ...p, t: 1 }]),
+          ),
+          free: stamp(store.get("free", {})),
+          cando: stamp(store.get("cando", {})),
+          etu: stamp(store.get("etu", {})),
+        };
+      }
+      let doc = loadDoc();
+      const listeners = [];
+      function saveDoc() {
+        store.set("doc", doc);
+        listeners.forEach((fn) => fn());
+      }
+      const setValue = (group, key, v) => {
+        doc[group][key] = { v, t: Date.now() };
+        saveDoc();
+      };
+      const ACCOUNT = {
+        guest:
+          'Saved on this device only. <a href="/settings">Sign in</a> to use it on all your devices.',
+        synced: "Saved to your account.",
+        saving: "Saving to your account…",
+        offline: "Saved on this device. It will reach your account next time you’re online.",
+      };
+      let signedIn = false;
+      window.quaderno = {
+        getDoc: () => doc,
+        replaceDoc(next, { render }) {
+          doc = next;
+          store.set("doc", doc);
+          if (render) renderChapter(current);
+          else refreshProgress();
+        },
+        subscribe: (fn) => listeners.push(fn),
+        setAccount(state) {
+          signedIn = state !== "guest";
+          $("#account").innerHTML = ACCOUNT[state];
+        },
+      };
+      function resetAll() {
+        doc = { resetAt: Date.now(), progress: {}, free: {}, cando: {}, etu: {} };
+        saveDoc();
+        renderChapter(current);
+      }
+      function renderReset() {
+        const box = $("#reset");
+        box.innerHTML = "";
+        box.append(
+          h(
+            "button",
+            {
+              class: "linkbtn",
+              type: "button",
+              onclick: () => {
+                box.innerHTML = "";
+                box.append(
+                  h(
+                    "span",
+                    {},
+                    signedIn
+                      ? "Erase your scores, writing and checklists on all your devices? "
+                      : "Erase your scores, writing and checklists? ",
+                  ),
+                  h(
+                    "button",
+                    {
+                      class: "linkbtn danger",
+                      type: "button",
+                      onclick: () => {
+                        resetAll();
+                        renderReset();
+                      },
+                    },
+                    "Yes, erase",
+                  ),
+                  " ",
+                  h("button", { class: "linkbtn", type: "button", onclick: renderReset }, "Cancel"),
+                );
+              },
+            },
+            "Reset progress",
+          ),
+        );
+      }
+      const bestLabel = (p) =>
+        !p ? "" : p.total === 1 ? (p.score ? "Done" : "Played") : `Best: ${p.score} of ${p.total}`;
       function exId(sec, i) {
         return sec.no + "-" + i;
       }
       function markDone(id, score, total) {
-        const prev = progress[id];
-        if (!prev || score / total >= prev.score / prev.total) progress[id] = { score, total };
-        store.set("progress", progress);
+        const prev = doc.progress[id];
+        if (!prev || score / total > prev.score / prev.total)
+          doc.progress[id] = { score, total, t: Date.now() };
+        saveDoc();
         refreshProgress();
       }
       function chapterStats(ch) {
@@ -3947,7 +4068,7 @@
         ch.sections.forEach((s) =>
           s.ex.forEach((e, i) => {
             n++;
-            if (progress[exId(s, i)]) d++;
+            if (doc.progress[exId(s, i)]) d++;
           }),
         );
         return { n, d };
@@ -3970,13 +4091,15 @@
         ch.sections.forEach((s) => {
           const c = document.querySelector(`.side a[data-sec="${s.no}"] .cnt`);
           if (!c) return;
-          const d = s.ex.filter((e, i) => progress[exId(s, i)]).length;
+          const d = s.ex.filter((e, i) => doc.progress[exId(s, i)]).length;
           c.textContent = `${d}/${s.ex.length}`;
           c.classList.toggle("full", d === s.ex.length);
         });
-        document
-          .querySelectorAll(".ex[data-id]")
-          .forEach((el) => el.classList.toggle("done", !!progress[el.dataset.id]));
+        document.querySelectorAll(".ex[data-id]").forEach((el) => {
+          const p = doc.progress[el.dataset.id];
+          el.classList.toggle("done", !!p);
+          el.querySelector(".best").textContent = bestLabel(p);
+        });
       }
 
       /* ---------- exercise renderers ---------- */
@@ -4274,11 +4397,10 @@
             placeholder: "Scrivi qui…",
             "aria-label": p,
           });
-          ta.value = freeText[key] || "";
+          ta.value = doc.free[key]?.v || "";
           ta.addEventListener("input", () => {
-            freeText[key] = ta.value;
-            store.set("free", freeText);
-            if (ta.value.trim().length > 15 && !progress[id]) markDone(id, 1, 1);
+            setValue("free", key, ta.value);
+            if (ta.value.trim().length > 15 && !doc.progress[id]) markDone(id, 1, 1);
           });
           box.append(h("div", { class: "prompt" }, p), ta);
         });
@@ -4412,7 +4534,8 @@
           };
           inp.addEventListener("input", () => {
             upd();
-            if (!progress[id] && inp.value.trim() && inp.value !== "Valentina") markDone(id, 1, 1);
+            if (!doc.progress[id] && inp.value.trim() && inp.value !== "Valentina")
+              markDone(id, 1, 1);
           });
           upd();
           box.append(
@@ -4935,10 +5058,9 @@
             "Guardo Netflix prima di andare a dormire.",
             "Dormo otto ore a notte.",
           ];
-          const saved = store.get("etu", {});
           const res = h("div", { class: "feedback" });
           const upd = () => {
-            const n = Object.values(saved).filter(Boolean).length;
+            const n = Object.values(doc.etu).filter((e) => e.v).length;
             res.innerHTML = n
               ? `<b>${n}</b> of ${L.length} in common with Valentina. ${n >= 10 ? "Siete gemelle!" : n >= 5 ? "Abbastanza simili." : "Siete molto diverse!"}`
               : "Tick what’s true for you.";
@@ -4946,12 +5068,11 @@
           const ul = h("ul", { class: "checks" });
           L.forEach((t, i) => {
             const cb = h("input", { type: "checkbox", id: "etu-" + i });
-            cb.checked = !!saved[i];
+            cb.checked = !!doc.etu[i]?.v;
             cb.onchange = () => {
-              saved[i] = cb.checked;
-              store.set("etu", saved);
+              setValue("etu", i, cb.checked);
               upd();
-              if (!progress[id]) markDone(id, 1, 1);
+              if (!doc.progress[id]) markDone(id, 1, 1);
             };
             ul.append(
               h("li", {}, h("label", { for: "etu-" + i }, cb, h("span", { class: "say" }, t))),
@@ -5092,11 +5213,8 @@
         ch.goals.forEach((gl, k) => {
           const key = ch.id + ":" + k;
           const cb = h("input", { type: "checkbox", id: "cd-" + ch.id + "-" + k });
-          cb.checked = !!cando[key];
-          cb.onchange = () => {
-            cando[key] = cb.checked;
-            store.set("cando", cando);
-          };
+          cb.checked = !!doc.cando[key]?.v;
+          cb.onchange = () => setValue("cando", key, cb.checked);
           ul.append(
             h(
               "li",
@@ -5135,7 +5253,7 @@
       let current = "c1";
       function renderExercise(ex, sec, i, letter) {
         const id = exId(sec, i);
-        const box = h("div", { class: "ex" + (progress[id] ? " done" : ""), "data-id": id });
+        const box = h("div", { class: "ex" + (doc.progress[id] ? " done" : ""), "data-id": id });
         box._args = [ex, sec, i, letter];
         box.append(
           h(
@@ -5145,7 +5263,12 @@
             h(
               "div",
               {},
-              h("div", { class: "ex-t" }, h("span", { class: "it" }, ex.title)),
+              h(
+                "div",
+                { class: "ex-t" },
+                h("span", { class: "it" }, ex.title),
+                h("span", { class: "best" }, bestLabel(doc.progress[id])),
+              ),
               h("p", { class: "ex-i" }, ex.en),
             ),
           ),
@@ -5436,6 +5559,8 @@
       renderChapter(
         CHAPTERS.some((c) => c.id === fromHash) ? fromHash : store.get("chapter", "c1"),
       );
+      renderReset();
     </script>
+    <script type="module" src="/src/quaderno/sync.ts"></script>
   </body>
 </html>
