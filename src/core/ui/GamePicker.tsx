@@ -7,29 +7,6 @@ import { useAuthStore } from "../store/authStore.ts";
 import { useRounds } from "../store/rounds.ts";
 import { useShell } from "../store/shell.ts";
 
-function WorkbookCard({ code }: { code: LanguageCode }) {
-  const workbook = workbooks[code];
-  if (!workbook) return null;
-  return (
-    <li>
-      <a
-        href={workbook.href}
-        className="flex min-h-11 flex-col gap-1 rounded-2xl bg-white p-3 ring-1 ring-stone-200 hover:bg-stone-100"
-      >
-        <span className="flex flex-wrap items-baseline gap-x-2">
-          <span lang={code} className="text-xl font-bold">
-            {workbook.title}
-          </span>
-          <span className="rounded-full bg-stone-200 px-3 py-0.5 text-sm text-stone-700">
-            Workbook
-          </span>
-        </span>
-        <span className="text-sm text-stone-600">{workbook.blurb}</span>
-      </a>
-    </li>
-  );
-}
-
 // Platform spec 8.1 and 8.3: the home page, at / and /languages. One section per
 // language in registry order, each with a card per game and a link to its
 // Progress; side by side from 1024 px. A game card is a link, so it can open in a
@@ -64,13 +41,24 @@ export function GamePicker() {
               <h2 id={`lang-${l.code}`} className="font-semibold">
                 {l.englishName} <span className="font-normal text-stone-600">· {l.level}</span>
               </h2>
-              <Link
-                to={`/${l.code}/progress`}
-                aria-label={`${l.englishName} progress`}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-stone-600 underline"
-              >
-                Progress
-              </Link>
+              <div className="flex gap-3">
+                {workbooks[l.code] && (
+                  <a
+                    href={workbooks[l.code]}
+                    aria-label={`${l.englishName} workbook`}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-stone-600 underline"
+                  >
+                    Workbook
+                  </a>
+                )}
+                <Link
+                  to={`/${l.code}/progress`}
+                  aria-label={`${l.englishName} progress`}
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-stone-600 underline"
+                >
+                  Progress
+                </Link>
+              </div>
             </div>
             <ul className="flex flex-col gap-2">
               {l.games.map((id) => {
@@ -117,7 +105,6 @@ export function GamePicker() {
                   </li>
                 );
               })}
-              <WorkbookCard code={l.code} />
             </ul>
           </section>
         ))}

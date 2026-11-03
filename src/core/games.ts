@@ -37,17 +37,9 @@ export const games: Record<GameId, GameInfo> = {
   },
 };
 
-// A static study page under a language's games. It lives in public/, outside the app,
-// so its card is a plain link rather than a route.
-export const workbooks: Partial<
-  Record<LanguageCode, { title: string; blurb: string; href: string }>
-> = {
-  it: {
-    title: "Tutt* a tavola! Quaderno",
-    blurb: "Lessons, exercises and flashcards for chapters 1–3 of the textbook.",
-    href: "/quaderno/",
-  },
-};
+// A static study page for a language. It lives in public/, outside the app, so the
+// home page links to it with a plain link rather than a route.
+export const workbooks: Partial<Record<LanguageCode, string>> = { it: "/quaderno/" };
 
 // A game's Home: the language's own for its first game, else a path under it.
 export function gamePath(code: LanguageCode, game: GameId): string {
