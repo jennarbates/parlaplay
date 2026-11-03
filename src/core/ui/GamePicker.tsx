@@ -1,6 +1,6 @@
 import type { MouseEvent } from "react";
 import { Link } from "react-router";
-import { gamePath, games } from "../games.ts";
+import { gamePath, games, workbooks } from "../games.ts";
 import type { LanguageCode } from "../languages.ts";
 import { registry } from "../registry.ts";
 import { useAuthStore } from "../store/authStore.ts";
@@ -41,13 +41,24 @@ export function GamePicker() {
               <h2 id={`lang-${l.code}`} className="font-semibold">
                 {l.englishName} <span className="font-normal text-stone-600">· {l.level}</span>
               </h2>
-              <Link
-                to={`/${l.code}/progress`}
-                aria-label={`${l.englishName} progress`}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-stone-600 underline"
-              >
-                Progress
-              </Link>
+              <div className="flex gap-3">
+                {workbooks[l.code] && (
+                  <a
+                    href={workbooks[l.code]}
+                    aria-label={`${l.englishName} workbook`}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-stone-600 underline"
+                  >
+                    Workbook
+                  </a>
+                )}
+                <Link
+                  to={`/${l.code}/progress`}
+                  aria-label={`${l.englishName} progress`}
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-stone-600 underline"
+                >
+                  Progress
+                </Link>
+              </div>
             </div>
             <ul className="flex flex-col gap-2">
               {l.games.map((id) => {

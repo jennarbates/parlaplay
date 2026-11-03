@@ -37,6 +37,10 @@ export const games: Record<GameId, GameInfo> = {
   },
 };
 
+// A static study page for a language. It lives in public/, outside the app, so the
+// home page links to it with a plain link rather than a route.
+export const workbooks: Partial<Record<LanguageCode, string>> = { it: "/quaderno/" };
+
 // A game's Home: the language's own for its first game, else a path under it.
 export function gamePath(code: LanguageCode, game: GameId): string {
   return firstGameOf(code) === game ? `/${code}` : `/${code}/${game}`;
