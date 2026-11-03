@@ -7,6 +7,7 @@ import { useRounds } from "../../core/store/rounds.ts";
 import { cardIds } from "./cards.ts";
 import { content, contentVersion } from "./content/index.ts";
 import gialloVersion from "./giallo/content/version.json" with { type: "json" };
+import { isResumable as isCaseResumable } from "./giallo/store/resumable.ts";
 import { inProgress, isResumable, useGameStore } from "./store/gameStore.ts";
 import { Game } from "./ui/Game.tsx";
 import { Home } from "./ui/Home.tsx";
@@ -54,13 +55,12 @@ const italian: LanguageModule = {
     {
       path: "giallo/play",
       lazy: async () => ({ Component: (await gialloScreens()).CaseScreen }),
-      handle: { width: "lg:max-w-5xl" },
+      handle: { width: "lg:max-w-none", game: true },
     },
   ],
   cardIds,
   labelFor: (id) => labels.get(id),
-  // The giallo has no engine yet, so no round of it resumes.
-  isResumable: (saved, game) => game === "chie" && isResumable(saved),
+  isResumable: (saved, game) => (game === "giallo" ? isCaseResumable(saved) : isResumable(saved)),
   deviceSettings: z.strictObject({}), // Chi è? has none
 };
 

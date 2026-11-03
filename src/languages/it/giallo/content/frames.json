@@ -264,6 +264,7 @@
   },
   {
     "id": "f.owner.umbrella",
+    "evidence": "un ombrello",
     "body": {
       "m": "è questo ombrello?",
       "f": "è questo ombrello?"
@@ -286,6 +287,7 @@
   },
   {
     "id": "f.owner.keys",
+    "evidence": "delle chiavi",
     "body": {
       "m": "sono queste chiavi?",
       "f": "sono queste chiavi?"

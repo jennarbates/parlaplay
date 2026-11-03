@@ -51,6 +51,7 @@ export const LexiconEntry = z.discriminatedUnion("pos", [QWord, Preposition, Wor
 
 export const Frame = z.strictObject({
   id: z.string().startsWith("f."), // "f.at.slot"
+  evidence: z.string().optional(), // how the scene card names it: "un ombrello" (GS 9.1)
   body: z.strictObject({ m: z.string(), f: z.string() }), // by the gender of the person asked
   vowelStart: z.boolean(), // the body starts with a vowel, so an elided form may go before it
   noun: z.strictObject({ gender, number: z.enum(["sg", "pl"]) }).optional(), // what quanto/quale agree with
