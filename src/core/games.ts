@@ -20,7 +20,8 @@ export const games: Record<GameId, GameInfo> = {
     blurb: "Guess the hidden face by asking questions in Italian.",
     ready: true,
   },
-  // Chi è stato? GS 8: listed now, playable once its screens land (PLAY-088).
+  // Chi è stato? GS 8: listed now. ready opens it here and on Italian Home, once its
+  // screens land (PLAY-091 to PLAY-095) and its games rows can sync (PLAY-082).
   giallo: {
     title: "Chi è stato?",
     titleLang: "it",

@@ -34,6 +34,8 @@ useRounds.getState().register("chie", {
   },
 });
 
+const gialloScreens = () => import("./giallo/ui/GialloScreens.tsx");
+
 const italian: LanguageModule = {
   code: "it",
   games: gameEntries("it"),
@@ -43,6 +45,17 @@ const italian: LanguageModule = {
     { index: true, Component: Home, handle: { width: "lg:max-w-5xl" } },
     { path: "play", Component: Game, handle: { width: "lg:max-w-none", game: true } },
     { path: "progress", Component: Progress, handle: { width: "lg:max-w-6xl" } },
+    // Chi è stato? GS 9.1: its own chunk, so Chi è?'s pages never load its content.
+    {
+      path: "giallo",
+      lazy: async () => ({ Component: (await gialloScreens()).CaseList }),
+      handle: { width: "lg:max-w-5xl" },
+    },
+    {
+      path: "giallo/play",
+      lazy: async () => ({ Component: (await gialloScreens()).CaseScreen }),
+      handle: { width: "lg:max-w-5xl" },
+    },
   ],
   cardIds,
   labelFor: (id) => labels.get(id),

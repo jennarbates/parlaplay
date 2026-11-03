@@ -26,8 +26,19 @@ describe.each(loaded)("%s", (code, module) => {
   });
 
   test("routes are Home, play and progress (8.1)", () => {
-    expect(module.routes.map((r) => (r.index ? "" : r.path))).toEqual(["", "play", "progress"]);
+    expect(module.routes.slice(0, 3).map((r) => (r.index ? "" : r.path))).toEqual([
+      "",
+      "play",
+      "progress",
+    ]);
     expect(module.routes.find((r) => r.path === "play")?.handle).toMatchObject({ game: true });
+  });
+
+  test("a game after the first has its routes under its own path, loaded lazily (GS 9.1)", () => {
+    const rest = module.routes.slice(3);
+    for (const route of rest) expect(route.lazy).toBeTypeOf("function");
+    const expected = module.games.slice(1).flatMap((g) => [g.id, `${g.id}/play`]);
+    expect(rest.map((r) => r.path)).toEqual(expected);
   });
 
   test("every card id has a label", () => {
