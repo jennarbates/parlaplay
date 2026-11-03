@@ -56,6 +56,7 @@ async function start(page: Page) {
   let running = false;
   let again = false;
   let first = true;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const sync = async () => {
     if (running) {
       again = true;
@@ -83,7 +84,8 @@ async function start(page: Page) {
         updated_at: new Date().toISOString(),
       });
       if (saveError) throw saveError;
-      page.setAccount("synced");
+      // A change made during this save is still waiting: don't call it saved yet.
+      page.setAccount(timer || again ? "saving" : "synced");
     } catch {
       page.setAccount("offline");
     } finally {
@@ -95,10 +97,13 @@ async function start(page: Page) {
     }
   };
 
-  let timer: ReturnType<typeof setTimeout> | undefined;
   page.subscribe(() => {
+    page.setAccount("saving");
     clearTimeout(timer);
-    timer = setTimeout(() => void sync(), 1500);
+    timer = setTimeout(() => {
+      timer = undefined;
+      void sync();
+    }, 1500);
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden" && timer) {
