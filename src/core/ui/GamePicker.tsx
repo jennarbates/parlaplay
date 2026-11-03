@@ -1,11 +1,34 @@
 import type { MouseEvent } from "react";
 import { Link } from "react-router";
-import { gamePath, games } from "../games.ts";
+import { gamePath, games, workbooks } from "../games.ts";
 import type { LanguageCode } from "../languages.ts";
 import { registry } from "../registry.ts";
 import { useAuthStore } from "../store/authStore.ts";
 import { useRounds } from "../store/rounds.ts";
 import { useShell } from "../store/shell.ts";
+
+function WorkbookCard({ code }: { code: LanguageCode }) {
+  const workbook = workbooks[code];
+  if (!workbook) return null;
+  return (
+    <li>
+      <a
+        href={workbook.href}
+        className="flex min-h-11 flex-col gap-1 rounded-2xl bg-white p-3 ring-1 ring-stone-200 hover:bg-stone-100"
+      >
+        <span className="flex flex-wrap items-baseline gap-x-2">
+          <span lang={code} className="text-xl font-bold">
+            {workbook.title}
+          </span>
+          <span className="rounded-full bg-stone-200 px-3 py-0.5 text-sm text-stone-700">
+            Workbook
+          </span>
+        </span>
+        <span className="text-sm text-stone-600">{workbook.blurb}</span>
+      </a>
+    </li>
+  );
+}
 
 // Platform spec 8.1 and 8.3: the home page, at / and /languages. One section per
 // language in registry order, each with a card per game and a link to its
@@ -94,6 +117,7 @@ export function GamePicker() {
                   </li>
                 );
               })}
+              <WorkbookCard code={l.code} />
             </ul>
           </section>
         ))}

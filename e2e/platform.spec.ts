@@ -20,6 +20,7 @@ test("/ is the home page: every language, each with its games", async ({ page })
   // Not playable yet, so listed without a link.
   await expect(page.getByText("Chi è stato?")).toBeVisible();
   await expect(pickerCard(page, /Chi è stato\?/)).toHaveCount(0);
+  await expect(pickerCard(page, /Quaderno/)).toHaveAttribute("href", "/quaderno/");
   await page.getByRole("link", { name: "Chinese progress" }).click();
   await expect(page).toHaveURL(/\/zh\/progress$/);
 });
