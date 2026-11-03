@@ -7,7 +7,11 @@ import { contentCheck } from "./scripts/content-check.ts";
 export default defineConfig({
   plugins: [react(), tailwindcss(), contentCheck()],
   // scripts/check-bundle.ts reads which chunks each page loads (platform spec 9).
-  build: { manifest: true },
+  build: {
+    manifest: true,
+    // The workbook is its own page, sharing only the sign-in with the app.
+    rollupOptions: { input: ["index.html", "quaderno/index.html"] },
+  },
   test: {
     include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts", "handoff/**/*.test.ts"],
     environment: "node",
