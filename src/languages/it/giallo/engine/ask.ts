@@ -4,7 +4,7 @@
 import type { Frame } from "../content/schemas.ts";
 import { answerKey, fill, jobText, lookup } from "./answers.ts";
 import { shortestSolution } from "./invariants.ts";
-import { agreementError, elisionError, joinQuestion, qwordById, usualForm } from "./question.ts";
+import { agreementError, builtFor, elisionError, joinQuestion, qwordById } from "./question.ts";
 import { caseById, variantOf } from "./start.ts";
 import type {
   Built,
@@ -46,7 +46,7 @@ function rate(
 export const genderOf = (state: CaseState, role: string, content: EngineContent): "m" | "f" =>
   content.characters.find((x) => x.id === state.cast[role])?.attrs.gender === "n.donna" ? "f" : "m";
 
-const sameQuestion = (a: Built, b: Built) =>
+export const sameQuestion = (a: Built, b: Built) =>
   a.to === b.to && a.frame === b.frame && a.slot === b.slot && a.qword === b.qword;
 
 // GS 4.3: the answer the person gives, with names, job, hiding place and crime
@@ -79,26 +79,12 @@ export function solution(state: CaseState, content: EngineContent): NotebookEntr
   const c = caseById(content, state.caseId);
   const questions = shortestSolution(c, content.frames, variantOf(state)) ?? [];
   // Built with each question word's usual form, for the case end to show.
-  const formOf = (qword: string, frameId: string) => {
-    const q = qwordById(content.lexicon, qword);
-    const frame = content.frames.find((f) => f.id === frameId);
-    return q && frame ? usualForm(q, frame) : "";
-  };
   return questions.map((q) =>
-    answerFor(
-      state,
-      { ...q, form: formOf(q.qword, q.frame), ...prepOf(q.qword, content) },
-      content,
-    ),
+    answerFor(state, builtFor(q, content.frames, content.lexicon), content),
   );
 }
 
-const prepOf = (qword: string, content: EngineContent) => {
-  const prep = qwordById(content.lexicon, qword)?.prep;
-  return prep ? { prep } : {};
-};
-
-const tileText = (id: string | undefined, content: EngineContent) => {
+export const tileText = (id: string | undefined, content: EngineContent) => {
   const entry = content.lexicon.find((x) => x.id === id);
   return entry && entry.pos !== "qword" ? entry.text : "";
 };

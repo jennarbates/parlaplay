@@ -1,6 +1,6 @@
 // Chi è stato? GS 9.1: the giallo's routes, loaded as their own chunk so Chi è?'s
-// players never pay for its content. The question picker, builder, notebook and
-// accusation come with their own cards (PLAY-092 to PLAY-095).
+// players never pay for its content. The builder, notebook and accusation come with
+// their own cards (PLAY-093 to PLAY-095).
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { useAccountStore } from "../../../../core/store/account.ts";
@@ -9,11 +9,13 @@ import { paths } from "../../paths.ts";
 import { useProgressStore, usePrefs } from "../../stores.ts";
 import { Face } from "../../ui/Face.tsx";
 import { GameMenu } from "../../ui/game/GameMenu.tsx";
+import { Sheet } from "../../ui/game/Sheet.tsx";
 import { content } from "../content/index.ts";
 import { engineContent } from "../engine/content.ts";
 import { peopleOf } from "../engine/people.ts";
 import { caseById } from "../engine/start.ts";
 import { inProgress, solvedCases, useCaseStore } from "../store/caseStore.ts";
+import { QuestionPicker } from "./QuestionPicker.tsx";
 
 // Its own text rather than core/games.ts: importing that from this chunk makes the
 // build split the shell, which grows every page (platform spec 9).
@@ -86,8 +88,9 @@ export function CaseList() {
 
 export function CaseScreen() {
   const navigate = useNavigate();
-  const { status, game, quit } = useCaseStore();
+  const { status, game, quit, dispatch } = useCaseStore();
   const [selected, setSelected] = useState<string>();
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   if (status === "loading") return <div aria-busy="true" className="flex-1" />;
   if (!game) return <Navigate to={paths.giallo} replace />;
@@ -97,6 +100,18 @@ export function CaseScreen() {
     const text = engineContent.frames.find((f) => f.id === id)?.evidence;
     return text ? [text] : [];
   });
+  const people = peopleOf(game, engineContent);
+  const person = people.find((p) => p.role === selected);
+  const last = game.notebook.at(-1);
+  const lastAnswer =
+    last && `${people.find((p) => p.role === last.built.to)?.character.name ?? ""}: ${last.answer}`;
+  // GS 2: asking waits for the inspector's question, and stops when the budget is spent.
+  const waiting =
+    game.phase === "inspector"
+      ? { text: "Ispettrice Bassi has a question for you.", lang: undefined }
+      : game.budget <= 0
+        ? { text: content.messages["budget.empty"] ?? "", lang: "it" }
+        : undefined;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -120,15 +135,18 @@ export function CaseScreen() {
           }}
         />
       </header>
-      <div className="flex flex-col gap-4 p-4">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 pb-16">
         <ul aria-label="People" className="grid grid-cols-5 gap-2">
-          {peopleOf(game, engineContent).map((p) => (
+          {people.map((p) => (
             <li key={p.role}>
               <button
                 type="button"
                 aria-label={p.label}
                 aria-pressed={selected === p.role}
-                onClick={() => setSelected(p.role)}
+                onClick={() => {
+                  setSelected(p.role);
+                  setSheetOpen(true);
+                }}
                 className={`flex min-h-11 w-full flex-col items-center gap-1 rounded-xl bg-white p-1 ring-2 hover:bg-stone-100 ${
                   selected === p.role ? "ring-stone-900" : "ring-stone-200"
                 }`}
@@ -155,6 +173,40 @@ export function CaseScreen() {
           </ul>
         </section>
       </div>
+      {/* Level 2's builder is PLAY-093; it has only the faces and scene until then. */}
+      {game.level === 1 && (
+        <>
+          <p role="status" lang="it" className="sr-only">
+            {lastAnswer}
+          </p>
+          <Sheet
+            open={sheetOpen}
+            onToggle={() => setSheetOpen(!sheetOpen)}
+            maxHeight="max-h-[calc(100dvh-12.5rem)]"
+            summary={
+              waiting ? (
+                <span lang={waiting.lang}>{waiting.text}</span>
+              ) : lastAnswer ? (
+                <span lang="it">{lastAnswer}</span>
+              ) : (
+                "Tap a face to ask them a question."
+              )
+            }
+          >
+            {person ? (
+              <QuestionPicker
+                key={person.role}
+                state={game}
+                person={person}
+                disabled={!!waiting}
+                onAsk={(built) => dispatch({ type: "ASK", built })}
+              />
+            ) : (
+              <p className="py-2 text-stone-600">Tap a face to ask them a question.</p>
+            )}
+          </Sheet>
+        </>
+      )}
     </div>
   );
 }

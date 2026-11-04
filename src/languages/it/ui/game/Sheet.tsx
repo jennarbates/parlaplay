@@ -5,18 +5,26 @@ type Props = {
   open: boolean;
   onToggle: () => void;
   actions?: ReactNode; // buttons that stay in reach, open or closed
+  maxHeight?: string; // a Tailwind class; the giallo leaves its faces in reach
   children: ReactNode;
 };
 
 // Spec 8, D18: the question picker, tile builder or CPU question lives in a sheet
 // over the board. It overlays instead of pushing, so the board never shrinks, and
 // collapses to one line. Controls sit at the bottom, in thumb reach.
-export function Sheet({ summary, open, onToggle, actions, children }: Props) {
+export function Sheet({
+  summary,
+  open,
+  onToggle,
+  actions,
+  maxHeight = "max-h-[75dvh]",
+  children,
+}: Props) {
   const id = useId();
   return (
     <section
       aria-label="Questions"
-      className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-h-[75dvh] max-w-md flex-col rounded-t-2xl border-t border-stone-200 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]"
+      className={`fixed inset-x-0 bottom-0 z-20 mx-auto flex ${maxHeight} max-w-md flex-col rounded-t-2xl border-t border-stone-200 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]`}
     >
       <button
         type="button"
