@@ -12,12 +12,14 @@
       {
         "qword": "q.dove",
         "fact": "where",
-        "hint": "Where were you {slotEn}?"
+        "hint": "Where were you {slotEn}?",
+        "hintAbout": "Where was {name} {slotEn}?"
       },
       {
         "qword": "q.con_chi",
         "fact": "with",
-        "hint": "Who were you with {slotEn}?"
+        "hint": "Who were you with {slotEn}?",
+        "hintAbout": "Who was {name} with {slotEn}?"
       }
     ]
   },
@@ -34,7 +36,8 @@
       {
         "qword": "q.cosa",
         "fact": "doing",
-        "hint": "What were you doing {slotEn}?"
+        "hint": "What were you doing {slotEn}?",
+        "hintAbout": "What was {name} doing {slotEn}?"
       }
     ]
   },
@@ -51,12 +54,14 @@
       {
         "qword": "q.chi",
         "fact": "person seen",
-        "hint": "Who did you see {slotEn}?"
+        "hint": "Who did you see {slotEn}?",
+        "hintAbout": "Who did {name} see {slotEn}?"
       },
       {
         "qword": "q.cosa",
         "fact": "thing seen",
-        "hint": "What did you see {slotEn}?"
+        "hint": "What did you see {slotEn}?",
+        "hintAbout": "What did {name} see {slotEn}?"
       }
     ]
   },
@@ -73,12 +78,14 @@
       {
         "qword": "q.quando",
         "fact": "arrived when",
-        "hint": "When did you arrive at the villa?"
+        "hint": "When did you arrive at the villa?",
+        "hintAbout": "When did {name} arrive at the villa?"
       },
       {
         "qword": "q.a_che_ora",
         "fact": "arrived at",
-        "hint": "What time did you arrive at the villa?"
+        "hint": "What time did you arrive at the villa?",
+        "hintAbout": "What time did {name} arrive at the villa?"
       },
       {
         "qword": "q.come",
@@ -93,7 +100,8 @@
       {
         "qword": "q.con_chi",
         "fact": "arrived with",
-        "hint": "Who did you come to the villa with?"
+        "hint": "Who did you come to the villa with?",
+        "hintAbout": "Who did {name} come to the villa with?"
       }
     ],
     "teaches": [
@@ -132,7 +140,8 @@
       {
         "qword": "q.da_dove",
         "fact": "from",
-        "hint": "Where are you from?"
+        "hint": "Where are you from?",
+        "hintAbout": "Where is {name} from?"
       }
     ],
     "teaches": [

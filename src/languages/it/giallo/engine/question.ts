@@ -5,6 +5,12 @@ import type { Frame, LexiconEntry, QWord } from "../content/schemas.ts";
 import type { Question } from "./answers.ts";
 import type { Built, SlotError } from "./types.ts";
 
+// GS 2: the slots are always these three, so a hint's {slotEn} needs no content.
+const slotsEn = ["between seven and eight", "between eight and nine", "between nine and ten"];
+
+export const withSlotEn = (hint: string, slot: number | undefined) =>
+  hint.replace("{slotEn}", slotsEn[slot ?? -1] ?? "");
+
 export const qwordById = (lexicon: readonly LexiconEntry[], id: string): QWord | undefined => {
   const entry = lexicon.find((x) => x.id === id);
   return entry?.pos === "qword" ? entry : undefined;

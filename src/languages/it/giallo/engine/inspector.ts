@@ -3,12 +3,31 @@
 // in the third person, with three options from the notebook: a place, a time or
 // companion, and a thing or person. She skips her turn when the notebook cannot
 // answer any question.
+import type { Character } from "../../content/schemas.ts";
 import { pickOne, seeded, shuffled } from "../../engine/random.ts";
 import type { Frame } from "../content/schemas.ts";
+import { withSlotEn } from "./question.ts";
 import { caseById } from "./start.ts";
 import type { CaseState, EngineContent, InspectorQuestion, NotebookEntry } from "./types.ts";
 
 export const inspectorEvery = 4;
+
+// GS 9.1: her face. She is in no case, so she looks like none of the cast.
+export const bassi: Character = {
+  id: "c.bassi",
+  name: "Ispettrice Bassi",
+  attrs: {
+    gender: "n.donna",
+    hairColor: "adj.castano",
+    hairLength: "adj.corto",
+    eyeColor: "adj.azzurro",
+    glasses: true,
+    hat: true,
+    beard: false,
+    mustache: false,
+  },
+  skin: "s1",
+};
 
 export type AskInspector = (
   state: CaseState,
@@ -62,6 +81,23 @@ export function inspectorText(
   return question.charAt(0).toUpperCase() + question.slice(1);
 }
 
+// The question's English, behind Show hint. A frame about the person has its own
+// third-person text; any other is the learner's own hint, "According to Paolo, …".
+export function inspectorHint(
+  entry: NotebookEntry,
+  frame: Frame,
+  state: CaseState,
+  content: EngineContent,
+): string {
+  const { built } = entry;
+  const name = content.characters.find((x) => x.id === state.cast[built.to])?.name ?? built.to;
+  const asks = frame.asks.find((a) => a.qword === built.qword);
+  if (frame.nameAt !== undefined)
+    return withSlotEn(asks?.hintAbout ?? asks?.hint ?? "", built.slot).replace("{name}", name);
+  const hint = withSlotEn(asks?.hint ?? "", built.slot);
+  return `According to ${name}, ${hint.charAt(0).toLowerCase()}${hint.slice(1)}`;
+}
+
 export const inspectorQuestion: AskInspector = (state, content) => {
   // Only real answers: the case's default ("Non lo so.") answers nothing.
   const answered = state.notebook.filter((e) => e.key !== null && kindOf(e.built.qword) >= 0);
@@ -93,6 +129,7 @@ export const inspectorQuestion: AskInspector = (state, content) => {
   return {
     qword: entry.built.qword,
     text: inspectorText(entry, frame, state, content),
+    hint: inspectorHint(entry, frame, state, content),
     options: shuffled(random, options),
     answer: entry.answer,
   };

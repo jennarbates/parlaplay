@@ -185,6 +185,7 @@ const Frame = z.strictObject({
     qword: z.string(),                      // "q.dove"
     fact: z.string(),                       // "where"
     hint: z.string(),                       // English for Level 1: "Where were you {slotEn}?"
+    hintAbout: z.string().optional(),       // the inspector's English, with nameAt: "Where was {name} {slotEn}?"
   })),
   teaches: z.array(z.strictObject({         // known errors: built as given, rejected with a rule
     built: z.string(),                      // the qword the tiles make without its preposition: "q.chi"
@@ -420,7 +421,7 @@ The recognition half of the learning model. Ispettrice Bassi asks one multiple-c
 - **How she says it.** `[prep] [form] [body]` as the learner would build it, with the elided form before a vowel (`dov'era`) and the body in the person's gender. The frame's `nameAt` puts the person's name after that many words of the body (`era Paolo tra…`, `ha visto Paolo tra…`, `è arrivata Giulia alla villa`). A frame without `nameAt` is not about the person (the stolen thing, a piece of evidence), so she asks `Secondo Paolo, quando è sparita la torta?`. `TBD:` the reviewer checks these, including `Chi ha visto Paolo…?`, which can also read as "who saw Paolo".
 - Right, hint not shown: `hard` for the qword's recognize card (guess-proofing, as `it.md` 6).
 - Wrong: `again`, with `detail` `{ slot: "answer", given, expected, rule: "answer.wrong" }`, and the right option is shown.
-- **Show hint** reveals the English and removes the rating (`hintShown` on `ANSWER_INSPECTOR`). A choice that is not one of her options is ignored.
+- **Show hint** reveals the English and removes the rating (`hintShown` on `ANSWER_INSPECTOR`). A choice that is not one of her options is ignored. The English is about the person, as her question is: `hintAbout` on a frame with `nameAt` (`Where was Paolo between eight and nine?`), and otherwise the learner's own hint after `According to Paolo, `.
 - **Skipping.** If the notebook has no entry she can ask about, she skips her turn and the learner keeps asking; she next tries after the following 4th accepted question.
 
 ---
@@ -483,10 +484,12 @@ Level stays per language (`language_settings`): the learner's Italian level appl
 | Case, order of the people | The suspects in an order from the seed, the witness last. Never in `case.roles` order, which lists `r.culprit` first. `Quit case` uses Chi è?'s menu and confirm |
 | Case | Top bar: case title, questions left (`Domande: 12`). People strip: the 5 faces with names; tap one to select. Scene card: the evidence (`un ombrello`, `delle chiavi`). Bottom sheet: Level 1 picker or Level 2 builder for the selected person. Buttons: `Taccuino` (notebook), `Accusa`. Menu with `Quit case` |
 | Level 1 picker | The frames for the selected person, grouped by qword, each with its English hint behind a `Show hint` toggle. Asked questions are greyed out and show their answer |
-| Level 1 picker, as built | In the sheet, under a heading per question word in lexicon order. `Show hint` is on every question and hides again. Until the inspector sheet (PLAY-094), a pending inspector question leaves the picker disabled, with `Ispettrice Bassi has a question for you.` |
+| Level 1 picker, as built | In the sheet, under a heading per question word in lexicon order. `Show hint` is on every question and hides again. At 0 questions the picker is disabled, and the sheet's line says `Hai finito le domande. Chi è stato?` |
 | Level 2 builder | Three slots: preposition (optional), question word, body. Rows of tiles: `con di a da`; every qword form of GS 3.1 plus `qual'`; then the bodies for the selected person, and the slot picker when the body needs one. `Chiedi` submits |
 | Notebook | One section per person: their answers in order, and a `Cleared` toggle. The scene's evidence at the top |
+| Notebook, as built | A dialog from `Taccuino`, which stays at the foot of the sheet. People in the people strip's order, each answer under the question that got it, since `Non lo so.` means nothing alone. `Cleared` is on the suspects only (GS 2), strikes through the name and dims the face in the strip. It opens during an inspector question too: only asking and accusing wait (GS 2) |
 | Inspector sheet | Her face, the question, 3 options, `Show hint` |
+| Inspector sheet, as built | Takes over the sheet and opens by itself, reload included, until answered; it can be folded to look at the faces and scene, but not past. It repeats the answer that brought her in, since the picker that would show it has gone. Once answered it marks the right option, says so, and waits for `Continue`. `Show hint` is at both levels (GS 6 doesn't limit it). A reload before answering forgets a shown hint, as Chi è?'s does |
 | Accuse sheet | Three pickers (suspect, room, slot), the sentence it will say, `Accusa` to confirm |
 | Case end | Solved or not, stars, the solution, the answers that proved it, this case's mistakes, `Play again` (new seed) and `Back to cases` |
 
@@ -597,3 +600,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-11-02: GS 9.1 as built in PLAY-088. The giallo's card and lazy routes are in, behind `ready` in `src/core/games.ts`, so the card shows `Coming soon` until the game is playable and its games rows can sync. Chi è?'s controls stay as they were beside it, so its Home tests pass unedited. The card's action reads `Solve a case` rather than `Play`, because Chi è?'s `Play` button is the one its tests and players look for.
 - 2026-11-02: GS 4.2 and GS 9.1 as built in PLAY-091. Frames gain `evidence`, the scene card's text (`un ombrello`), so `TBD:` for the reviewer with the rest. The people strip is seeded so a face's position says nothing about who took it. The case list shows what the content holds, so one case until PLAY-098. The games row's `caseId` is local until migration 3 (PLAY-082), so `Solved` is this device's own, as GS 9.1 says.
 - 2026-11-03: GS 9.1 as built in PLAY-092. The picker offers every question for the selected person, as the builder would build it with the usual form, so it goes through the same `step()`. `{slotEn}` is filled from the three fixed slots of GS 2, in the engine rather than the content. Until PLAY-094 a pending inspector question leaves the picker disabled, and a case can't go past the fourth question that gets her to ask. The case's column stays phone width at every size until PLAY-097.
+- 2026-11-04: GS 6 and GS 9.1 as built in PLAY-094. The inspector's question gains `hint`, and frames gain `hintAbout`, because the learner's hints say `you` and hers is about the person; content version 2, so a case saved before this is discarded (GS 4.4). Ispettrice Bassi's face is a fixed look that matches none of the 24 characters. The notebook shows each answer with its question, and is open during her question.

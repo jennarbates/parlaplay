@@ -65,6 +65,9 @@ export const Frame = z.strictObject({
         qword: z.string(), // "q.dove"
         fact: z.string(), // "where"
         hint: z.string(), // English, shown at Level 1: "Where were you between eight and nine?"
+        // The English of the inspector's question, on a frame with nameAt (GS 6):
+        // "Where was {name} {slotEn}?"
+        hintAbout: z.string().optional(),
       }),
     )
     .min(1),

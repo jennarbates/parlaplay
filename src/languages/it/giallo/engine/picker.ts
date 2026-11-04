@@ -3,12 +3,9 @@
 // build it, so the picker's questions go through the same step() as the builder's.
 import { allQuestions } from "./answers.ts";
 import { questionFor, sameQuestion, tileText } from "./ask.ts";
-import { builtFor, joinQuestion } from "./question.ts";
+import { builtFor, joinQuestion, withSlotEn } from "./question.ts";
 import { caseById } from "./start.ts";
 import type { Built, CaseState, EngineContent, NotebookEntry } from "./types.ts";
-
-// GS 2: the slots are always these three, so a hint's {slotEn} needs no content.
-const slotsEn = ["between seven and eight", "between eight and nine", "between nine and ten"];
 
 export type PickerQuestion = {
   key: string;
@@ -48,7 +45,7 @@ export function pickerGroups(
           key: `${q.to}|${q.frame}|${q.slot ?? "-"}|${q.qword}`,
           built,
           text: questionFor(state, built, content),
-          hint: (asks?.hint ?? "").replace("{slotEn}", slotsEn[q.slot ?? -1] ?? ""),
+          hint: withSlotEn(asks?.hint ?? "", q.slot),
           ...(asked && { asked }),
         };
       }),

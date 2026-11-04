@@ -29,6 +29,7 @@ const fillers = (state: CaseState, n: number) =>
 const question: InspectorQuestion = {
   qword: "q.dove",
   text: "Dov'era Paolo tra le otto e le nove?",
+  hint: "Where was Paolo between eight and nine?",
   options: ["In biblioteca.", "Tra le otto e le nove.", "Con Marta."],
   answer: "In biblioteca.",
 };

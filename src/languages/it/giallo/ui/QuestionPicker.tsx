@@ -15,7 +15,7 @@ export function QuestionPicker({
 }: {
   state: CaseState;
   person: Person;
-  disabled: boolean; // waiting for the inspector, or out of questions (GS 2)
+  disabled: boolean; // out of questions (GS 2)
   onAsk: (built: Built) => void;
 }) {
   const [hints, setHints] = useState<ReadonlySet<string>>(new Set());

@@ -32,6 +32,7 @@ export type NotebookEntry = { built: Built; key: string | null; answer: string }
 export type InspectorQuestion = {
   qword: string; // the recognize card it rates
   text: string; // "Dov'era Paolo tra le otto e le nove?"
+  hint: string; // "Where was Paolo between eight and nine?"
   options: string[]; // three, from the notebook
   answer: string; // the right option
 };
