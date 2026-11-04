@@ -1,8 +1,9 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { stored } from "./zh/game.ts";
 
 // Chi è stato? GS 9.1: its card on Italian Home, its routes as their own chunk, the
-// case list and the case screen.
+// case list, the case screen and the Level 1 picker.
 const scripts = (page: Page) => {
   const urls: string[] = [];
   page.on("response", (r) => {
@@ -107,4 +108,117 @@ test("Quit case confirms, then returns to the list with nothing to continue", as
   await page.reload();
   await expect(page.getByRole("button", { name: /La torta sparita/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Continue case" })).toHaveCount(0);
+});
+
+test.describe("the Level 1 picker", () => {
+  const sheet = (page: Page) => page.getByRole("region", { name: "Questions" });
+  // Anchored: its Show hint button's name has the question in it too.
+  const stolen = (page: Page) =>
+    sheet(page).getByRole("button", { name: /^Quando è sparita la torta\?/ });
+  const whenStolen = "Quando è sparita la torta?";
+
+  test("a face opens that person's questions, grouped by question word", async ({ page }) => {
+    await openCase(page);
+    await expect(sheet(page)).toContainText("Tap a face to ask them a question.");
+    await people(page).first().click();
+    const name = (await people(page).first().textContent()) ?? "";
+    await expect(sheet(page).getByRole("heading", { name: `Ask ${name}` })).toBeVisible();
+    for (const label of ["Dove", "Con chi", "Di chi", "A che ora"])
+      await expect(sheet(page).getByRole("heading", { name: label, exact: true })).toBeVisible();
+    await expect(sheet(page).getByRole("list", { name: "Di chi" })).toContainText(
+      "Di chi è questo ombrello?",
+    );
+    await expect(sheet(page).getByRole("list", { name: "Dove", exact: true })).toContainText(
+      "Dov'era tra le otto e le nove?",
+    );
+  });
+
+  test("Show hint toggles one question's English", async ({ page }) => {
+    await openCase(page);
+    await people(page).first().click();
+    const list = sheet(page).getByRole("list", { name: "Dove", exact: true });
+    const text = "Dov'era tra le otto e le nove?";
+    const hint = "Where were you between eight and nine?";
+    await expect(list).not.toContainText(hint);
+    await list.getByRole("button", { name: `Show hint: ${text}` }).click();
+    await expect(list).toContainText(hint);
+    await expect(list).not.toContainText("between seven and eight");
+    await list.getByRole("button", { name: `Hide hint: ${text}` }).click();
+    await expect(list).not.toContainText(hint);
+  });
+
+  test("asking uses a question, then greys it out with its answer, after a reload too", async ({
+    page,
+  }) => {
+    await openCase(page);
+    await people(page).first().click();
+    await stolen(page).click();
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+    const asked = stolen(page);
+    await expect(asked).toBeDisabled();
+    const answer = (await asked.textContent())?.replace(whenStolen, "") ?? "";
+    expect(answer).not.toBe("");
+    await expect(page.getByRole("status").filter({ hasText: answer })).toBeAttached();
+
+    // The same question to someone else is a new question (GS 2).
+    await people(page).nth(1).click();
+    await expect(stolen(page)).toBeEnabled();
+    await people(page).first().click();
+    await expect(stolen(page)).toBeDisabled();
+
+    await page.reload();
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+    await people(page).first().click();
+    await expect(stolen(page)).toBeDisabled();
+    await expect(stolen(page)).toContainText(answer);
+  });
+
+  test("asking waits once the inspector has a question (GS 2)", async ({ page }) => {
+    await openCase(page);
+    await people(page).last().click(); // the witness, who has real answers to these
+    for (const text of [
+      /^Dov'era tra le otto e le nove\?/,
+      /^Con chi era tra le otto e le nove\?/,
+      /^Che cosa faceva tra le otto e le nove\?/,
+      /^Quando è sparita la torta\?/,
+    ])
+      await sheet(page).getByRole("button", { name: text }).click();
+    await expect(page.getByText("Domande: 11")).toBeVisible();
+    await expect(sheet(page)).toContainText("Ispettrice Bassi has a question for you.");
+    await expect(
+      sheet(page).getByRole("button", { name: /^Chi ha visto tra le otto e le nove\?/ }),
+    ).toBeDisabled();
+    await people(page).first().click();
+    await expect(stolen(page)).toBeDisabled();
+    await expect(page.getByText("Domande: 11")).toBeVisible();
+  });
+
+  test("on a phone the open sheet leaves every face in reach", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 560 });
+    await openCase(page);
+    await people(page).first().click();
+    await expect(sheet(page).getByRole("list", { name: "Dove", exact: true })).toBeVisible();
+    const top = (await sheet(page).boundingBox())?.y;
+    if (top === undefined) throw new Error("no sheet");
+    for (const face of await people(page).all()) {
+      const box = await face.boundingBox();
+      if (!box) throw new Error("no face");
+      expect(box.y + box.height).toBeLessThanOrEqual(top);
+    }
+    await people(page).nth(4).click();
+    await expect(people(page).nth(4)).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("axe finds nothing, with a hint shown and a question asked", async ({ page }) => {
+    await openCase(page);
+    await people(page).first().click();
+    await stolen(page).click();
+    await sheet(page)
+      .getByRole("list", { name: "Dove", exact: true })
+      .getByRole("button", { name: /^Show hint/ })
+      .first()
+      .click();
+    const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+    expect(violations).toEqual([]);
+  });
 });

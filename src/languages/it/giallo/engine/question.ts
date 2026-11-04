@@ -2,7 +2,8 @@
 // a frame's noun needs, the GS 3.2 errors of a form, and the question as one string.
 // Pure: no React, DOM or time (GS 5).
 import type { Frame, LexiconEntry, QWord } from "../content/schemas.ts";
-import type { SlotError } from "./types.ts";
+import type { Question } from "./answers.ts";
+import type { Built, SlotError } from "./types.ts";
 
 export const qwordById = (lexicon: readonly LexiconEntry[], id: string): QWord | undefined => {
   const entry = lexicon.find((x) => x.id === id);
@@ -49,6 +50,22 @@ export function agreedForm(q: QWord, frame: Frame): string | undefined {
 export function usualForm(q: QWord, frame: Frame): string {
   const elided = frame.vowelStart ? q.forms.find((f) => f.elided)?.text : undefined;
   return agreedForm(q, frame) ?? elided ?? q.forms[0]?.text ?? "";
+}
+
+// A question the learner didn't build, as they would have: the usual form, with the
+// lemma's preposition.
+export function builtFor(
+  q: Question,
+  frames: readonly Frame[],
+  lexicon: readonly LexiconEntry[],
+): Built {
+  const qword = qwordById(lexicon, q.qword);
+  const frame = frames.find((f) => f.id === q.frame);
+  return {
+    ...q,
+    form: qword && frame ? usualForm(qword, frame) : "",
+    ...(qword?.prep && { prep: qword.prep }),
+  };
 }
 
 // GS 5.3 step 6, agreement and truncation: a wrong form of the right lemma is a

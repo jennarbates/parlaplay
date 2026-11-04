@@ -2,7 +2,7 @@
 // case from its state.
 import { engineContent } from "./content.ts";
 import { allQuestions } from "./answers.ts";
-import { qwordById, usualForm } from "./question.ts";
+import { builtFor } from "./question.ts";
 import { caseById } from "./start.ts";
 import { step } from "./step.ts";
 import type { Action, Built, CaseState, Event } from "./types.ts";
@@ -13,15 +13,9 @@ export { engineContent };
 // form, with the lemma's preposition.
 export function everyQuestion(caseId: string): Built[] {
   const c = caseById(engineContent, caseId);
-  return allQuestions(c, engineContent.frames).map((q) => {
-    const qword = qwordById(engineContent.lexicon, q.qword);
-    const frame = engineContent.frames.find((f) => f.id === q.frame);
-    return {
-      ...q,
-      form: qword && frame ? usualForm(qword, frame) : "",
-      ...(qword?.prep && { prep: qword.prep }),
-    };
-  });
+  return allQuestions(c, engineContent.frames).map((q) =>
+    builtFor(q, engineContent.frames, engineContent.lexicon),
+  );
 }
 
 export const askOf = (built: Built): Action => ({ type: "ASK", built });
