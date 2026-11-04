@@ -1,7 +1,7 @@
 // Chi è stato? GS 9.1: the giallo's routes, loaded as their own chunk so Chi è?'s
 // players never pay for its content. The builder, notebook and accusation come with
-// their own cards (PLAY-093 to PLAY-095).
-import { useState } from "react";
+// their own cards (PLAY-093 and PLAY-095).
+import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { useAccountStore } from "../../../../core/store/account.ts";
 import { Logo } from "../../../../core/ui/Logo.tsx";
@@ -14,7 +14,10 @@ import { content } from "../content/index.ts";
 import { engineContent } from "../engine/content.ts";
 import { peopleOf } from "../engine/people.ts";
 import { caseById } from "../engine/start.ts";
+import type { InspectorQuestion } from "../engine/types.ts";
 import { inProgress, solvedCases, useCaseStore } from "../store/caseStore.ts";
+import { InspectorSheet } from "./InspectorSheet.tsx";
+import { Notebook } from "./Notebook.tsx";
 import { QuestionPicker } from "./QuestionPicker.tsx";
 
 // Its own text rather than core/games.ts: importing that from this chunk makes the
@@ -91,6 +94,12 @@ export function CaseScreen() {
   const { status, game, quit, dispatch } = useCaseStore();
   const [selected, setSelected] = useState<string>();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [notebookOpen, setNotebookOpen] = useState(false);
+  // Her sheet opens by itself, and can be folded away to look at the faces and scene.
+  const [inspectorFolded, setInspectorFolded] = useState(false);
+  // Her question once answered: the engine has moved on, but the result stays up.
+  const [answered, setAnswered] = useState<{ question: InspectorQuestion; choice: string }>();
+  const faces = useRef<HTMLUListElement>(null);
 
   if (status === "loading") return <div aria-busy="true" className="flex-1" />;
   if (!game) return <Navigate to={paths.giallo} replace />;
@@ -105,13 +114,27 @@ export function CaseScreen() {
   const last = game.notebook.at(-1);
   const lastAnswer =
     last && `${people.find((p) => p.role === last.built.to)?.character.name ?? ""}: ${last.answer}`;
-  // GS 2: asking waits for the inspector's question, and stops when the budget is spent.
-  const waiting =
-    game.phase === "inspector"
-      ? { text: "Ispettrice Bassi has a question for you.", lang: undefined }
-      : game.budget <= 0
-        ? { text: content.messages["budget.empty"] ?? "", lang: "it" }
-        : undefined;
+  const outOfQuestions = game.budget <= 0; // GS 2
+  // GS 2: asking waits while her question is pending, which this sheet takes over.
+  const inspector = game.inspector ?? answered?.question;
+  const open = inspector ? !inspectorFolded : sheetOpen;
+
+  const answerInspector = (choice: string, hintShown: boolean) => {
+    if (!game.inspector) return;
+    setAnswered({ question: game.inspector, choice });
+    dispatch({ type: "ANSWER_INSPECTOR", choice, hintShown });
+  };
+  const closeInspector = () => {
+    setAnswered(undefined);
+    setInspectorFolded(false);
+    setSheetOpen(true);
+    // Continue has gone, so focus goes back to the person being asked.
+    const list = faces.current;
+    (
+      list?.querySelector<HTMLElement>('[aria-pressed="true"]') ??
+      list?.querySelector<HTMLElement>("button")
+    )?.focus();
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -135,27 +158,38 @@ export function CaseScreen() {
           }}
         />
       </header>
-      <div className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 pb-16">
-        <ul aria-label="People" className="grid grid-cols-5 gap-2">
-          {people.map((p) => (
-            <li key={p.role}>
-              <button
-                type="button"
-                aria-label={p.label}
-                aria-pressed={selected === p.role}
-                onClick={() => {
-                  setSelected(p.role);
-                  setSheetOpen(true);
-                }}
-                className={`flex min-h-11 w-full flex-col items-center gap-1 rounded-xl bg-white p-1 ring-2 hover:bg-stone-100 ${
-                  selected === p.role ? "ring-stone-900" : "ring-stone-200"
-                }`}
-              >
-                <Face character={p.character} className="w-full rounded-lg" />
-                <span className="max-w-full truncate text-xs font-medium">{p.character.name}</span>
-              </button>
-            </li>
-          ))}
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 pb-32">
+        <ul ref={faces} aria-label="People" className="grid grid-cols-5 gap-2">
+          {people.map((p) => {
+            const cleared = game.cleared.includes(p.role);
+            return (
+              <li key={p.role}>
+                <button
+                  type="button"
+                  aria-label={cleared ? `${p.label}, cleared` : p.label}
+                  aria-pressed={selected === p.role}
+                  onClick={() => {
+                    setSelected(p.role);
+                    setSheetOpen(true);
+                    setInspectorFolded(false);
+                  }}
+                  className={`flex min-h-11 w-full flex-col items-center gap-1 rounded-xl bg-white p-1 ring-2 hover:bg-stone-100 ${
+                    selected === p.role ? "ring-stone-900" : "ring-stone-200"
+                  }`}
+                >
+                  <Face
+                    character={p.character}
+                    className={`w-full rounded-lg ${cleared ? "opacity-40" : ""}`}
+                  />
+                  <span
+                    className={`max-w-full truncate text-xs font-medium ${cleared ? "line-through" : ""}`}
+                  >
+                    {p.character.name}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
         <section
           aria-labelledby="scene"
@@ -180,12 +214,28 @@ export function CaseScreen() {
             {lastAnswer}
           </p>
           <Sheet
-            open={sheetOpen}
-            onToggle={() => setSheetOpen(!sheetOpen)}
-            maxHeight="max-h-[calc(100dvh-12.5rem)]"
+            open={open}
+            onToggle={() =>
+              inspector ? setInspectorFolded(!inspectorFolded) : setSheetOpen(!sheetOpen)
+            }
+            // The picker leaves the faces in reach. Hers doesn't need them, and on a small
+            // phone her three options need the room.
+            maxHeight={inspector ? "max-h-[85dvh]" : "max-h-[calc(100dvh-12.5rem)]"}
+            actions={
+              <button
+                type="button"
+                lang="it"
+                onClick={() => setNotebookOpen(true)}
+                className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
+              >
+                Taccuino
+              </button>
+            }
             summary={
-              waiting ? (
-                <span lang={waiting.lang}>{waiting.text}</span>
+              game.inspector ? (
+                "Ispettrice Bassi has a question for you."
+              ) : outOfQuestions ? (
+                <span lang="it">{content.messages["budget.empty"]}</span>
               ) : lastAnswer ? (
                 <span lang="it">{lastAnswer}</span>
               ) : (
@@ -193,18 +243,33 @@ export function CaseScreen() {
               )
             }
           >
-            {person ? (
+            {inspector ? (
+              <InspectorSheet
+                question={inspector}
+                choice={answered?.choice}
+                lastAnswer={lastAnswer}
+                onAnswer={answerInspector}
+                onContinue={closeInspector}
+              />
+            ) : person ? (
               <QuestionPicker
                 key={person.role}
                 state={game}
                 person={person}
-                disabled={!!waiting}
+                disabled={outOfQuestions}
                 onAsk={(built) => dispatch({ type: "ASK", built })}
               />
             ) : (
               <p className="py-2 text-stone-600">Tap a face to ask them a question.</p>
             )}
           </Sheet>
+          <Notebook
+            state={game}
+            evidence={evidence}
+            open={notebookOpen}
+            onClose={() => setNotebookOpen(false)}
+            onMark={(role, cleared) => dispatch({ type: "MARK", role, cleared })}
+          />
         </>
       )}
     </div>

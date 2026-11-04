@@ -1,8 +1,10 @@
 // Chi è stato? GS 6: the inspector's questions, built from the notebook.
 import { describe, expect, test } from "vitest";
+import { artFiles, layersFor } from "../../content/art.ts";
+import { Character } from "../../content/schemas.ts";
 import { seeded, shuffled } from "../../engine/random.ts";
 import { answerFor } from "./ask.ts";
-import { inspectorQuestion, kinds } from "./inspector.ts";
+import { bassi, inspectorQuestion, kinds } from "./inspector.ts";
 import { qwordById, usualForm } from "./question.ts";
 import { start } from "./start.ts";
 import { askOf, engineContent, everyQuestion, run } from "./testing.ts";
@@ -189,6 +191,65 @@ describe("the question", () => {
       expect(q.text).toBe(
         `Quando è ${woman ? "arrivata" : "arrivato"} ${name(state, "r.seen")} alla villa?`,
       );
+    }
+  });
+});
+
+describe("her face", () => {
+  test("is valid, drawn from the art, and looks like none of the characters", () => {
+    expect(Character.parse(bassi)).toEqual(bassi);
+    for (const file of layersFor(bassi)) expect(artFiles).toContain(file);
+    for (const c of engineContent.characters) {
+      expect(c.id).not.toBe(bassi.id);
+      expect(c.attrs).not.toEqual(bassi.attrs);
+    }
+  });
+});
+
+describe("the hint", () => {
+  const hinted = (built: Built, s = begin()) => {
+    const others = [at("r.pairA", "q.dove"), at("r.pairA", "q.con_chi"), doing("r.pairA")].filter(
+      (b) => kindOf(b.qword) !== kindOf(built.qword),
+    );
+    const state = withNotebook([...others, built], s);
+    for (let seed = 1; seed <= 100; seed++) {
+      const q = inspectorQuestion({ ...state, seed }, engineContent);
+      if (q?.qword === built.qword) return { q, state };
+    }
+    throw new Error(`never asked ${built.qword}`);
+  };
+
+  test.each<[string, Built, (n: string) => string]>([
+    ["a slot", at("r.seen", "q.dove", 2), (n) => `Where was ${n} between nine and ten?`],
+    ["another slot", doing("r.seen", 0), (n) => `What was ${n} doing between seven and eight?`],
+    [
+      "no slot",
+      { to: "r.seen", frame: "f.from", qword: "q.da_dove", form: "" },
+      (n) => `Where is ${n} from?`,
+    ],
+    [
+      "not about the person",
+      { to: "r.witness", frame: "f.stolen.torta", qword: "q.quando", form: "" },
+      (n) => `According to ${n}, when did the cake go missing?`,
+    ],
+    [
+      "not about the person, an owner",
+      { to: "r.witness", frame: "f.owner.umbrella", qword: "q.di_chi", form: "" },
+      (n) => `According to ${n}, whose umbrella is this?`,
+    ],
+  ])("is about the person, in English: %s", (_, built, text) => {
+    const { q, state } = hinted(built);
+    expect(q.hint).toBe(text(name(state, built.to) ?? ""));
+  });
+
+  test("every question she can ask about a person has its third-person English", () => {
+    for (const f of engineContent.frames) {
+      if (f.nameAt === undefined) continue;
+      for (const { qword, hintAbout } of f.asks) {
+        if (kindOf(qword) < 0) continue;
+        expect(hintAbout, `${f.id} ${qword}`).toContain("{name}");
+        expect(hintAbout?.includes("{slotEn}"), `${f.id} ${qword}`).toBe(f.slotParam);
+      }
     }
   });
 });
