@@ -3,6 +3,7 @@ import { content } from "../src/languages/it/content/index.ts";
 import { allQuestions } from "../src/languages/it/engine/index.ts";
 import { evaluate } from "../src/languages/it/engine/meaning.ts";
 import { startGame } from "../src/languages/it/engine/start.ts";
+import { startAtMidday } from "./midday.ts";
 
 // CHI-074: the Progress screen.
 
@@ -39,6 +40,7 @@ test("with no play yet, both tabs show the empty state", async ({ page }) => {
 });
 
 test("after a round: mistakes grouped by word, and words due with dates", async ({ page }) => {
+  await startAtMidday(page);
   const g = startGame(8, 2, content);
   await page.goto("/it/play?level=2&seed=8");
 

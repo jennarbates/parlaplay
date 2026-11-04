@@ -12,6 +12,7 @@ import {
   zh,
 } from "./game.ts";
 import { answerIds } from "../../src/languages/zh/ui/game/answers.ts";
+import { startAtMidday } from "../midday.ts";
 
 // zh-desktop.md ZS 13.3: Shéi at desktop size. Runs on the desktop profiles only
 // (1440 × 900 unless a test sets another size).
@@ -1025,6 +1026,7 @@ test.describe("Home and Progress (ZS 10.1, ZS 10.3)", () => {
   });
 
   test("Progress is four totals and both lists side by side", async ({ page }) => {
+    await startAtMidday(page);
     await page.goto("/zh/play?level=2&seed=8");
     await build(page, "他", "是", "狗", "吗"); // a mistake on 狗
     await panel(page).getByRole("button", { name: "Ask", exact: true }).click();
