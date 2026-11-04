@@ -408,3 +408,234 @@ test.describe("the inspector and the notebook", () => {
     await check();
   });
 });
+
+test.describe("the accusation and the case end", () => {
+  const sheet = (page: Page) => page.getByRole("region", { name: "Questions" });
+  const accuse = (page: Page) => page.getByRole("dialog", { name: "Accusa" });
+  const accusaButton = (page: Page) => sheet(page).getByRole("button", { name: "Accusa" });
+  const rooms = ["in cucina", "in sala da pranzo", "in biblioteca", "in salotto", "in giardino"];
+  const slots = ["tra le sette e le otto", "tra le otto e le nove", "tra le nove e le dieci"];
+  type Truth = { cast: Record<string, string>; hide: number; crime: number; budget: number };
+
+  const truth = async (page: Page) => {
+    await expect.poll(() => stored(page, "round:it:giallo")).toBeDefined();
+    const state = (await stored<{ state: Truth }>(page, "round:it:giallo"))?.state;
+    if (!state) throw new Error("no save");
+    return state;
+  };
+  // The cast's ids are their names: "c.anna" is Anna.
+  const nameOf = (id = "") => `${id.charAt(2).toUpperCase()}${id.slice(3)}`;
+
+  const pick = async (page: Page, who: string, room: string, slot: string) => {
+    for (const text of [who, room, slot])
+      await accuse(page)
+        .locator("label")
+        .filter({ hasText: new RegExp(`^${text}$`) }) // Enzo is in Lorenzo
+        .click();
+  };
+  const solve = async (page: Page) => {
+    const t = await truth(page);
+    await accusaButton(page).click();
+    await pick(page, nameOf(t.cast["r.culprit"]), rooms[t.hide] ?? "", slots[t.crime] ?? "");
+    await accuse(page).getByRole("button", { name: "Accusa" }).click();
+  };
+  const wrong = async (page: Page) => {
+    const t = await truth(page);
+    await accusaButton(page).click();
+    const room = rooms[(t.hide + 1) % rooms.length] ?? "";
+    await pick(page, nameOf(t.cast["r.culprit"]), room, slots[t.crime] ?? "");
+    await accuse(page).getByRole("button", { name: "Accusa" }).click();
+  };
+
+  test("the sheet offers suspects only, says the sentence, and warns about a cleared one", async ({
+    page,
+  }) => {
+    await openCase(page);
+    const first = (await people(page).first().textContent()) ?? "";
+    await sheet(page).getByRole("button", { name: "Taccuino" }).click();
+    await page.getByRole("checkbox", { name: `Cleared: ${first}` }).check();
+    await page.keyboard.press("Escape");
+
+    await accusaButton(page).click();
+    await expect(accuse(page).getByRole("group", { name: "Chi?" }).getByRole("radio")).toHaveCount(
+      4,
+    );
+    await expect(accuse(page).getByRole("group", { name: "Dove?" }).getByRole("radio")).toHaveCount(
+      5,
+    );
+    const confirm = accuse(page).getByRole("button", { name: "Accusa" });
+    await expect(confirm).toBeDisabled();
+    await pick(page, first, "in biblioteca", "tra le otto e le nove");
+    await expect(confirm).toBeEnabled();
+    await expect(accuse(page).getByRole("status")).toHaveText(
+      new RegExp(`^È stat[ao] ${first}, in biblioteca, tra le otto e le nove\\.$`),
+    );
+    await expect(accuse(page)).toContainText(`${first} is marked cleared.`);
+
+    // Cancel changes nothing, and keeps the picks.
+    await accuse(page).getByRole("button", { name: "Cancel" }).click();
+    await expect(accuse(page)).toBeHidden();
+    await expect(page.getByText("Domande: 15")).toBeVisible();
+    await accusaButton(page).click();
+    await expect(confirm).toBeEnabled();
+  });
+
+  test("solved with few questions: three stars, the solution, its proofs, and Solved on the list", async ({
+    page,
+  }) => {
+    await openCase(page);
+    const t = await truth(page);
+    await solve(page);
+    await expect(page.getByRole("heading", { name: "Case solved!" })).toBeFocused();
+    await expect(page.getByRole("img", { name: "3 of 3 stars" })).toBeVisible();
+    await expect(page.getByText(`${rooms[t.hide]}, ${slots[t.crime]}.`)).toBeVisible();
+    const proofs = page.getByRole("region", { name: "The answers that prove it" });
+    expect(await proofs.getByRole("listitem").count()).toBeGreaterThan(0);
+    await expect(page.getByText("None. Nicely done.")).toBeVisible();
+    await expect
+      .poll(async () =>
+        (await stored<Guest>(page, "guest:it"))?.games?.map((g) => [g.game, g.result]),
+      )
+      .toEqual([["giallo", "won"]]);
+    await expect.poll(() => stored(page, "round:it:giallo")).toBeUndefined();
+
+    await page.getByRole("button", { name: "Back to cases" }).click();
+    await expect(page).toHaveURL(/\/it\/giallo$/);
+    await expect(page.getByRole("button", { name: /La torta sparita/ })).toContainText("Solved");
+    await expect(page.getByRole("link", { name: "Continue case" })).toHaveCount(0);
+  });
+
+  test("wrong: closed unsolved, with the solution, and Play again starts afresh", async ({
+    page,
+  }) => {
+    await openCase(page);
+    await people(page).first().click();
+    await sheet(page)
+      .getByRole("button", { name: /^Quando è sparita la torta\?/ })
+      .click();
+    await wrong(page);
+    await expect(page.getByRole("heading", { name: "Not solved." })).toBeVisible();
+    await expect(page.getByRole("img", { name: /stars/ })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "What happened" })).toContainText(/È stat[ao]/);
+    await expect
+      .poll(async () =>
+        (await stored<Guest>(page, "guest:it"))?.games?.map((g) => [g.game, g.result]),
+      )
+      .toEqual([["giallo", "lost"]]);
+
+    await page.getByRole("button", { name: "Play again" }).click();
+    await expect(page.getByText("Domande: 15")).toBeVisible();
+    await expect(sheet(page)).toContainText("Tap a face to ask them a question.");
+    await expect(
+      page.getByRole("list", { name: "People" }).locator('[aria-pressed="true"]'),
+    ).toHaveCount(0);
+    await expect.poll(async () => (await stored<Guest>(page, "guest:it"))?.games?.length).toBe(2);
+  });
+
+  // Plays to 0 questions, answering her each time she asks.
+  const useAllQuestions = async (page: Page) => {
+    await openCase(page);
+    await people(page).last().click();
+    const question = sheet(page).getByRole("button", {
+      name: /^(?!Show hint|Hide hint).*\?$/,
+      disabled: false,
+    });
+    const options = sheet(page).getByRole("list", { name: "Options" });
+    for (let asked = 0; asked < 15; asked++) {
+      await question.first().click();
+      await expect(page.getByText(`Domande: ${14 - asked}`)).toBeVisible();
+      if (await options.isVisible()) {
+        await options.getByRole("button").first().click();
+        await sheet(page).getByRole("button", { name: "Continue" }).click();
+      }
+    }
+  };
+
+  test("at 0 questions only Accusa is left, and 15 used is one star", async ({ page }) => {
+    test.setTimeout(60_000);
+    await useAllQuestions(page);
+    await expect(page.getByText("Domande: 0")).toBeVisible();
+    await expect(sheet(page)).toContainText("Hai finito le domande. Chi è stato?");
+    await expect(
+      sheet(page).getByRole("button", { name: /^(?!Show hint|Hide hint).*\?$/, disabled: false }),
+    ).toHaveCount(0);
+    await expect(accusaButton(page)).toBeEnabled();
+    await solve(page);
+    await expect(page.getByRole("img", { name: "1 of 3 stars" })).toBeVisible();
+  });
+
+  test("she holds up accusing, and a wrong answer to her is in the case's mistakes", async ({
+    page,
+  }) => {
+    await openCase(page);
+    await people(page).last().click();
+    for (const text of [
+      /^Dov'era tra le otto e le nove\?/,
+      /^Con chi era tra le otto e le nove\?/,
+      /^Che cosa faceva tra le otto e le nove\?/,
+      /^Quando è sparita la torta\?/,
+    ])
+      await sheet(page).getByRole("button", { name: text }).click();
+    await expect(accusaButton(page)).toBeDisabled();
+
+    const inspector = await stored<{ state: { inspector?: { answer: string } } }>(
+      page,
+      "round:it:giallo",
+    );
+    const answer = inspector?.state.inspector?.answer ?? "";
+    const options = sheet(page).getByRole("list", { name: "Options" });
+    await options.getByRole("button").filter({ hasNotText: answer }).first().click();
+    await expect(accusaButton(page)).toBeDisabled();
+    await sheet(page).getByRole("button", { name: "Continue" }).click();
+    await expect(accusaButton(page)).toBeEnabled();
+
+    await wrong(page);
+    const mistakes = page.getByRole("region", { name: "This case's mistakes" });
+    await expect(mistakes.getByRole("listitem")).toHaveCount(1);
+    await expect(mistakes).toContainText(answer);
+  });
+
+  test("on a phone, Accusa's sentence and the case end's buttons stay in reach", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 560 });
+    await openCase(page);
+    await accusaButton(page).click();
+    const confirm = accuse(page).getByRole("button", { name: "Accusa" });
+    await expect(confirm).toBeInViewport({ ratio: 1 });
+    await accuse(page).getByRole("button", { name: "Cancel" }).click();
+    await solve(page);
+    for (const name of ["Back to cases", "Play again"])
+      await expect(page.getByRole("button", { name })).toBeInViewport({ ratio: 1 });
+    // Scrolled as far as it goes, nothing stays under the fixed buttons.
+    const last = page.getByText("None. Nicely done.");
+    await last.evaluate((el) => el.scrollIntoView({ block: "start" }));
+    const [end, bar] = [
+      await last.boundingBox(),
+      await page.getByRole("button", { name: "Play again" }).boundingBox(),
+    ];
+    if (!end || !bar) throw new Error("no box");
+    expect(end.y + end.height).toBeLessThanOrEqual(bar.y);
+  });
+
+  test("axe finds nothing on the sheet or either case end", async ({ page }) => {
+    const check = async () => {
+      const { violations } = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+      expect(violations).toEqual([]);
+    };
+    await openCase(page);
+    await accusaButton(page).click();
+    await pick(page, nameOf((await truth(page)).cast["r.seen"]), "in biblioteca", slots[1] ?? "");
+    await check();
+    await accuse(page).getByRole("button", { name: "Cancel" }).click();
+    await solve(page);
+    await expect(page.getByRole("heading", { name: "Case solved!" })).toBeVisible();
+    await check();
+    await page.getByRole("button", { name: "Play again" }).click();
+    await wrong(page);
+    await expect(page.getByRole("heading", { name: "Not solved." })).toBeVisible();
+    await check();
+  });
+});
