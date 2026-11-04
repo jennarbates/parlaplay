@@ -43,7 +43,7 @@ function rate(
   return { ...state, ratedThisTurn: [...state.ratedThisTurn, card] };
 }
 
-const genderOf = (state: CaseState, role: string, content: EngineContent): "m" | "f" =>
+export const genderOf = (state: CaseState, role: string, content: EngineContent): "m" | "f" =>
   content.characters.find((x) => x.id === state.cast[role])?.attrs.gender === "n.donna" ? "f" : "m";
 
 const sameQuestion = (a: Built, b: Built) =>

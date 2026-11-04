@@ -5,7 +5,16 @@ import { onBackdropClick } from "../../../../core/ui/dialog.ts";
 // round as abandoned (spec 2); words already practised stay in the log.
 // Desktop spec DS 8.3: it also opens the keyboard shortcuts, and closes on Esc
 // or a click outside it, giving focus back to the menu button.
-export function GameMenu({ onQuit, onShortcuts }: { onQuit: () => void; onShortcuts: () => void }) {
+// The giallo uses it for a case, and has no shortcuts until PLAY-097 (GS 9.1).
+export function GameMenu({
+  onQuit,
+  onShortcuts,
+  thing = "round",
+}: {
+  onQuit: () => void;
+  onShortcuts?: () => void;
+  thing?: "round" | "case";
+}) {
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -56,17 +65,19 @@ export function GameMenu({ onQuit, onShortcuts }: { onQuit: () => void; onShortc
           role="menu"
           className="absolute top-12 right-0 z-30 w-52 rounded-xl bg-white p-1 shadow-lg ring-1 ring-stone-200"
         >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onShortcuts();
-            }}
-            className="min-h-11 w-full rounded-lg px-3 text-left hover:bg-stone-100 active:bg-stone-100"
-          >
-            Keyboard shortcuts
-          </button>
+          {onShortcuts && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onShortcuts();
+              }}
+              className="min-h-11 w-full rounded-lg px-3 text-left hover:bg-stone-100 active:bg-stone-100"
+            >
+              Keyboard shortcuts
+            </button>
+          )}
           <button
             type="button"
             role="menuitem"
@@ -76,7 +87,7 @@ export function GameMenu({ onQuit, onShortcuts }: { onQuit: () => void; onShortc
             }}
             className="min-h-11 w-full rounded-lg px-3 text-left text-rose-700 active:bg-stone-100"
           >
-            Quit round
+            Quit {thing}
           </button>
         </div>
       )}
@@ -89,7 +100,7 @@ export function GameMenu({ onQuit, onShortcuts }: { onQuit: () => void; onShortc
         className="m-auto w-[min(90vw,22rem)] rounded-2xl p-5 backdrop:bg-black/50"
       >
         <h2 id="quit-title" className="text-xl font-semibold">
-          Quit this round?
+          Quit this {thing}?
         </h2>
         <p className="mt-2 text-sm text-stone-600">
           It will count as abandoned. Words you have already practised are kept.
@@ -110,7 +121,7 @@ export function GameMenu({ onQuit, onShortcuts }: { onQuit: () => void; onShortc
             }}
             className="min-h-12 rounded-xl bg-rose-700 font-medium text-white"
           >
-            Quit round
+            Quit {thing}
           </button>
         </div>
       </dialog>

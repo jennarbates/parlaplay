@@ -1,14 +1,13 @@
 // Shared by the giallo engine's tests: the engine's content, and helpers to play a
 // case from its state.
-import { content as chie } from "../../content/index.ts";
-import { content as giallo } from "../content/index.ts";
+import { engineContent } from "./content.ts";
 import { allQuestions } from "./answers.ts";
 import { qwordById, usualForm } from "./question.ts";
 import { caseById } from "./start.ts";
 import { step } from "./step.ts";
-import type { Action, Built, CaseState, EngineContent, Event } from "./types.ts";
+import type { Action, Built, CaseState, Event } from "./types.ts";
 
-export const engineContent: EngineContent = { ...giallo, characters: chie.characters };
+export { engineContent };
 
 // Every question the case can be asked, as the learner would build it: the usual
 // form, with the lemma's preposition.
