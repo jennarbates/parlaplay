@@ -21,6 +21,13 @@ export type PickerGroup = {
   questions: PickerQuestion[];
 };
 
+// A question word as a heading: "Con chi".
+export function qwordLabel(id: string, content: EngineContent): string {
+  const entry = content.lexicon.find((x) => x.id === id);
+  if (entry?.pos !== "qword") return "";
+  return joinQuestion([tileText(entry.prep, content), entry.forms[0]?.text ?? ""]);
+}
+
 export function pickerGroups(
   state: CaseState,
   role: string,
@@ -34,7 +41,7 @@ export function pickerGroups(
     if (mine.length === 0) return [];
     const group: PickerGroup = {
       qword: entry.id,
-      label: joinQuestion([tileText(entry.prep, content), entry.forms[0]?.text ?? ""]),
+      label: qwordLabel(entry.id, content),
       questions: mine.map((q) => {
         const built = builtFor(q, content.frames, content.lexicon);
         const asks = content.frames

@@ -1,6 +1,5 @@
 // Chi è stato? GS 9.1: the giallo's routes, loaded as their own chunk so Chi è?'s
-// players never pay for its content. The builder, notebook and accusation come with
-// their own cards (PLAY-093 and PLAY-095).
+// players never pay for its content. The builder comes with its own card (PLAY-093).
 import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { useAccountStore } from "../../../../core/store/account.ts";
@@ -14,8 +13,10 @@ import { content } from "../content/index.ts";
 import { engineContent } from "../engine/content.ts";
 import { peopleOf } from "../engine/people.ts";
 import { caseById } from "../engine/start.ts";
-import type { InspectorQuestion } from "../engine/types.ts";
+import type { CaseState, InspectorQuestion } from "../engine/types.ts";
 import { inProgress, solvedCases, useCaseStore } from "../store/caseStore.ts";
+import { AccuseSheet } from "./AccuseSheet.tsx";
+import { CaseEnd } from "./CaseEnd.tsx";
 import { InspectorSheet } from "./InspectorSheet.tsx";
 import { Notebook } from "./Notebook.tsx";
 import { QuestionPicker } from "./QuestionPicker.tsx";
@@ -90,19 +91,26 @@ export function CaseList() {
 }
 
 export function CaseScreen() {
+  const { status, game, gameId } = useCaseStore();
+  if (status === "loading") return <div aria-busy="true" className="flex-1" />;
+  if (!game) return <Navigate to={paths.giallo} replace />;
+  if (game.phase === "ended") return <CaseEnd game={game} gameId={gameId} />;
+  // Keyed: Play again starts with nothing selected or open from the case before.
+  return <CasePlay key={gameId} game={game} />;
+}
+
+function CasePlay({ game }: { game: CaseState }) {
   const navigate = useNavigate();
-  const { status, game, quit, dispatch } = useCaseStore();
+  const { quit, dispatch } = useCaseStore();
   const [selected, setSelected] = useState<string>();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [notebookOpen, setNotebookOpen] = useState(false);
+  const [accusing, setAccusing] = useState(false);
   // Her sheet opens by itself, and can be folded away to look at the faces and scene.
   const [inspectorFolded, setInspectorFolded] = useState(false);
   // Her question once answered: the engine has moved on, but the result stays up.
   const [answered, setAnswered] = useState<{ question: InspectorQuestion; choice: string }>();
   const faces = useRef<HTMLUListElement>(null);
-
-  if (status === "loading") return <div aria-busy="true" className="flex-1" />;
-  if (!game) return <Navigate to={paths.giallo} replace />;
 
   const c = caseById(engineContent, game.caseId);
   const evidence = c.evidence.flatMap((id) => {
@@ -115,7 +123,7 @@ export function CaseScreen() {
   const lastAnswer =
     last && `${people.find((p) => p.role === last.built.to)?.character.name ?? ""}: ${last.answer}`;
   const outOfQuestions = game.budget <= 0; // GS 2
-  // GS 2: asking waits while her question is pending, which this sheet takes over.
+  // GS 2: asking and accusing wait while her question is pending; this sheet takes over.
   const inspector = game.inspector ?? answered?.question;
   const open = inspector ? !inspectorFolded : sheetOpen;
 
@@ -222,14 +230,25 @@ export function CaseScreen() {
             // phone her three options need the room.
             maxHeight={inspector ? "max-h-[85dvh]" : "max-h-[calc(100dvh-12.5rem)]"}
             actions={
-              <button
-                type="button"
-                lang="it"
-                onClick={() => setNotebookOpen(true)}
-                className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
-              >
-                Taccuino
-              </button>
+              <>
+                <button
+                  type="button"
+                  lang="it"
+                  onClick={() => setNotebookOpen(true)}
+                  className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
+                >
+                  Taccuino
+                </button>
+                <button
+                  type="button"
+                  lang="it"
+                  disabled={!!inspector}
+                  onClick={() => setAccusing(true)}
+                  className="min-h-12 flex-1 rounded-xl bg-stone-900 font-medium text-white hover:bg-stone-800 disabled:bg-stone-300 disabled:text-stone-600"
+                >
+                  Accusa
+                </button>
+              </>
             }
             summary={
               game.inspector ? (
@@ -269,6 +288,12 @@ export function CaseScreen() {
             open={notebookOpen}
             onClose={() => setNotebookOpen(false)}
             onMark={(role, cleared) => dispatch({ type: "MARK", role, cleared })}
+          />
+          <AccuseSheet
+            state={game}
+            open={accusing}
+            onClose={() => setAccusing(false)}
+            onAccuse={(role, room, slot) => dispatch({ type: "ACCUSE", role, room, slot })}
           />
         </>
       )}
