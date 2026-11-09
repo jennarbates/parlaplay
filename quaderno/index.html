@@ -6263,7 +6263,7 @@
         const score = h("span", { class: "score" }, `0 of ${ex.items.length} answered`);
         ex.items.forEach((it) => {
           const opts = it.opts || ex.opts;
-          const qhtml = it.q.replace("___", '<span class="blank-txt"></span>');
+          const qhtml = it.q.replaceAll("___", '<span class="blank-txt"></span>');
           const wrap = h("div", { class: "opts" });
           const why = h("div", { class: "why", hidden: true });
           const btns = opts.map((o) =>
