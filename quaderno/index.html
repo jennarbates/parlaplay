@@ -200,7 +200,8 @@
       .tab .t {
         font-weight: 600;
         font-size: 0.95rem;
-        overflow-wrap: anywhere;
+        hyphens: auto;
+        overflow-wrap: break-word;
       }
       .tab .s {
         font-size: 0.78rem;
@@ -757,6 +758,16 @@
       }
       .linkbtn.danger {
         color: var(--red);
+      }
+      .tree {
+        display: grid;
+        gap: 6px;
+        margin: 0.6em 0;
+        font-size: 0.92rem;
+      }
+      .tree > div {
+        border-left: 2px solid var(--rule);
+        padding-left: 10px;
       }
       .ex-t .it {
         font-family: var(--display);
@@ -1357,7 +1368,7 @@
       <header class="mast">
         <div class="mast-top">
           <h1 class="brand">
-            Tutt* a tavola!<small>Quaderno interattivo · Volume 1, Capitoli 1–3</small>
+            Tutt* a tavola!<small>Quaderno interattivo · Volume 1, Capitoli 1–6</small>
           </h1>
           <div class="overall">
             <div id="overall"></div>
@@ -3320,7 +3331,7 @@
         {
           id: "c3",
           num: 3,
-          title: "Tutt* a chiacchierare!",
+          title: "Tutt* a chiacchie\u00adrare!",
           gloss: "Everyone, let’s chat!",
           short: "Regular verbs, questions, telling time",
           goals: [
@@ -3953,6 +3964,2143 @@
             },
           ],
         },
+        /* ================= CAPITOLO 4 ================= */
+        {
+          id: "c4",
+          num: 4,
+          title: "Tutt* in famiglia!",
+          gloss: "Everyone in the family!",
+          short: "Family, possessives, comparisons, irregular verbs",
+          goals: [
+            "describe your family and how people are related",
+            "say who things belong to with possessive adjectives",
+            "use possessives with family members, with and without the article",
+            "compare people and things with più and meno",
+            "say what is the best and the worst",
+            "conjugate irregular verbs like andare, fare, venire and uscire",
+            "say what you have to, can and want to do",
+          ],
+          sections: [
+            {
+              no: "4.1",
+              title: "Ascoltiamo!",
+              en: "Let’s listen: “È sempre bello” by Coez",
+              lesson: `
+<p>The chapter opens with Coez’s song <i>È sempre bello</i> (“It’s always nice”): a list of the good things in life, like being with someone, knowing how to be alone, and Milan in the morning sun. <a href="https://www.youtube.com/results?search_query=coez+%C3%A8+sempre+bello" target="_blank" rel="noopener">Listen on YouTube</a>.</p>
+<p>To guess about Coez’s life you need words for relationships:</p>
+<div class="chips"><span class="chip">${S("sposato/a")} · married</span><span class="chip">${S("fidanzato/a")} · in a relationship, engaged</span><span class="chip">${S("divorziato/a")} · divorced</span><span class="chip">${S("single")} · single</span><span class="chip">${S("il padre / la madre")} · father / mother</span><span class="chip">${S("i figli")} · children</span></div>`,
+              ex: [
+                {
+                  type: "match",
+                  title: "Com’è la sua vita?",
+                  en: "Match each word to its meaning.",
+                  pairs: [
+                    ["sposato", "married"],
+                    ["fidanzato", "in a relationship"],
+                    ["divorziato", "divorced"],
+                    ["figlio unico", "only child"],
+                    ["innamorato", "in love"],
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "Secondo te…",
+                  en: "Guess about Coez’s life. Is he married? How old is he? Does he have children? Where does he live? Which adjectives describe him?",
+                  prompts: ["Secondo me, Coez…"],
+                  model:
+                    "Secondo me, Coez è fidanzato ma non è sposato. Ha circa trent’anni ed è giovane. Non ha figli. Abita a Roma, ma gli piace anche Milano. È romantico, sensibile e un po’ malinconico.",
+                },
+              ],
+            },
+            {
+              no: "4.2",
+              title: "La famiglia",
+              en: "Vocabulary: the family",
+              lesson: `
+<p>The Medici ruled Florence for most of 1434–1737 and paid for the work of Botticelli, Michelangelo, Leonardo and Brunelleschi. Here are four generations of their family tree, simplified:</p>
+<div class="tree">
+<div><b>1</b> ${S("Giovanni di Bicci")} + Piccarda Bueri → figli: <b>Cosimo il Vecchio</b>, <b>Lorenzo il Vecchio</b></div>
+<div><b>2</b> ${S("Cosimo il Vecchio")} + Contessina de’ Bardi → figli: <b>Piero il Gottoso</b>, <b>Giovanni</b><br>${S("Lorenzo il Vecchio")} → figlio: <b>Pierfrancesco</b></div>
+<div><b>3</b> ${S("Piero il Gottoso")} + Lucrezia Tornabuoni → figli: <b>Lorenzo il Magnifico</b>, <b>Giuliano</b>, <b>Bianca</b></div>
+<div><b>4</b> ${S("Lorenzo il Magnifico")} + Clarice Orsini → figli: <b>Piero il Fatuo</b>, <b>Giovanni</b> (later Papa Leone X), <b>Maddalena</b></div></div>
+<p>${S("La moglie di Piero il Gottoso si chiama Lucrezia.")} ${S("Il padre di Cosimo il Vecchio è Giovanni di Bicci.")} ${S("I genitori di Giuliano sono Piero il Gottoso e Lucrezia.")}</p>
+<div class="cols">
+<div><h4>La famiglia</h4><div class="chips">${["il padre · father", "la madre · mother", "i genitori · parents", "il marito · husband", "la moglie · wife", "il figlio / la figlia · son / daughter", "il fratello · brother", "la sorella · sister", "il nonno / la nonna · grandfather / -mother", "lo zio / la zia · uncle / aunt", "il cugino / la cugina · cousin", "il/la nipote · nephew, niece, grandchild", "i parenti · relatives"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>Più rari</h4><div class="chips">${["il bisnonno · great-grandfather", "il suocero / la suocera · father- / mother-in-law", "il genero · son-in-law", "la nuora · daughter-in-law", "il cognato / la cognata · brother- / sister-in-law", "il gemello · twin", "il figlio unico · only child", "il patrigno / la matrigna · stepfather / -mother", "il fratellastro / la sorellastra · stepbrother / -sister"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div></div>
+<p><b>Nipote</b> means both nephew/niece and grandchild: context tells you which.</p>
+<div class="note"><b>Nota culturale</b><p>Words like “step-” and “half-” sound negative in Italian, so people usually describe the relationship instead: a stepbrother is <i>il figlio della moglie di mio padre</i>.</p><p><i>Il mammone</i> (mama’s boy) is a well-known stereotype. In 2013 over half of Italians under 35 still lived with their parents, and men more than women.</p></div>`,
+              ex: [
+                {
+                  type: "choice",
+                  title: "La famiglia dei Medici",
+                  en: "Use the family tree above.",
+                  items: [
+                    {
+                      q: "Chi è il padre di Cosimo il Vecchio?",
+                      opts: ["Giovanni di Bicci", "Lorenzo il Vecchio", "Piero il Gottoso"],
+                      a: "Giovanni di Bicci",
+                    },
+                    {
+                      q: "Chi è la moglie di Piero il Gottoso?",
+                      opts: ["Clarice Orsini", "Lucrezia Tornabuoni", "Contessina de’ Bardi"],
+                      a: "Lucrezia Tornabuoni",
+                    },
+                    {
+                      q: "Chi è il fratello di Lorenzo il Magnifico?",
+                      opts: ["Giuliano", "Pierfrancesco", "Piero il Fatuo"],
+                      a: "Giuliano",
+                    },
+                    {
+                      q: "Chi sono i nonni di Piero il Fatuo?",
+                      opts: [
+                        "Cosimo il Vecchio e Contessina",
+                        "Piero il Gottoso e Lucrezia",
+                        "Lorenzo e Clarice",
+                      ],
+                      a: "Piero il Gottoso e Lucrezia",
+                      why: "His parents are Lorenzo and Clarice; their parents are his grandparents.",
+                    },
+                    {
+                      q: "Giovanni (figlio di Cosimo) è ___ di Lorenzo il Magnifico.",
+                      opts: ["lo zio", "il cugino", "il nonno"],
+                      a: "lo zio",
+                      why: "He’s the brother of Lorenzo’s father.",
+                    },
+                    {
+                      q: "Clarice Orsini è ___ di Lucrezia Tornabuoni.",
+                      opts: ["la figlia", "la nuora", "la suocera"],
+                      a: "la nuora",
+                      why: "She married Lucrezia’s son.",
+                    },
+                    {
+                      q: "Lorenzo il Magnifico è ___ di Cosimo il Vecchio.",
+                      opts: ["il nipote", "il figlio", "il cognato"],
+                      a: "il nipote",
+                      why: "Here nipote means grandson.",
+                    },
+                    {
+                      q: "Pierfrancesco è ___ di Piero il Gottoso.",
+                      opts: ["il fratello", "il cugino", "lo zio"],
+                      a: "il cugino",
+                      why: "Their fathers were brothers.",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Chi sono?",
+                  en: "Choose the right family word.",
+                  items: [
+                    {
+                      q: "I figli di mio fratello sono i miei ___.",
+                      opts: ["cugini", "nipoti"],
+                      a: "nipoti",
+                    },
+                    {
+                      q: "Il figlio della mia mamma è mio ___.",
+                      opts: ["fratello", "papà"],
+                      a: "fratello",
+                    },
+                    {
+                      q: "La figlia di mia zia è mia ___.",
+                      opts: ["bisnonna", "cugina"],
+                      a: "cugina",
+                    },
+                    {
+                      q: "Il padre di mia mamma è mio ___.",
+                      opts: ["cognato", "nonno"],
+                      a: "nonno",
+                    },
+                    { q: "Il fratello di mio padre è mio ___.", opts: ["zio", "nipote"], a: "zio" },
+                    {
+                      q: "La mamma di mio marito è mia ___.",
+                      opts: ["nuora", "suocera"],
+                      a: "suocera",
+                    },
+                    {
+                      q: "Il fratello di mia moglie è mio ___.",
+                      opts: ["prozio", "cognato"],
+                      a: "cognato",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La tua famiglia",
+                  en: "Who are you to the people in your family? List every role you have. How many are there?",
+                  prompts: ["Sono…"],
+                  model:
+                    "Sono la figlia di Sandy e Steve; sono la sorella di Steve Jr.; sono la mamma di Ben; sono la cugina di molte persone; sono la zia di Stevie ed Ella; sono la nipote di Gail e Vin. Ho sei ruoli nella famiglia!",
+                },
+              ],
+            },
+            {
+              no: "4.3",
+              title: "Gli aggettivi possessivi",
+              en: "Possessive adjectives: my, your, our…",
+              lesson: `
+<p>Caterina Sforza, “the Tigress of Forlì”, married into the Medici family and was a fierce politician and military strategist. She describes herself:</p>
+<p class="say">Sono nata a Milano nel 1463. La mia famiglia è nobile e il mio soprannome è la tigressa di Forlì. Il mio primo marito è morto giovane. Le mie azioni dimostrano che sono una donna potente. I miei nemici hanno paura di me.</p>
+<p>The formula is <b>definite article + possessive + noun</b>: <i>la mia famiglia</i>. The possessive agrees with the <b>thing owned</b>, not the owner: Caterina is a woman, but she says <i>il mio soprannome</i> because <i>soprannome</i> is masculine.</p>
+<div class="tscroll"><table class="t"><tr><th></th><th>m. sing.</th><th>f. sing.</th><th>m. plur.</th><th>f. plur.</th></tr>
+<tr><td>my</td><td>il mio</td><td>la mia</td><td>i miei</td><td>le mie</td></tr>
+<tr><td>your (tu)</td><td>il tuo</td><td>la tua</td><td>i tuoi</td><td>le tue</td></tr>
+<tr><td>his / her / your (Lei)</td><td>il suo</td><td>la sua</td><td>i suoi</td><td>le sue</td></tr>
+<tr><td>our</td><td>il nostro</td><td>la nostra</td><td>i nostri</td><td>le nostre</td></tr>
+<tr><td>your (voi)</td><td>il vostro</td><td>la vostra</td><td>i vostri</td><td>le vostre</td></tr>
+<tr><td>their</td><td>il loro</td><td>la loro</td><td>i loro</td><td>le loro</td></tr></table></div>
+<div class="tip"><b>Study tip</b><p><i>Suo</i> means both “his” and “her”: <i>la sua casa</i> is his house or her house. <i>Loro</i> never changes; only its article does. And since every possessive starts with a plain consonant, the article is always <i>il, la, i</i> or <i>le</i>.</p></div>`,
+              ex: [
+                {
+                  type: "fill",
+                  title: "Completa la tabella",
+                  en: "Fill in the missing forms.",
+                  items: [
+                    { q: "my, f. sing.: la {{mia}}" },
+                    { q: "your (tu), m. sing.: il {{tuo}}" },
+                    { q: "your (tu), f. plur.: le {{tue}}" },
+                    { q: "his/her, m. sing.: il {{suo}}" },
+                    { q: "our, m. plur.: i {{nostri}}" },
+                    { q: "your (voi), m. plur.: i {{vostri}}" },
+                    { q: "my, m. plur.: i {{miei}}" },
+                    { q: "their, f. plur.: le {{loro}}" },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "La città dei Medici: Firenze",
+                  en: "Choose the right possessive.",
+                  items: [
+                    {
+                      q: "Mio nonno Luca è nato a Firenze. ___ casa natale è vicino alla sinagoga.",
+                      opts: ["La sua", "Il suo", "Il loro"],
+                      a: "La sua",
+                    },
+                    {
+                      q: "Io e Elif vendiamo i kebab in via Sant’Agostino. ___ kebab sono i più buoni d’Italia!",
+                      opts: ["Il mio", "I nostri", "Le mie"],
+                      a: "I nostri",
+                    },
+                    {
+                      q: "Tu e Salem prendete l’aperitivo in Piazza del Duomo. ___ serate sono molto divertenti!",
+                      opts: ["Il tuo", "La sua", "Le vostre"],
+                      a: "Le vostre",
+                    },
+                    {
+                      q: "Studio a Firenze l’anno prossimo. Non vedo l’ora di seguire ___ classi!",
+                      opts: ["i miei", "le mie", "le loro"],
+                      a: "le mie",
+                    },
+                    {
+                      q: "Raoul studia medicina. ___ corsi sono difficili!",
+                      opts: ["Il suo", "Il mio", "I suoi"],
+                      a: "I suoi",
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Di chi è?",
+                  en: "Whose is it? Write the article and the possessive.",
+                  items: [
+                    { q: "(my) {{il mio}} zaino" },
+                    { q: "(your, tu) {{le tue}} amiche" },
+                    { q: "(our) {{la nostra}} città" },
+                    { q: "(their) {{i loro}} professori" },
+                    { q: "(his) {{la sua}} macchina" },
+                    { q: "(her) {{il suo}} libro" },
+                    { q: "(your, voi) {{i vostri}} compiti" },
+                    { q: "(their) {{la loro}} casa" },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "Una persona famosa",
+                  en: "Describe a famous person through their family in five sentences, without saying their name.",
+                  prompts: ["Chi è?"],
+                  model:
+                    "I suoi genitori abitano a Washington DC. La sua mamma ha scritto la sua autobiografia. Il suo papà è un ex-presidente. Sua sorella si chiama Malia. Chi è? È Sasha Obama.",
+                },
+              ],
+            },
+            {
+              no: "4.4",
+              title: "I possessivi e la famiglia",
+              en: "Possessives with family members",
+              lesson: `
+<p>With <b>one family member</b>, the article disappears: <i>mia madre, tuo padre, suo fratello, nostra cugina, vostro zio</i>.</p>
+<p>The article comes back:</p>
+<ul><li>in the <b>plural</b>: <i>le mie sorelle, i tuoi cugini</i></li>
+<li>with <b>loro</b>, always: <i>il loro nonno</i></li>
+<li>with affectionate or altered words: <i>la mia mamma, il mio papà, il mio fratellino, la mia sorellina</i></li>
+<li>when an adjective is added: <i>il mio fratello minore, la mia sorella maggiore</i></li></ul>
+<div class="tip"><b>Study tip</b><p><i>Famiglia</i> isn’t a family member, and neither are pets, boyfriends or girlfriends: <i>la mia famiglia, il nostro cane, la sua fidanzata</i>.</p></div>`,
+              ex: [
+                {
+                  type: "fill",
+                  title: "Articolo o no?",
+                  en: "Write the definite article, or x if there isn’t one.",
+                  items: [
+                    { q: "{{i}} miei nonni" },
+                    { q: "{{i}} suoi libri" },
+                    { q: "{{x|-}} sua zia" },
+                    { q: "{{i}} vostri genitori" },
+                    { q: "{{la}} mia sorellina" },
+                    { q: "{{il}} loro figlio" },
+                    { q: "{{x|-}} tuo marito" },
+                    { q: "{{le}} mie amiche" },
+                    { q: "{{il}} tuo fratello minore" },
+                    { q: "{{x|-}} nostra cugina" },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Gli sposi!",
+                  en: "Coez marries Livia and writes to his mamma from their honeymoon. Choose the right forms.",
+                  items: [
+                    {
+                      q: "Io e Livia siamo a Siena per la nostra luna di miele. ___ programma è di vedere il Palio domani.",
+                      opts: ["Il nostro", "La tua"],
+                      a: "Il nostro",
+                    },
+                    {
+                      q: "Livia dice che è ___ sogno vedere i cavalli che corrono.",
+                      opts: ["il suo", "la loro"],
+                      a: "il suo",
+                    },
+                    {
+                      q: "___ sorella Giovanna abita qui…",
+                      opts: ["La sua", "Sua"],
+                      a: "Sua",
+                      why: "One family member, no adjective: no article.",
+                    },
+                    {
+                      q: "…con ___ fidanzata.",
+                      opts: ["la sua", "sua"],
+                      a: "la sua",
+                      why: "A girlfriend isn’t a family member.",
+                    },
+                    {
+                      q: "___ casa è qui in centro e dormiamo da loro stasera.",
+                      opts: ["La loro", "Il nostro"],
+                      a: "La loro",
+                    },
+                    {
+                      q: "Usiamo ___ macchina domani per andare in campagna.",
+                      opts: ["la vostra", "la loro"],
+                      a: "la loro",
+                    },
+                    { q: "Un bacio, ___ figlio Coez", opts: ["tuo", "il tuo"], a: "tuo" },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La mia famiglia",
+                  en: "Describe your family in five sentences, as if you were one of your relatives.",
+                  prompts: ["Mi chiamo… Ho…"],
+                  model:
+                    "Mi chiamo Sandy. Ho due bambini. Mia figlia si chiama Stacy. Il mio figlio minore si chiama Steve. Anche mio marito e mio nipote si chiamano Steve! Abbiamo troppi Steve!",
+                },
+              ],
+            },
+            {
+              no: "4.5",
+              title: "Il comparativo e il superlativo",
+              en: "Comparing: more, less, the most",
+              lesson: `
+<p>Coez’s mother Giuliana is from Pisa, and she’d like him to know that Pisa beats Florence:</p>
+<div class="dialog"><div>${S("La torre pendente è più interessante del Duomo.")}</div><div>${S("I ristoranti a Pisa sono più eleganti dei ristoranti a Firenze.")}</div><div>${S("Le università a Pisa sono più note delle università fiorentine.")}</div></div>
+<p><b>Formula:</b> noun + essere + <b>più</b> / <b>meno</b> + adjective + <b>di</b> (+ article) + noun. The verb and adjective agree with the <b>first</b> noun: <i>I ristoranti … sono più eleganti</i>.</p>
+<p><b>Di</b> joins with the article that follows it:</p>
+<div class="chips"><span class="chip">di + il = del</span><span class="chip">di + lo = dello</span><span class="chip">di + l’ = dell’</span><span class="chip">di + la = della</span><span class="chip">di + i = dei</span><span class="chip">di + gli = degli</span><span class="chip">di + le = delle</span></div>
+<h4>Il superlativo: the most, the least</h4>
+<p>subject + essere + <b>article</b> (+ noun) + <b>più / meno</b> + adjective (+ <b>di</b> + group). Lorenzo il Magnifico’s opinions:</p>
+<div class="dialog"><div>${S("Sandro Botticelli è l’artista più bravo del mondo.")}</div><div>${S("Le donne fiorentine sono le più belle d’Italia.")}</div></div>
+<p>To say “very”, drop the last vowel and add <b>-issimo</b>, agreeing like any adjective: <i>bello → bellissimo, cara → carissima, vecchie → vecchissime</i>.</p>
+<div class="note"><b>Nota culturale</b><p><i>La ribollita</i> and <i>il bordatino</i> are Tuscan soups. Girolamo Savonarola, a friar who opposed the Medici, burned books and art in the 1497 “Bonfire of the Vanities”.</p></div>`,
+              ex: [
+                {
+                  type: "fill",
+                  title: "Di + articolo",
+                  en: "Complete each comparison with di + the article.",
+                  items: [
+                    { q: "Mio padre è più alto {{del}} nonno." },
+                    { q: "Sono più giovane {{della}} mia cugina." },
+                    { q: "Il cane è più simpatico {{dello}} zio Mario." },
+                    { q: "Lucia è più brava {{dell’}}amica." },
+                    { q: "I nonni sono più tranquilli {{dei}} nipoti." },
+                    { q: "Le zie sono meno serie {{degli}} zii." },
+                    { q: "I fratelli sono più alti {{delle}} sorelle." },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Più o meno?",
+                  en: "Use the facts to write più or meno, then add the ending that agrees.",
+                  items: [
+                    { q: "Firenze (360.000 abitanti) è {{più}} grand{{e}} di Siena (54.000)." },
+                    {
+                      q: "La Toscana (3,6 milioni) è {{meno}} popolos{{a}} della Lombardia (10 milioni).",
+                    },
+                    {
+                      q: "Mia sorella ha 12 anni e io ne ho 20. Mia sorella è {{più}} giovan{{e}} di me.",
+                    },
+                    {
+                      q: "Le lezioni di chimica (3 ore) sono {{più}} lungh{{e}} delle lezioni d’italiano (1 ora).",
+                    },
+                    {
+                      q: "I miei nonni (80 anni) sono {{più}} anzian{{i}} dei miei genitori (50 anni).",
+                    },
+                    { q: "Il giardino del nonno è {{meno}} spazios{{o}} del Giardino di Boboli." },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Che disordine!",
+                  en: "Which sentence puts the superlative in the right order?",
+                  items: [
+                    {
+                      q: "l’ / più / caro / hotel / è / The Four Seasons",
+                      opts: [
+                        "The Four Seasons è l’hotel più caro.",
+                        "The Four Seasons è più l’hotel caro.",
+                        "The Four Seasons è l’hotel caro più.",
+                      ],
+                      a: "The Four Seasons è l’hotel più caro.",
+                    },
+                    {
+                      q: "città / la / Grosseto / grande / più / è",
+                      opts: [
+                        "Grosseto è la più città grande.",
+                        "Grosseto è la città più grande.",
+                        "Grosseto è città la più grande.",
+                      ],
+                      a: "Grosseto è la città più grande.",
+                    },
+                    {
+                      q: "meno / è / la / città / industriale / San Gimignano",
+                      opts: [
+                        "San Gimignano è la città meno industriale.",
+                        "San Gimignano è meno la città industriale.",
+                        "San Gimignano la città è meno industriale.",
+                      ],
+                      a: "San Gimignano è la città meno industriale.",
+                    },
+                    {
+                      q: "La Divina Commedia / il / libro / è / famoso / più",
+                      opts: [
+                        "La Divina Commedia è il più libro famoso.",
+                        "La Divina Commedia è il libro famoso più.",
+                        "La Divina Commedia è il libro più famoso.",
+                      ],
+                      a: "La Divina Commedia è il libro più famoso.",
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "-issimo!",
+                  en: "Make each adjective mean “very”, keeping its agreement.",
+                  items: [
+                    { q: "bello →", a: ["bellissimo"] },
+                    { q: "intelligente →", a: ["intelligentissimo"] },
+                    { q: "cara →", a: ["carissima"] },
+                    { q: "vecchie →", a: ["vecchissime"] },
+                    { q: "buoni →", a: ["buonissimi"] },
+                    { q: "facile →", a: ["facilissimo"] },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "Il migliore e il peggiore",
+                  en: "Write the best and worst of your school: dorms, cafeterias, courses, sports. Use superlatives.",
+                  prompts: ["Best and worst:"],
+                  model:
+                    "La mensa meno buona è Hamp. Il dormitorio più bello è Southwest. Italiano 110 è il corso più divertente dell’università. La pallacanestro è lo sport più popolare.",
+                },
+              ],
+            },
+            {
+              no: "4.6",
+              title: "Alcuni verbi irregolari",
+              en: "Some irregular verbs",
+              lesson: `
+<p>Several common verbs follow the same pattern as <i>avere</i>: short singular forms and a regular <i>noi</i> and <i>voi</i>.</p>
+<div class="tscroll"><table class="t"><tr><th></th><th>sapere · know</th><th>fare · make, do</th><th>stare · stay, be</th><th>dare · give</th><th>andare · go</th></tr>
+<tr><td>io</td><td>so</td><td>faccio</td><td>sto</td><td>do</td><td>vado</td></tr>
+<tr><td>tu</td><td>sai</td><td>fai</td><td>stai</td><td>dai</td><td>vai</td></tr>
+<tr><td>lui / lei</td><td>sa</td><td>fa</td><td>sta</td><td>dà</td><td>va</td></tr>
+<tr><td>noi</td><td>sappiamo</td><td>facciamo</td><td>stiamo</td><td>diamo</td><td>andiamo</td></tr>
+<tr><td>voi</td><td>sapete</td><td>fate</td><td>state</td><td>date</td><td>andate</td></tr>
+<tr><td>loro</td><td>sanno</td><td>fanno</td><td>stanno</td><td>danno</td><td>vanno</td></tr></table></div>
+<p><i>Bere</i> and <i>dire</i> keep their old Latin stems (<i>bevere, dicere</i>), except <i>dite</i>:</p>
+<div class="tscroll"><table class="t"><tr><th></th><th>bere · drink</th><th>dire · say</th><th>venire · come</th><th>uscire · go out</th></tr>
+<tr><td>io</td><td>bevo</td><td>dico</td><td>vengo</td><td>esco</td></tr>
+<tr><td>tu</td><td>bevi</td><td>dici</td><td>vieni</td><td>esci</td></tr>
+<tr><td>lui / lei</td><td>beve</td><td>dice</td><td>viene</td><td>esce</td></tr>
+<tr><td>noi</td><td>beviamo</td><td>diciamo</td><td>veniamo</td><td>usciamo</td></tr>
+<tr><td>voi</td><td>bevete</td><td>dite</td><td>venite</td><td>uscite</td></tr>
+<tr><td>loro</td><td>bevono</td><td>dicono</td><td>vengono</td><td>escono</td></tr></table></div>
+<p><i>Venire</i> adds <b>g</b> in <i>io</i> and <i>loro</i> and changes to <b>ie</b> in <i>tu</i> and <i>lui/lei</i>. <i>Uscire</i> changes to <b>e</b> in the shoe forms.</p>
+<div class="tip"><b>Study tip · sapere or conoscere?</b><p><b>Conoscere</b> is for people and places you’re familiar with: <i>Conosci Giovanni? Conosco Parigi.</i> <b>Sapere</b> is for facts, and comes before an infinitive or a question word: <i>So ballare. Non so dove abita Lucia.</i></p></div>
+<div class="tip"><b>Study tip · andare or uscire?</b><p><i>Andare</i> goes somewhere (<i>a, in</i>). <i>Uscire</i> means leaving a place or going out for fun: <i>Esco con i miei amici e andiamo al pub.</i></p></div>
+<h4>Espressioni con fare</h4>
+<div class="chips">${["fare una passeggiata · take a walk", "fare una foto · take a photo", "fare una torta · bake a cake", "fare la doccia · take a shower", "fa caldo · it’s hot", "fa freddo · it’s cold", "fare schifo · be gross", "fare le ore piccole · stay up late"].map((x) => `<span class="chip">${x}</span>`).join("")}</div>`,
+              ex: [
+                {
+                  type: "conj",
+                  title: "Coniuga!",
+                  en: "Three irregular verbs.",
+                  verbs: [
+                    { inf: "fare", forms: ["faccio", "fai", "fa", "facciamo", "fate", "fanno"] },
+                    { inf: "andare", forms: ["vado", "vai", "va", "andiamo", "andate", "vanno"] },
+                    { inf: "sapere", forms: ["so", "sai", "sa", "sappiamo", "sapete", "sanno"] },
+                  ],
+                },
+                {
+                  type: "conj",
+                  title: "Coniuga ancora!",
+                  en: "Three more.",
+                  verbs: [
+                    {
+                      inf: "venire",
+                      forms: ["vengo", "vieni", "viene", "veniamo", "venite", "vengono"],
+                    },
+                    {
+                      inf: "uscire",
+                      forms: ["esco", "esci", "esce", "usciamo", "uscite", "escono"],
+                    },
+                    { inf: "dire", forms: ["dico", "dici", "dice", "diciamo", "dite", "dicono"] },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Coez e Livia a casa",
+                  en: "Choose the right verbs.",
+                  items: [
+                    {
+                      q: "Coez non ___ cucinare. Deve chiedere alla mamma di aiutarlo.",
+                      opts: ["conosce", "sa"],
+                      a: "sa",
+                    },
+                    {
+                      q: "Ogni mattina Livia e Coez ___ il caffè insieme.",
+                      opts: ["vengono", "bevono"],
+                      a: "bevono",
+                    },
+                    {
+                      q: "Quando Coez ___ la doccia, usa tutta l’acqua calda!",
+                      opts: ["fa", "ha"],
+                      a: "fa",
+                    },
+                    {
+                      q: "Quando Livia si arrabbia, ___ a Coez di ___ via.",
+                      opts: ["parla, venire", "dice, andare"],
+                      a: "dice, andare",
+                    },
+                    {
+                      q: "Per il compleanno di Giuliana, le ___ un regalo e ___ “Tanti auguri!”",
+                      opts: ["stanno, parlano", "danno, dicono"],
+                      a: "danno, dicono",
+                    },
+                    {
+                      q: "Coez e Livia ___ di casa alle 8 e ___ alla trattoria.",
+                      opts: ["escono, vanno", "vanno, escono"],
+                      a: "escono, vanno",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Sapere o conoscere?",
+                  en: "Facts and skills, or people and places?",
+                  items: [
+                    { q: "Non ___ dove abita Lucia.", opts: ["so", "conosco"], a: "so" },
+                    { q: "___ Parigi molto bene.", opts: ["So", "Conosco"], a: "Conosco" },
+                    { q: "___ ballare benissimo.", opts: ["So", "Conosco"], a: "So" },
+                    { q: "___ Giovanni?", opts: ["Sai", "Conosci"], a: "Conosci" },
+                    {
+                      q: "Livia ___ bene la mamma di Coez.",
+                      opts: ["sa", "conosce"],
+                      a: "conosce",
+                    },
+                    { q: "Noi non ___ cucinare.", opts: ["sappiamo", "conosciamo"], a: "sappiamo" },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Espressioni con fare",
+                  en: "Which fare expression fits?",
+                  items: [
+                    {
+                      q: "Ci sono 35 gradi. ___!",
+                      opts: ["Fa caldo", "Fa freddo", "Fa schifo"],
+                      a: "Fa caldo",
+                    },
+                    {
+                      q: "You walk around the park after dinner.",
+                      opts: ["Faccio una passeggiata", "Faccio la doccia", "Faccio una torta"],
+                      a: "Faccio una passeggiata",
+                    },
+                    {
+                      q: "You stay out until 4 a.m.",
+                      opts: ["Faccio le ore piccole", "Faccio una foto", "Fa freddo"],
+                      a: "Faccio le ore piccole",
+                    },
+                    {
+                      q: "You snap a picture of the Duomo.",
+                      opts: ["Faccio una passeggiata", "Faccio una foto", "Faccio la doccia"],
+                      a: "Faccio una foto",
+                    },
+                    {
+                      q: "Ci sono −5 gradi. ___!",
+                      opts: ["Fa caldo", "Fa freddo", "Fa le ore piccole"],
+                      a: "Fa freddo",
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Una giornata divertente!",
+                  en: "Conjugate the verb in parentheses.",
+                  items: [
+                    { q: "Io {{bevo}} (bere) uno Spritz al bar in piazza." },
+                    { q: "Tu {{fai}} (fare) una festa a casa di Marta." },
+                    { q: "Cosimo {{dice}} (dire) sempre la verità." },
+                    { q: "Caterina e Lucrezia {{stanno}} (stare) sempre benissimo." },
+                    { q: "Tu e Piero {{venite}} (venire) con noi alla festa." },
+                    { q: "Coez e Livia {{vanno}} (andare) in vacanza per due settimane." },
+                    { q: "Stasera noi {{usciamo}} (uscire) con gli amici." },
+                    { q: "Voi {{date}} (dare) un regalo alla nonna." },
+                  ],
+                },
+              ],
+            },
+            {
+              no: "4.7",
+              title: "I verbi modali",
+              en: "Modal verbs: must, can, want",
+              lesson: `
+<p>Your professor is organising a Coez concert. Their chat:</p>
+<div class="dialog"><div>— ${S("Ciao Coez, cosa posso fare per aiutarti?")}</div><div>— ${S("Devo assolutamente dormire quando arrivo. Il mio volo dura dieci ore.")}</div><div>— ${S("Non vuoi due stanze separate, per la mamma e per Livia?")}</div><div>— ${S("Se posso avere due stanze, accetto volentieri!")}</div><div>— ${S("E cosa vuoi mangiare?")}</div><div>— ${S("Vorrei mangiare un hamburger, se è possibile.")}</div></div>
+<div class="tscroll"><table class="t"><tr><th></th><th>dovere · have to</th><th>potere · can, be able to</th><th>volere · want</th></tr>
+<tr><td>io</td><td>devo</td><td>posso</td><td>voglio</td></tr>
+<tr><td>tu</td><td>devi</td><td>puoi</td><td>vuoi</td></tr>
+<tr><td>lui / lei</td><td>deve</td><td>può</td><td>vuole</td></tr>
+<tr><td>noi</td><td>dobbiamo</td><td>possiamo</td><td>vogliamo</td></tr>
+<tr><td>voi</td><td>dovete</td><td>potete</td><td>volete</td></tr>
+<tr><td>loro</td><td>devono</td><td>possono</td><td>vogliono</td></tr></table></div>
+<p>These are followed by an <b>infinitive</b>: only the first verb is conjugated. <i>Devo studiare. Possiamo uscire? Vogliono mangiare.</i> <i>Piacere</i> and <i>preferire</i> work the same way: <i>Mi piace correre. Preferisco mangiare la pizza.</i></p>
+<p><i>Vorrei</i> (“I would like”) is the polite form of <i>voglio</i>.</p>`,
+              ex: [
+                {
+                  type: "conj",
+                  title: "Coniuga!",
+                  en: "The three modal verbs.",
+                  verbs: [
+                    {
+                      inf: "dovere",
+                      forms: ["devo", "devi", "deve", "dobbiamo", "dovete", "devono"],
+                    },
+                    {
+                      inf: "potere",
+                      forms: ["posso", "puoi", "può", "possiamo", "potete", "possono"],
+                    },
+                    {
+                      inf: "volere",
+                      forms: ["voglio", "vuoi", "vuole", "vogliamo", "volete", "vogliono"],
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Chattiamo!",
+                  en: "Planning a trip to Tuscany with an Italian friend. Choose the right verb.",
+                  items: [
+                    {
+                      q: "Tu: Ciao! Dove ___ andare in Toscana?",
+                      opts: ["vuoi", "devi"],
+                      a: "vuoi",
+                    },
+                    {
+                      q: "Amico: Preferisco andare a Firenze, ma ___ andare a trovare mia nonna a Pisa.",
+                      opts: ["possiamo", "dobbiamo"],
+                      a: "dobbiamo",
+                    },
+                    {
+                      q: "Tu: Che bell’idea. ___ vedere tanti posti diversi.",
+                      opts: ["Voglio", "Devono"],
+                      a: "Voglio",
+                    },
+                    { q: "Tu: Quanti soldi ___ spendere?", opts: ["puoi", "vogliono"], a: "puoi" },
+                    {
+                      q: "Amico: Ho risparmiato duemila dollari! ___ creare un bel budget.",
+                      opts: ["Possiamo", "Dovete"],
+                      a: "Possiamo",
+                    },
+                    {
+                      q: "Tu: Ok, ___ parlarne domani dopo la lezione?",
+                      opts: ["vuoi", "può"],
+                      a: "vuoi",
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "La giornata della mia mamma",
+                  en: "Conjugate the verb in parentheses.",
+                  para: true,
+                  items: [
+                    {
+                      q: "Ogni mattina la mia mamma {{deve}} (dovere) andare a lavoro. {{Vuole}} (volere) bere un caffè prima di uscire, allora si sveglia presto. Io e la mia mamma {{dobbiamo}} (dovere) sentirci prima delle 10. La mia mamma {{può}} (potere) andare fuori a pranzo se {{vuole}} (volere). Spesso lei e il mio papà {{possono}} (potere) mangiare insieme. Prima di tornare a casa, il mio papà {{deve}} (dovere) fare la spesa.",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La vita degli studenti",
+                  en: "What do students at your school have to do, want to do, and not get to do? Three of each.",
+                  prompts: ["Gli studenti devono… vogliono… non possono…"],
+                  model:
+                    "Gli studenti devono andare a lezione e studiare. Vogliono dormire fino a tardi e mangiare la pizza. Non possono avere animali domestici nei dormitori.",
+                },
+              ],
+            },
+            {
+              no: "4.8",
+              title: "Guardiamo! Mine vaganti",
+              en: "Let’s watch: Loose Cannons (Ozpetek 2010)",
+              lesson: `
+<p>In Ferzan Özpetek’s comedy, Tommaso comes home to his big, traditional family in Lecce, in the south, who run a pasta factory. He plans to tell them a secret at a family dinner. The clip is in the <a href="${BOOK}capitolo-4/" target="_blank" rel="noopener">original chapter</a>.</p>`,
+              ex: [
+                {
+                  type: "choice",
+                  title: "Il comparativo",
+                  en: "Which comparison is correct, including agreement?",
+                  items: [
+                    {
+                      q: "la nonna / Tommaso / anziano",
+                      opts: [
+                        "La nonna è più anziana di Tommaso.",
+                        "La nonna è più anziano di Tommaso.",
+                        "La nonna è meno anziana di Tommaso.",
+                      ],
+                      a: "La nonna è più anziana di Tommaso.",
+                    },
+                    {
+                      q: "Tommaso / suo padre / giovane",
+                      opts: [
+                        "Tommaso è meno giovane di suo padre.",
+                        "Tommaso è più giovane di suo padre.",
+                        "Tommaso è più giovane del suo padre.",
+                      ],
+                      a: "Tommaso è più giovane di suo padre.",
+                      why: "Suo padre: one family member, no article, so di stays di.",
+                    },
+                    {
+                      q: "i genitori / Tommaso / vecchio",
+                      opts: [
+                        "I genitori sono più vecchio di Tommaso.",
+                        "I genitori sono più vecchi del Tommaso.",
+                        "I genitori sono più vecchi di Tommaso.",
+                      ],
+                      a: "I genitori sono più vecchi di Tommaso.",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La tua famiglia e quella di Tommaso",
+                  en: "Compare your family with a big Italian family like Tommaso’s: four comparisons and one superlative.",
+                  prompts: ["Mia zia è…"],
+                  model:
+                    "La mia famiglia è meno numerosa della famiglia di Tommaso. Mia zia è più bassa di zia Luciana. Mio padre è meno severo del padre di Tommaso. Le nostre cene sono più tranquille. Mia nonna è la persona più divertente della famiglia.",
+                },
+              ],
+            },
+          ],
+          vocab: [
+            {
+              g: "La famiglia",
+              items: [
+                ["l’albero genealogico", "family tree"],
+                ["il bisnonno / la bisnonna", "great-grandfather / -mother"],
+                ["il cognato / la cognata", "brother- / sister-in-law"],
+                ["il cugino / la cugina", "cousin"],
+                ["il figlio / la figlia", "son / daughter"],
+                ["il figlio unico / la figlia unica", "only child"],
+                ["il fratello", "brother"],
+                ["il fratellastro", "stepbrother"],
+                ["il gemello / la gemella", "twin"],
+                ["i genitori", "parents"],
+                ["il genero", "son-in-law"],
+                ["la madre", "mother"],
+                ["il mammone", "mama’s boy"],
+                ["il marito", "husband"],
+                ["la matrigna", "stepmother"],
+                ["la moglie", "wife"],
+                ["il / la nipote", "nephew, niece, grandchild"],
+                ["il nonno / la nonna", "grandfather / grandmother"],
+                ["la nuora", "daughter-in-law"],
+                ["il padre", "father"],
+                ["i parenti", "relatives"],
+                ["il patrigno", "stepfather"],
+                ["la sorella", "sister"],
+                ["la sorellastra", "stepsister"],
+                ["il suocero / la suocera", "father- / mother-in-law"],
+                ["lo zio / la zia", "uncle / aunt"],
+              ],
+            },
+            {
+              g: "Possessivi e confronti",
+              items: [
+                ["il mio / la mia / i miei / le mie", "my"],
+                ["il tuo / la tua / i tuoi / le tue", "your (tu)"],
+                ["il suo / la sua / i suoi / le sue", "his, her, your (Lei)"],
+                ["il nostro / la nostra / i nostri / le nostre", "our"],
+                ["il vostro / la vostra / i vostri / le vostre", "your (voi)"],
+                ["il / la / i / le loro", "their"],
+                ["più", "more"],
+                ["meno", "less"],
+                ["-issimo", "very"],
+              ],
+            },
+            {
+              g: "Verbi irregolari e modali",
+              items: [
+                ["andare", "to go"],
+                ["bere", "to drink"],
+                ["dare", "to give"],
+                ["dire", "to say"],
+                ["fare", "to make, to do"],
+                ["sapere", "to know (facts, how to)"],
+                ["stare", "to stay, to be"],
+                ["uscire", "to go out"],
+                ["venire", "to come"],
+                ["dovere", "to have to"],
+                ["potere", "to be able to, can"],
+                ["volere", "to want"],
+                ["vorrei", "I would like"],
+              ],
+            },
+          ],
+        },
+        /* ================= CAPITOLO 5 ================= */
+        {
+          id: "c5",
+          num: 5,
+          title: "Tutt* a casa!",
+          gloss: "Everyone at home!",
+          short: "The home, prepositions, reflexive verbs, adverbs",
+          goals: [
+            "name the rooms and furniture of a home",
+            "say where things are with prepositions of place",
+            "combine prepositions with articles (nel, al, sul…)",
+            "talk about your daily routine with reflexive verbs",
+            "say how, when and how often with adverbs",
+            "make adverbs ending in -mente",
+          ],
+          sections: [
+            {
+              no: "5.1",
+              title: "Ascoltiamo!",
+              en: "Let’s listen: “La vasca” by Alex Britti",
+              lesson: `
+<p>In Alex Britti’s <i>La vasca</i> (“The bathtub”), the bathtub is an escape where only good things happen. <a href="https://www.youtube.com/results?search_query=alex+britti+la+vasca" target="_blank" rel="noopener">Listen on YouTube</a>. The chorus is a string of actions he does to himself:</p>
+<div class="chips"><span class="chip">${S("mi bagno")} · I get wet</span><span class="chip">${S("mi asciugo")} · I dry off</span><span class="chip">${S("mi tuffo")} · I dive in</span><span class="chip">${S("mi giro")} · I turn around</span><span class="chip">${S("mi rilasso")} · I relax</span></div>
+<p>Then he repeats them with <b>ri-</b>: <i>mi riasciugo, mi rituffo, mi ribagno, mi rigiro</i>. All of them start with <b>mi</b>: these are reflexive verbs, which section 5.4 covers.</p>`,
+              ex: [
+                {
+                  type: "match",
+                  title: "Il ritornello",
+                  en: "Match the chorus words to their meanings.",
+                  pairs: [
+                    ["mi bagno", "I get wet"],
+                    ["mi asciugo", "I dry myself off"],
+                    ["mi tuffo", "I dive in"],
+                    ["mi giro", "I turn around"],
+                    ["mi rilasso", "I relax"],
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Che cosa significa ri-?",
+                  en: "Look at mi riasciugo, mi rituffo, mi ribagno.",
+                  items: [
+                    { q: "The prefix ri- means…", opts: ["again", "never", "slowly"], a: "again" },
+                    {
+                      q: "What do all the chorus verbs have in common?",
+                      opts: [
+                        "They’re all reflexive (mi + verb)",
+                        "They’re all in the past",
+                        "They’re all irregular",
+                      ],
+                      a: "They’re all reflexive (mi + verb)",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La tua utopia",
+                  en: "For Alex Britti the bathtub is a utopia. What’s yours? What do you do there, and what do you never do?",
+                  prompts: ["La mia utopia personale è…"],
+                  model:
+                    "La mia utopia personale è leggere molti libri in giardino e non lavare mai i piatti! Mangio senza ingrassare e passo tempo con gli amici al mare.",
+                },
+              ],
+            },
+            {
+              no: "5.2",
+              title: "Benvenut* a casa!",
+              en: "Vocabulary: the home",
+              lesson: `
+<div class="cols">
+<div><h4>Le stanze · rooms</h4><div class="chips">${["il bagno · bathroom", "la camera da letto · bedroom", "la cucina · kitchen", "la sala da pranzo · dining room", "il salotto / il soggiorno · living room", "il balcone · balcony", "la cantina · cellar", "il garage", "il giardino · garden", "il cortile · yard", "le scale · stairs", "il piano · floor"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>I mobili · furniture</h4><div class="chips">${["il letto · bed", "il comodino · nightstand", "l’armadio · wardrobe", "la scrivania · desk", "lo scaffale · bookshelf", "la libreria · bookcase", "il divano · sofa", "la poltrona · armchair", "il tappeto · rug", "la lampada · lamp", "il tavolo · table", "la sedia · chair", "lo specchio · mirror"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>In cucina</h4><div class="chips">${["il frigorifero (il frigo) · fridge", "il forno · oven", "il forno a microonde · microwave", "i fornelli · stovetop", "la lavastoviglie · dishwasher", "il lavandino · sink"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>In bagno</h4><div class="chips">${["la doccia · shower", "la vasca · bathtub", "il lavabo · bathroom sink", "il water · toilet", "il bidè · bidet", "la lavatrice · washing machine"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div></div>
+<div class="note"><b>Nota culturale</b><p>Most Italian bathrooms have a <i>bidè</i>, used for quick personal hygiene. Floors are numbered differently too: you enter on the <b>pianterreno</b> (piano terra, ground floor), and the next floor up is the <b>primo piano</b>. So an American “second floor” is an Italian <i>primo piano</i>.</p></div>`,
+              ex: [
+                {
+                  type: "choice",
+                  title: "Dove si trova?",
+                  en: "Which room is each item usually in?",
+                  opts: [
+                    "il bagno",
+                    "la camera da letto",
+                    "il salotto",
+                    "la cucina",
+                    "la sala da pranzo",
+                  ],
+                  items: [
+                    { q: "la poltrona", a: "il salotto" },
+                    { q: "il bidè", a: "il bagno" },
+                    { q: "il forno", a: "la cucina" },
+                    { q: "il letto", a: "la camera da letto" },
+                    { q: "il tavolo", a: "la sala da pranzo" },
+                    { q: "il lavabo", a: "il bagno" },
+                    { q: "il frigorifero", a: "la cucina" },
+                    { q: "il comodino", a: "la camera da letto" },
+                    { q: "la lavastoviglie", a: "la cucina" },
+                    { q: "il divano", a: "il salotto" },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Dove si fa?",
+                  en: "Choose the word that fits.",
+                  items: [
+                    {
+                      q: "Cristina prepara la cena in ___.",
+                      opts: ["bagno", "cucina"],
+                      a: "cucina",
+                    },
+                    {
+                      q: "Ci sediamo sul ___ e guardiamo la tv in soggiorno.",
+                      opts: ["balcone", "divano"],
+                      a: "divano",
+                    },
+                    {
+                      q: "Uso il ___ per lavarmi le mani.",
+                      opts: ["lavandino", "lavatrice"],
+                      a: "lavandino",
+                    },
+                    { q: "I ragazzi dormono sul ___.", opts: ["comodino", "letto"], a: "letto" },
+                    {
+                      q: "Alex si mette sulla ___ per riposarsi.",
+                      opts: ["lampada", "poltrona"],
+                      a: "poltrona",
+                    },
+                    {
+                      q: "Prendete un po’ di aria sul ___.",
+                      opts: ["tappeto", "balcone"],
+                      a: "balcone",
+                    },
+                    {
+                      q: "Prendo i vestiti dall’___ e mi vesto.",
+                      opts: ["armadio", "frigo"],
+                      a: "armadio",
+                    },
+                    {
+                      q: "In camera hai molti libri sugli ___.",
+                      opts: ["schermi", "scaffali"],
+                      a: "scaffali",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "A che piano?",
+                  en: "Italian floor numbers.",
+                  items: [
+                    {
+                      q: "You walk in from the street. You’re on il ___.",
+                      opts: ["primo piano", "pianterreno", "secondo piano"],
+                      a: "pianterreno",
+                    },
+                    {
+                      q: "An American “second floor” is the Italian ___.",
+                      opts: ["primo piano", "secondo piano", "pianterreno"],
+                      a: "primo piano",
+                    },
+                    {
+                      q: "An American “fourth floor” is the Italian ___.",
+                      opts: ["quarto piano", "terzo piano", "quinto piano"],
+                      a: "terzo piano",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La casa dei tuoi sogni",
+                  en: "Describe your dream home: where it is, how many bedrooms and bathrooms, how many floors, and what’s special about it.",
+                  prompts: ["La casa dei miei sogni…"],
+                  model:
+                    "La casa dei miei sogni è in Sicilia, vicino al mare. È una casa singola con due piani. Ci sono quattro camere da letto e tre bagni. In cucina c’è un forno per la pizza, e c’è un grande balcone con vista sul mare.",
+                },
+              ],
+            },
+            {
+              no: "5.3",
+              title: "Le preposizioni",
+              en: "Prepositions",
+              lesson: `
+<h4>Preposizioni semplici</h4>
+<div class="tscroll"><table class="t"><tr><th></th><th>Meaning</th><th>Esempi</th></tr>
+<tr><td><b>in</b></td><td>in, at, to: rooms, countries, many places, transport</td><td>in cucina, in Italia, in biblioteca, in treno</td></tr>
+<tr><td><b>a</b></td><td>in, at, to: cities, some places, on foot</td><td>a Venezia, a casa, a scuola, a piedi</td></tr>
+<tr><td><b>su</b></td><td>on</td><td>su una parete</td></tr>
+<tr><td><b>di</b></td><td>of, about, ’s</td><td>l’appartamento di Alex, parla di filosofia</td></tr>
+<tr><td><b>da</b></td><td>from; at someone’s place</td><td>vengo da Venezia, vado da Michele</td></tr>
+<tr><td><b>per</b></td><td>for, in order to</td><td>per te, per studiare</td></tr>
+<tr><td><b>con</b></td><td>with</td><td>con due compagni</td></tr>
+<tr><td><b>tra / fra</b></td><td>between</td><td>tra il frigo e la finestra</td></tr></table></div>
+<p>Memorise these: <i>a casa, a scuola, a letto, a teatro, a piedi</i> · <i>in città, in centro, in piazza, in piscina, in montagna, in bagno, in cucina</i>. After a preposition, “me” and “you” are <b>me</b> and <b>te</b>: <i>per me, con te</i>.</p>
+<h4>Preposizioni articolate</h4>
+<p>When <i>a, da, di, in, su</i> meet a definite article, they join:</p>
+<div class="tscroll"><table class="t"><tr><th></th><th>il</th><th>lo</th><th>l’</th><th>la</th><th>i</th><th>gli</th><th>le</th></tr>
+<tr><td><b>a</b></td><td>al</td><td>allo</td><td>all’</td><td>alla</td><td>ai</td><td>agli</td><td>alle</td></tr>
+<tr><td><b>da</b></td><td>dal</td><td>dallo</td><td>dall’</td><td>dalla</td><td>dai</td><td>dagli</td><td>dalle</td></tr>
+<tr><td><b>di</b></td><td>del</td><td>dello</td><td>dell’</td><td>della</td><td>dei</td><td>degli</td><td>delle</td></tr>
+<tr><td><b>in</b></td><td>nel</td><td>nello</td><td>nell’</td><td>nella</td><td>nei</td><td>negli</td><td>nelle</td></tr>
+<tr><td><b>su</b></td><td>sul</td><td>sullo</td><td>sull’</td><td>sulla</td><td>sui</td><td>sugli</td><td>sulle</td></tr></table></div>
+<p><b>In</b> becomes <b>ne-</b>, <b>di</b> becomes <b>de-</b>, and <i>lo, l’, la, le</i> double the <b>l</b>. <b>Per</b> and <b>con</b> don’t join: <i>per il, con la</i>.</p>
+<div class="tip"><b>Study tip</b><p>Plain places take the simple form (<i>studio in biblioteca</i>). Add detail and you need the article: <i>studio nella biblioteca pubblica</i>. A few places always take it: <i>al supermercato, al ristorante</i>.</p></div>
+<h4>Preposizioni di luogo</h4>
+<div class="chips">${["accanto a · next to", "vicino a · near", "lontano da · far from", "davanti a · in front of", "di fronte a · facing", "dietro · behind", "a destra di · to the right of", "a sinistra di · to the left of", "sopra · above", "sotto · below", "tra / fra · between", "nell’angolo · in the corner"].map((x) => `<span class="chip">${x}</span>`).join("")}</div>
+<p>The final <b>a</b> or <b>da</b> joins with the article too: <i>accanto <b>al</b> bagno, vicino <b>alla</b> cucina, a destra <b>della</b> cucina</i>.</p>
+<div class="note"><b>Nota culturale</b><p>Venice has its own street words. The city has six districts called <i>sestieri</i> (Cannaregio is one), squares are <i>campi</i> rather than piazze (except Piazza San Marco), streets are <i>calli</i>, and streets along a canal are <i>fondamenta</i>.</p></div>`,
+              ex: [
+                {
+                  type: "choice",
+                  title: "Preposizioni semplici",
+                  en: "Choose the right preposition.",
+                  items: [
+                    { q: "L’appartamento è ___ Alex.", opts: ["di", "da"], a: "di" },
+                    {
+                      q: "Mi siedo sul divano ___ guardare la televisione.",
+                      opts: ["per", "su"],
+                      a: "per",
+                    },
+                    { q: "Parlo ___ i miei compagni di casa.", opts: ["in", "con"], a: "con" },
+                    { q: "Preferisco studiare ___ biblioteca.", opts: ["in", "a"], a: "in" },
+                    {
+                      q: "Stasera io e i miei amici rimaniamo ___ casa.",
+                      opts: ["con", "a"],
+                      a: "a",
+                    },
+                    { q: "Il treno parte ___ Venezia alle 8.", opts: ["da", "su"], a: "da" },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Preposizioni articolate",
+                  en: "Join the preposition and the article.",
+                  items: [
+                    { q: "in + il =", a: ["nel"] },
+                    { q: "a + gli =", a: ["agli"] },
+                    { q: "su + la =", a: ["sulla"] },
+                    { q: "di + i =", a: ["dei"] },
+                    { q: "da + lo =", a: ["dallo"] },
+                    { q: "in + le =", a: ["nelle"] },
+                    { q: "a + l’ =", a: ["all’"] },
+                    { q: "di + gli =", a: ["degli"] },
+                    { q: "su + i =", a: ["sui"] },
+                    { q: "con + il =", a: ["con il", "col"] },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Cosa c’è nella camera?",
+                  en: "Write the combined preposition. The simple one is in parentheses.",
+                  items: [
+                    { q: "Questa è la camera (di) {{del}} compagno di casa di Alex." },
+                    { q: "Ha un letto (in) {{nell’}}angolo della camera." },
+                    { q: "Accanto (a) {{al}} letto c’è un comodino." },
+                    { q: "Ha una lampada (su) {{sul}} comodino." },
+                    { q: "Ha una libreria (per) {{per i}} suoi libri." },
+                    { q: "Studia (da) {{dalla}} mattina (a) {{alla}} sera." },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "A o in? Semplice o articolata?",
+                  en: "Use in, nel, nella, a, al or alle.",
+                  para: true,
+                  items: [
+                    {
+                      q: "Alex va sempre all’università {{a}} piedi. Frequenta le lezioni dalle 9 {{alle}} 4. Dopo, studia {{in}} biblioteca fino alle 6. Si ferma {{al}} supermercato per prendere qualcosa per cena. Quando arriva a casa va subito {{in}} cucina per mettere le cose in frigo, poi va {{in}} bagno per lavarsi.",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "La camera di Alex",
+                  en: "Read the description, then decide: vero o falso?",
+                  intro: `<p class="say" style="max-width:72ch;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:12px 14px">Nella camera di Alex c’è un letto nell’angolo. A sinistra del letto c’è un comodino con una lampada. La scrivania è davanti alla finestra e la sedia è davanti alla scrivania. L’armadio è accanto alla porta. Sopra la scrivania ci sono dei poster dei suoi gruppi musicali preferiti. Sotto il letto ci sono le scarpe.</p>`,
+                  opts: ["vero", "falso"],
+                  items: [
+                    {
+                      q: "Il comodino è a destra del letto.",
+                      a: "falso",
+                      why: "È a sinistra del letto.",
+                    },
+                    { q: "Ci sono dei poster sopra la scrivania.", a: "vero" },
+                    { q: "Le scarpe sono sotto il letto.", a: "vero" },
+                    {
+                      q: "L’armadio è lontano dalla porta.",
+                      a: "falso",
+                      why: "È accanto alla porta.",
+                    },
+                    { q: "La scrivania è davanti alla finestra.", a: "vero" },
+                    { q: "La lampada è sul comodino.", a: "vero" },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La mia camera da letto",
+                  en: "Describe where everything is in your bedroom. Use at least five prepositions of place.",
+                  prompts: ["Nella mia camera da letto…"],
+                  model:
+                    "Nella mia camera da letto c’è un letto nell’angolo a destra. Accanto al letto c’è un comodino con una lampada. La scrivania è davanti alla finestra. L’armadio è dietro la porta, e sotto il letto ci sono le mie scarpe.",
+                },
+              ],
+            },
+            {
+              no: "5.4",
+              title: "I verbi riflessivi",
+              en: "Reflexive verbs: your daily routine",
+              lesson: `
+<h4>La mattina di Alex</h4>
+<div class="strip">
+<div class="frame">${S("Si sveglia alle 7.")}<span class="en">He wakes up at 7.</span></div>
+<div class="frame">${S("Si alza.")}<span class="en">He gets up.</span></div>
+<div class="frame">${S("Si fa la doccia.")}<span class="en">He takes a shower.</span></div>
+<div class="frame">${S("Si veste. Si mette i jeans e una maglia.")}<span class="en">He gets dressed. He puts on jeans and a sweater.</span></div>
+<div class="frame">${S("Fa colazione.")}<span class="en">He has breakfast.</span></div>
+<div class="frame">${S("Si lava i denti.")}<span class="en">He brushes his teeth.</span></div></div>
+<p>A <b>reflexive verb</b> is something you do to yourself. Its infinitive ends in <b>-arsi, -ersi, -irsi</b>: <i>svegliarsi, mettersi, vestirsi</i>. You already know one: <i>mi chiamo</i>, literally “I call myself”.</p>
+<p>To conjugate: drop <i>-arsi/-ersi/-irsi</i>, add the normal present endings, and put the <b>reflexive pronoun</b> in front.</p>
+<div class="tscroll"><table class="t"><tr><th></th><th>alzarsi · get up</th><th>mettersi · put on</th><th>divertirsi · have fun</th></tr>
+<tr><td>io</td><td><b>mi</b> alzo</td><td><b>mi</b> metto</td><td><b>mi</b> diverto</td></tr>
+<tr><td>tu</td><td><b>ti</b> alzi</td><td><b>ti</b> metti</td><td><b>ti</b> diverti</td></tr>
+<tr><td>lui / lei / Lei</td><td><b>si</b> alza</td><td><b>si</b> mette</td><td><b>si</b> diverte</td></tr>
+<tr><td>noi</td><td><b>ci</b> alziamo</td><td><b>ci</b> mettiamo</td><td><b>ci</b> divertiamo</td></tr>
+<tr><td>voi</td><td><b>vi</b> alzate</td><td><b>vi</b> mettete</td><td><b>vi</b> divertite</td></tr>
+<tr><td>loro</td><td><b>si</b> alzano</td><td><b>si</b> mettono</td><td><b>si</b> divertono</td></tr></table></div>
+<div class="chips">${["addormentarsi · fall asleep", "annoiarsi · get bored", "arrabbiarsi · get angry", "asciugarsi · dry off", "farsi la barba · shave", "innamorarsi · fall in love", "laurearsi · graduate", "lavarsi · wash", "pettinarsi · comb your hair", "riposarsi · rest", "rilassarsi · relax", "sentirsi · feel", "sposarsi · get married", "truccarsi · put on makeup"].map((x) => `<span class="chip">${x}</span>`).join("")}</div>
+<div class="tip"><b>Study tip</b><p>Most of these also exist without <i>-si</i>, and then they act on something else: <i>Mi lavo</i> (I wash myself) but <i>Lavo i piatti</i> (I wash the dishes).</p></div>`,
+              ex: [
+                {
+                  type: "match",
+                  title: "L’infinito",
+                  en: "Match each form to its infinitive.",
+                  pairs: [
+                    ["Si fa", "farsi"],
+                    ["Si lava", "lavarsi"],
+                    ["Si sveglia", "svegliarsi"],
+                    ["Si alza", "alzarsi"],
+                    ["Si veste", "vestirsi"],
+                    ["Si mette", "mettersi"],
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Il pronome riflessivo",
+                  en: "Choose the right reflexive pronoun.",
+                  items: [
+                    {
+                      q: "La mia migliore amica ___ chiama Eleonora.",
+                      opts: ["vi", "ci", "si"],
+                      a: "si",
+                    },
+                    {
+                      q: "Io e Eleonora ___ divertiamo molto insieme.",
+                      opts: ["ci", "mi", "ti"],
+                      a: "ci",
+                    },
+                    { q: "Io ___ sveglio presto la mattina.", opts: ["ti", "mi", "vi"], a: "mi" },
+                    {
+                      q: "Eleonora e Alex ___ lavano i denti prima di uscire.",
+                      opts: ["ci", "vi", "si"],
+                      a: "si",
+                    },
+                    {
+                      q: "Tu e Alex ___ mettete le lenti a contatto?",
+                      opts: ["vi", "ti", "mi"],
+                      a: "vi",
+                    },
+                    { q: "A che ora ___ alzi, tu?", opts: ["mi", "ti", "si"], a: "ti" },
+                  ],
+                },
+                {
+                  type: "conj",
+                  title: "Coniuga!",
+                  en: "Three reflexive verbs. Include the pronoun.",
+                  verbs: [
+                    {
+                      inf: "svegliarsi",
+                      forms: [
+                        "mi sveglio",
+                        "ti svegli",
+                        "si sveglia",
+                        "ci svegliamo",
+                        "vi svegliate",
+                        "si svegliano",
+                      ],
+                    },
+                    {
+                      inf: "vestirsi",
+                      forms: [
+                        "mi vesto",
+                        "ti vesti",
+                        "si veste",
+                        "ci vestiamo",
+                        "vi vestite",
+                        "si vestono",
+                      ],
+                    },
+                    {
+                      inf: "laurearsi",
+                      forms: [
+                        "mi laureo",
+                        "ti laurei",
+                        "si laurea",
+                        "ci laureiamo",
+                        "vi laureate",
+                        "si laureano",
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Ci divertiamo!",
+                  en: "Conjugate the reflexive verb, pronoun included.",
+                  items: [
+                    { q: "Eleonora {{si arrabbia}} (arrabbiarsi) quando c’è molto traffico." },
+                    { q: "Tu e Eleonora {{vi addormentate}} (addormentarsi) sempre tardi." },
+                    { q: "Io {{mi laureo}} (laurearsi) a maggio. Non vedo l’ora!" },
+                    { q: "I miei amici {{si sposano}} (sposarsi) in estate." },
+                    { q: "A che ora {{ti svegli}} (svegliarsi) tipicamente, tu?" },
+                    {
+                      q: "Durante il fine settimana io e i miei amici {{ci divertiamo}} (divertirsi).",
+                    },
+                    { q: "Federico ed Eleonora, come {{vi vestite}} (vestirsi) per la festa?" },
+                    {
+                      q: "Che lezione lunga! Oggi gli studenti {{si annoiano}} (annoiarsi) tanto.",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Riflessivo o no?",
+                  en: "Is the action done to yourself, or to something else?",
+                  items: [
+                    {
+                      q: "Eleonora ___ la giacca prima di uscire.",
+                      opts: ["si mette", "mette"],
+                      a: "si mette",
+                    },
+                    {
+                      q: "Eleonora ___ il latte in frigo.",
+                      opts: ["si mette", "mette"],
+                      a: "mette",
+                    },
+                    {
+                      q: "Eleonora e Alex ___ i piatti dopo cena.",
+                      opts: ["si lavano", "lavano"],
+                      a: "lavano",
+                    },
+                    {
+                      q: "Eleonora e Alex ___ i denti prima di dormire.",
+                      opts: ["si lavano", "lavano"],
+                      a: "si lavano",
+                    },
+                    {
+                      q: "Come ___ oggi? Stai ancora male?",
+                      opts: ["ti senti", "senti"],
+                      a: "ti senti",
+                    },
+                    {
+                      q: "___ questa musica? È bellissima!",
+                      opts: ["Ti senti", "Senti"],
+                      a: "Senti",
+                    },
+                    {
+                      q: "___ presto la mattina?",
+                      opts: ["Vi svegliate", "Svegliate"],
+                      a: "Vi svegliate",
+                    },
+                    {
+                      q: "___ i vostri compagni di casa alle 7?",
+                      opts: ["Vi svegliate", "Svegliate"],
+                      a: "Svegliate",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La mia routine",
+                  en: "Describe your weekday morning and evening in at least six sentences with reflexive verbs.",
+                  prompts: ["Mi sveglio alle…"],
+                  model:
+                    "Mi sveglio alle sette e mezza, ma mi alzo alle otto. Mi faccio la doccia e mi vesto. Mi metto i jeans e una felpa. Mi lavo i denti dopo colazione. La sera mi rilasso sul divano e mi addormento verso mezzanotte.",
+                },
+              ],
+            },
+            {
+              no: "5.5",
+              title: "Gli avverbi",
+              en: "Adverbs: how, when, how often",
+              lesson: `
+<p>An adjective describes a noun (<i>la giraffa è alta</i>). An <b>adverb</b> describes a verb, an adjective or another adverb, and says how, when, where or how often:</p>
+<div class="dialog"><div>${S("Alex si sveglia presto.")} → quando?</div><div>${S("Alex si sveglia qui.")} → dove?</div><div>${S("Alex si sveglia lentamente.")} → come?</div><div>${S("Alex si sveglia spesso alle 7.")} → quanto spesso?</div></div>
+<h4>-mente (English -ly)</h4>
+<ul><li>Take the <b>feminine singular</b> adjective and add <b>-mente</b>: lento → lenta → <b>lentamente</b>, raro → <b>raramente</b>.</li>
+<li>If it ends in <b>-e</b>, just add <b>-mente</b>: elegante → <b>elegantemente</b>, triste → <b>tristemente</b>.</li>
+<li>But <b>-le</b> and <b>-re</b> drop the final e: difficile → <b>difficilmente</b>, regolare → <b>regolarmente</b>.</li></ul>
+<h4>Bene / male vs. buono / cattivo</h4>
+<p><i>Bene</i> and <i>male</i> are adverbs (how you do something); <i>buono</i> and <i>cattivo</i> are adjectives (what something is like). <i>La pasta è buona. Alex cucina bene la pasta.</i></p>
+<h4>Other useful adverbs</h4>
+<div class="chips">${["ieri / oggi / domani · yesterday / today / tomorrow", "presto / tardi · early / late", "in anticipo / in orario / in ritardo · early / on time / late", "molto / poco / tanto / troppo · a lot / little / so much / too much", "mai / spesso / sempre · never / often / always", "qui, qua / lì, là · here / there"].map((x) => `<span class="chip">${x}</span>`).join("")}</div>`,
+              ex: [
+                {
+                  type: "match",
+                  title: "Che domanda?",
+                  en: "Which question does the adverb answer?",
+                  pairs: [
+                    ["Alex si sveglia presto.", "quando?"],
+                    ["Alex si sveglia qui.", "dove?"],
+                    ["Alex si sveglia lentamente.", "come?"],
+                    ["Alex si sveglia spesso alle 7.", "quanto spesso?"],
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Formiamo gli avverbi",
+                  en: "Turn each adjective into an adverb.",
+                  items: [
+                    { q: "generoso →", a: ["generosamente"] },
+                    { q: "triste →", a: ["tristemente"] },
+                    { q: "puntuale →", a: ["puntualmente"] },
+                    { q: "particolare →", a: ["particolarmente"] },
+                    { q: "onesto →", a: ["onestamente"] },
+                    { q: "veloce →", a: ["velocemente"] },
+                    { q: "gentile →", a: ["gentilmente"] },
+                    { q: "estremo →", a: ["estremamente"] },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Sinceramente parlando",
+                  en: "Use the adverb form of the adjective in parentheses.",
+                  items: [
+                    { q: "Alex parla {{onestamente}} (onesto) con i suoi amici." },
+                    {
+                      q: "Federico si veste {{elegantemente}} (elegante) per i suoi appuntamenti.",
+                    },
+                    { q: "Alex e Federico convivono {{felicemente}} (felice)." },
+                    { q: "Questo appartamento è {{terribilmente}} (terribile) rumoroso!" },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Due approcci diversi",
+                  en: "Use: puntualmente, mai, tardi, frequentemente, lentamente, molto.",
+                  para: true,
+                  items: [
+                    {
+                      q: "Alex e il suo compagno di casa Federico sono molto diversi. Alex si sveglia sempre presto, alle 7, ma Federico si sveglia {{tardi}}, verso le 11. Alex si prepara velocemente, invece Federico si prepara {{lentamente}}. Federico arriva in ritardo, ma Alex arriva sempre {{puntualmente}}. Federico studia poco, ma Alex studia {{molto}}. Federico partecipa sempre a manifestazioni contro le ingiustizie; Alex non partecipa {{mai}} a eventi di questo genere. Alex lascia raramente la biblioteca, mentre Federico si trova {{frequentemente}} in piazza a lottare per un mondo migliore.",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Bene o buono?",
+                  en: "Adverb or adjective?",
+                  items: [
+                    { q: "La pasta è ___.", opts: ["buona", "bene"], a: "buona" },
+                    { q: "Alex cucina ___ la pasta.", opts: ["buono", "bene"], a: "bene" },
+                    { q: "Canto ___, mi dispiace!", opts: ["male", "cattivo"], a: "male" },
+                    { q: "Questo caffè è ___!", opts: ["buono", "bene"], a: "buono" },
+                    { q: "Come stai? Sto ___, grazie.", opts: ["buono", "bene"], a: "bene" },
+                  ],
+                },
+              ],
+            },
+            {
+              no: "5.6",
+              title: "Guardiamo! Fantozzi",
+              en: "Let’s watch: Fantozzi (Salce 1971)",
+              lesson: `
+<p>Ugo Fantozzi is Italy’s most famous unlucky office worker. In this scene his morning routine goes wrong at every step, all so he can clock in on time. His name became a word: <i>una giornata da Fantozzi</i> is a day when everything goes wrong, and <i>fantozziano</i> means awkward or unlucky. The clip is in the <a href="${BOOK}capitolo-5/" target="_blank" rel="noopener">original chapter</a>.</p>
+<p>To tell a story in order: <b>prima</b> (first), <b>poi</b> (then), <b>dopo</b> (after), <b>alla fine</b> (in the end).</p>`,
+              ex: [
+                {
+                  type: "free",
+                  title: "Una giornata da Fantozzi",
+                  en: "Tell the story of your own worst morning, using prima, poi, dopo and alla fine, with reflexive verbs and adverbs.",
+                  prompts: ["Prima… Poi… Dopo… Alla fine…"],
+                  model:
+                    "Prima mi sveglio tardi perché la sveglia non suona. Poi mi faccio la doccia velocemente, ma l’acqua è freddissima! Dopo mi vesto e corro alla fermata, ma perdo l’autobus. Alla fine arrivo a lezione in ritardo e mi accorgo che è sabato.",
+                },
+              ],
+            },
+          ],
+          vocab: [
+            {
+              g: "La casa",
+              items: [
+                ["il balcone", "balcony"],
+                ["il bagno", "bathroom"],
+                ["la camera da letto", "bedroom"],
+                ["la cantina", "cellar"],
+                ["il cortile", "yard"],
+                ["la cucina", "kitchen"],
+                ["il garage", "garage"],
+                ["il giardino", "garden"],
+                ["l’orto", "vegetable garden"],
+                ["il piano", "floor"],
+                ["il pianterreno / il piano terra", "ground floor"],
+                ["il portone", "front door"],
+                ["la sala da pranzo", "dining room"],
+                ["il salotto / il soggiorno", "living room"],
+                ["le scale", "stairs"],
+              ],
+            },
+            {
+              g: "I mobili",
+              items: [
+                ["l’armadio", "wardrobe, closet"],
+                ["l’asciugatrice", "clothes dryer"],
+                ["il bidè", "bidet"],
+                ["il comodino", "nightstand"],
+                ["il condizionatore", "air conditioner"],
+                ["il divano", "sofa"],
+                ["la doccia", "shower"],
+                ["il forno", "oven"],
+                ["il forno a microonde", "microwave"],
+                ["i fornelli", "stovetop"],
+                ["il frigorifero", "refrigerator"],
+                ["la lampada", "lamp"],
+                ["il lavabo", "bathroom sink"],
+                ["il lavandino", "sink"],
+                ["la lavastoviglie", "dishwasher"],
+                ["la lavatrice", "washing machine"],
+                ["il letto", "bed"],
+                ["la libreria", "bookcase"],
+                ["la poltrona", "armchair"],
+                ["lo scaffale", "bookshelf"],
+                ["la scrivania", "desk"],
+                ["la sedia", "chair"],
+                ["lo specchio", "mirror"],
+                ["il tappeto", "rug"],
+                ["il tavolo", "table"],
+                ["il televisore", "TV set"],
+                ["il termosifone", "heater"],
+                ["la vasca", "bathtub"],
+                ["il water", "toilet"],
+              ],
+            },
+            {
+              g: "Preposizioni",
+              items: [
+                ["a", "to, at, in"],
+                ["con", "with"],
+                ["da", "from"],
+                ["di", "of, about"],
+                ["in", "to, at, in"],
+                ["per", "for"],
+                ["su", "on"],
+                ["tra / fra", "between"],
+                ["accanto a", "next to"],
+                ["a destra di / a sinistra di", "to the right / left of"],
+                ["davanti a", "in front of"],
+                ["di fronte a", "facing"],
+                ["dietro", "behind"],
+                ["lontano da", "far from"],
+                ["nell’angolo", "in the corner"],
+                ["sopra", "above"],
+                ["sotto", "below"],
+                ["vicino a", "near"],
+              ],
+            },
+            {
+              g: "Verbi riflessivi",
+              items: [
+                ["addormentarsi", "to fall asleep"],
+                ["alzarsi", "to get up"],
+                ["annoiarsi", "to get bored"],
+                ["arrabbiarsi", "to get angry"],
+                ["asciugarsi", "to dry off"],
+                ["chiamarsi", "to be called"],
+                ["divertirsi", "to have fun"],
+                ["farsi la barba", "to shave"],
+                ["innamorarsi", "to fall in love"],
+                ["laurearsi", "to graduate"],
+                ["lavarsi", "to wash oneself"],
+                ["mettersi", "to put on"],
+                ["pettinarsi", "to comb one’s hair"],
+                ["riposarsi", "to rest"],
+                ["sentirsi", "to feel"],
+                ["sposarsi", "to get married"],
+                ["svegliarsi", "to wake up"],
+                ["truccarsi", "to put on makeup"],
+                ["vestirsi", "to get dressed"],
+              ],
+            },
+            {
+              g: "Avverbi",
+              items: [
+                ["presto / tardi", "early / late"],
+                ["in anticipo / in orario / in ritardo", "early / on time / late"],
+                ["mai / spesso / sempre", "never / often / always"],
+                ["molto / poco / troppo", "a lot / a little / too much"],
+                ["bene / male", "well / badly"],
+                ["qui, qua / lì, là", "here / there"],
+                ["prima / poi / dopo / alla fine", "first / then / after / in the end"],
+              ],
+            },
+          ],
+        },
+        /* ================= CAPITOLO 6 ================= */
+        {
+          id: "c6",
+          num: 6,
+          title: "Tutt* in viaggio!",
+          gloss: "Everyone on a trip!",
+          short: "Travel, the passato prossimo, negatives",
+          goals: [
+            "name countries, places and travel words",
+            "plan a trip and say what to pack",
+            "talk about the past with the passato prossimo",
+            "choose avere or essere and make the past participle agree",
+            "use irregular past participles",
+            "say never, nothing, no one, no longer and not yet",
+          ],
+          sections: [
+            {
+              no: "6.1",
+              title: "Ascoltiamo!",
+              en: "Let’s listen: “Non mi avete fatto niente”",
+              lesson: `
+<p>Ermal Meta (who is Albanian-Italian) and Fabrizio Moro won the 2018 Festival di Sanremo with <i>Non mi avete fatto niente</i> (“You haven’t done anything to me”), a song answering terrorism with hope. <a href="https://www.youtube.com/results?search_query=ermal+meta+fabrizio+moro+non+mi+avete+fatto+niente" target="_blank" rel="noopener">Listen on YouTube</a>. It names cities where attacks happened, like Cairo, Nice, London and Barcelona’s Rambla.</p>
+<div class="note"><b>Nota culturale</b><p>The <b>Festival di Sanremo</b> (the Festival della canzone italiana) is held every February in Sanremo, on the Ligurian coast. Every song must be brand new, and the winner often represents Italy at <b>Eurovision</b>.</p></div>
+<p>The title is in the <b>passato prossimo</b>: <i>avete fatto</i> = “you have done”. That’s this chapter’s big topic.</p>`,
+              ex: [
+                {
+                  type: "match",
+                  title: "Dove si trova?",
+                  en: "Match each place to its country.",
+                  pairs: [
+                    ["Cairo", "l’Egitto"],
+                    ["la Rambla", "la Spagna"],
+                    ["Nizza", "la Francia"],
+                    ["Londra", "l’Inghilterra"],
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "Parliamone!",
+                  en: "Finish the song’s line with something that gives you hope: “Ma contro ogni terrore che ostacola il cammino, il mondo si rialza con…”",
+                  prompts: ["Il mondo si rialza con…"],
+                  model:
+                    "Il mondo si rialza con la musica, con l’amicizia tra persone diverse e con il sorriso di un bambino.",
+                },
+              ],
+            },
+            {
+              no: "6.2",
+              title: "In giro per il mondo",
+              en: "Vocabulary: travel",
+              lesson: `
+<div class="cols">
+<div><h4>Dove dormire</h4><div class="chips">${["l’albergo, l’hotel", "l’agriturismo · farm stay", "il B&B, la pensione", "la casa vacanza · vacation rental", "il campeggio · campsite", "il villaggio turistico · resort"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>Come viaggiare</h4><div class="chips">${["l’aereo · plane", "il treno · train", "la nave · ship", "la barca · boat", "il pullman, la corriera · coach", "noleggiare · to rent (a car, boat)", "prenotare · to book"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>Come pagare</h4><div class="chips">${["i contanti · cash", "la carta di credito", "il Bancomat · debit card, ATM", "i soldi, il denaro · money"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div>
+<div><h4>In valigia</h4><div class="chips">${["il passaporto", "il caricabatterie · charger", "la borraccia · water bottle", "le cuffie · headphones", "la crema solare · sunscreen", "l’asciugamano · towel", "gli scarponi · hiking boots", "l’infradito · flip-flops", "il bagaglio a mano · carry-on", "il bagaglio in stiva · checked bag"].map((x) => `<span class="chip">${x}</span>`).join("")}</div></div></div>
+<div class="note"><b>Nota culturale · la Sicilia</b><p>Sicily is the largest island in the Mediterranean, with mountains, Europe’s largest active volcano (Etna) and the sea. Its ancient Greek name, <i>Trinacria</i>, comes from its triangle shape. Phoenicians, Greeks, Romans, Byzantines, Arabs, Normans and Spanish all ruled it, and its food, art and dialect show it. Try <i>pasta alla Norma, parmigiana di melanzane</i> and <i>granita al pistacchio</i>.</p></div>
+<div class="note"><b>Nota culturale · le ferie</b><p>Many Italians take their <i>ferie</i> (vacation) at the beach. August is the busiest month, and the peak is <b>Ferragosto</b>, August 15th, when even Milan shuts down for the seaside. Europe (a continent), the European Union (27 countries) and the eurozone are three different things; Italy belongs to all three.</p></div>`,
+              ex: [
+                {
+                  type: "choice",
+                  title: "Dove andiamo e cosa facciamo?",
+                  en: "Sort each item for a Sicilian vacation.",
+                  opts: ["Dove dormire", "Cosa mangiare", "Cosa fare", "Come pagare"],
+                  items: [
+                    { q: "l’agriturismo", a: "Dove dormire" },
+                    { q: "la pasta alla Norma", a: "Cosa mangiare" },
+                    { q: "il Bancomat", a: "Come pagare" },
+                    { q: "la granita al pistacchio", a: "Cosa mangiare" },
+                    { q: "noleggiare una barca", a: "Cosa fare" },
+                    { q: "il campeggio", a: "Dove dormire" },
+                    { q: "i contanti", a: "Come pagare" },
+                    { q: "un’escursione sull’Etna", a: "Cosa fare" },
+                    { q: "la casa vacanza", a: "Dove dormire" },
+                    { q: "la parmigiana di melanzane", a: "Cosa mangiare" },
+                    { q: "il tour dei templi", a: "Cosa fare" },
+                    { q: "la carta di credito", a: "Come pagare" },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Cosa preferisci?",
+                  en: "Choose the word that fits.",
+                  items: [
+                    {
+                      q: "Se preferisci stare nella natura, il ___ è il tuo alloggio ideale.",
+                      opts: ["campeggio", "hotel"],
+                      a: "campeggio",
+                    },
+                    {
+                      q: "Se ti piace passare il tempo in mezzo al mare, puoi noleggiare una ___.",
+                      opts: ["macchina", "barca"],
+                      a: "barca",
+                    },
+                    {
+                      q: "Se adori le montagne, puoi fare un’escursione di ___.",
+                      opts: ["gastronomia", "trekking"],
+                      a: "trekking",
+                    },
+                    {
+                      q: "Se vuoi prendere il sole, puoi andare ___.",
+                      opts: ["alla spiaggia", "al museo"],
+                      a: "alla spiaggia",
+                    },
+                    {
+                      q: "Se hai bisogno di rilassarti, puoi andare in un ___.",
+                      opts: ["centro benessere", "campeggio"],
+                      a: "centro benessere",
+                    },
+                    {
+                      q: "Se vuoi un luogo rustico e cibo biologico, puoi prenotare in un ___.",
+                      opts: ["villaggio turistico", "agriturismo"],
+                      a: "agriturismo",
+                    },
+                    {
+                      q: "Se non hai i contanti, puoi pagare con ___.",
+                      opts: ["la carta di credito", "l’euro"],
+                      a: "la carta di credito",
+                    },
+                    {
+                      q: "Se ti interessa la storia antica dell’isola, fai un’escursione ___.",
+                      opts: ["archeologica", "naturalistica"],
+                      a: "archeologica",
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Cosa mettete in valigia?",
+                  en: "Packing for Sicily. Complete the conversation.",
+                  items: [
+                    { q: "Per ricaricare il mio telefonino, ho portato il", a: ["caricabatterie"] },
+                    { q: "Non voglio avere sete, quindi ho portato la", a: ["borraccia"] },
+                    {
+                      q: "Voglio ascoltare la musica mentre faccio trekking, quindi ho portato le",
+                      a: ["cuffie"],
+                    },
+                    { q: "Per non bruciarmi al sole, ho portato la", a: ["crema solare"] },
+                    {
+                      q: "Dobbiamo assolutamente portare i nostri {{passaporti}}, altrimenti non passiamo i controlli!",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "Perché viaggi?",
+                  en: "Plan a trip to Sicily: where you go, when, how long, where you sleep, what you do and eat. Then say why you travel.",
+                  prompts: ["Il nostro itinerario…"],
+                  model:
+                    "Andiamo a Palermo e a Catania a giugno per una settimana. Dormiamo in un B&B e poi in un agriturismo vicino all’Etna. Facciamo un’escursione sull’Etna e un tour dei templi ad Agrigento. Vogliamo mangiare la pasta alla Norma e la granita al pistacchio. Viaggio per imparare una cultura diversa e per mangiare le specialità del posto!",
+                },
+              ],
+            },
+            {
+              no: "6.3",
+              title: "Il passato prossimo",
+              en: "The past tense: what happened",
+              lesson: `
+<p>Dom writes home from Sicily:</p>
+<p class="say">Siamo arrivati in Sicilia! I primi due giorni abbiamo visitato Palermo. Abbiamo mangiato la pasta alla Norma e abbiamo bevuto una bottiglia di Nero d’Avola. Poi abbiamo preso il treno per Catania. Abbiamo incontrato dei parenti e abbiamo guidato fino all’Etna. Ieri sera siamo andati a prendere una granita al pistacchio e siamo rimasti a chiacchierare fino a tardi.</p>
+<p>The <b>passato prossimo</b> is for completed actions in the past. It has two parts: a <b>helping verb</b> (<i>avere</i> or <i>essere</i>, conjugated) + a <b>past participle</b>.</p>
+<p><b>Regular participles:</b> -are → <b>-ato</b> (mangiare → mangiato) · -ere → <b>-uto</b> (vendere → venduto) · -ire → <b>-ito</b> (finire → finito).</p>
+<h4>Avere or essere?</h4>
+<ul><li><b>Avere</b>: most verbs, including every verb that can take a direct object (<i>Ha mangiato il panino</i>), plus “hobby” verbs like <i>correre, camminare, nuotare, sciare, viaggiare</i>.</li>
+<li><b>Essere</b>: verbs of movement and states of being, the “house of essere”: <i>andare, venire, arrivare, partire, entrare, uscire, tornare, salire, scendere, cadere, nascere, morire, diventare, stare, rimanere, restare</i>. Reflexive verbs also take essere.</li></ul>
+<div class="tscroll"><table class="t"><tr><th></th><th>ballare</th><th>andare</th></tr>
+<tr><td>io</td><td>ho ballato</td><td>sono andato/a</td></tr>
+<tr><td>tu</td><td>hai ballato</td><td>sei andato/a</td></tr>
+<tr><td>lui / lei</td><td>ha ballato</td><td>è andato/a</td></tr>
+<tr><td>noi</td><td>abbiamo ballato</td><td>siamo andati/e</td></tr>
+<tr><td>voi</td><td>avete ballato</td><td>siete andati/e</td></tr>
+<tr><td>loro</td><td>hanno ballato</td><td>sono andati/e</td></tr></table></div>
+<p>With <b>essere</b>, the participle <b>agrees</b> with the subject (-o, -a, -i, -e): <i>Annika è andata</i>. With <b>avere</b> it always ends in <b>-o</b>.</p>
+<p>Time words: <i>ieri</i> (yesterday), <i>l’altroieri</i> (the day before yesterday), <i>la settimana scorsa</i> (last week), <i>tre anni fa</i> (three years ago).</p>`,
+              ex: [
+                {
+                  type: "choice",
+                  title: "Essere o avere?",
+                  en: "Which helping verb does each verb take?",
+                  opts: ["avere", "essere"],
+                  items: [
+                    { q: "andare", a: "essere" },
+                    { q: "ballare", a: "avere" },
+                    { q: "vedere", a: "avere" },
+                    { q: "fare", a: "avere" },
+                    { q: "venire", a: "essere" },
+                    { q: "bere", a: "avere" },
+                    { q: "partire", a: "essere" },
+                    { q: "studiare", a: "avere" },
+                    { q: "nascere", a: "essere" },
+                    { q: "viaggiare", a: "avere", why: "A “hobby” verb." },
+                    { q: "rimanere", a: "essere" },
+                    { q: "giocare", a: "avere" },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Il participio passato",
+                  en: "Write the regular past participle.",
+                  items: [
+                    { q: "tornare →", a: ["tornato"] },
+                    { q: "compiere →", a: ["compiuto"] },
+                    { q: "sciare →", a: ["sciato"] },
+                    { q: "spedire →", a: ["spedito"] },
+                    { q: "comprare →", a: ["comprato"] },
+                    { q: "vendere →", a: ["venduto"] },
+                    { q: "dormire →", a: ["dormito"] },
+                    { q: "capire →", a: ["capito"] },
+                  ],
+                },
+                {
+                  type: "conj",
+                  title: "Coniuga al passato!",
+                  en: "Write the passato prossimo. For essere, either ending is fine.",
+                  verbs: [
+                    {
+                      inf: "parlare",
+                      forms: [
+                        "ho parlato",
+                        "hai parlato",
+                        "ha parlato",
+                        "abbiamo parlato",
+                        "avete parlato",
+                        "hanno parlato",
+                      ],
+                    },
+                    {
+                      inf: "partire",
+                      forms: [
+                        "sono partito|sono partita",
+                        "sei partito|sei partita",
+                        "è partito|è partita",
+                        "siamo partiti|siamo partite",
+                        "siete partiti|siete partite",
+                        "sono partiti|sono partite",
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Facciamo l’accordo!",
+                  en: "Add the right ending to the participle.",
+                  items: [
+                    { q: "Aram è arrivat{{o}} da Sevan ieri sera." },
+                    { q: "Jakey e Ben sono tornat{{i}} a Trapani in macchina." },
+                    { q: "Lucia e Anna hanno viaggiat{{o}} in treno per otto ore." },
+                    { q: "Tu e tuo nonno siete rimast{{i}} a casa per guardare la partita." },
+                    { q: "Tua nonna e tua zia sono partit{{e}} per le Isole Eolie." },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "La settimana di Salvo",
+                  en: "Your cousin Salvo runs a B&B in Agrigento. Put his verbs in the passato prossimo.",
+                  para: true,
+                  items: [
+                    {
+                      q: "Ciao, tesoro! Sono venute molte persone questa settimana. Io ed Emily {{abbiamo cucinato}} (cucinare) molto per gli ospiti. Emily non mi {{ha aiutato}} (aiutare) molto con gli ospiti perché nostra figlia Serena {{è nata}} (nascere) solo sei mesi fa. Io {{sono uscito}} (uscire) a fare la spesa, {{ho preparato}} (preparare) le stanze e {{ho lavato}} (lavare) i piatti.",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              no: "6.4",
+              title: "I participi irregolari",
+              en: "Irregular past participles",
+              lesson: `
+<p>Many verbs, especially <b>-ere</b> verbs, have irregular participles. Dom writes to his mother:</p>
+<p class="say">Sono arrivato al B&B di nostro cugino Salvo. Abbiamo bevuto uno spritz insieme e ho conosciuto la piccola Serena, che è nata a settembre. Abbiamo fatto una passeggiata, poi abbiamo deciso di andare in discoteca. Abbiamo perso l’ultimo autobus! Emily è venuta a prenderci. Siamo rimasti in cucina a parlare fino a tardi.</p>
+<div class="numgrid">${[
+                ["aprire", "aperto"],
+                ["bere", "bevuto"],
+                ["chiedere", "chiesto"],
+                ["chiudere", "chiuso"],
+                ["conoscere", "conosciuto"],
+                ["correre", "corso"],
+                ["decidere", "deciso"],
+                ["dire", "detto"],
+                ["essere", "stato"],
+                ["fare", "fatto"],
+                ["leggere", "letto"],
+                ["mettere", "messo"],
+                ["morire", "morto"],
+                ["nascere", "nato"],
+                ["offrire", "offerto"],
+                ["perdere", "perso"],
+                ["prendere", "preso"],
+                ["ridere", "riso"],
+                ["rimanere", "rimasto"],
+                ["rispondere", "risposto"],
+                ["rompere", "rotto"],
+                ["scegliere", "scelto"],
+                ["scendere", "sceso"],
+                ["scrivere", "scritto"],
+                ["spendere", "speso"],
+                ["succedere", "successo"],
+                ["vedere", "visto"],
+                ["venire", "venuto"],
+                ["vincere", "vinto"],
+                ["vivere", "vissuto"],
+              ]
+                .map(([a, b]) => `<span><b>${a}</b> ${S(b)}</span>`)
+                .join("")}</div>
+<div class="note"><b>Nota culturale</b><p>Most Italian Americans’ families came from the <i>Mezzogiorno</i>, the south, often Sicily, during the great migration of 1880–1920. To research your own roots, try the Ellis Island archives or the Tenement Museum.</p></div>`,
+              ex: [
+                {
+                  type: "fill",
+                  title: "Participi irregolari",
+                  en: "Write the irregular past participle.",
+                  items: [
+                    { q: "fare →", a: ["fatto"] },
+                    { q: "bere →", a: ["bevuto"] },
+                    { q: "prendere →", a: ["preso"] },
+                    { q: "vedere →", a: ["visto", "veduto"] },
+                    { q: "mettere →", a: ["messo"] },
+                    { q: "scrivere →", a: ["scritto"] },
+                    { q: "leggere →", a: ["letto"] },
+                    { q: "dire →", a: ["detto"] },
+                    { q: "venire →", a: ["venuto"] },
+                    { q: "rimanere →", a: ["rimasto"] },
+                    { q: "nascere →", a: ["nato"] },
+                    { q: "aprire →", a: ["aperto"] },
+                    { q: "chiedere →", a: ["chiesto"] },
+                    { q: "decidere →", a: ["deciso"] },
+                    { q: "perdere →", a: ["perso", "perduto"] },
+                    { q: "essere →", a: ["stato"] },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "Una nazione di immigrati",
+                  en: "Questions about your family’s origins. Put the verbs in the passato prossimo.",
+                  items: [
+                    { q: "Da dove {{è venuta}} (venire) la tua famiglia?" },
+                    {
+                      q: "Quando {{è arrivato}} (arrivare) il tuo primo parente negli Stati Uniti?",
+                    },
+                    {
+                      q: "{{Sono partiti}} (partire) tutti o qualcuno {{è rimasto}} (rimanere) in paese?",
+                    },
+                    {
+                      q: "{{Hai}} mai {{conosciuto}} (conoscere) qualcuno che abita nel paese dei tuoi antenati?",
+                    },
+                    { q: "La tua famiglia ti {{ha parlato}} (parlare) delle tue radici?" },
+                  ],
+                },
+                {
+                  type: "fill",
+                  title: "La grande migrazione",
+                  en: "Put each verb in the passato prossimo.",
+                  items: [
+                    {
+                      q: "Molti siciliani {{hanno detto}} (dire) addio alle loro famiglie prima di partire.",
+                    },
+                    {
+                      q: "Io {{ho visto}} (vedere) la firma dei bisnonni sul sito di Ellis Island.",
+                    },
+                    {
+                      q: "La famiglia di Salvo {{è venuta}} (venire) negli Stati Uniti su una nave.",
+                    },
+                    {
+                      q: "Noi {{abbiamo fatto}} (fare) un grande viaggio per arrivare qui nel 1950.",
+                    },
+                    {
+                      q: "Tu e la tua famiglia {{avete speso}} (spendere) tanti soldi per un biglietto.",
+                    },
+                    { q: "Tu {{sei nato|sei nata}} (nascere) a Palermo." },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "La storia della mia famiglia",
+                  en: "Write five facts from your family’s history (real or invented) in the passato prossimo. Try: partire, arrivare, conoscere, lavorare, nascere, vivere.",
+                  prompts: ["Il mio bisnonno…"],
+                  model:
+                    "Il mio bisnonno è partito dall’Irlanda nel 1908. È arrivato a Newark nel 1909. Ha conosciuto mia bisnonna al lavoro. Hanno avuto il loro primo figlio cinque anni dopo. Hanno lavorato molto e hanno comprato una casa insieme.",
+                },
+              ],
+            },
+            {
+              no: "6.5",
+              title: "Le espressioni negative",
+              en: "Negatives: never, nothing, no one",
+              lesson: `
+<p>Your great-uncle Vincenzo never left Sicily, and he has opinions:</p>
+<p class="say">I tuoi genitori non ti hanno insegnato niente e non mangi per niente bene. Ho mangiato un panino da McDonald’s una sola volta, ma ho deciso di non mangiare più lì. Non hai ancora imparato queste cose?! Non c’è nessuno lì da te che ti mette sulla retta via. Non conosci né il paese dei tuoi antenati né il loro cibo!</p>
+<div class="tscroll"><table class="t"><tr><th>Italiano</th><th>English</th></tr>
+<tr><td>non … mai</td><td>never</td></tr><tr><td>non … niente</td><td>nothing</td></tr><tr><td>non … nessuno</td><td>no one</td></tr>
+<tr><td>non … più</td><td>no longer, not anymore</td></tr><tr><td>non … ancora</td><td>not yet</td></tr><tr><td>non … né … né</td><td>neither … nor</td></tr></table></div>
+<p>Italian uses <b>two</b> negative words: <b>non</b> before the verb, the other after it. <i>Non mangio mai dopo le 19. Non bevo più.</i></p>
+<p>In the passato prossimo, <b>mai, più, ancora</b> go between the helping verb and the participle: <i>Non sono mai andata in Cina.</i> <b>Niente</b> and <b>nessuno</b> go after the participle: <i>Non ho visto nessuno.</i> Like the song: <i>Non mi avete fatto niente!</i></p>`,
+              ex: [
+                {
+                  type: "match",
+                  title: "Che cosa significa?",
+                  en: "Match each expression to its meaning.",
+                  pairs: [
+                    ["non … mai", "never"],
+                    ["non … niente", "nothing"],
+                    ["non … nessuno", "no one"],
+                    ["non … più", "not anymore"],
+                    ["non … ancora", "not yet"],
+                    ["non … né … né", "neither … nor"],
+                  ],
+                },
+                {
+                  type: "match",
+                  title: "Come sono queste persone?",
+                  en: "Match each description to the person.",
+                  pairs: [
+                    ["Non mangia più la carne.", "Marisa è vegetariana."],
+                    ["Non ha più vestiti nell’armadio.", "Yuki ama Marie Kondo."],
+                    ["Non beve né vodka né tequila.", "Gianluca è astemio."],
+                    ["Non dà regali a nessuno.", "Julia è tirchia."],
+                    ["Non fa mai niente per gli altri.", "Anthony è egoista."],
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Dove va?",
+                  en: "Which sentence puts the negative in the right place?",
+                  items: [
+                    {
+                      q: "never been to China",
+                      opts: [
+                        "Non sono mai andata in Cina.",
+                        "Non sono andata mai in Cina.",
+                        "Mai non sono andata in Cina.",
+                      ],
+                      a: "Non sono mai andata in Cina.",
+                    },
+                    {
+                      q: "saw no one at the party",
+                      opts: [
+                        "Non ho nessuno visto alla festa.",
+                        "Non ho visto nessuno alla festa.",
+                        "Ho visto nessuno alla festa.",
+                      ],
+                      a: "Non ho visto nessuno alla festa.",
+                      why: "Nessuno goes after the participle.",
+                    },
+                    {
+                      q: "haven’t eaten yet",
+                      opts: [
+                        "Non abbiamo ancora mangiato.",
+                        "Abbiamo non ancora mangiato.",
+                        "Non abbiamo mangiato ancora non.",
+                      ],
+                      a: "Non abbiamo ancora mangiato.",
+                    },
+                    {
+                      q: "didn’t buy anything",
+                      opts: [
+                        "Non ho niente comprato.",
+                        "Ho comprato niente.",
+                        "Non ho comprato niente.",
+                      ],
+                      a: "Non ho comprato niente.",
+                    },
+                    {
+                      q: "don’t smoke anymore",
+                      opts: ["Non fumo più.", "Più non fumo.", "Non più fumo."],
+                      a: "Non fumo più.",
+                    },
+                  ],
+                },
+                {
+                  type: "choice",
+                  title: "Chi sono?",
+                  en: "Unscramble the clues about a famous actor.",
+                  items: [
+                    {
+                      q: "non / più / mangio / carne / la",
+                      opts: [
+                        "Non mangio più la carne.",
+                        "Non più mangio la carne.",
+                        "Mangio non più la carne.",
+                      ],
+                      a: "Non mangio più la carne.",
+                    },
+                    {
+                      q: "vedo / non / più / fratello / mio / River",
+                      opts: [
+                        "Non vedo più il mio fratello River.",
+                        "Non vedo più mio fratello River.",
+                        "Non più vedo mio fratello River.",
+                      ],
+                      a: "Non vedo più mio fratello River.",
+                    },
+                    {
+                      q: "vinto / non / ancora / ho / dieci / Oscar",
+                      opts: [
+                        "Non ho ancora vinto dieci Oscar.",
+                        "Non ho vinto ancora dieci Oscar.",
+                        "Ancora non ho dieci vinto Oscar.",
+                      ],
+                      a: "Non ho ancora vinto dieci Oscar.",
+                    },
+                    {
+                      q: "Chi è? Ha interpretato il Joker e Johnny Cash.",
+                      opts: ["Joaquin Phoenix", "Heath Ledger", "Johnny Depp"],
+                      a: "Joaquin Phoenix",
+                    },
+                  ],
+                },
+                {
+                  type: "free",
+                  title: "Io non ho mai…",
+                  en: "Never have I ever. Write five true sentences with non … mai, non … più, non … ancora, non … nessuno and non … niente.",
+                  prompts: ["Non ho mai…"],
+                  model:
+                    "Non ho mai mangiato il coniglio. Non sono mai andata in Oklahoma. Non studio più il francese. La mia famiglia non ha ancora visitato l’Italia. Non conosco nessuno che parla giapponese.",
+                },
+              ],
+            },
+            {
+              no: "6.6",
+              title: "Guardiamo! Nuovomondo",
+              en: "Let’s watch: The Golden Door (Crialese 2006)",
+              lesson: `
+<p>Emanuele Crialese’s <i>Nuovomondo</i> follows a poor Sicilian family who sail to America in the early 1900s. In this scene they arrive at Ellis Island, where officials inspect them and give them intelligence tests. Italian immigrants, especially from the south, faced violence and prejudice: in 1891, eleven Italians were lynched in New Orleans. The clip is in the <a href="${BOOK}capitolo-6/" target="_blank" rel="noopener">original chapter</a>.</p>`,
+              ex: [
+                {
+                  type: "free",
+                  title: "Ieri e oggi",
+                  en: "In the passato prossimo, say what immigrants like the family in Nuovomondo went through. Then write two sentences comparing it with immigration today.",
+                  prompts: ["Gli immigrati…"],
+                  model:
+                    "Gli immigrati hanno fatto un viaggio lungo e difficile sulla nave. Sono arrivati a Ellis Island e gli ufficiali li hanno trattati male. Hanno dovuto fare dei test di intelligenza. Oggi molti immigrati arrivano in aereo, ma ci sono ancora pregiudizi.",
+                },
+              ],
+            },
+          ],
+          vocab: [
+            {
+              g: "Viaggiare",
+              items: [
+                ["l’aereo", "plane"],
+                ["l’aeroporto", "airport"],
+                ["l’agriturismo", "farm stay"],
+                ["l’asciugamano", "towel"],
+                ["il bagaglio a mano", "carry-on"],
+                ["il bagaglio in stiva", "checked bag"],
+                ["il Bancomat", "ATM, debit card"],
+                ["la barca", "boat"],
+                ["la borraccia", "water bottle"],
+                ["il campeggio", "campsite"],
+                ["il caricabatterie", "charger"],
+                ["la carta di credito", "credit card"],
+                ["la casa vacanza", "vacation rental"],
+                ["i contanti", "cash"],
+                ["la crema solare", "sunscreen"],
+                ["la crociera", "cruise"],
+                ["le cuffie", "headphones"],
+                ["l’escursione", "excursion"],
+                ["il museo", "museum"],
+                ["la nave", "ship"],
+                ["noleggiare", "to rent"],
+                ["il passaporto", "passport"],
+                ["la pensione", "guesthouse"],
+                ["la prenotazione", "reservation"],
+                ["prenotare", "to book"],
+                ["il pullman", "coach"],
+                ["la spiaggia", "beach"],
+                ["la stazione", "station"],
+                ["il trekking", "hiking"],
+                ["la valigia", "suitcase"],
+                ["il villaggio turistico", "resort"],
+              ],
+            },
+            {
+              g: "Abbigliamento",
+              items: [
+                ["la borsa", "bag"],
+                ["i calzini", "socks"],
+                ["la camicia", "shirt"],
+                ["il cappello", "hat"],
+                ["la giacca", "jacket"],
+                ["la gonna", "skirt"],
+                ["l’infradito", "flip-flops"],
+                ["la maglietta", "T-shirt"],
+                ["le mutande", "underwear"],
+                ["i pantaloni", "pants"],
+                ["i pantaloncini", "shorts"],
+                ["il portafoglio", "wallet"],
+                ["il reggiseno", "bra"],
+                ["i sandali", "sandals"],
+                ["le scarpe da ginnastica", "sneakers"],
+                ["gli scarponi", "hiking boots"],
+                ["il vestito", "dress, suit"],
+              ],
+            },
+            {
+              g: "Passato e negativi",
+              items: [
+                ["ieri", "yesterday"],
+                ["l’altroieri", "the day before yesterday"],
+                ["scorso", "last"],
+                ["fa", "ago"],
+                ["non … ancora", "not yet"],
+                ["non … mai", "never"],
+                ["non … né … né", "neither … nor"],
+                ["non … nessuno", "no one"],
+                ["non … niente", "nothing"],
+                ["non … più", "not anymore"],
+                ["fatto", "done (fare)"],
+                ["visto", "seen (vedere)"],
+                ["preso", "taken (prendere)"],
+                ["detto", "said (dire)"],
+                ["venuto", "come (venire)"],
+                ["nato", "born (nascere)"],
+              ],
+            },
+          ],
+        },
       ];
 
       /* ---------- progress ---------- */
@@ -4349,9 +6497,10 @@
         PRON.forEach((p, r) => {
           const tr = h("tr", {}, h("td", { class: "p" }, p));
           ex.verbs.forEach((v) => {
-            if (v.given && v.given.includes(r)) tr.append(h("td", { class: "given" }, v.forms[r]));
+            if (v.given && v.given.includes(r))
+              tr.append(h("td", { class: "given" }, v.forms[r].split("|")[0]));
             else {
-              const inp = makeInput([v.forms[r]]);
+              const inp = makeInput(v.forms[r].split("|"));
               inp.style.width = "9.5em";
               inp.setAttribute("aria-label", `${v.inf}, ${p}`);
               inputs.push(inp);
@@ -5488,7 +7637,7 @@
           renderReview(ch),
         );
         col.append(voc);
-        if (ch.num < 3)
+        if (ch.num < CHAPTERS.length)
           col.append(
             h(
               "div",
@@ -5549,7 +7698,7 @@
               onclick: () => go(ch.id),
             },
             h("span", { class: "n" }, String(ch.num)),
-            h("span", { class: "t" }, ch.title),
+            h("span", { class: "t", lang: "it" }, ch.title),
             h("span", { class: "s" }, ""),
             h("span", { class: "bar" }, h("i")),
           ),
