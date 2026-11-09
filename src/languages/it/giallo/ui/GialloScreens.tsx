@@ -1,5 +1,5 @@
 // Chi è stato? GS 9.1: the giallo's routes, loaded as their own chunk so Chi è?'s
-// players never pay for its content. The builder comes with its own card (PLAY-093).
+// players never pay for its content.
 import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { useAccountStore } from "../../../../core/store/account.ts";
@@ -12,6 +12,7 @@ import { Sheet } from "../../ui/game/Sheet.tsx";
 import { content } from "../content/index.ts";
 import { engineContent } from "../engine/content.ts";
 import { peopleOf } from "../engine/people.ts";
+import type { Draft } from "../engine/builder.ts";
 import { caseById } from "../engine/start.ts";
 import type { CaseState, InspectorQuestion } from "../engine/types.ts";
 import { inProgress, solvedCases, useCaseStore } from "../store/caseStore.ts";
@@ -19,6 +20,7 @@ import { AccuseSheet } from "./AccuseSheet.tsx";
 import { CaseEnd } from "./CaseEnd.tsx";
 import { InspectorSheet } from "./InspectorSheet.tsx";
 import { Notebook } from "./Notebook.tsx";
+import { QuestionBuilder } from "./QuestionBuilder.tsx";
 import { QuestionPicker } from "./QuestionPicker.tsx";
 
 // Its own text rather than core/games.ts: importing that from this chunk makes the
@@ -110,6 +112,9 @@ function CasePlay({ game }: { game: CaseState }) {
   const [inspectorFolded, setInspectorFolded] = useState(false);
   // Her question once answered: the engine has moved on, but the result stays up.
   const [answered, setAnswered] = useState<{ question: InspectorQuestion; choice: string }>();
+  // Level 2's question so far. Here rather than in the builder, so it stays for the
+  // next person and through her question.
+  const [draft, setDraft] = useState<Draft>({});
   const faces = useRef<HTMLUListElement>(null);
 
   const c = caseById(engineContent, game.caseId);
@@ -215,88 +220,95 @@ function CasePlay({ game }: { game: CaseState }) {
           </ul>
         </section>
       </div>
-      {/* Level 2's builder is PLAY-093; it has only the faces and scene until then. */}
-      {game.level === 1 && (
-        <>
-          <p role="status" lang="it" className="sr-only">
-            {lastAnswer}
-          </p>
-          <Sheet
-            open={open}
-            onToggle={() =>
-              inspector ? setInspectorFolded(!inspectorFolded) : setSheetOpen(!sheetOpen)
-            }
-            // The picker leaves the faces in reach. Hers doesn't need them, and on a small
-            // phone her three options need the room.
-            maxHeight={inspector ? "max-h-[85dvh]" : "max-h-[calc(100dvh-12.5rem)]"}
-            actions={
-              <>
-                <button
-                  type="button"
-                  lang="it"
-                  onClick={() => setNotebookOpen(true)}
-                  className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
-                >
-                  Taccuino
-                </button>
-                <button
-                  type="button"
-                  lang="it"
-                  disabled={!!inspector}
-                  onClick={() => setAccusing(true)}
-                  className="min-h-12 flex-1 rounded-xl bg-stone-900 font-medium text-white hover:bg-stone-800 disabled:bg-stone-300 disabled:text-stone-600"
-                >
-                  Accusa
-                </button>
-              </>
-            }
-            summary={
-              game.inspector ? (
-                "Ispettrice Bassi has a question for you."
-              ) : outOfQuestions ? (
-                <span lang="it">{content.messages["budget.empty"]}</span>
-              ) : lastAnswer ? (
-                <span lang="it">{lastAnswer}</span>
-              ) : (
-                "Tap a face to ask them a question."
-              )
-            }
-          >
-            {inspector ? (
-              <InspectorSheet
-                question={inspector}
-                choice={answered?.choice}
-                lastAnswer={lastAnswer}
-                onAnswer={answerInspector}
-                onContinue={closeInspector}
-              />
-            ) : person ? (
-              <QuestionPicker
-                key={person.role}
-                state={game}
-                person={person}
-                disabled={outOfQuestions}
-                onAsk={(built) => dispatch({ type: "ASK", built })}
-              />
+      <>
+        <p role="status" lang="it" className="sr-only">
+          {lastAnswer}
+        </p>
+        <Sheet
+          open={open}
+          onToggle={() =>
+            inspector ? setInspectorFolded(!inspectorFolded) : setSheetOpen(!sheetOpen)
+          }
+          // The picker and builder leave the faces in reach. Hers doesn't need them, and on a small
+          // phone her three options need the room.
+          maxHeight={inspector ? "max-h-[85dvh]" : "max-h-[calc(100dvh-12.5rem)]"}
+          actions={
+            <>
+              <button
+                type="button"
+                lang="it"
+                onClick={() => setNotebookOpen(true)}
+                className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
+              >
+                Taccuino
+              </button>
+              <button
+                type="button"
+                lang="it"
+                disabled={!!inspector}
+                onClick={() => setAccusing(true)}
+                className="min-h-12 flex-1 rounded-xl bg-stone-900 font-medium text-white hover:bg-stone-800 disabled:bg-stone-300 disabled:text-stone-600"
+              >
+                Accusa
+              </button>
+            </>
+          }
+          summary={
+            game.inspector ? (
+              "Ispettrice Bassi has a question for you."
+            ) : outOfQuestions ? (
+              <span lang="it">{content.messages["budget.empty"]}</span>
+            ) : lastAnswer ? (
+              <span lang="it">{lastAnswer}</span>
             ) : (
-              <p className="py-2 text-stone-600">Tap a face to ask them a question.</p>
-            )}
-          </Sheet>
-          <Notebook
-            state={game}
-            evidence={evidence}
-            open={notebookOpen}
-            onClose={() => setNotebookOpen(false)}
-            onMark={(role, cleared) => dispatch({ type: "MARK", role, cleared })}
-          />
-          <AccuseSheet
-            state={game}
-            open={accusing}
-            onClose={() => setAccusing(false)}
-            onAccuse={(role, room, slot) => dispatch({ type: "ACCUSE", role, room, slot })}
-          />
-        </>
-      )}
+              "Tap a face to ask them a question."
+            )
+          }
+        >
+          {inspector ? (
+            <InspectorSheet
+              question={inspector}
+              choice={answered?.choice}
+              lastAnswer={lastAnswer}
+              onAnswer={answerInspector}
+              onContinue={closeInspector}
+            />
+          ) : person && game.level === 2 ? (
+            <QuestionBuilder
+              key={person.role}
+              state={game}
+              person={person}
+              draft={draft}
+              onDraft={setDraft}
+              disabled={outOfQuestions}
+              onAsk={(built) => dispatch({ type: "ASK", built })}
+            />
+          ) : person ? (
+            <QuestionPicker
+              key={person.role}
+              state={game}
+              person={person}
+              disabled={outOfQuestions}
+              onAsk={(built) => dispatch({ type: "ASK", built })}
+            />
+          ) : (
+            <p className="py-2 text-stone-600">Tap a face to ask them a question.</p>
+          )}
+        </Sheet>
+        <Notebook
+          state={game}
+          evidence={evidence}
+          open={notebookOpen}
+          onClose={() => setNotebookOpen(false)}
+          onMark={(role, cleared) => dispatch({ type: "MARK", role, cleared })}
+        />
+        <AccuseSheet
+          state={game}
+          open={accusing}
+          onClose={() => setAccusing(false)}
+          onAccuse={(role, room, slot) => dispatch({ type: "ACCUSE", role, room, slot })}
+        />
+      </>
     </div>
   );
 }

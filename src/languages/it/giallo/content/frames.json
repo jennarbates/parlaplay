@@ -159,6 +159,7 @@
     },
     "vowelStart": true,
     "noun": {
+      "text": "lavoro",
       "gender": "m",
       "number": "sg"
     },
@@ -179,6 +180,7 @@
     },
     "vowelStart": false,
     "noun": {
+      "text": "scarpe",
       "gender": "f",
       "number": "pl"
     },
@@ -199,6 +201,7 @@
     },
     "vowelStart": false,
     "noun": {
+      "text": "persone",
       "gender": "f",
       "number": "pl"
     },
@@ -219,6 +222,7 @@
     },
     "vowelStart": true,
     "noun": {
+      "text": "anni",
       "gender": "m",
       "number": "pl"
     },
@@ -239,6 +243,7 @@
     },
     "vowelStart": false,
     "noun": {
+      "text": "tempo",
       "gender": "m",
       "number": "sg"
     },
@@ -259,6 +264,7 @@
     },
     "vowelStart": false,
     "noun": {
+      "text": "torta",
       "gender": "f",
       "number": "sg"
     },

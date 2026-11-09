@@ -196,6 +196,7 @@ Default answer: Non lo so.
 |---|---|
 | *Quanti persone* | *Persone* is feminine plural, so *quante*. |
 | *Quale scarpe* | *Scarpe* is plural, so *quali*. |
+| *Quali è il Suo lavoro?* | *Lavoro* is singular, so *qual*. |
 | *Qual'è* | *Qual è* never takes an apostrophe. |
 | *Dov' ha* | Use *dove* here: *dov'* only goes before a vowel. |
 | *Chi è questo ombrello?* | To ask whose, Italian says *di chi*. |

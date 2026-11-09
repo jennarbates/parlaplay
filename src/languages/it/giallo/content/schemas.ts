@@ -54,7 +54,9 @@ export const Frame = z.strictObject({
   evidence: z.string().optional(), // how the scene card names it: "un ombrello" (GS 9.1)
   body: z.strictObject({ m: z.string(), f: z.string() }), // by the gender of the person asked
   vowelStart: z.boolean(), // the body starts with a vowel, so an elided form may go before it
-  noun: z.strictObject({ gender, number: z.enum(["sg", "pl"]) }).optional(), // what quanto/quale agree with
+  // What quanto/quale agree with. text is the noun as the body has it, for the
+  // agreement feedback (GS 3.2): "*Persone* is feminine plural, so *quante*."
+  noun: z.strictObject({ text: z.string(), gender, number: z.enum(["sg", "pl"]) }).optional(),
   slotParam: z.boolean(), // the body takes one of the three time slots: {slot}
   // GS 6: the inspector names the person after this many words of the body
   // ("Dov'era Paolo…?"). Without it, the body is not about them: "Secondo Paolo, …".

@@ -1,14 +1,18 @@
 import { content } from "../../content/index.ts";
+import type { Messages } from "../../content/schemas.ts";
 import type { Feedback } from "../../engine/index.ts";
 import { renderMessage } from "../messages.ts";
 
-// Engine feedback rendered with messages.json, Italian in italics (spec 3.7).
+// Engine feedback rendered with messages.json, Italian in italics (spec 3.7). The
+// giallo passes its own messages (GS 3.2).
 export function FeedbackText({
   feedback,
   tone = "warn",
+  messages = content.messages,
 }: {
   feedback: Feedback | undefined;
   tone?: "warn" | "info";
+  messages?: Messages;
 }) {
   if (!feedback?.length) return null;
   return (
@@ -25,7 +29,7 @@ export function FeedbackText({
       <ul className="flex flex-col gap-1">
         {feedback.map((f, i) => (
           <li key={i}>
-            {renderMessage(content.messages, f.messageKey, f.params).map((s, j) =>
+            {renderMessage(messages, f.messageKey, f.params).map((s, j) =>
               s.italic ? (
                 <em key={j} lang="it" className="font-medium">
                   {s.text}
