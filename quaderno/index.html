@@ -5343,7 +5343,7 @@
                   type: "widget",
                   widget: "casa",
                   title: "Giochiamo a “Vedo, vedo”!",
-                  en: "I spy in the house. Read the clue and tap what I see: if you need another clue, or tap the wrong thing, you get fewer stars. Tapping anything tells you its name. In “Come si chiama?”, name what lights up, with its article. A game is eight rounds.",
+                  en: "I spy in the house. Read the clue and tap what I see: if you need another clue, or tap the wrong thing, you get fewer stars. Tapping anything tells you its name. “Difficile” gives the same clues, but you type what I see, with its article, instead of tapping. In “Come si chiama?”, name what lights up. A game is eight rounds.",
                 },
               ],
             },
@@ -7904,13 +7904,12 @@
             autocomplete: "off",
             autocapitalize: "off",
             spellcheck: "false",
-            "aria-label": "name, with its article",
           });
           const check = h("button", { class: "btn pri", type: "button" }, "Check");
           const skip = h("button", { class: "btn", type: "button" }, "Skip");
-          const spyRow = h("div", { class: "drill-row" }, more);
-          const nameRow = h("div", { class: "drill-row" }, inp, check, skip);
+          const row = h("div", { class: "drill-row" }, inp, check, more, skip);
 
+          // spy: tap what I see · hard: type what I see · name: type what's lit up
           let mode = "spy",
             deck,
             r,
@@ -7918,6 +7917,7 @@
             phase,
             score,
             stars;
+          const clueMode = () => mode !== "name";
           const cur = () => deck[r];
           const clear = () =>
             Object.values(G).forEach((g) => g.classList.remove("glow", "ok", "no", "show"));
@@ -7930,6 +7930,17 @@
           };
           const named = (t) => `<b>${esc(t[1])}</b> · ${esc(t[2])}`;
           const bare = (s) => norm(s).replace(/^(il|lo|la|i|gli|le) |^l'/, "");
+          // A typed answer: "ok", "accent" (a slip, or no article: both count),
+          // "article" (right word, wrong article) or "no".
+          const judge = (val, t) => {
+            const answers = [t[1], ...(t[5] || [])];
+            const g = grade(val, answers);
+            if (g !== "no") return { g, note: g === "accent" ? "Almost: watch the accent." : "" };
+            if (grade(bare(val), answers.map(bare)) === "no") return { g: "no", note: "" };
+            return bare(val) === norm(val)
+              ? { g: "accent", note: "Add the article:" }
+              : { g: "article", note: "Watch the article:" };
+          };
           const clue = (t, n) => {
             const [k, word, , where, near] = t;
             if (n === 2) return near;
@@ -7939,14 +7950,29 @@
             return `Vedo, vedo… qualcosa ${ROOMS[where][0]}.`;
           };
           const clues = () => [1, 2, 3].slice(0, level).map((n) => clue(cur(), n));
-          const upd = () => {
-            if (phase === "over") return;
-            stats.textContent =
-              mode === "spy"
+          const last = () => (r < NEED - 1 ? "Avanti" : "Risultato");
+          const paintRow = () => {
+            const over = phase === "over";
+            const asking = phase === "ask";
+            more.hidden = !(over || mode === "spy" || (mode === "hard" && asking));
+            // Beside Check, "another clue" is the secondary button.
+            more.classList.toggle("pri", over || mode === "spy");
+            inp.hidden = check.hidden = over || mode === "spy";
+            skip.hidden = over || mode !== "name" || !asking;
+            more.textContent = over
+              ? "Gioca ancora"
+              : !asking
+                ? last()
+                : level < 3
+                  ? "Un altro indizio"
+                  : "Mostrami";
+            check.textContent = asking ? "Check" : last();
+            if (!over)
+              stats.textContent = clueMode()
                 ? `Round ${r + 1} of ${NEED} · ★ ${stars}`
                 : `Round ${r + 1} of ${NEED} · ${score} right`;
           };
-          const paintSpy = () => {
+          const paintClues = () => {
             qbox.innerHTML = "";
             qbox.append(
               h(
@@ -7956,15 +7982,7 @@
               ),
               spk(() => clues().join(" ")),
             );
-            more.textContent =
-              phase === "done"
-                ? r < NEED - 1
-                  ? "Avanti"
-                  : "Risultato"
-                : level < 3
-                  ? "Un altro indizio"
-                  : "Mostrami";
-            upd();
+            paintRow();
           };
           const finish = () => {
             phase = "over";
@@ -7974,103 +7992,99 @@
               h(
                 "div",
                 { class: "big" },
-                `Hai ${mode === "spy" ? "trovato" : "indovinato"} ${score} di ${NEED}!`,
+                `Hai ${clueMode() ? "trovato" : "indovinato"} ${score} di ${NEED}!`,
               ),
               h(
                 "div",
                 { class: "sub" },
-                mode === "spy"
+                clueMode()
                   ? `★ ${stars} of ${NEED * 3} stars`
                   : "Tap anything in the house to hear its name.",
               ),
             );
             stats.textContent = "";
             fb.innerHTML = "";
-            more.textContent = "Gioca ancora";
-            spyRow.hidden = false;
-            nameRow.hidden = true;
+            paintRow();
             markDone(id, score, NEED);
           };
-          const startSpy = () => {
+          const startRound = (focus) => {
             level = 1;
             phase = "ask";
             clear();
             fb.innerHTML = "";
-            paintSpy();
-          };
-          const reveal = () => {
-            phase = "done";
-            G[cur()[0]].classList.add("show");
-            fb.innerHTML = `<span class="no">Era</span> ${named(cur())}.`;
-            say(cur()[1]);
-            paintSpy();
-          };
-          const startName = () => {
-            phase = "ask";
-            clear();
-            G[cur()[0]].classList.add("glow");
-            qbox.innerHTML = "";
-            qbox.append(
-              h("div", { class: "big" }, "Come si chiama?"),
-              h(
-                "div",
-                { class: "sub" },
-                "Name what’s lit up, with its article: il, lo, la, l’, i, le.",
-              ),
-            );
             inp.value = "";
             inp.className = "blank";
-            fb.innerHTML = "";
-            check.textContent = "Check";
-            upd();
+            if (clueMode()) paintClues();
+            else {
+              G[cur()[0]].classList.add("glow");
+              qbox.innerHTML = "";
+              qbox.append(
+                h("div", { class: "big" }, "Come si chiama?"),
+                h(
+                  "div",
+                  { class: "sub" },
+                  "Name what’s lit up, with its article: il, lo, la, l’, i, le.",
+                ),
+              );
+              paintRow();
+            }
+            if (focus && mode !== "spy") inp.focus({ preventScroll: true });
           };
-          const newGame = () => {
+          const reveal = (before = "") => {
+            phase = "done";
+            G[cur()[0]].classList.add("show");
+            fb.innerHTML = `${before}<span class="no">Era</span> ${named(cur())}.`;
+            say(cur()[1]);
+            paintClues();
+          };
+          const newGame = (focus) => {
             deck = shuffle(THINGS).slice(0, NEED);
             r = 0;
             score = 0;
             stars = 0;
-            spyRow.hidden = mode !== "spy";
-            nameRow.hidden = mode !== "name";
-            pic.classList.toggle("naming", mode === "name");
-            if (mode === "spy") startSpy();
-            else startName();
+            inp.setAttribute(
+              "aria-label",
+              mode === "name" ? "name, with its article" : "what I see, with its article",
+            );
+            pic.classList.toggle("naming", mode !== "spy");
+            startRound(focus);
           };
           const nextRound = () => {
             if (r >= NEED - 1) return finish();
             r++;
-            if (mode === "spy") startSpy();
-            else startName();
+            startRound(true);
+          };
+          const found = (k, won, msg) => {
+            stars += won;
+            score++;
+            phase = "done";
+            G[k].classList.add("ok");
+            fb.innerHTML = `${msg} ${named(BY[k])} ${"★".repeat(won)}`;
+            say(BY[k][1]);
+            paintClues();
+          };
+          // A wrong guess in either I-spy mode costs a clue; after the third, I show it.
+          const missed = (msg) => {
+            if (level < 3) {
+              level++;
+              fb.innerHTML = `${msg} Here’s another clue.`;
+              paintClues();
+            } else reveal(`${msg} `);
           };
 
           function tap(k) {
             const t = BY[k];
-            if (mode === "name" && phase === "ask") return;
+            // While you're typing, tapping would give the answer away.
+            if (mode !== "spy" && phase === "ask") return;
             if (mode !== "spy" || phase !== "ask") {
               fb.innerHTML = named(t);
               say(t[1]);
               return;
             }
-            if (k === cur()[0]) {
-              const won = 4 - level;
-              stars += won;
-              score++;
-              phase = "done";
-              G[k].classList.add("ok");
-              fb.innerHTML = `<span class="ok">Sì!</span> ${named(t)} ${"★".repeat(won)}`;
-              say(t[1]);
-              paintSpy();
-              return;
-            }
+            if (k === cur()[0]) return found(k, 4 - level, '<span class="ok">Sì!</span>');
             flash(k);
-            if (level < 3) {
-              say(t[1]);
-              level++;
-              fb.innerHTML = `<span class="no">No,</span> è ${named(t)}. Here’s another clue.`;
-              paintSpy();
-            } else {
-              reveal();
-              fb.innerHTML = `<span class="no">No,</span> è ${named(t)}. I saw ${named(cur())}.`;
-            }
+            if (level < 3) say(t[1]);
+            missed(`<span class="no">No,</span> è ${named(t)}.`);
           }
           Object.entries(G).forEach(([k, g]) => {
             g.addEventListener("click", () => tap(k));
@@ -8083,64 +8097,81 @@
           });
 
           more.onclick = () => {
-            if (phase === "over") return newGame();
-            if (phase === "done") return nextRound();
+            if (phase === "over") return newGame(true);
+            if (phase !== "ask") return nextRound();
             if (level < 3) {
               level++;
               fb.innerHTML = "";
-              paintSpy();
+              paintClues();
               say(clue(cur(), level));
             } else reveal();
           };
-          const grading = () => {
-            if (phase === "shown") return nextRound();
-            if (!inp.value.trim()) return;
+          const guess = () => {
             const t = cur();
-            const answers = [t[1], ...(t[5] || [])];
             const val = inp.value;
-            let g = grade(val, answers);
-            let note = "";
-            if (g === "no" && grade(bare(val), answers.map(bare)) !== "no") {
-              // Right word: no article counts with a nudge, a wrong one doesn't.
-              if (bare(val) === norm(val)) {
-                g = "accent";
-                note = "Add the article:";
-              } else note = "Watch the article:";
+            const { g, note } = judge(val, t);
+            if (g === "ok" || g === "accent")
+              return found(
+                t[0],
+                4 - level,
+                g === "ok" ? '<span class="ok">Esatto!</span>' : `<span class="acc">${note}</span>`,
+              );
+            // The right word with the wrong article still finds it, for a star less.
+            if (g === "article")
+              return found(t[0], Math.max(1, 3 - level), `<span class="acc">${note}</span>`);
+            inp.value = "";
+            const other = THINGS.find((x) => judge(val, x).g !== "no");
+            if (other) {
+              flash(other[0]);
+              say(other[1]);
             }
+            missed(
+              other
+                ? `<span class="no">No,</span> non è ${named(other)}.`
+                : `<span class="no">No,</span> non è “${esc(val.trim())}”.`,
+            );
+          };
+          const name = () => {
+            const t = cur();
+            const { g, note } = judge(inp.value, t);
             const right = g === "ok" || g === "accent";
             if (right) score++;
             inp.classList.add(g === "ok" ? "ok" : right ? "accent" : "no");
             G[t[0]].classList.replace("glow", right ? "ok" : "show");
-            fb.innerHTML = right
-              ? g === "ok"
+            fb.innerHTML =
+              g === "ok"
                 ? `<span class="ok">Esatto!</span> ${named(t)}`
-                : `<span class="acc">${note || "Almost: watch the accent."}</span> ${named(t)}`
-              : `<span class="no">${note || "Not quite."}</span> ${named(t)}`;
+                : `<span class="${right ? "acc" : "no"}">${note || "Not quite."}</span> ${named(t)}`;
             say(t[1]);
             phase = "shown";
-            check.textContent = r < NEED - 1 ? "Next" : "Risultato";
-            upd();
+            paintRow();
           };
-          check.onclick = grading;
+          const submit = () => {
+            if (phase !== "ask") return nextRound();
+            if (!inp.value.trim()) return;
+            if (mode === "hard") guess();
+            else name();
+          };
+          check.onclick = submit;
           skip.onclick = () => {
-            if (phase === "shown") return nextRound();
             inp.value = "";
             phase = "shown";
             G[cur()[0]].classList.replace("glow", "show");
-            fb.innerHTML = `${named(cur())}`;
+            fb.innerHTML = named(cur());
             say(cur()[1]);
-            check.textContent = r < NEED - 1 ? "Next" : "Risultato";
+            paintRow();
           };
           inp.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              grading();
+              submit();
             }
           });
 
           const seg = h("div", { class: "seg", role: "group", "aria-label": "Game" });
           [
             ["spy", "Vedo, vedo…"],
+            ["hard", "Difficile"],
             ["name", "Come si chiama?"],
           ].forEach(([key, label]) =>
             seg.append(
@@ -8156,7 +8187,7 @@
                       .forEach((b) =>
                         b.setAttribute("aria-pressed", String(b === e.currentTarget)),
                       );
-                    newGame();
+                    newGame(true);
                   },
                 },
                 label,
@@ -8170,13 +8201,12 @@
               h("div", { class: "drill-row" }, seg),
               qbox,
               pic,
-              spyRow,
-              nameRow,
+              row,
               fb,
               stats,
             ),
           );
-          newGame();
+          newGame(false);
         },
         intruso(box, id) {
           // Odd one out, for the 5.2 vocabulary. Each set: three [Italian, English] words,

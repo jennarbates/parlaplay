@@ -76,6 +76,30 @@ test("the house game names what you tap, and lights one thing up to name", async
   await expect(game.getByRole("textbox", { name: "name, with its article" })).toBeVisible();
 });
 
+test("the hard house game takes typed guesses, and tapping doesn't give it away", async ({
+  page,
+}) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.3-6"]');
+  await game.getByRole("button", { name: "Difficile" }).click();
+  const clues = game.locator(".casa-c p");
+  await expect(clues).toHaveCount(1);
+  await game.getByRole("button", { name: "l’armadio" }).click();
+  await expect(game.locator(".feedback")).toBeEmpty();
+  // Nothing in the house is a garage, so this is always wrong.
+  const guess = game.getByRole("textbox", { name: "what I see, with its article" });
+  await guess.fill("il garage");
+  await guess.press("Enter");
+  await expect(game.locator(".feedback")).toContainText("non è “il garage”");
+  await expect(clues).toHaveCount(2);
+  await game.getByRole("button", { name: "Un altro indizio" }).click();
+  await expect(clues).toHaveCount(3);
+  await guess.fill("il garage");
+  await guess.press("Enter");
+  await expect(game.locator(".feedback")).toContainText("Era");
+  await expect(game.getByRole("button", { name: "Avanti" })).toBeVisible();
+});
+
 test("find the intruder marks the odd one out and explains why", async ({ page }) => {
   await page.goto("/quaderno/#c5");
   const game = page.locator('.ex[data-id="5.2-4"]');
