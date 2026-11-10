@@ -113,6 +113,52 @@ test("find the intruder marks the odd one out and explains why", async ({ page }
   await expect(game.locator(".stats")).toContainText("Round 2 of 8");
 });
 
+test("the chapter 2 intruder game uses the chapter's own words", async ({ page }) => {
+  await page.goto("/quaderno/#c2");
+  const game = page.locator('.ex[data-id="2.7-6"]');
+  await expect(game.locator(".ex-t")).toContainText("Trova l’intruso!");
+  await expect(game.locator(".intr-w")).toHaveCount(3);
+  await game.locator(".intr-w").first().click();
+  await expect(game.locator(".feedback")).toContainText("l’intruso è");
+});
+
+test("the reflexive dice game wants the pronoun with the verb", async ({ page }) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.4-6"]');
+  await expect(game.locator(".ex-t")).toContainText("Giochiamo con i dadi!");
+  const prompt = (await game.locator(".drill-p .big").textContent()) ?? "";
+  const [subject, verb] = prompt.split(" + ") as [string, string];
+  const person = ["io", "tu", "lui/lei/Lei", "noi", "voi", "loro"].indexOf(subject);
+  const expected = await page.evaluate(
+    ([v, p]) => (window as unknown as { present: (v: string) => string[] }).present(v)[p],
+    [verb, person] as const,
+  );
+  expect(expected).toMatch(/^(mi|ti|si|ci|vi) /);
+  await game.getByRole("textbox").fill(expected ?? "");
+  await game.getByRole("button", { name: "Check" }).click();
+  await expect(game.locator(".feedback")).toContainText("Esatto!");
+});
+
+test("memory pairs an Italian word with its meaning and turns a wrong pair back", async ({
+  page,
+}) => {
+  await page.goto("/quaderno/#c4");
+  const game = page.locator(".ex", { has: page.locator(".mem") });
+  const cards = game.locator(".mem-c");
+  await expect(cards).toHaveCount(12);
+  await game.locator('.mem-c.it[data-pair="0"]').click();
+  await game.locator('.mem-c.en[data-pair="0"]').click();
+  await expect(game.locator(".mem-c.ok")).toHaveCount(2);
+  await expect(game.locator(".feedback")).toContainText("Sì!");
+  await game.locator('.mem-c.it[data-pair="1"]').click();
+  await game.locator('.mem-c.en[data-pair="2"]').click();
+  await expect(game.locator(".mem-c.no")).toHaveCount(2);
+  await expect(game.locator(".mem-c.up")).toHaveCount(2);
+  await expect(game.locator(".stats")).toContainText("1 of 6 pairs · 2 moves");
+  await game.getByRole("combobox", { name: "memory group" }).selectOption({ index: 2 });
+  await expect(game.locator(".stats")).toContainText("6 of 13 words dealt");
+});
+
 test.describe("signed in", () => {
   test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
   test.skip(({ viewport }) => (viewport?.width ?? 0) >= 1024, "phone profiles only");
