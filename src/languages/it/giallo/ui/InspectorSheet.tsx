@@ -75,6 +75,8 @@ export function InspectorSheet({
           <button
             type="button"
             onClick={() => setHintShown(true)}
+            data-hint
+            aria-keyshortcuts="h"
             className="inline-flex min-h-11 items-center self-start text-sm text-blue-700 underline"
           >
             Show hint

@@ -32,7 +32,7 @@ export function QuestionPicker({
   };
 
   return (
-    <div className="flex flex-col gap-3 py-2">
+    <div data-questions className="flex flex-col gap-3 py-2">
       <h2 ref={heading} className="font-semibold">
         Ask {person.character.name}
       </h2>
@@ -50,6 +50,7 @@ export function QuestionPicker({
                     type="button"
                     disabled={disabled || !!q.asked}
                     onClick={() => onAsk(q.built)}
+                    data-question
                     className="flex min-h-12 w-full flex-col items-start rounded-lg px-3 py-1.5 text-left enabled:hover:bg-stone-200 enabled:active:bg-stone-200 disabled:text-stone-400"
                   >
                     <span lang="it" className="font-medium">

@@ -11,6 +11,7 @@ const desktop = { width: 1440, height: 900 };
 // projects skip them; desktop.spec.ts covers the same ground at desktop size.
 const phoneOnly = [
   "board.spec.ts",
+  "giallo.spec.ts", // Chi è stato?'s phone screens; e2e/giallo/desktop.spec.ts has lg
   "level1.spec.ts",
   "level2.spec.ts",
   "progress.spec.ts",

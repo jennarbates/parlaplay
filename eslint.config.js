@@ -96,6 +96,7 @@ export default tseslint.config(
   {
     files: [
       "src/languages/*/ui/game/shortcuts.ts",
+      "src/languages/it/giallo/ui/shortcuts.ts", // Chi è stato? GS 9.2
       "src/core/ui/shortcutGuard.ts",
       // Shéi's desktop logic (zh-desktop.md ZS 4)
       "src/languages/zh/ui/game/roundLog.ts",
