@@ -65,6 +65,100 @@ test("progress saved before scores had timestamps is kept", async ({ page }) => 
   await expect(firstExercise(page).locator(".best")).toHaveText("Best: 3 of 5");
 });
 
+test("the house game names what you tap, and lights one thing up to name", async ({ page }) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.3-6"]');
+  await expect(game.locator(".casa-q")).toContainText("Vedo, vedo…");
+  await game.getByRole("button", { name: "l’armadio" }).click();
+  await expect(game.locator(".feedback")).toContainText("l’armadio · wardrobe");
+  await game.getByRole("button", { name: "Come si chiama?" }).click();
+  await expect(game.locator(".t.glow")).toHaveCount(1);
+  await expect(game.getByRole("textbox", { name: "name, with its article" })).toBeVisible();
+});
+
+test("the hard house game takes typed guesses, and tapping doesn't give it away", async ({
+  page,
+}) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.3-6"]');
+  await game.getByRole("button", { name: "Difficile" }).click();
+  const clues = game.locator(".casa-c p");
+  await expect(clues).toHaveCount(1);
+  await game.getByRole("button", { name: "l’armadio" }).click();
+  await expect(game.locator(".feedback")).toBeEmpty();
+  // Nothing in the house is a garage, so this is always wrong.
+  const guess = game.getByRole("textbox", { name: "what I see, with its article" });
+  await guess.fill("il garage");
+  await guess.press("Enter");
+  await expect(game.locator(".feedback")).toContainText("non è “il garage”");
+  await expect(clues).toHaveCount(2);
+  await game.getByRole("button", { name: "Un altro indizio" }).click();
+  await expect(clues).toHaveCount(3);
+  await guess.fill("il garage");
+  await guess.press("Enter");
+  await expect(game.locator(".feedback")).toContainText("Era");
+  await expect(game.getByRole("button", { name: "Avanti" })).toBeVisible();
+});
+
+test("find the intruder marks the odd one out and explains why", async ({ page }) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.2-4"]');
+  await expect(game.locator(".casa-q")).toContainText("Chi è l’intruso?");
+  await expect(game.locator(".intr-w")).toHaveCount(3);
+  await game.locator(".intr-w").first().click();
+  await expect(game.locator(".intr-w.ok")).toHaveCount(1);
+  await expect(game.locator(".feedback")).toContainText("l’intruso è");
+  await expect(game.locator(".intr-w .en").first()).toBeVisible();
+  await game.getByRole("button", { name: "Avanti" }).click();
+  await expect(game.locator(".stats")).toContainText("Round 2 of 8");
+});
+
+test("the chapter 2 intruder game uses the chapter's own words", async ({ page }) => {
+  await page.goto("/quaderno/#c2");
+  const game = page.locator('.ex[data-id="2.7-6"]');
+  await expect(game.locator(".ex-t")).toContainText("Trova l’intruso!");
+  await expect(game.locator(".intr-w")).toHaveCount(3);
+  await game.locator(".intr-w").first().click();
+  await expect(game.locator(".feedback")).toContainText("l’intruso è");
+});
+
+test("the reflexive dice game wants the pronoun with the verb", async ({ page }) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.4-6"]');
+  await expect(game.locator(".ex-t")).toContainText("Giochiamo con i dadi!");
+  const prompt = (await game.locator(".drill-p .big").textContent()) ?? "";
+  const [subject, verb] = prompt.split(" + ") as [string, string];
+  const person = ["io", "tu", "lui/lei/Lei", "noi", "voi", "loro"].indexOf(subject);
+  const expected = await page.evaluate(
+    ([v, p]) => (window as unknown as { present: (v: string) => string[] }).present(v)[p],
+    [verb, person] as const,
+  );
+  expect(expected).toMatch(/^(mi|ti|si|ci|vi) /);
+  await game.getByRole("textbox").fill(expected ?? "");
+  await game.getByRole("button", { name: "Check" }).click();
+  await expect(game.locator(".feedback")).toContainText("Esatto!");
+});
+
+test("memory pairs an Italian word with its meaning and turns a wrong pair back", async ({
+  page,
+}) => {
+  await page.goto("/quaderno/#c4");
+  const game = page.locator(".ex", { has: page.locator(".mem") });
+  const cards = game.locator(".mem-c");
+  await expect(cards).toHaveCount(12);
+  await game.locator('.mem-c.it[data-pair="0"]').click();
+  await game.locator('.mem-c.en[data-pair="0"]').click();
+  await expect(game.locator(".mem-c.ok")).toHaveCount(2);
+  await expect(game.locator(".feedback")).toContainText("Sì!");
+  await game.locator('.mem-c.it[data-pair="1"]').click();
+  await game.locator('.mem-c.en[data-pair="2"]').click();
+  await expect(game.locator(".mem-c.no")).toHaveCount(2);
+  await expect(game.locator(".mem-c.up")).toHaveCount(2);
+  await expect(game.locator(".stats")).toContainText("1 of 6 pairs · 2 moves");
+  await game.getByRole("combobox", { name: "memory group" }).selectOption({ index: 2 });
+  await expect(game.locator(".stats")).toContainText("6 of 13 words dealt");
+});
+
 test.describe("signed in", () => {
   test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
   test.skip(({ viewport }) => (viewport?.width ?? 0) >= 1024, "phone profiles only");

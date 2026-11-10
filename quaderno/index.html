@@ -1263,6 +1263,323 @@
         color: var(--red);
         background: var(--red-soft);
       }
+      /* Vedo, vedo: the house picture (5.3). Its colours are tokens so it follows the theme. */
+      .casa {
+        --h-line: #3b3a46;
+        --h-sky: #e8f1fb;
+        --h-w1: #f8e9dc;
+        --h-w2: #e2eff6;
+        --h-w3: #f6eed6;
+        --h-w4: #eee6f3;
+        --h-w5: #e7f1e2;
+        --h-w6: #ddd6cc;
+        --h-tile: #cfe4ef;
+        --h-roof: #c75b3f;
+        --h-slab: #b9aea0;
+        --h-soil: #a98b6b;
+        --h-grass: #7db35f;
+        --h-leaf: #5f9e4f;
+        --h-flower: #e46b7b;
+        --h-pot: #c0714c;
+        --h-wood: #c98f5b;
+        --h-wd: #8c5a36;
+        --h-app: #ffffff;
+        --h-metal: #b9c2cf;
+        --h-counter: #9aa3ae;
+        --h-glass: #cde8f6;
+        --h-water: #8fc7ec;
+        --h-bub: #ffffff;
+        --h-ink: #3b3a46;
+        --h-screen: #8fb3ea;
+        --h-sheet: #ffffff;
+        --h-blanket: #e07a6a;
+        --h-shade: #f2c45a;
+        --h-fab1: #5b78c7;
+        --h-fab2: #d9953b;
+        --h-b1: #d0574d;
+        --h-b2: #4f87c4;
+        --h-b3: #e2b53f;
+        --h-bulb: #ffd76a;
+        --h-on: #4fbf6a;
+        background: var(--h-sky);
+        border: 1px solid var(--rule);
+        border-radius: var(--r);
+        padding: 6px;
+        max-width: 560px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) .casa {
+          --h-line: #0d0f15;
+          --h-sky: #182131;
+          --h-w1: #4a3d33;
+          --h-w2: #2f4250;
+          --h-w3: #4a432d;
+          --h-w4: #41374a;
+          --h-w5: #33463a;
+          --h-w6: #3a3530;
+          --h-tile: #3a5464;
+          --h-slab: #6d655d;
+          --h-soil: #4a3b2d;
+          --h-app: #e3e7ee;
+          --h-sheet: #e3e7ee;
+          --h-bub: #e3e7ee;
+          --h-glass: #8fb6cc;
+        }
+      }
+      :root[data-theme="dark"] .casa {
+        --h-line: #0d0f15;
+        --h-sky: #182131;
+        --h-w1: #4a3d33;
+        --h-w2: #2f4250;
+        --h-w3: #4a432d;
+        --h-w4: #41374a;
+        --h-w5: #33463a;
+        --h-w6: #3a3530;
+        --h-tile: #3a5464;
+        --h-slab: #6d655d;
+        --h-soil: #4a3b2d;
+        --h-app: #e3e7ee;
+        --h-sheet: #e3e7ee;
+        --h-bub: #e3e7ee;
+        --h-glass: #8fb6cc;
+      }
+      .casa svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        touch-action: manipulation;
+      }
+      .casa svg :is(rect, circle, path) {
+        stroke: var(--h-line);
+        stroke-width: 1.3;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      .casa .ln {
+        fill: none;
+      }
+      .casa .frame {
+        pointer-events: none;
+      }
+      .casa .frame .ln {
+        stroke-width: 3;
+      }
+      .casa .t {
+        cursor: pointer;
+        outline: none;
+      }
+      .casa.naming .t {
+        cursor: default;
+      }
+      .casa svg .hit {
+        fill: transparent;
+        stroke: none;
+      }
+      @media (hover: hover) {
+        .casa:not(.naming) .t:hover .hit {
+          stroke: var(--pen);
+          stroke-width: 1.5;
+          stroke-dasharray: 3 3;
+        }
+      }
+      .casa svg .t:focus-visible .hit {
+        stroke: var(--pen);
+        stroke-width: 2.5;
+        stroke-dasharray: 4 3;
+      }
+      .casa svg .t.glow .hit,
+      .casa svg .t.show .hit {
+        fill: var(--pen-soft);
+        stroke: var(--pen);
+        stroke-width: 3;
+        stroke-dasharray: none;
+      }
+      .casa svg .t.glow .hit {
+        animation: casa-pulse 1.2s ease-in-out infinite;
+      }
+      .casa svg .t.ok .hit {
+        fill: var(--ok-soft);
+        stroke: var(--ok);
+        stroke-width: 3;
+        stroke-dasharray: none;
+      }
+      .casa svg .t.no .hit {
+        fill: var(--red-soft);
+        stroke: var(--red);
+        stroke-width: 2.5;
+        stroke-dasharray: none;
+      }
+      @keyframes casa-pulse {
+        50% {
+          stroke-opacity: 0.35;
+        }
+      }
+      .casa-q {
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .casa-c p {
+        margin: 0 0 4px;
+        color: var(--muted);
+      }
+      .casa-c p.now {
+        font-family: var(--display);
+        font-size: clamp(1.15rem, 3.4vw, 1.45rem);
+        font-weight: 600;
+        line-height: 1.25;
+        color: var(--ink);
+      }
+      /* Trova l’intruso (5.2): three word cards, tap the one that doesn't belong. */
+      .intr {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      @media (max-width: 420px) {
+        .intr {
+          grid-template-columns: 1fr;
+        }
+        .intr .intr-w {
+          min-height: 0;
+          padding: 10px 8px;
+        }
+      }
+      .intr-w {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 2px;
+        min-height: 92px;
+        padding: 12px 8px;
+        border: 1.5px solid var(--rule);
+        border-radius: var(--r);
+        background: var(--paper);
+        color: var(--ink);
+        cursor: pointer;
+        text-align: center;
+        transition:
+          border-color 0.15s,
+          transform 0.15s;
+      }
+      .intr-w .it {
+        font-family: var(--display);
+        font-size: clamp(1.15rem, 3.4vw, 1.4rem);
+        font-weight: 600;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+      .intr-w .en {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .intr-w .en[hidden] {
+        display: none;
+      }
+      @media (hover: hover) {
+        .intr-w:hover:not(:disabled) {
+          border-color: var(--pen);
+          transform: translateY(-2px);
+        }
+      }
+      .intr-w:focus-visible {
+        outline: 2.5px dashed var(--pen);
+        outline-offset: 2px;
+      }
+      .intr-w:disabled {
+        cursor: default;
+      }
+      .intr.done .intr-w:not(.ok, .no) {
+        opacity: 0.6;
+      }
+      .intr-w.ok {
+        border-color: var(--ok);
+        background: var(--ok-soft);
+      }
+      .intr-w.ok .it {
+        color: var(--ok);
+      }
+      .intr-w.no {
+        border-color: var(--red);
+        background: var(--red-soft);
+      }
+      .intr-w.no .it {
+        color: var(--red);
+        text-decoration: line-through;
+      }
+      .intr-why {
+        display: block;
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 2px;
+      }
+      /* Memory (vocabulary panel): six Italian cards, six English cards, find the pairs. */
+      .mem {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+      @media (max-width: 520px) {
+        .mem {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      .mem-c {
+        display: grid;
+        place-items: center;
+        min-height: 76px;
+        padding: 8px 6px;
+        border: 1.5px solid var(--rule);
+        border-radius: var(--r);
+        background: repeating-linear-gradient(
+          45deg,
+          var(--paper),
+          var(--paper) 6px,
+          var(--rule) 6px,
+          var(--rule) 7px
+        );
+        color: var(--ink);
+        cursor: pointer;
+        text-align: center;
+        font-size: 0.95rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+        transition:
+          border-color 0.15s,
+          transform 0.15s;
+      }
+      .mem-c.up {
+        background: var(--paper);
+        cursor: default;
+      }
+      .mem-c.up.it {
+        font-family: var(--display);
+        font-weight: 600;
+      }
+      .mem-c.up.en {
+        color: var(--muted);
+        font-style: italic;
+      }
+      @media (hover: hover) {
+        .mem-c:hover:not(.up) {
+          border-color: var(--pen);
+          transform: translateY(-2px);
+        }
+      }
+      .mem-c:focus-visible {
+        outline: 2.5px dashed var(--pen);
+        outline-offset: 2px;
+      }
+      .mem-c.ok {
+        border-color: var(--ok);
+        background: var(--ok-soft);
+      }
+      .mem-c.ok.it {
+        color: var(--ok);
+      }
+      .mem-c.no {
+        border-color: var(--red);
+        background: var(--red-soft);
+      }
       .tris-q {
         background: var(--paper);
         border: 1px solid var(--rule);
@@ -1660,6 +1977,30 @@
         });
       }
       const PRON = ["io", "tu", "lui/lei/Lei", "noi", "voi", "loro"];
+      // The 4.5–4.6 irregular and modal verbs, which conj() can't build.
+      const IRREG = {
+        andare: ["vado", "vai", "va", "andiamo", "andate", "vanno"],
+        bere: ["bevo", "bevi", "beve", "beviamo", "bevete", "bevono"],
+        dare: ["do", "dai", "dà", "diamo", "date", "danno"],
+        dire: ["dico", "dici", "dice", "diciamo", "dite", "dicono"],
+        fare: ["faccio", "fai", "fa", "facciamo", "fate", "fanno"],
+        sapere: ["so", "sai", "sa", "sappiamo", "sapete", "sanno"],
+        stare: ["sto", "stai", "sta", "stiamo", "state", "stanno"],
+        uscire: ["esco", "esci", "esce", "usciamo", "uscite", "escono"],
+        venire: ["vengo", "vieni", "viene", "veniamo", "venite", "vengono"],
+        dovere: ["devo", "devi", "deve", "dobbiamo", "dovete", "devono"],
+        potere: ["posso", "puoi", "può", "possiamo", "potete", "possono"],
+        volere: ["voglio", "vuoi", "vuole", "vogliamo", "volete", "vogliono"],
+      };
+      const RIFL = ["mi", "ti", "si", "ci", "vi", "si"];
+      // The present tense of any verb in the lists: regular, irregular, or reflexive
+      // with its pronoun ("alzarsi" → "mi alzo", "farsi la barba" → "mi faccio la barba").
+      function present(inf) {
+        const [v, ...rest] = inf.split(" ");
+        if (v.endsWith("rsi"))
+          return present(v.slice(0, -2) + "e").map((f, i) => [RIFL[i], f, ...rest].join(" "));
+        return IRREG[v] || conj(v);
+      }
       const LETTERS = {
         a: "a",
         b: "bi",
@@ -2368,6 +2709,13 @@
                     { q: "Ti ___ la mozzarella?", a: "piace" },
                     { q: "Ti ___ le lasagne?", a: "piacciono" },
                   ],
+                },
+                {
+                  type: "widget",
+                  widget: "intruso",
+                  sets: "aula",
+                  title: "Trova l’intruso!",
+                  en: "Find the intruder among the classroom words, greetings and useful phrases. Two of the three go together: tap the one that doesn’t belong, then read why. Stuck? “Inglese” shows what they mean. A game is eight rounds.",
                 },
               ],
             },
@@ -3110,6 +3458,13 @@
                   ],
                   model:
                     "l’estate – il mare, caldo, il gelato, luglio, felice\nl’autunno – giallo, arancione, ottobre, Halloween, la scuola\nl’inverno – freddo, bianco, Natale, gennaio, la neve\nla primavera – verde, i fiori, aprile, rosa, il sole",
+                },
+                {
+                  type: "widget",
+                  widget: "intruso",
+                  sets: "c2",
+                  title: "Trova l’intruso!",
+                  en: "Find the intruder among the chapter’s adjectives, colours, nationalities, days, months and seasons. Tap the word that doesn’t belong, then read why. Stuck? “Inglese” shows what they mean. A game is eight rounds.",
                 },
               ],
             },
@@ -4132,6 +4487,13 @@
                   model:
                     "Sono la figlia di Sandy e Steve; sono la sorella di Steve Jr.; sono la mamma di Ben; sono la cugina di molte persone; sono la zia di Stevie ed Ella; sono la nipote di Gail e Vin. Ho sei ruoli nella famiglia!",
                 },
+                {
+                  type: "widget",
+                  widget: "intruso",
+                  sets: "famiglia",
+                  title: "Trova l’intruso in famiglia!",
+                  en: "Find the intruder in the family. Two of the three go together: tap the one that doesn’t belong, then read why. Stuck? “Inglese” shows what they mean. A game is eight rounds.",
+                },
               ],
             },
             {
@@ -4664,6 +5026,13 @@
                   model:
                     "Gli studenti devono andare a lezione e studiare. Vogliono dormire fino a tardi e mangiare la pizza. Non possono avere animali domestici nei dormitori.",
                 },
+                {
+                  type: "widget",
+                  widget: "dice",
+                  verbs: "irregolari",
+                  title: "Giochiamo con i dadi!",
+                  en: "Dice game with the irregular and modal verbs. The die picks the subject (1 io, 2 tu, 3 lui/lei, 4 noi, 5 voi, 6 loro). Conjugate the verb for that subject. Five right answers completes it.",
+                },
               ],
             },
             {
@@ -4958,6 +5327,12 @@
                   model:
                     "La casa dei miei sogni è in Sicilia, vicino al mare. È una casa singola con due piani. Ci sono quattro camere da letto e tre bagni. In cucina c’è un forno per la pizza, e c’è un grande balcone con vista sul mare.",
                 },
+                {
+                  type: "widget",
+                  widget: "intruso",
+                  title: "Trova l’intruso!",
+                  en: "Find the intruder. Two of the three words go together: tap the one that doesn’t belong, then read why. Stuck? “Inglese” shows what they mean. A game is eight rounds.",
+                },
               ],
             },
             {
@@ -5083,6 +5458,12 @@
                   prompts: ["Nella mia camera da letto…"],
                   model:
                     "Nella mia camera da letto c’è un letto nell’angolo a destra. Accanto al letto c’è un comodino con una lampada. La scrivania è davanti alla finestra. L’armadio è dietro la porta, e sotto il letto ci sono le mie scarpe.",
+                },
+                {
+                  type: "widget",
+                  widget: "casa",
+                  title: "Giochiamo a “Vedo, vedo”!",
+                  en: "I spy in the house. Read the clue and tap what I see: if you need another clue, or tap the wrong thing, you get fewer stars. Tapping anything tells you its name. “Difficile” gives the same clues, but you type what I see, with its article, instead of tapping. In “Come si chiama?”, name what lights up. A game is eight rounds.",
                 },
               ],
             },
@@ -5266,6 +5647,13 @@
                   prompts: ["Mi sveglio alle…"],
                   model:
                     "Mi sveglio alle sette e mezza, ma mi alzo alle otto. Mi faccio la doccia e mi vesto. Mi metto i jeans e una felpa. Mi lavo i denti dopo colazione. La sera mi rilasso sul divano e mi addormento verso mezzanotte.",
+                },
+                {
+                  type: "widget",
+                  widget: "dice",
+                  verbs: "riflessivi",
+                  title: "Giochiamo con i dadi!",
+                  en: "Dice game with the reflexive verbs. The die picks the subject (1 io, 2 tu, 3 lui/lei, 4 noi, 5 voi, 6 loro). Conjugate the verb for that subject, with its pronoun: alzarsi, io → mi alzo. Five right answers completes it.",
                 },
               ],
             },
@@ -6771,11 +7159,21 @@
             },
           });
         },
-        dice(box, id) {
-          const verbs = CHAPTERS[2].vocab[0].items.map(([v, en]) => [
-            v.replace(/ \(-isc\)/, ""),
-            en,
-          ]);
+        dice(box, id, ex) {
+          // ex.verbs picks the list: the 3.2 regular verbs by default, the 4.5–4.6
+          // irregular and modal verbs, or the 5.4 reflexive verbs.
+          const group = (c, g) => CHAPTERS.find((x) => x.id === c).vocab.find((x) => x.g === g);
+          const VERBS = {
+            regolari: () =>
+              group("c3", "Attività e passatempi").items.map(([v, en]) => [
+                v.replace(/ \(-isc\)/, ""),
+                en,
+              ]),
+            irregolari: () =>
+              group("c4", "Verbi irregolari e modali").items.filter(([v]) => IRREG[v]),
+            riflessivi: () => group("c5", "Verbi riflessivi").items,
+          };
+          const verbs = VERBS[ex.verbs || "regolari"]();
           drill(box, id, {
             gen: () => {
               const s = rand(1, 6);
@@ -6790,7 +7188,7 @@
                     h("div", { class: "sub" }, en),
                   ),
                 ],
-                answers: [conj(v)[s - 1]],
+                answers: [present(v)[s - 1]],
               };
             },
           });
@@ -6833,6 +7231,32 @@
             ["le", "matite"],
             ["lo", "sport"],
             ["l’", "aranciata"],
+            // The rest of the chapter's classroom words.
+            ["gli", "appunti"],
+            ["l’", "astuccio"],
+            ["il", "banco"],
+            ["la", "borsa"],
+            ["il", "cancellino"],
+            ["il", "cestino"],
+            ["il", "colore"],
+            ["il", "computer"],
+            ["l’", "evidenziatore"],
+            ["il", "gesso"],
+            ["la", "gomma"],
+            ["la", "lavagna"],
+            ["la", "lavagna bianca"],
+            ["la", "luce"],
+            ["la", "porta"],
+            ["il", "portatile"],
+            ["il", "professore"],
+            ["la", "professoressa"],
+            ["il", "proiettore"],
+            ["la", "scrivania"],
+            ["lo", "smartphone"],
+            ["la", "studentessa"],
+            ["la", "tavola"],
+            ["il", "telefonino"],
+            ["l’", "università"],
           ];
           const arts = ["il", "lo", "l’", "la", "i", "gli", "le"];
           let n = 0,
@@ -7190,6 +7614,1942 @@
           );
           reset();
         },
+        casa(box, id) {
+          // I spy in a cutaway house, for the 5.2 vocabulary and the 5.3 prepositions.
+          // Each thing: [key, Italian, English, where it is, the where-is clue, other answers].
+          // "where" is the room it's in, "stanza" for a room itself, "fuori" for outside.
+          const ROOMS = {
+            camera: ["in camera da letto", "al primo piano"],
+            bagno: ["in bagno", "al primo piano"],
+            salotto: ["in salotto", "al pianterreno"],
+            sala: ["in sala da pranzo", "al pianterreno"],
+            cucina: ["in cucina", "al pianterreno"],
+            cantina: ["in cantina", "sotto il pianterreno"],
+          };
+          const THINGS = [
+            [
+              "camera",
+              "la camera da letto",
+              "bedroom",
+              "stanza",
+              "È a sinistra del bagno.",
+              ["la camera"],
+            ],
+            ["bagno", "il bagno", "bathroom", "stanza", "È a destra della camera da letto."],
+            [
+              "salotto",
+              "il salotto",
+              "living room",
+              "stanza",
+              "È sotto la camera da letto.",
+              ["il soggiorno"],
+            ],
+            ["sala", "la sala da pranzo", "dining room", "stanza", "È tra il salotto e la cucina."],
+            ["cucina", "la cucina", "kitchen", "stanza", "È sotto il bagno."],
+            ["cantina", "la cantina", "cellar", "stanza", "Ci sono la lavatrice e l’asciugatrice."],
+            ["giardino", "il giardino", "garden", "fuori", "È sotto il balcone."],
+            ["balcone", "il balcone", "balcony", "fuori", "È sopra il giardino."],
+            ["armadio", "l’armadio", "wardrobe", "camera", "È a sinistra del comodino."],
+            ["comodino", "il comodino", "nightstand", "camera", "È tra l’armadio e il letto."],
+            ["lampada", "la lampada", "lamp", "camera", "È sul comodino."],
+            ["letto", "il letto", "bed", "camera", "È sotto il condizionatore."],
+            [
+              "condizionatore",
+              "il condizionatore",
+              "air conditioner",
+              "camera",
+              "È sopra il letto.",
+            ],
+            ["specchio", "lo specchio", "mirror", "bagno", "È sopra il lavabo."],
+            [
+              "lavabo",
+              "il lavabo",
+              "bathroom sink",
+              "bagno",
+              "È sotto lo specchio.",
+              ["il lavandino"],
+            ],
+            [
+              "water",
+              "il water",
+              "toilet",
+              "bagno",
+              "È tra il lavabo e il bidè.",
+              ["il gabinetto"],
+            ],
+            ["bide", "il bidè", "bidet", "bagno", "È tra il water e la vasca.", ["il bidet"]],
+            ["vasca", "la vasca", "bathtub", "bagno", "È a destra del bidè."],
+            [
+              "libreria",
+              "la libreria",
+              "bookcase",
+              "salotto",
+              "È a sinistra della poltrona.",
+              ["lo scaffale"],
+            ],
+            ["poltrona", "la poltrona", "armchair", "salotto", "È tra la libreria e il divano."],
+            ["divano", "il divano", "sofa", "salotto", "È sotto il televisore."],
+            [
+              "televisore",
+              "il televisore",
+              "TV set",
+              "salotto",
+              "È sopra il divano.",
+              ["la tv", "la televisione"],
+            ],
+            ["tavolo", "il tavolo", "table", "sala", "È tra le due sedie."],
+            [
+              "sedia",
+              "la sedia",
+              "chair",
+              "sala",
+              "È accanto al tavolo. Ce ne sono due!",
+              ["le sedie"],
+            ],
+            ["lavandino", "il lavandino", "sink", "cucina", "È sopra la lavastoviglie."],
+            ["lavastoviglie", "la lavastoviglie", "dishwasher", "cucina", "È sotto il lavandino."],
+            [
+              "microonde",
+              "il forno a microonde",
+              "microwave",
+              "cucina",
+              "È sopra il lavandino.",
+              ["il microonde"],
+            ],
+            ["fornelli", "i fornelli", "stovetop", "cucina", "Sono sopra il forno."],
+            ["forno", "il forno", "oven", "cucina", "È sotto i fornelli."],
+            [
+              "frigorifero",
+              "il frigorifero",
+              "fridge",
+              "cucina",
+              "È a destra del forno.",
+              ["il frigo"],
+            ],
+            ["scale", "le scale", "stairs", "cantina", "Sono nell’angolo, a sinistra."],
+            [
+              "lavatrice",
+              "la lavatrice",
+              "washing machine",
+              "cantina",
+              "È a sinistra dell’asciugatrice.",
+            ],
+            [
+              "asciugatrice",
+              "l’asciugatrice",
+              "clothes dryer",
+              "cantina",
+              "È a destra della lavatrice.",
+            ],
+          ];
+          const BY = Object.fromEntries(THINGS.map((t) => [t[0], t]));
+
+          // The picture. Fills are --h-* tokens on .casa, so it follows the theme.
+          const fill = (f) => (f === "ln" ? ' class="ln"' : ` style="fill:var(--h-${f})"`);
+          const R = (x, y, w, hh, f, rx = 0) =>
+            `<rect x="${x}" y="${y}" width="${w}" height="${hh}"${rx ? ` rx="${rx}"` : ""}${fill(f)}/>`;
+          const C = (cx, cy, r, f) => `<circle cx="${cx}" cy="${cy}" r="${r}"${fill(f)}/>`;
+          const P = (d, f = "ln") => `<path d="${d}"${fill(f)}/>`;
+          const L = (x1, y1, x2, y2) => P(`M${x1} ${y1} L${x2} ${y2}`);
+          const ART = {
+            camera: [
+              [[66, 82, 180, 116]],
+              R(66, 82, 180, 116, "w1") +
+                R(118, 100, 30, 36, "glass") +
+                L(133, 100, 133, 136) +
+                L(118, 118, 148, 118),
+            ],
+            bagno: [
+              [[246, 82, 140, 116]],
+              R(246, 82, 140, 116, "w2") +
+                R(246, 150, 140, 48, "tile") +
+                [260, 274, 288, 302, 316, 330, 344, 358, 372]
+                  .map((x) => L(x, 150, x, 198))
+                  .join("") +
+                L(246, 166, 386, 166) +
+                L(246, 182, 386, 182) +
+                R(298, 98, 30, 26, "glass") +
+                L(313, 98, 313, 124),
+            ],
+            salotto: [[[66, 202, 134, 116]], R(66, 202, 134, 116, "w3")],
+            sala: [
+              [[200, 202, 96, 116]],
+              R(200, 202, 96, 116, "w4") +
+                R(232, 216, 36, 34, "glass") +
+                L(250, 216, 250, 250) +
+                L(232, 233, 268, 233),
+            ],
+            cucina: [
+              [[296, 202, 90, 116]],
+              R(296, 202, 90, 116, "w5") +
+                R(344, 202, 6, 40, "metal") +
+                P("M334 252 H360 L354 242 H340 Z", "metal"),
+            ],
+            cantina: [
+              [[66, 326, 320, 76]],
+              R(66, 326, 320, 76, "w6") +
+                L(140, 340, 160, 340) +
+                L(260, 352, 284, 352) +
+                L(150, 388, 166, 388) +
+                R(170, 362, 56, 38, "wd") +
+                [0, 1, 2, 3]
+                  .flatMap((i) =>
+                    [0, 1, 2].map((j) => C(178 + i * 13, 370 + j * 12, 4, j % 2 ? "b2" : "leaf")),
+                  )
+                  .join("") +
+                L(250, 326, 250, 338) +
+                C(250, 343, 5, "bulb"),
+            ],
+            giardino: [
+              [[0, 204, 62, 112]],
+              R(24, 262, 8, 56, "wd") +
+                C(28, 246, 20, "leaf") +
+                C(14, 258, 12, "leaf") +
+                C(42, 258, 12, "leaf") +
+                C(48, 310, 7, "leaf") +
+                C(10, 309, 3, "flower") +
+                C(54, 302, 3, "flower") +
+                C(42, 306, 3, "flower"),
+            ],
+            balcone: [
+              [[12, 150, 54, 52]],
+              R(14, 196, 52, 6, "slab") +
+                L(16, 172, 64, 172) +
+                [18, 26, 34, 42, 50, 58].map((x) => L(x, 172, x, 196)).join("") +
+                C(25, 180, 6, "leaf") +
+                P("M20 196 H30 L28 186 H22 Z", "pot"),
+            ],
+            armadio: [
+              [[72, 104, 42, 96]],
+              R(74, 108, 38, 90, "wood") +
+                R(72, 104, 42, 5, "wd") +
+                L(93, 110, 93, 196) +
+                C(89, 152, 1.6, "ink") +
+                C(97, 152, 1.6, "ink"),
+            ],
+            comodino: [
+              [[118, 172, 30, 28]],
+              R(120, 174, 26, 24, "wood") +
+                L(120, 185, 146, 185) +
+                C(133, 180, 1.5, "ink") +
+                C(133, 191, 1.5, "ink"),
+            ],
+            lampada: [
+              [[120, 146, 28, 26]],
+              L(133, 160, 133, 172) +
+                R(129, 171, 8, 3, "wd") +
+                P("M124 162 H142 L138 150 H128 Z", "shade"),
+            ],
+            letto: [
+              [[148, 150, 94, 50]],
+              R(150, 154, 6, 44, "wd") +
+                R(156, 186, 78, 6, "wood") +
+                L(158, 192, 158, 198) +
+                L(232, 192, 232, 198) +
+                R(156, 176, 78, 10, "sheet") +
+                R(178, 172, 56, 14, "blanket", 2) +
+                P("M157 172 Q167 164 177 172 Q167 178 157 172 Z", "sheet") +
+                R(234, 170, 6, 28, "wd"),
+            ],
+            condizionatore: [
+              [[176, 88, 64, 24]],
+              R(180, 92, 56, 16, "app", 4) +
+                L(186, 102, 230, 102) +
+                L(186, 105, 230, 105) +
+                C(228, 96, 1.5, "on"),
+            ],
+            specchio: [
+              [[250, 100, 32, 42]],
+              R(254, 104, 24, 34, "glass", 10) + L(260, 126, 270, 112),
+            ],
+            lavabo: [
+              [[250, 143, 32, 57]],
+              R(262, 158, 8, 40, "app") +
+                P("M252 148 H280 Q278 160 266 160 Q254 160 252 148 Z", "app") +
+                P("M266 148 V143 H271"),
+            ],
+            water: [
+              [[284, 154, 28, 46]],
+              R(290, 158, 16, 14, "app", 2) +
+                P("M292 186 L294 198 H302 L304 186", "app") +
+                P("M286 176 H310 Q308 188 298 188 Q288 188 286 176 Z", "app") +
+                R(286, 173, 24, 3, "app"),
+            ],
+            bide: [
+              [[312, 168, 26, 32]],
+              P("M320 190 L321 198 H329 L330 190", "app") +
+                P("M314 182 H336 Q334 192 325 192 Q316 192 314 182 Z", "app") +
+                P("M325 182 V176 H330"),
+            ],
+            vasca: [
+              [[340, 150, 46, 50]],
+              P("M380 168 V158 H372") +
+                C(352, 166, 3, "bub") +
+                C(358, 163, 2.5, "bub") +
+                C(364, 166, 3, "bub") +
+                P("M342 170 H384 V186 Q384 194 376 194 H350 Q342 194 342 186 Z", "app") +
+                R(340, 168, 46, 4, "app", 2) +
+                C(348, 196, 2.2, "ink") +
+                C(378, 196, 2.2, "ink"),
+            ],
+            libreria: [
+              [[70, 222, 32, 96]],
+              R(72, 224, 26, 94, "wood") +
+                L(72, 248, 98, 248) +
+                L(72, 272, 98, 272) +
+                L(72, 296, 98, 296) +
+                R(75, 230, 4, 18, "b1") +
+                R(79, 232, 4, 16, "b2") +
+                R(83, 229, 5, 19, "b3") +
+                R(89, 234, 4, 14, "b1") +
+                R(75, 254, 5, 18, "b2") +
+                R(80, 256, 4, 16, "b3") +
+                R(86, 254, 4, 18, "b1") +
+                R(76, 280, 4, 16, "b3") +
+                R(80, 278, 5, 18, "b1") +
+                R(88, 282, 4, 14, "b2") +
+                R(76, 302, 16, 14, "wd"),
+            ],
+            poltrona: [
+              [[100, 270, 34, 48]],
+              L(106, 306, 106, 318) +
+                L(128, 306, 128, 318) +
+                R(106, 274, 22, 26, "fab2", 5) +
+                R(104, 296, 26, 12, "fab2", 3) +
+                R(102, 290, 6, 18, "fab2", 2) +
+                R(126, 290, 6, 18, "fab2", 2),
+            ],
+            divano: [
+              [[134, 272, 66, 46]],
+              L(139, 306, 139, 318) +
+                L(195, 306, 195, 318) +
+                R(140, 276, 54, 24, "fab1", 5) +
+                R(140, 294, 26, 13, "fab1", 3) +
+                R(168, 294, 26, 13, "fab1", 3) +
+                R(135, 286, 8, 22, "fab1", 3) +
+                R(191, 286, 8, 22, "fab1", 3),
+            ],
+            televisore: [
+              [[144, 224, 50, 38]],
+              R(165, 254, 8, 4, "metal") +
+                R(148, 228, 42, 26, "ink", 2) +
+                R(151, 231, 36, 20, "screen") +
+                P("M151 251 L162 240 L170 246 L177 238 L187 248 V251 Z", "leaf"),
+            ],
+            tavolo: [
+              [[224, 272, 52, 46]],
+              R(228, 293, 4, 25, "wood") +
+                R(268, 293, 4, 25, "wood") +
+                R(224, 288, 52, 5, "wood", 1) +
+                C(249, 274, 4, "flower") +
+                R(245, 278, 8, 10, "pot", 2),
+            ],
+            sedia: [
+              [
+                [202, 262, 22, 56],
+                [274, 262, 22, 56],
+              ],
+              R(204, 266, 4, 40, "wd") +
+                R(204, 296, 18, 4, "wd") +
+                L(206, 300, 206, 318) +
+                L(220, 300, 220, 318) +
+                R(288, 266, 4, 40, "wd") +
+                R(274, 296, 18, 4, "wd") +
+                L(276, 300, 276, 318) +
+                L(290, 300, 290, 318),
+            ],
+            lavastoviglie: [
+              [[298, 293, 32, 25]],
+              R(300, 293, 28, 25, "app") + L(304, 298, 324, 298) + C(322, 312, 1.5, "on"),
+            ],
+            lavandino: [
+              [[298, 268, 32, 25]],
+              R(298, 288, 32, 5, "counter") +
+                R(304, 288, 20, 2, "metal") +
+                P("M312 288 V278 Q312 274 316 274 Q320 274 320 278") +
+                C(320, 283, 1.5, "glass"),
+            ],
+            microonde: [
+              [[300, 230, 30, 28]],
+              R(300, 252, 30, 3, "wd") +
+                R(302, 234, 26, 18, "app", 2) +
+                R(305, 237, 14, 12, "ink", 1) +
+                C(323, 239, 1.3, "ink") +
+                C(323, 244, 1.3, "ink"),
+            ],
+            forno: [
+              [[330, 293, 32, 25]],
+              R(332, 293, 28, 25, "app") + R(336, 300, 20, 12, "ink", 1) + L(336, 297, 356, 297),
+            ],
+            fornelli: [
+              [[330, 266, 32, 27]],
+              R(330, 288, 32, 5, "ink") +
+                R(337, 277, 18, 11, "metal", 2) +
+                L(333, 279, 337, 279) +
+                L(355, 279, 359, 279) +
+                P("M343 273 q2 -3 0 -6") +
+                P("M349 273 q2 -3 0 -6"),
+            ],
+            frigorifero: [
+              [[360, 226, 26, 92]],
+              R(362, 230, 22, 88, "app", 2) +
+                L(362, 256, 384, 256) +
+                L(366, 236, 366, 250) +
+                L(366, 262, 366, 282),
+            ],
+            scale: [
+              [[66, 326, 66, 76]],
+              P("M66 326 H78 V338 H90 V352 H102 V366 H114 V380 H126 V402 H66 Z", "wood"),
+            ],
+            lavatrice: [
+              [[298, 362, 34, 40]],
+              R(300, 366, 30, 34, "app", 2) +
+                L(300, 372, 330, 372) +
+                C(315, 387, 9, "water") +
+                P("M307 389 q4 -3 8 0 q4 3 8 0") +
+                C(325, 369, 1.5, "ink"),
+            ],
+            asciugatrice: [
+              [[334, 362, 34, 40]],
+              R(336, 366, 30, 34, "app", 2) +
+                L(336, 372, 366, 372) +
+                C(351, 387, 9, "ink") +
+                C(351, 387, 5, "metal") +
+                C(361, 369, 1.5, "ink"),
+            ],
+          };
+          const target = (k) => {
+            const [hits, art] = ART[k];
+            return `<g class="t" data-k="${k}" tabindex="0" role="button" aria-label="${BY[k][1]}">${art}${hits
+              .map(
+                ([x, y, w, hh]) =>
+                  `<rect class="hit" x="${x}" y="${y}" width="${w}" height="${hh}" rx="4"/>`,
+              )
+              .join("")}</g>`;
+          };
+          const ROOM_KEYS = THINGS.filter((t) => t[3] === "stanza" || t[3] === "fuori").map(
+            (t) => t[0],
+          );
+          const OBJ_KEYS = THINGS.filter((t) => !ROOM_KEYS.includes(t[0])).map((t) => t[0]);
+          const svg =
+            `<svg viewBox="0 0 400 408" role="group" aria-label="Una casa">` +
+            R(0, 320, 400, 88, "soil") +
+            R(0, 316, 400, 6, "grass") +
+            R(318, 34, 18, 34, "roof") +
+            P("M54 84 L226 24 L398 84 Z", "roof") +
+            C(226, 60, 10, "glass") +
+            L(216, 60, 236, 60) +
+            L(226, 50, 226, 70) +
+            ROOM_KEYS.map(target).join("") +
+            `<g class="frame">` +
+            R(64, 198, 324, 4, "slab") +
+            R(64, 318, 324, 8, "slab") +
+            L(246, 82, 246, 198) +
+            L(200, 202, 200, 318) +
+            L(296, 202, 296, 318) +
+            `<rect x="64" y="82" width="324" height="240" class="ln"/><rect x="64" y="326" width="324" height="78" class="ln"/>` +
+            R(61, 150, 7, 48, "wd") +
+            `</g>` +
+            OBJ_KEYS.map(target).join("") +
+            `</svg>`;
+
+          const NEED = 8;
+          const pic = h("div", { class: "casa", html: svg });
+          const G = {};
+          pic.querySelectorAll(".t").forEach((g) => (G[g.dataset.k] = g));
+          const qbox = h("div", { class: "drill-p casa-q" });
+          const fb = h("div", { class: "feedback", "aria-live": "polite" });
+          const stats = h("span", { class: "stats" });
+          const more = h("button", { class: "btn pri", type: "button" });
+          const inp = h("input", {
+            class: "blank",
+            type: "text",
+            autocomplete: "off",
+            autocapitalize: "off",
+            spellcheck: "false",
+          });
+          const check = h("button", { class: "btn pri", type: "button" }, "Check");
+          const skip = h("button", { class: "btn", type: "button" }, "Skip");
+          const row = h("div", { class: "drill-row" }, inp, check, more, skip);
+
+          // spy: tap what I see · hard: type what I see · name: type what's lit up
+          let mode = "spy",
+            deck,
+            r,
+            level,
+            phase,
+            score,
+            stars;
+          const clueMode = () => mode !== "name";
+          const cur = () => deck[r];
+          const clear = () =>
+            Object.values(G).forEach((g) => g.classList.remove("glow", "ok", "no", "show"));
+          const flash = (k) => {
+            const g = G[k];
+            g.classList.remove("no");
+            void g.getBoundingClientRect();
+            g.classList.add("no");
+            setTimeout(() => g.classList.remove("no"), 700);
+          };
+          const named = (t) => `<b>${esc(t[1])}</b> · ${esc(t[2])}`;
+          const bare = (s) => norm(s).replace(/^(il|lo|la|i|gli|le) |^l'/, "");
+          // A typed answer: "ok", "accent" (a slip, or no article: both count),
+          // "article" (right word, wrong article) or "no".
+          const judge = (val, t) => {
+            const answers = [t[1], ...(t[5] || [])];
+            const g = grade(val, answers);
+            if (g !== "no") return { g, note: g === "accent" ? "Almost: watch the accent." : "" };
+            if (grade(bare(val), answers.map(bare)) === "no") return { g: "no", note: "" };
+            return bare(val) === norm(val)
+              ? { g: "accent", note: "Add the article:" }
+              : { g: "article", note: "Watch the article:" };
+          };
+          const clue = (t, n) => {
+            const [k, word, , where, near] = t;
+            if (n === 2) return near;
+            if (n === 3) return `Comincia con la lettera ${bare(word).charAt(0).toUpperCase()}.`;
+            if (where === "stanza") return `Vedo, vedo… una stanza ${ROOMS[k][1]}.`;
+            if (where === "fuori") return "Vedo, vedo… qualcosa fuori casa.";
+            return `Vedo, vedo… qualcosa ${ROOMS[where][0]}.`;
+          };
+          const clues = () => [1, 2, 3].slice(0, level).map((n) => clue(cur(), n));
+          const last = () => (r < NEED - 1 ? "Avanti" : "Risultato");
+          const paintRow = () => {
+            const over = phase === "over";
+            const asking = phase === "ask";
+            more.hidden = !(over || mode === "spy" || (mode === "hard" && asking));
+            // Beside Check, "another clue" is the secondary button.
+            more.classList.toggle("pri", over || mode === "spy");
+            inp.hidden = check.hidden = over || mode === "spy";
+            skip.hidden = over || mode !== "name" || !asking;
+            more.textContent = over
+              ? "Gioca ancora"
+              : !asking
+                ? last()
+                : level < 3
+                  ? "Un altro indizio"
+                  : "Mostrami";
+            check.textContent = asking ? "Check" : last();
+            if (!over)
+              stats.textContent = clueMode()
+                ? `Round ${r + 1} of ${NEED} · ★ ${stars}`
+                : `Round ${r + 1} of ${NEED} · ${score} right`;
+          };
+          const paintClues = () => {
+            qbox.innerHTML = "";
+            qbox.append(
+              h(
+                "div",
+                { class: "casa-c" },
+                ...clues().map((c, i) => h("p", { class: i === level - 1 ? "now" : "" }, c)),
+              ),
+              spk(() => clues().join(" ")),
+            );
+            paintRow();
+          };
+          const finish = () => {
+            phase = "over";
+            clear();
+            qbox.innerHTML = "";
+            qbox.append(
+              h(
+                "div",
+                { class: "big" },
+                `Hai ${clueMode() ? "trovato" : "indovinato"} ${score} di ${NEED}!`,
+              ),
+              h(
+                "div",
+                { class: "sub" },
+                clueMode()
+                  ? `★ ${stars} of ${NEED * 3} stars`
+                  : "Tap anything in the house to hear its name.",
+              ),
+            );
+            stats.textContent = "";
+            fb.innerHTML = "";
+            paintRow();
+            markDone(id, score, NEED);
+          };
+          const startRound = (focus) => {
+            level = 1;
+            phase = "ask";
+            clear();
+            fb.innerHTML = "";
+            inp.value = "";
+            inp.className = "blank";
+            if (clueMode()) paintClues();
+            else {
+              G[cur()[0]].classList.add("glow");
+              qbox.innerHTML = "";
+              qbox.append(
+                h("div", { class: "big" }, "Come si chiama?"),
+                h(
+                  "div",
+                  { class: "sub" },
+                  "Name what’s lit up, with its article: il, lo, la, l’, i, le.",
+                ),
+              );
+              paintRow();
+            }
+            if (focus && mode !== "spy") inp.focus({ preventScroll: true });
+          };
+          const reveal = (before = "") => {
+            phase = "done";
+            G[cur()[0]].classList.add("show");
+            fb.innerHTML = `${before}<span class="no">Era</span> ${named(cur())}.`;
+            say(cur()[1]);
+            paintClues();
+          };
+          const newGame = (focus) => {
+            deck = shuffle(THINGS).slice(0, NEED);
+            r = 0;
+            score = 0;
+            stars = 0;
+            inp.setAttribute(
+              "aria-label",
+              mode === "name" ? "name, with its article" : "what I see, with its article",
+            );
+            pic.classList.toggle("naming", mode !== "spy");
+            startRound(focus);
+          };
+          const nextRound = () => {
+            if (r >= NEED - 1) return finish();
+            r++;
+            startRound(true);
+          };
+          const found = (k, won, msg) => {
+            stars += won;
+            score++;
+            phase = "done";
+            G[k].classList.add("ok");
+            fb.innerHTML = `${msg} ${named(BY[k])} ${"★".repeat(won)}`;
+            say(BY[k][1]);
+            paintClues();
+          };
+          // A wrong guess in either I-spy mode costs a clue; after the third, I show it.
+          const missed = (msg) => {
+            if (level < 3) {
+              level++;
+              fb.innerHTML = `${msg} Here’s another clue.`;
+              paintClues();
+            } else reveal(`${msg} `);
+          };
+
+          function tap(k) {
+            const t = BY[k];
+            // While you're typing, tapping would give the answer away.
+            if (mode !== "spy" && phase === "ask") return;
+            if (mode !== "spy" || phase !== "ask") {
+              fb.innerHTML = named(t);
+              say(t[1]);
+              return;
+            }
+            if (k === cur()[0]) return found(k, 4 - level, '<span class="ok">Sì!</span>');
+            flash(k);
+            if (level < 3) say(t[1]);
+            missed(`<span class="no">No,</span> è ${named(t)}.`);
+          }
+          Object.entries(G).forEach(([k, g]) => {
+            g.addEventListener("click", () => tap(k));
+            g.addEventListener("keydown", (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                tap(k);
+              }
+            });
+          });
+
+          more.onclick = () => {
+            if (phase === "over") return newGame(true);
+            if (phase !== "ask") return nextRound();
+            if (level < 3) {
+              level++;
+              fb.innerHTML = "";
+              paintClues();
+              say(clue(cur(), level));
+            } else reveal();
+          };
+          const guess = () => {
+            const t = cur();
+            const val = inp.value;
+            const { g, note } = judge(val, t);
+            if (g === "ok" || g === "accent")
+              return found(
+                t[0],
+                4 - level,
+                g === "ok" ? '<span class="ok">Esatto!</span>' : `<span class="acc">${note}</span>`,
+              );
+            // The right word with the wrong article still finds it, for a star less.
+            if (g === "article")
+              return found(t[0], Math.max(1, 3 - level), `<span class="acc">${note}</span>`);
+            inp.value = "";
+            const other = THINGS.find((x) => judge(val, x).g !== "no");
+            if (other) {
+              flash(other[0]);
+              say(other[1]);
+            }
+            missed(
+              other
+                ? `<span class="no">No,</span> non è ${named(other)}.`
+                : `<span class="no">No,</span> non è “${esc(val.trim())}”.`,
+            );
+          };
+          const name = () => {
+            const t = cur();
+            const { g, note } = judge(inp.value, t);
+            const right = g === "ok" || g === "accent";
+            if (right) score++;
+            inp.classList.add(g === "ok" ? "ok" : right ? "accent" : "no");
+            G[t[0]].classList.replace("glow", right ? "ok" : "show");
+            fb.innerHTML =
+              g === "ok"
+                ? `<span class="ok">Esatto!</span> ${named(t)}`
+                : `<span class="${right ? "acc" : "no"}">${note || "Not quite."}</span> ${named(t)}`;
+            say(t[1]);
+            phase = "shown";
+            paintRow();
+          };
+          const submit = () => {
+            if (phase !== "ask") return nextRound();
+            if (!inp.value.trim()) return;
+            if (mode === "hard") guess();
+            else name();
+          };
+          check.onclick = submit;
+          skip.onclick = () => {
+            inp.value = "";
+            phase = "shown";
+            G[cur()[0]].classList.replace("glow", "show");
+            fb.innerHTML = named(cur());
+            say(cur()[1]);
+            paintRow();
+          };
+          inp.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submit();
+            }
+          });
+
+          const seg = h("div", { class: "seg", role: "group", "aria-label": "Game" });
+          [
+            ["spy", "Vedo, vedo…"],
+            ["hard", "Difficile"],
+            ["name", "Come si chiama?"],
+          ].forEach(([key, label]) =>
+            seg.append(
+              h(
+                "button",
+                {
+                  type: "button",
+                  "aria-pressed": String(key === mode),
+                  onclick: (e) => {
+                    mode = key;
+                    seg
+                      .querySelectorAll("button")
+                      .forEach((b) =>
+                        b.setAttribute("aria-pressed", String(b === e.currentTarget)),
+                      );
+                    newGame(true);
+                  },
+                },
+                label,
+              ),
+            ),
+          );
+          box.append(
+            h(
+              "div",
+              { class: "drill" },
+              h("div", { class: "drill-row" }, seg),
+              qbox,
+              pic,
+              row,
+              fb,
+              stats,
+            ),
+          );
+          newGame(false);
+        },
+        intruso(box, id, ex) {
+          // Odd one out. ex.sets picks the chapter: "aula" for 1.7, "c2" for 2.7,
+          // "famiglia" for 4.2, and the 5.2 house words by default. Each set: three
+          // [Italian, English] words, the intruder first, then why in Italian and in English.
+          const ALL = {
+            casa: [
+              [
+                [
+                  ["il frigorifero", "fridge"],
+                  ["il tavolo", "table"],
+                  ["la scrivania", "desk"],
+                ],
+                "Il tavolo e la scrivania sono mobili; il frigorifero è un elettrodomestico.",
+                "A table and a desk are furniture; a fridge is an appliance.",
+              ],
+              [
+                [
+                  ["il divano", "sofa"],
+                  ["la doccia", "shower"],
+                  ["la vasca", "bathtub"],
+                ],
+                "La doccia e la vasca sono in bagno; il divano è in salotto.",
+                "The shower and the bathtub are in the bathroom; the sofa is in the living room.",
+              ],
+              [
+                [
+                  ["l’armadio", "wardrobe"],
+                  ["la poltrona", "armchair"],
+                  ["il divano", "sofa"],
+                ],
+                "Sulla poltrona e sul divano ci sediamo; nell’armadio mettiamo i vestiti.",
+                "You sit in an armchair and on a sofa; you keep clothes in a wardrobe.",
+              ],
+              [
+                [
+                  ["il lavandino", "sink"],
+                  ["il computer", "computer"],
+                  ["la televisione", "television"],
+                ],
+                "Il computer e la televisione hanno uno schermo; il lavandino no.",
+                "A computer and a TV have a screen; a sink doesn’t.",
+              ],
+              [
+                [
+                  ["il comodino", "nightstand"],
+                  ["il forno", "oven"],
+                  ["la lavastoviglie", "dishwasher"],
+                ],
+                "Il forno e la lavastoviglie sono in cucina; il comodino è in camera da letto.",
+                "The oven and the dishwasher are in the kitchen; the nightstand is in the bedroom.",
+              ],
+              [
+                [
+                  ["il lavabo", "bathroom sink"],
+                  ["il letto", "bed"],
+                  ["il comodino", "nightstand"],
+                ],
+                "Il letto e il comodino sono in camera da letto; il lavabo è in bagno.",
+                "The bed and the nightstand are in the bedroom; the bathroom sink is in the bathroom.",
+              ],
+              [
+                [
+                  ["lo scaffale", "bookshelf"],
+                  ["il water", "toilet"],
+                  ["il bidè", "bidet"],
+                ],
+                "Il water e il bidè sono in bagno; lo scaffale no.",
+                "The toilet and the bidet are in the bathroom; the bookshelf isn’t.",
+              ],
+              [
+                [
+                  ["il divano", "sofa"],
+                  ["il bagno", "bathroom"],
+                  ["la cucina", "kitchen"],
+                ],
+                "Il bagno e la cucina sono stanze; il divano è un mobile.",
+                "The bathroom and the kitchen are rooms; the sofa is a piece of furniture.",
+              ],
+              [
+                [
+                  ["la lampada", "lamp"],
+                  ["la camera da letto", "bedroom"],
+                  ["il salotto", "living room"],
+                ],
+                "La camera da letto e il salotto sono stanze; la lampada è un mobile.",
+                "The bedroom and the living room are rooms; the lamp is a piece of furniture.",
+              ],
+              [
+                [
+                  ["la lavatrice", "washing machine"],
+                  ["lo scaffale", "bookshelf"],
+                  ["la libreria", "bookcase"],
+                ],
+                "Sullo scaffale e nella libreria mettiamo i libri; nella lavatrice laviamo i vestiti.",
+                "Books go on a bookshelf and in a bookcase; clothes go in the washing machine.",
+              ],
+              [
+                [
+                  ["lo specchio", "mirror"],
+                  ["la sedia", "chair"],
+                  ["la poltrona", "armchair"],
+                ],
+                "Sulla sedia e sulla poltrona ci sediamo; nello specchio ci guardiamo.",
+                "You sit on a chair and in an armchair; you look at yourself in a mirror.",
+              ],
+              [
+                [
+                  ["la vasca", "bathtub"],
+                  ["i fornelli", "stovetop"],
+                  ["il forno a microonde", "microwave"],
+                ],
+                "Con i fornelli e il forno a microonde cuciniamo; nella vasca facciamo il bagno.",
+                "You cook with a stovetop and a microwave; you take a bath in a bathtub.",
+              ],
+              [
+                [
+                  ["il tappeto", "rug"],
+                  ["la lavatrice", "washing machine"],
+                  ["la lavastoviglie", "dishwasher"],
+                ],
+                "La lavatrice e la lavastoviglie sono elettrodomestici; il tappeto no.",
+                "A washing machine and a dishwasher are appliances; a rug isn’t.",
+              ],
+              [
+                [
+                  ["il frigorifero", "fridge"],
+                  ["il letto", "bed"],
+                  ["il divano", "sofa"],
+                ],
+                "Sul letto e sul divano possiamo dormire; nel frigorifero no!",
+                "You can sleep in a bed or on a sofa; not in the fridge!",
+              ],
+              [
+                [
+                  ["la lampada", "lamp"],
+                  ["il lavandino", "sink"],
+                  ["la doccia", "shower"],
+                ],
+                "Nel lavandino e nella doccia c’è l’acqua; la lampada fa luce.",
+                "A sink and a shower have water; a lamp gives light.",
+              ],
+              [
+                [
+                  ["la doccia", "shower"],
+                  ["il tavolo", "table"],
+                  ["la sedia", "chair"],
+                ],
+                "Il tavolo e la sedia sono in sala da pranzo; la doccia è in bagno.",
+                "The table and the chair are in the dining room; the shower is in the bathroom.",
+              ],
+              [
+                [
+                  ["la cantina", "cellar"],
+                  ["il balcone", "balcony"],
+                  ["il giardino", "garden"],
+                ],
+                "Sul balcone e in giardino siamo all’aperto; in cantina no.",
+                "On the balcony and in the garden you’re outdoors; in the cellar you’re not.",
+              ],
+              [
+                [
+                  ["il condizionatore", "air conditioner"],
+                  ["il termosifone", "heater"],
+                  ["il forno", "oven"],
+                ],
+                "Il termosifone e il forno fanno caldo; il condizionatore fa fresco.",
+                "A heater and an oven make heat; an air conditioner cools.",
+              ],
+              [
+                [
+                  ["il garage", "garage"],
+                  ["il cortile", "yard"],
+                  ["l’orto", "vegetable garden"],
+                ],
+                "Il cortile e l’orto sono all’aperto; il garage è chiuso.",
+                "A yard and a vegetable garden are outdoors; a garage is indoors.",
+              ],
+              [
+                [
+                  ["il divano", "sofa"],
+                  ["il portone", "front door"],
+                  ["la porta", "door"],
+                ],
+                "Il portone e la porta si aprono e si chiudono; il divano no.",
+                "A front door and a door open and close; a sofa doesn’t.",
+              ],
+              [
+                [
+                  ["la doccia", "shower"],
+                  ["il piano", "floor"],
+                  ["il pianterreno", "ground floor"],
+                ],
+                "Il piano e il pianterreno sono parti del palazzo; la doccia è in bagno.",
+                "A floor and the ground floor are levels of a building; the shower is in the bathroom.",
+              ],
+              [
+                [
+                  ["l’orto", "vegetable garden"],
+                  ["la sala da pranzo", "dining room"],
+                  ["la cucina", "kitchen"],
+                ],
+                "La cucina e la sala da pranzo sono in casa; l’orto è fuori.",
+                "The kitchen and the dining room are inside; the vegetable garden is outside.",
+              ],
+              [
+                [
+                  ["la scrivania", "desk"],
+                  ["le scale", "stairs"],
+                  ["il garage", "garage"],
+                ],
+                "Le scale e il garage sono parti della casa; la scrivania è un mobile.",
+                "Stairs and a garage are parts of a house; a desk is furniture.",
+              ],
+            ],
+            aula: [
+              [
+                [
+                  ["la gomma", "eraser"],
+                  ["la penna", "pen"],
+                  ["la matita", "pencil"],
+                ],
+                "Con la penna e la matita scriviamo; con la gomma cancelliamo.",
+                "You write with a pen and a pencil; you rub out with an eraser.",
+              ],
+              [
+                [
+                  ["la finestra", "window"],
+                  ["il quaderno", "notebook"],
+                  ["il libro", "book"],
+                ],
+                "Nel quaderno e nel libro ci sono le pagine; nella finestra no.",
+                "A notebook and a book have pages; a window doesn’t.",
+              ],
+              [
+                [
+                  ["il gesso", "chalk"],
+                  ["il portatile", "laptop"],
+                  ["lo smartphone", "smartphone"],
+                ],
+                "Il portatile e lo smartphone hanno la batteria; il gesso no.",
+                "A laptop and a smartphone have a battery; chalk doesn’t.",
+              ],
+              [
+                [
+                  ["l’ombrello", "umbrella"],
+                  ["il gesso", "chalk"],
+                  ["il cancellino", "board eraser"],
+                ],
+                "Il gesso e il cancellino sono per la lavagna; l’ombrello è per la pioggia.",
+                "Chalk and a board eraser are for the chalkboard; an umbrella is for the rain.",
+              ],
+              [
+                [
+                  ["il cestino", "trash can"],
+                  ["lo zaino", "backpack"],
+                  ["la borsa", "bag"],
+                ],
+                "Nello zaino e nella borsa portiamo i libri; nel cestino buttiamo la carta.",
+                "You carry books in a backpack and a bag; you throw paper in the trash can.",
+              ],
+              [
+                [
+                  ["la studentessa", "student (f)"],
+                  ["il professore", "professor (m)"],
+                  ["lo studente", "student (m)"],
+                ],
+                "Il professore e lo studente sono maschili; la studentessa è femminile.",
+                "Professore and studente are masculine; studentessa is feminine.",
+              ],
+              [
+                [
+                  ["la professoressa", "professor (f)"],
+                  ["lo studente", "student (m)"],
+                  ["la studentessa", "student (f)"],
+                ],
+                "Lo studente e la studentessa studiano; la professoressa insegna.",
+                "The students study; the professor teaches.",
+              ],
+              [
+                [
+                  ["l’astuccio", "pencil case"],
+                  ["il proiettore", "projector"],
+                  ["lo schermo", "screen"],
+                ],
+                "Il proiettore e lo schermo sono per guardare un video; nell’astuccio mettiamo le penne.",
+                "A projector and a screen are for watching a video; pens go in a pencil case.",
+              ],
+              [
+                [
+                  ["la porta", "door"],
+                  ["il pennarello", "marker"],
+                  ["l’evidenziatore", "highlighter"],
+                ],
+                "Con il pennarello e con l’evidenziatore coloriamo; la porta si apre e si chiude.",
+                "You colour with a marker and a highlighter; a door opens and closes.",
+              ],
+              [
+                [
+                  ["il telefonino", "cell phone"],
+                  ["la lavagna bianca", "whiteboard"],
+                  ["il pennarello", "marker"],
+                ],
+                "Sulla lavagna bianca scriviamo con il pennarello; il telefonino è per telefonare.",
+                "You write on a whiteboard with a marker; a cell phone is for calling.",
+              ],
+              [
+                [
+                  ["la luce", "light"],
+                  ["l’agenda", "planner"],
+                  ["gli appunti", "notes"],
+                ],
+                "L’agenda e gli appunti sono di carta; la luce no.",
+                "A planner and notes are made of paper; light isn’t.",
+              ],
+              [
+                [
+                  ["l’esame", "exam"],
+                  ["la tavola", "table"],
+                  ["la scrivania", "desk"],
+                ],
+                "La tavola e la scrivania sono mobili; l’esame no!",
+                "A table and a desk are furniture; an exam isn’t!",
+              ],
+              [
+                [
+                  ["il colore", "color"],
+                  ["il cellulare", "cell phone"],
+                  ["il computer", "computer"],
+                ],
+                "Il cellulare e il computer hanno uno schermo; il colore no.",
+                "A cell phone and a computer have a screen; a colour doesn’t.",
+              ],
+              [
+                [
+                  ["l’università", "university"],
+                  ["l’orologio", "clock"],
+                  ["il cellulare", "cell phone"],
+                ],
+                "L’orologio e il cellulare ci dicono l’ora; l’università no.",
+                "A clock and a cell phone tell you the time; a university doesn’t.",
+              ],
+              [
+                [
+                  ["lo zaino", "backpack"],
+                  ["il banco", "desk (student)"],
+                  ["la sedia", "chair"],
+                ],
+                "Il banco e la sedia restano in aula; lo zaino lo portiamo a casa.",
+                "The desk and the chair stay in the classroom; you take your backpack home.",
+              ],
+              [
+                [
+                  ["la penna", "pen"],
+                  ["la lavagna", "chalkboard"],
+                  ["il gesso", "chalk"],
+                ],
+                "Sulla lavagna scriviamo con il gesso; la penna è per il quaderno.",
+                "You write on the chalkboard with chalk; a pen is for your notebook.",
+              ],
+              [
+                [
+                  ["Come sta?", "How are you? (form.)"],
+                  ["Come stai?", "How are you? (inf.)"],
+                  ["Come ti chiami?", "What’s your name? (inf.)"],
+                ],
+                "Come stai? e Come ti chiami? sono informali; Come sta? è formale.",
+                "Come stai? and Come ti chiami? are informal; Come sta? is formal.",
+              ],
+              [
+                [
+                  ["Di dove sei?", "Where are you from? (inf.)"],
+                  ["Come si chiama?", "What’s your name? (form.)"],
+                  ["Di dov’è?", "Where are you from? (form.)"],
+                ],
+                "Come si chiama? e Di dov’è? sono formali; Di dove sei? è informale.",
+                "Come si chiama? and Di dov’è? are formal; Di dove sei? is informal.",
+              ],
+              [
+                [
+                  ["Buonanotte", "Good night"],
+                  ["Buongiorno", "Good morning"],
+                  ["Buonasera", "Good evening"],
+                ],
+                "Buongiorno e buonasera si dicono quando arrivi; buonanotte quando vai a dormire.",
+                "You say buongiorno and buonasera when you arrive; buonanotte when you go to bed.",
+              ],
+              [
+                [
+                  ["Ciao", "Hi / Bye"],
+                  ["Arrivederci", "Goodbye"],
+                  ["A presto", "See you soon"],
+                ],
+                "Arrivederci e a presto si dicono solo quando vai via; ciao anche quando arrivi.",
+                "Arrivederci and a presto are only for leaving; ciao is for arriving too.",
+              ],
+              [
+                [
+                  ["Prego.", "You’re welcome."],
+                  ["Cosa significa…?", "What does… mean?"],
+                  ["Cosa vuol dire?", "What does it mean?"],
+                ],
+                "Cosa significa? e Cosa vuol dire? sono la stessa domanda; prego è la risposta a grazie.",
+                "Cosa significa? and Cosa vuol dire? ask the same thing; prego is the answer to grazie.",
+              ],
+              [
+                [
+                  ["Per favore.", "Please."],
+                  ["Aprite i libri!", "Open your books!"],
+                  ["Chiudete i libri!", "Close your books!"],
+                ],
+                "Aprite i libri! e Chiudete i libri! sono istruzioni del professore; per favore è una parola gentile.",
+                "Open and close your books are the teacher’s instructions; please is a polite word.",
+              ],
+              [
+                [
+                  ["Come si scrive…?", "How do you spell…?"],
+                  ["Alzatevi!", "Stand up!"],
+                  ["Sedetevi!", "Sit down!"],
+                ],
+                "Alzatevi! e Sedetevi! sono istruzioni del professore; Come si scrive? è una domanda.",
+                "Stand up and sit down are the teacher’s instructions; how do you spell it? is a question.",
+              ],
+              [
+                [
+                  ["Buonasera", "Good evening"],
+                  ["Che cos’è?", "What is it?"],
+                  ["Come si dice… in italiano?", "How do you say… in Italian?"],
+                ],
+                "Che cos’è? e Come si dice…? sono domande per imparare parole nuove; buonasera è un saluto.",
+                "What is it? and how do you say…? are questions for learning new words; buonasera is a greeting.",
+              ],
+            ],
+            c2: [
+              [
+                [
+                  ["verde", "green"],
+                  ["alto", "tall"],
+                  ["basso", "short"],
+                ],
+                "Alto e basso sono contrari; verde è un colore.",
+                "Tall and short are opposites; green is a colour.",
+              ],
+              [
+                [
+                  ["gennaio", "January"],
+                  ["lunedì", "Monday"],
+                  ["martedì", "Tuesday"],
+                ],
+                "Lunedì e martedì sono giorni; gennaio è un mese.",
+                "Monday and Tuesday are days; January is a month.",
+              ],
+              [
+                [
+                  ["l’estate", "summer"],
+                  ["aprile", "April"],
+                  ["maggio", "May"],
+                ],
+                "Aprile e maggio sono mesi; l’estate è una stagione.",
+                "April and May are months; summer is a season.",
+              ],
+              [
+                [
+                  ["cinese", "Chinese"],
+                  ["rosso", "red"],
+                  ["giallo", "yellow"],
+                ],
+                "Rosso e giallo sono colori; cinese è una nazionalità.",
+                "Red and yellow are colours; Chinese is a nationality.",
+              ],
+              [
+                [
+                  ["triste", "sad"],
+                  ["allegro", "happy"],
+                  ["felice", "happy"],
+                ],
+                "Allegro e felice vogliono dire quasi la stessa cosa; triste è il contrario.",
+                "Allegro and felice mean almost the same; sad is the opposite.",
+              ],
+              [
+                [
+                  ["spagnolo", "Spanish"],
+                  ["svedese", "Swedish"],
+                  ["norvegese", "Norwegian"],
+                ],
+                "La Svezia e la Norvegia sono nel Nord Europa; la Spagna è nel Sud.",
+                "Sweden and Norway are in northern Europe; Spain is in the south.",
+              ],
+              [
+                [
+                  ["giapponese", "Japanese"],
+                  ["egiziano", "Egyptian"],
+                  ["libico", "Libyan"],
+                ],
+                "L’Egitto e la Libia sono in Africa; il Giappone è in Asia.",
+                "Egypt and Libya are in Africa; Japan is in Asia.",
+              ],
+              [
+                [
+                  ["coreano", "Korean"],
+                  ["eritreo", "Eritrean"],
+                  ["somalo", "Somali"],
+                ],
+                "L’Eritrea e la Somalia sono in Africa; la Corea è in Asia.",
+                "Eritrea and Somalia are in Africa; Korea is in Asia.",
+              ],
+              [
+                [
+                  ["iraniano", "Iranian"],
+                  ["etiope", "Ethiopian"],
+                  ["marocchino", "Moroccan"],
+                ],
+                "L’Etiopia e il Marocco sono in Africa; l’Iran è in Asia.",
+                "Ethiopia and Morocco are in Africa; Iran is in Asia.",
+              ],
+              [
+                [
+                  ["australiano", "Australian"],
+                  ["canadese", "Canadian"],
+                  ["statunitense", "from the U.S."],
+                ],
+                "Il Canada e gli Stati Uniti sono nel Nord America; l’Australia no.",
+                "Canada and the U.S. are in North America; Australia isn’t.",
+              ],
+              [
+                [
+                  ["neozelandese", "New Zealander"],
+                  ["argentino", "Argentinian"],
+                  ["brasiliano", "Brazilian"],
+                ],
+                "L’Argentina e il Brasile sono nel Sud America; la Nuova Zelanda no.",
+                "Argentina and Brazil are in South America; New Zealand isn’t.",
+              ],
+              [
+                [
+                  ["sudafricano", "South African"],
+                  ["inglese", "English"],
+                  ["scozzese", "Scottish"],
+                ],
+                "L’Inghilterra e la Scozia sono nel Regno Unito; il Sudafrica no.",
+                "England and Scotland are in the United Kingdom; South Africa isn’t.",
+              ],
+              [
+                [
+                  ["americano", "American"],
+                  ["tedesco", "German"],
+                  ["austriaco", "Austrian"],
+                ],
+                "In Germania e in Austria si parla tedesco; in America no.",
+                "They speak German in Germany and Austria; not in America.",
+              ],
+              [
+                [
+                  ["irlandese", "Irish"],
+                  ["francese", "French"],
+                  ["svizzero", "Swiss"],
+                ],
+                "In Francia e in Svizzera si parla francese; in Irlanda no.",
+                "They speak French in France and Switzerland; not in Ireland.",
+              ],
+              [
+                [
+                  ["albanese", "Albanian"],
+                  ["portoghese", "Portuguese"],
+                  ["brasiliano", "Brazilian"],
+                ],
+                "In Portogallo e in Brasile si parla portoghese; in Albania no.",
+                "They speak Portuguese in Portugal and Brazil; not in Albania.",
+              ],
+              [
+                [
+                  ["russo", "Russian"],
+                  ["italiano", "Italian"],
+                  ["svizzero", "Swiss"],
+                ],
+                "In Italia e in Svizzera si parla italiano; in Russia no.",
+                "They speak Italian in Italy and Switzerland; not in Russia.",
+              ],
+              [
+                [
+                  ["pigro", "lazy"],
+                  ["attivo", "active"],
+                  ["studioso", "studious"],
+                ],
+                "Una persona attiva e una persona studiosa lavorano molto; una persona pigra no.",
+                "Active and studious people work hard; lazy people don’t.",
+              ],
+              [
+                [
+                  ["antipatico", "unfriendly"],
+                  ["simpatico", "nice"],
+                  ["amichevole", "friendly"],
+                ],
+                "Simpatico e amichevole sono qualità positive; antipatico no.",
+                "Nice and friendly are good qualities; unfriendly isn’t.",
+              ],
+              [
+                [
+                  ["giovane", "young"],
+                  ["vecchio", "old"],
+                  ["anziano", "elderly"],
+                ],
+                "Vecchio e anziano vogliono dire quasi la stessa cosa; giovane è il contrario.",
+                "Old and elderly mean almost the same; young is the opposite.",
+              ],
+              [
+                [
+                  ["tranquillo", "calm"],
+                  ["nervoso", "nervous"],
+                  ["stressato", "stressed"],
+                ],
+                "Nervoso e stressato vanno insieme; tranquillo è il contrario.",
+                "Nervous and stressed go together; calm is the opposite.",
+              ],
+              [
+                [
+                  ["contento", "content"],
+                  ["ammalato", "ill"],
+                  ["stanco", "tired"],
+                ],
+                "Quando sei ammalato o stanco, stai male; quando sei contento, stai bene.",
+                "When you’re ill or tired you feel bad; when you’re content you feel good.",
+              ],
+              [
+                [
+                  ["curioso", "curious"],
+                  ["alto", "tall"],
+                  ["biondo", "blond"],
+                ],
+                "Alto e biondo descrivono l’aspetto fisico; curioso descrive il carattere.",
+                "Tall and blond describe how someone looks; curious describes their personality.",
+              ],
+              [
+                [
+                  ["sincero", "sincere"],
+                  ["bruno", "dark-haired"],
+                  ["magro", "thin"],
+                ],
+                "Bruno e magro descrivono l’aspetto fisico; sincero descrive il carattere.",
+                "Dark-haired and thin describe how someone looks; sincere describes their personality.",
+              ],
+              [
+                [
+                  ["grasso", "fat"],
+                  ["spiritoso", "witty"],
+                  ["divertente", "fun"],
+                ],
+                "Spiritoso e divertente descrivono il carattere; grasso descrive l’aspetto fisico.",
+                "Witty and fun describe personality; fat describes how someone looks.",
+              ],
+              [
+                [
+                  ["carino", "cute"],
+                  ["estroverso", "extroverted"],
+                  ["introverso", "introverted"],
+                ],
+                "Estroverso e introverso descrivono il carattere; carino descrive l’aspetto fisico.",
+                "Extroverted and introverted describe personality; cute describes how someone looks.",
+              ],
+              [
+                [
+                  ["bello", "beautiful"],
+                  ["ordinato", "orderly"],
+                  ["disordinato", "untidy"],
+                ],
+                "Ordinato e disordinato descrivono il carattere; bello descrive l’aspetto fisico.",
+                "Orderly and untidy describe personality; beautiful describes how someone looks.",
+              ],
+              [
+                [
+                  ["piccolo", "small"],
+                  ["veloce", "fast"],
+                  ["lento", "slow"],
+                ],
+                "Veloce e lento sono contrari; piccolo no.",
+                "Fast and slow are opposites; small isn’t one of them.",
+              ],
+              [
+                [
+                  ["arancione", "orange"],
+                  ["blu", "dark blue"],
+                  ["azzurro", "sky blue"],
+                ],
+                "Il blu e l’azzurro sono tutti e due blu; l’arancione no.",
+                "Dark blue and sky blue are both blue; orange isn’t.",
+              ],
+              [
+                [
+                  ["blu", "dark blue"],
+                  ["verde", "green"],
+                  ["rosso", "red"],
+                ],
+                "Il verde e il rosso sono nella bandiera italiana; il blu no.",
+                "Green and red are on the Italian flag; dark blue isn’t.",
+              ],
+              [
+                [
+                  ["viola", "purple"],
+                  ["bianco", "white"],
+                  ["nero", "black"],
+                ],
+                "Il bianco e il nero sono i colori della Juventus; il viola è il colore della Fiorentina.",
+                "White and black are Juventus’s colours; purple is Fiorentina’s.",
+              ],
+              [
+                [
+                  ["domenica", "Sunday"],
+                  ["mercoledì", "Wednesday"],
+                  ["giovedì", "Thursday"],
+                ],
+                "Il mercoledì e il giovedì si lavora; la domenica di solito no.",
+                "People work on Wednesdays and Thursdays; on Sundays usually not.",
+              ],
+              [
+                [
+                  ["ieri", "yesterday"],
+                  ["domani", "tomorrow"],
+                  ["dopodomani", "day after tomorrow"],
+                ],
+                "Domani e dopodomani sono nel futuro; ieri è nel passato.",
+                "Tomorrow and the day after are in the future; yesterday is in the past.",
+              ],
+              [
+                [
+                  ["dicembre", "December"],
+                  ["luglio", "July"],
+                  ["agosto", "August"],
+                ],
+                "Luglio e agosto sono mesi d’estate; dicembre è d’inverno.",
+                "July and August are summer months; December is in winter.",
+              ],
+              [
+                [
+                  ["giugno", "June"],
+                  ["ottobre", "October"],
+                  ["novembre", "November"],
+                ],
+                "Ottobre e novembre sono in autunno; giugno no.",
+                "October and November are in autumn; June isn’t.",
+              ],
+              [
+                [
+                  ["settembre", "September"],
+                  ["gennaio", "January"],
+                  ["febbraio", "February"],
+                ],
+                "Gennaio e febbraio sono in inverno; settembre no.",
+                "January and February are in winter; September isn’t.",
+              ],
+              [
+                [
+                  ["marzo", "March"],
+                  ["l’autunno", "autumn"],
+                  ["la primavera", "spring"],
+                ],
+                "La primavera e l’autunno sono stagioni; marzo è un mese.",
+                "Spring and autumn are seasons; March is a month.",
+              ],
+              [
+                [
+                  ["avere ragione", "to be right"],
+                  ["avere fame", "to be hungry"],
+                  ["avere sete", "to be thirsty"],
+                ],
+                "Quando hai fame o sete, mangi o bevi; avere ragione è un’altra cosa.",
+                "When you’re hungry or thirsty you eat or drink; being right is something else.",
+              ],
+              [
+                [
+                  ["avere fretta", "to be in a hurry"],
+                  ["avere caldo", "to be hot"],
+                  ["avere freddo", "to be cold"],
+                ],
+                "Avere caldo e avere freddo parlano della temperatura; avere fretta no.",
+                "Being hot and being cold are about temperature; being in a hurry isn’t.",
+              ],
+              [
+                [
+                  ["serio", "serious"],
+                  ["ricco", "rich"],
+                  ["povero", "poor"],
+                ],
+                "Ricco e povero sono contrari; serio no.",
+                "Rich and poor are opposites; serious isn’t one of them.",
+              ],
+              [
+                [
+                  ["impegnato", "busy"],
+                  ["forte", "strong"],
+                  ["debole", "weak"],
+                ],
+                "Forte e debole sono contrari; impegnato no.",
+                "Strong and weak are opposites; busy isn’t one of them.",
+              ],
+              [
+                [
+                  ["innamorato", "in love"],
+                  ["facile", "easy"],
+                  ["difficile", "difficult"],
+                ],
+                "Facile e difficile descrivono una cosa, come un esame; innamorato descrive una persona.",
+                "Easy and difficult describe a thing, like an exam; in love describes a person.",
+              ],
+              [
+                [
+                  ["annoiato", "bored"],
+                  ["interessante", "interesting"],
+                  ["noioso", "boring"],
+                ],
+                "Interessante e noioso descrivono un libro o un film; annoiato descrive come ti senti.",
+                "Interesting and boring describe a book or a film; bored describes how you feel.",
+              ],
+              [
+                [
+                  ["birichino", "naughty"],
+                  ["intelligente", "intelligent"],
+                  ["stupido", "stupid"],
+                ],
+                "Intelligente e stupido sono contrari; birichino no.",
+                "Intelligent and stupid are opposites; naughty isn’t one of them.",
+              ],
+              [
+                [
+                  ["pazzo", "crazy"],
+                  ["grande", "big"],
+                  ["piccolo", "small"],
+                ],
+                "Grande e piccolo parlano della misura; pazzo no.",
+                "Big and small are about size; crazy isn’t.",
+              ],
+              [
+                [
+                  ["generoso", "generous"],
+                  ["vicino", "near"],
+                  ["lontano", "far"],
+                ],
+                "Vicino e lontano parlano della distanza; generoso no.",
+                "Near and far are about distance; generous isn’t.",
+              ],
+              [
+                [
+                  ["arrabbiato", "angry"],
+                  ["buono", "good"],
+                  ["cattivo", "bad"],
+                ],
+                "Buono e cattivo sono contrari; arrabbiato no.",
+                "Good and bad are opposites; angry isn’t one of them.",
+              ],
+              [
+                [
+                  ["libero", "free"],
+                  ["nuovo", "new"],
+                  ["vecchio", "old"],
+                ],
+                "Nuovo e vecchio sono contrari; libero no.",
+                "New and old are opposites; free isn’t one of them.",
+              ],
+              [
+                [
+                  ["marrone", "brown"],
+                  ["bello", "beautiful"],
+                  ["brutto", "ugly"],
+                ],
+                "Bello e brutto sono contrari; marrone è un colore.",
+                "Beautiful and ugly are opposites; brown is a colour.",
+              ],
+              [
+                [
+                  ["rosa", "pink"],
+                  ["grigio", "grey"],
+                  ["nero", "black"],
+                ],
+                "Il grigio e il nero sono colori scuri; il rosa è chiaro.",
+                "Grey and black are dark colours; pink is light.",
+              ],
+              [
+                [
+                  ["la canzone", "song"],
+                  ["beige", "beige"],
+                  ["marrone", "brown"],
+                ],
+                "Beige e marrone sono colori; la canzone no.",
+                "Beige and brown are colours; a song isn’t.",
+              ],
+              [
+                [
+                  ["oggi", "today"],
+                  ["venerdì", "Friday"],
+                  ["sabato", "Saturday"],
+                ],
+                "Venerdì e sabato sono giorni della settimana; oggi cambia ogni giorno!",
+                "Friday and Saturday are days of the week; today changes every day!",
+              ],
+              [
+                [
+                  ["la musica", "music"],
+                  ["la regione", "region"],
+                  ["il capoluogo", "regional capital"],
+                ],
+                "La regione e il capoluogo sono parole di geografia; la musica no.",
+                "Region and regional capital are geography words; music isn’t.",
+              ],
+              [
+                [
+                  ["la regione", "region"],
+                  ["il festival", "festival"],
+                  ["il premio", "prize"],
+                ],
+                "Al festival di Sanremo c’è un premio per la canzone più bella; la regione no.",
+                "At the Sanremo festival there’s a prize for the best song; a region isn’t part of that.",
+              ],
+              [
+                [
+                  ["avere paura", "to be afraid"],
+                  ["avere mal di testa", "to have a headache"],
+                  ["avere mal di stomaco", "to have a stomachache"],
+                ],
+                "Con il mal di testa e il mal di stomaco stai male; avere paura è un’emozione.",
+                "A headache and a stomachache make you feel ill; being afraid is an emotion.",
+              ],
+              [
+                [
+                  ["avere sonno", "to be sleepy"],
+                  ["avere gli occhi blu", "to have blue eyes"],
+                  ["avere i capelli biondi", "to have blond hair"],
+                ],
+                "Gli occhi blu e i capelli biondi descrivono l’aspetto fisico; avere sonno no.",
+                "Blue eyes and blond hair describe how someone looks; being sleepy doesn’t.",
+              ],
+            ],
+            famiglia: [
+              [
+                [
+                  ["la zia", "aunt"],
+                  ["il padre", "father"],
+                  ["il fratello", "brother"],
+                ],
+                "Il padre e il fratello sono uomini; la zia è una donna.",
+                "A father and a brother are men; an aunt is a woman.",
+              ],
+              [
+                [
+                  ["lo zio", "uncle"],
+                  ["la madre", "mother"],
+                  ["la sorella", "sister"],
+                ],
+                "La madre e la sorella sono donne; lo zio è un uomo.",
+                "A mother and a sister are women; an uncle is a man.",
+              ],
+              [
+                [
+                  ["il cugino", "cousin"],
+                  ["il padre", "father"],
+                  ["la madre", "mother"],
+                ],
+                "Il padre e la madre sono i genitori; il cugino no.",
+                "A father and a mother are parents; a cousin isn’t.",
+              ],
+              [
+                [
+                  ["la nuora", "daughter-in-law"],
+                  ["il nonno", "grandfather"],
+                  ["la nonna", "grandmother"],
+                ],
+                "Il nonno e la nonna sono i genitori dei genitori; la nuora è la moglie del figlio.",
+                "Grandparents are your parents’ parents; a daughter-in-law is your son’s wife.",
+              ],
+              [
+                [
+                  ["il genero", "son-in-law"],
+                  ["il suocero", "father-in-law"],
+                  ["la suocera", "mother-in-law"],
+                ],
+                "Il suocero e la suocera sono i genitori del marito o della moglie; il genero è il marito della figlia.",
+                "Parents-in-law are your spouse’s parents; a son-in-law is your daughter’s husband.",
+              ],
+              [
+                [
+                  ["la sorellastra", "stepsister"],
+                  ["il patrigno", "stepfather"],
+                  ["la matrigna", "stepmother"],
+                ],
+                "Il patrigno e la matrigna sono genitori; la sorellastra no.",
+                "A stepfather and a stepmother are parents; a stepsister isn’t.",
+              ],
+              [
+                [
+                  ["il fratellastro", "stepbrother"],
+                  ["il bisnonno", "great-grandfather"],
+                  ["la bisnonna", "great-grandmother"],
+                ],
+                "Il bisnonno e la bisnonna sono i nonni dei genitori; il fratellastro no.",
+                "Great-grandparents are your parents’ grandparents; a stepbrother isn’t.",
+              ],
+              [
+                [
+                  ["il marito", "husband"],
+                  ["il gemello", "twin (m)"],
+                  ["la gemella", "twin (f)"],
+                ],
+                "Il gemello e la gemella sono nati lo stesso giorno; il marito no.",
+                "Twins are born on the same day; a husband isn’t a twin.",
+              ],
+              [
+                [
+                  ["la moglie", "wife"],
+                  ["il cognato", "brother-in-law"],
+                  ["la cognata", "sister-in-law"],
+                ],
+                "Il cognato e la cognata sono parenti acquisiti; la moglie no.",
+                "A brother- and sister-in-law are in-laws; a wife isn’t.",
+              ],
+              [
+                [
+                  ["l’albero genealogico", "family tree"],
+                  ["i parenti", "relatives"],
+                  ["i genitori", "parents"],
+                ],
+                "I parenti e i genitori sono persone; l’albero genealogico è un disegno della famiglia.",
+                "Relatives and parents are people; a family tree is a drawing of the family.",
+              ],
+              [
+                [
+                  ["il nipote", "nephew, grandchild"],
+                  ["lo zio", "uncle"],
+                  ["la zia", "aunt"],
+                ],
+                "Lo zio e la zia sono i fratelli dei genitori; il nipote è il figlio di un fratello o di un figlio.",
+                "Uncles and aunts are your parents’ siblings; a nephew or grandchild is a sibling’s or child’s son.",
+              ],
+              [
+                [
+                  ["la figlia", "daughter"],
+                  ["la nonna", "grandmother"],
+                  ["la bisnonna", "great-grandmother"],
+                ],
+                "La nonna e la bisnonna sono più vecchie di te; la figlia è più giovane.",
+                "A grandmother and a great-grandmother are older than you; a daughter is younger.",
+              ],
+              [
+                [
+                  ["il mammone", "mama’s boy"],
+                  ["la figlia unica", "only child (f)"],
+                  ["la sorella", "sister"],
+                ],
+                "La figlia unica e la sorella sono femmine; il mammone è un ragazzo che vive con la mamma.",
+                "An only daughter and a sister are girls; a mammone is a grown son who still lives with his mother.",
+              ],
+              [
+                [
+                  ["la sorella", "sister"],
+                  ["il figlio unico", "only child"],
+                  ["la figlia unica", "only child (f)"],
+                ],
+                "Il figlio unico e la figlia unica non hanno fratelli; la sorella è una sorella!",
+                "Only children have no brothers or sisters; a sister is one!",
+              ],
+            ],
+          };
+          const SETS = ALL[ex.sets || "casa"];
+
+          const NEED = 8;
+          const qbox = h("div", { class: "drill-p casa-q" });
+          const grid = h("div", { class: "intr" });
+          const fb = h("div", { class: "feedback", "aria-live": "polite" });
+          const stats = h("span", { class: "stats" });
+          const more = h("button", { class: "btn pri", type: "button" });
+          const eng = h("button", { class: "btn", type: "button" }, "Inglese");
+          let deck, r, score, phase, cards;
+          const cur = () => deck[r];
+          const words = () => cur()[0].map((w) => w[0]);
+
+          const paint = () => {
+            const [ws] = cur();
+            qbox.innerHTML = "";
+            qbox.append(
+              h(
+                "div",
+                { class: "casa-c" },
+                h("p", { class: "now" }, "Chi è l’intruso?"),
+                h("p", {}, "Which one doesn’t belong?"),
+              ),
+              spk(() => words().join(", ")),
+            );
+            grid.innerHTML = "";
+            grid.className = "intr";
+            cards = shuffle(ws).map((w) => {
+              const en = h("span", { class: "en", hidden: true }, w[1]);
+              const b = h(
+                "button",
+                { class: "intr-w", type: "button", onclick: () => choose(w, b) },
+                h("span", { class: "it" }, w[0]),
+                en,
+              );
+              b._w = w;
+              b._en = en;
+              return b;
+            });
+            grid.append(...cards);
+            fb.innerHTML = "";
+            eng.hidden = false;
+            more.hidden = true;
+            stats.textContent = `Round ${r + 1} of ${NEED} · ${score} right`;
+          };
+          function choose(w, b) {
+            if (phase !== "ask") return;
+            phase = "done";
+            const [ws, why, whyEn] = cur();
+            const odd = ws[0];
+            const right = w === odd;
+            if (right) score++;
+            grid.classList.add("done");
+            cards.forEach((c) => {
+              c.disabled = true;
+              c._en.hidden = false;
+              if (c._w === odd) c.classList.add("ok");
+            });
+            if (!right) b.classList.add("no");
+            fb.innerHTML =
+              `<span class="${right ? "ok" : "no"}">${right ? "Sì!" : "No:"}</span> ` +
+              `l’intruso è <b>${esc(odd[0])}</b>. ${esc(why)}` +
+              `<span class="intr-why">${esc(whyEn)}</span>`;
+            say(why);
+            eng.hidden = true;
+            more.hidden = false;
+            more.textContent = r < NEED - 1 ? "Avanti" : "Risultato";
+            stats.textContent = `Round ${r + 1} of ${NEED} · ${score} right`;
+            more.focus();
+          }
+          const finish = () => {
+            phase = "over";
+            qbox.innerHTML = "";
+            qbox.append(
+              h("div", { class: "big" }, `Hai trovato ${score} intrusi su ${NEED}!`),
+              h(
+                "div",
+                { class: "sub" },
+                score === NEED ? "Perfetto!" : "Play again for a new set of rounds.",
+              ),
+            );
+            grid.innerHTML = "";
+            fb.innerHTML = "";
+            stats.textContent = "";
+            eng.hidden = true;
+            more.hidden = false;
+            more.textContent = "Gioca ancora";
+            markDone(id, score, NEED);
+          };
+          const newGame = () => {
+            deck = shuffle(SETS).slice(0, NEED);
+            r = 0;
+            score = 0;
+            phase = "ask";
+            paint();
+          };
+          more.onclick = () => {
+            if (phase === "over") return newGame();
+            if (r >= NEED - 1) return finish();
+            r++;
+            phase = "ask";
+            paint();
+            cards[0].focus();
+          };
+          eng.onclick = () => {
+            cards.forEach((c) => (c._en.hidden = false));
+            eng.hidden = true;
+          };
+          box.append(
+            h(
+              "div",
+              { class: "drill" },
+              qbox,
+              grid,
+              h("div", { class: "drill-row" }, eng, more),
+              fb,
+              stats,
+            ),
+          );
+          newGame();
+        },
         etu(box, id) {
           const L = [
             "Studio psicologia.",
@@ -7356,6 +9716,169 @@
         load(false);
         return box;
       }
+      // Memory: match each Italian word to its meaning. It deals six pairs at a time from
+      // the chosen group and works through the whole group before repeating a word, so every
+      // word in the chapter's vocabulary turns up in a game.
+      function renderMemory(ch) {
+        const box = h("div", { class: "ex" });
+        const PAIRS = 6;
+        const groups = ch.vocab;
+        let g = 0,
+          queue,
+          seen,
+          cards,
+          open,
+          moves,
+          found,
+          pairs,
+          busy;
+        const sel = h(
+          "select",
+          { class: "pick", id: "mg-" + ch.id, "aria-label": "memory group" },
+          ...groups.map((x, k) => h("option", { value: k }, `${x.g} (${x.items.length})`)),
+        );
+        const grid = h("div", { class: "mem" });
+        const fb = h("div", { class: "feedback", "aria-live": "polite" });
+        const stats = h("span", { class: "stats" });
+        const more = h("button", { class: "btn pri", type: "button" }, "Altre coppie");
+        const upd = () => {
+          stats.textContent =
+            `${found} of ${pairs} pairs · ${moves} ${moves === 1 ? "move" : "moves"} · ` +
+            `${seen.size} of ${groups[g].items.length} words dealt`;
+        };
+        const faceDown = (c) => {
+          c.classList.remove("up");
+          c.textContent = "";
+          c.setAttribute("aria-label", "Card " + (cards.indexOf(c) + 1) + ", face down");
+        };
+        const faceUp = (c) => {
+          c.classList.add("up");
+          c.textContent = c._text;
+          c.setAttribute("aria-label", c._text);
+        };
+        // Six words, none sharing a meaning (il cellulare and il telefonino would make two
+        // "cell phone" cards), taken from the front of a shuffled queue of the whole group.
+        const deal = () => {
+          const items = groups[g].items;
+          if (queue.length < PAIRS)
+            queue = queue.concat(shuffle(items.filter((x) => !queue.includes(x))));
+          const hand = [];
+          const later = [];
+          while (hand.length < PAIRS && queue.length) {
+            const w = queue.shift();
+            if (hand.some((x) => x[1] === w[1] || x[0] === w[0])) later.push(w);
+            else hand.push(w);
+          }
+          queue = later.concat(queue);
+          hand.forEach((w) => seen.add(w[0]));
+          return hand;
+        };
+        const start = () => {
+          const hand = deal();
+          pairs = hand.length;
+          moves = 0;
+          found = 0;
+          open = [];
+          busy = false;
+          grid.innerHTML = "";
+          fb.innerHTML = "";
+          more.hidden = true;
+          cards = shuffle(
+            hand.flatMap((w, k) => [
+              Object.assign(h("button", { class: "mem-c it", type: "button" }), {
+                _text: w[0],
+                _k: k,
+                _w: w,
+              }),
+              Object.assign(h("button", { class: "mem-c en", type: "button" }), {
+                _text: w[1],
+                _k: k,
+                _w: w,
+              }),
+            ]),
+          );
+          cards.forEach((c) => {
+            c.dataset.pair = c._k;
+            c.onclick = () => flip(c);
+            faceDown(c);
+          });
+          grid.append(...cards);
+          upd();
+        };
+        function flip(c) {
+          if (busy || c.classList.contains("up")) return;
+          faceUp(c);
+          open.push(c);
+          if (open.length < 2) return;
+          moves++;
+          const [a, b] = open;
+          open = [];
+          if (a._k === b._k && a.classList.contains("it") !== b.classList.contains("it")) {
+            found++;
+            [a, b].forEach((x) => {
+              x.classList.add("ok");
+              x.disabled = true;
+            });
+            const w = a._w;
+            fb.innerHTML = `<span class="ok">Sì!</span> <b>${esc(w[0])}</b> · ${esc(w[1])}`;
+            say(w[0]);
+            if (found === pairs) {
+              fb.innerHTML = `<span class="ok">Bravo!</span> ${pairs} pairs in ${moves} moves.`;
+              more.hidden = false;
+              more.focus();
+            }
+          } else {
+            busy = true;
+            [a, b].forEach((x) => x.classList.add("no"));
+            setTimeout(() => {
+              [a, b].forEach((x) => {
+                x.classList.remove("no");
+                faceDown(x);
+              });
+              busy = false;
+            }, 1100);
+          }
+          upd();
+        }
+        const load = () => {
+          queue = shuffle(groups[g].items);
+          seen = new Set();
+          start();
+        };
+        sel.onchange = () => {
+          g = +sel.value;
+          load();
+        };
+        more.onclick = start;
+        box.append(
+          h(
+            "div",
+            { class: "ex-h" },
+            h("div", { class: "ex-l", "aria-hidden": "true" }, "M"),
+            h(
+              "div",
+              {},
+              h("div", { class: "ex-t" }, h("span", { class: "it" }, "Memory"), " · Le coppie"),
+              h(
+                "p",
+                { class: "ex-i" },
+                "Turn over two cards at a time and match each Italian word to its meaning. “Altre coppie” deals new words from the same group until you’ve seen them all.",
+              ),
+            ),
+          ),
+          h(
+            "div",
+            { class: "drill" },
+            h("div", { class: "drill-row" }, sel),
+            grid,
+            h("div", { class: "drill-row" }, more),
+            fb,
+            stats,
+          ),
+        );
+        load();
+        return box;
+      }
       function renderReview(ch) {
         const box = h("div", { class: "ex" });
         const ul = h("ul", { class: "checks" });
@@ -7430,7 +9953,7 @@
           conj: renderConj,
           free: renderFree,
         })[ex.type]?.(ex, id, box);
-        if (ex.type === "widget") WIDGETS[ex.widget](box, id);
+        if (ex.type === "widget") WIDGETS[ex.widget](box, id, ex);
         return box;
       }
       function rerender(box) {
@@ -7634,6 +10157,7 @@
             h("span", { class: "en" }, "Vocabulary and review"),
           ),
           renderVocab(ch),
+          renderMemory(ch),
           renderReview(ch),
         );
         col.append(voc);
