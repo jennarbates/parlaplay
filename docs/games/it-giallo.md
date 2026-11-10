@@ -134,7 +134,7 @@ Feedback strings live in the giallo `messages.json` (GS 4.1), keyed by rule id. 
 | Rule id | Feedback (English chrome, Italian in italics) |
 |---|---|
 | `agree.quanto` | `*Persone* is feminine plural, so *quante*.` |
-| `agree.quale` | `*Scarpe* is plural, so *quali*.` |
+| `agree.quale` | `*Scarpe* is plural, so *quali*.` (and `*Lavoro* is singular, so *qual*.` for `quali` before a singular noun) |
 | `trunc.qualE` | `*Qual è* never takes an apostrophe.` |
 | `elide.consonant` | `Use *dove* here: *dov'* only goes before a vowel.` |
 | `prep.diChi` | `To ask whose, Italian says *di chi*.` |
@@ -178,7 +178,7 @@ const Frame = z.strictObject({
   id: z.string(),                           // "f.at.slot"
   body: z.record(z.enum(["m", "f"]), z.string()), // "era {slot}?" ; gender of the person asked
   vowelStart: z.boolean(),                  // body starts with a vowel (elision allowed)
-  noun: z.strictObject({ gender: z.enum(["m", "f"]), number: z.enum(["sg", "pl"]) }).optional(),
+  noun: z.strictObject({ text: z.string(), gender: z.enum(["m", "f"]), number: z.enum(["sg", "pl"]) }).optional(), // text: "persone", for agreement feedback
   slotParam: z.boolean(),                   // body takes one of the three time slots
   nameAt: z.int().min(1).optional(),        // GS 6: the inspector names the person after this many words
   asks: z.array(z.strictObject({            // accepted question words and the fact each asks
@@ -486,6 +486,7 @@ Level stays per language (`language_settings`): the learner's Italian level appl
 | Level 1 picker | The frames for the selected person, grouped by qword, each with its English hint behind a `Show hint` toggle. Asked questions are greyed out and show their answer |
 | Level 1 picker, as built | In the sheet, under a heading per question word in lexicon order. `Show hint` is on every question and hides again. At 0 questions the picker is disabled, and the sheet's line says `Hai finito le domande. Chi è stato?` |
 | Level 2 builder | Three slots: preposition (optional), question word, body. Rows of tiles: `con di a da`; every qword form of GS 3.1 plus `qual'`; then the bodies for the selected person, and the slot picker when the body needs one. `Chiedi` submits |
+| Level 2 builder, as built | Under the slots, the question so far, joined as the engine joins it (`Dov'era …?`), then what `Chiedi` got, both just above `Chiedi`, which the sheet scrolls down to. Bodies are tiles without their `?`, with `…` for the slot. `ora` is in the question-word row and only adds to `che`, making `che ora`; it is shown only when the case has a frame that asks `a che ora`. Each GS 3.2 rule says its feedback; nonsense says `Non capisco la domanda.`; a duplicate shows the earlier answer; a slip shows the corrected question and its answer beside the rule. An empty slot says what to pick, for free. The question stays built when the learner picks another person, for asking everyone the same thing (GS 2) |
 | Notebook | One section per person: their answers in order, and a `Cleared` toggle. The scene's evidence at the top |
 | Notebook, as built | A dialog from `Taccuino`, which stays at the foot of the sheet. People in the people strip's order, each answer under the question that got it, since `Non lo so.` means nothing alone. `Cleared` is on the suspects only (GS 2), strikes through the name and dims the face in the strip. It opens during an inspector question too: only asking and accusing wait (GS 2) |
 | Inspector sheet | Her face, the question, 3 options, `Show hint` |
@@ -604,3 +605,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-11-03: GS 9.1 as built in PLAY-092. The picker offers every question for the selected person, as the builder would build it with the usual form, so it goes through the same `step()`. `{slotEn}` is filled from the three fixed slots of GS 2, in the engine rather than the content. Until PLAY-094 a pending inspector question leaves the picker disabled, and a case can't go past the fourth question that gets her to ask. The case's column stays phone width at every size until PLAY-097.
 - 2026-11-04: GS 6 and GS 9.1 as built in PLAY-094. The inspector's question gains `hint`, and frames gain `hintAbout`, because the learner's hints say `you` and hers is about the person; content version 2, so a case saved before this is discarded (GS 4.4). Ispettrice Bassi's face is a fixed look that matches none of the 24 characters. The notebook shows each answer with its question, and is open during her question.
 - 2026-11-04: GS 9.1 as built in PLAY-095. The accuse sheet offers every room, and the case end's proofs are the shortest solution, not the learner's own questions. Both still sit behind Level 1 until PLAY-093.
+- 2026-11-09: GS 9.1 as built in PLAY-093, so a Level 2 case now plays from start to finish. Frames with a noun gain its `text` (GS 4.2), for the agreement feedback to name it; no content version bump, since nothing saved changes. `agree.quale`'s draft takes `{number}` and `{expected}`, because `quali` before `il Suo lavoro` breaks the same rule the other way. `Non capisco la domanda.` is in italics, as Italian is in every other message.

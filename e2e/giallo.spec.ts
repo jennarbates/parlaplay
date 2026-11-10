@@ -639,3 +639,141 @@ test.describe("the accusation and the case end", () => {
     await check();
   });
 });
+
+test.describe("the Level 2 builder", () => {
+  const sheet = (page: Page) => page.getByRole("region", { name: "Questions" });
+  const row = (page: Page, name: string) => sheet(page).getByRole("group", { name, exact: true });
+  const tap = (page: Page, group: string, name: string | RegExp) =>
+    row(page, group).getByRole("button", { name, exact: true }).click();
+  const arrive = /^è arrivat[ao] alla villa$/;
+  const chiedi = (page: Page) => sheet(page).getByRole("button", { name: "Chiedi" }).click();
+  const preview = (page: Page, text: string) => sheet(page).getByText(text, { exact: true });
+  type Row = { lexiconId: string; rating: string };
+  const reviews = async (page: Page) =>
+    (await stored<{ reviewLog?: Row[] }>(page, "guest:it"))?.reviewLog ?? [];
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/it");
+    await page.getByRole("radio", { name: /Level 2/ }).check();
+    await openCase(page);
+    await people(page).first().click();
+  });
+
+  test("the tiles: prepositions, every question word with qual', and no English", async ({
+    page,
+  }) => {
+    for (const p of ["con", "di", "a", "da"])
+      await expect(
+        row(page, "Preposition").getByRole("button", { name: p, exact: true }),
+      ).toBeVisible();
+    for (const form of [
+      "chi",
+      "che cosa",
+      "cos'",
+      "dov'",
+      "perché",
+      "qual",
+      "qual'",
+      "quante",
+      "quant'",
+    ])
+      await expect(
+        row(page, "Question word").getByRole("button", { name: form, exact: true }),
+      ).toBeVisible();
+    // ora only makes che ora.
+    await expect(row(page, "Question word").getByRole("button", { name: "ora" })).toBeDisabled();
+    await expect(sheet(page).getByRole("button", { name: /Show hint/ })).toHaveCount(0);
+    await expect(row(page, "Time")).toHaveCount(0);
+  });
+
+  test("builds Dov'era tra le otto e le nove?, and asks it", async ({ page }) => {
+    await tap(page, "Question word", "dov'");
+    await tap(page, "Question", "era …");
+    await chiedi(page);
+    await expect(sheet(page).getByText("Pick a time.")).toBeVisible();
+    await tap(page, "Time", "tra le otto e le nove");
+    await expect(preview(page, "Dov'era tra le otto e le nove?")).toBeVisible();
+    await chiedi(page);
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+    await expect
+      .poll(async () => (await reviews(page)).map((r) => [r.lexiconId, r.rating]))
+      .toEqual([["q.dove", "good"]]);
+
+    // Again to the same person is a duplicate, free; to someone else, a new question.
+    await chiedi(page);
+    await expect(sheet(page)).toContainText("You asked that already.");
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+    await people(page).nth(1).click();
+    await expect(preview(page, "Dov'era tra le otto e le nove?")).toBeVisible();
+    await chiedi(page);
+    await expect(page.getByText("Domande: 13")).toBeVisible();
+  });
+
+  test("a known error is rejected with its rule, for free, and di fixes it", async ({ page }) => {
+    await tap(page, "Question word", "chi");
+    await tap(page, "Question", "è questo ombrello");
+    await chiedi(page);
+    await expect(sheet(page).getByRole("status")).toHaveText("To ask whose, Italian says di chi.");
+    await expect(page.getByText("Domande: 15")).toBeVisible();
+    await tap(page, "Preposition", "di");
+    await expect(sheet(page).getByRole("status")).toHaveCount(0);
+    await expect(preview(page, "Di chi è questo ombrello?")).toBeVisible();
+    await chiedi(page);
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+    // The card keeps its again for the turn (GS 5.5).
+    await expect
+      .poll(async () => (await reviews(page)).map((r) => [r.lexiconId, r.rating]))
+      .toEqual([["q.di_chi", "again"]]);
+  });
+
+  test("che and ora make a che ora; without a, the rule says so", async ({ page }) => {
+    await tap(page, "Question word", "che");
+    await tap(page, "Question word", "ora");
+    await expect(
+      row(page, "Question word").getByRole("button", { name: "che", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await tap(page, "Question", arrive);
+    await chiedi(page);
+    await expect(sheet(page).getByRole("status")).toHaveText(
+      "To ask what time, Italian says a che ora.",
+    );
+    await tap(page, "Preposition", "a");
+    await expect(sheet(page).getByText(/^A che ora è arrivat[ao] alla villa\?$/)).toBeVisible();
+    await chiedi(page);
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+  });
+
+  test("a slip is answered, with the right form and its rule; nonsense is free", async ({
+    page,
+  }) => {
+    await tap(page, "Question word", "quanti");
+    await tap(page, "Question", "persone c'erano in cucina …");
+    await tap(page, "Time", "tra le otto e le nove");
+    await chiedi(page);
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+    await expect(sheet(page)).toContainText(
+      "Quante persone c'erano in cucina tra le otto e le nove?",
+    );
+    await expect(sheet(page).getByRole("status")).toHaveText(
+      "Persone is feminine plural, so quante.",
+    );
+    await expect
+      .poll(async () => (await reviews(page)).map((r) => [r.lexiconId, r.rating]))
+      .toEqual([["q.quanto", "slip"]]);
+
+    await tap(page, "Question", "persone c'erano in cucina …");
+    await tap(page, "Question", arrive);
+    await chiedi(page);
+    await expect(sheet(page).getByRole("status")).toHaveText("Non capisco la domanda.");
+    await expect(page.getByText("Domande: 14")).toBeVisible();
+  });
+
+  test("axe finds nothing, with feedback shown", async ({ page }) => {
+    await tap(page, "Question word", "dov'");
+    await tap(page, "Question", "viene");
+    await chiedi(page);
+    await expect(sheet(page).getByRole("status")).toContainText("da dove");
+    const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+    expect(violations).toEqual([]);
+  });
+});
