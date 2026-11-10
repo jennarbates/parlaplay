@@ -1,9 +1,14 @@
 // Chi è stato? GS 9.1: the giallo's routes, loaded as their own chunk so Chi è?'s
 // players never pay for its content.
-import { useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Link, Navigate, useNavigate } from "react-router";
 import { useAccountStore } from "../../../../core/store/account.ts";
+import { Kbd } from "../../../../core/ui/Kbd.tsx";
 import { Logo } from "../../../../core/ui/Logo.tsx";
+import { ShortcutsDialog } from "../../../../core/ui/ShortcutsDialog.tsx";
+import { SidePanel } from "../../../../core/ui/SidePanel.tsx";
+import { useIsDesktop } from "../../../../core/ui/useMediaQuery.ts";
 import { paths } from "../../paths.ts";
 import { useProgressStore, usePrefs } from "../../stores.ts";
 import { Face } from "../../ui/Face.tsx";
@@ -19,9 +24,11 @@ import { inProgress, solvedCases, useCaseStore } from "../store/caseStore.ts";
 import { AccuseSheet } from "./AccuseSheet.tsx";
 import { CaseEnd } from "./CaseEnd.tsx";
 import { InspectorSheet } from "./InspectorSheet.tsx";
-import { Notebook } from "./Notebook.tsx";
+import { Notebook, NotebookPanel } from "./Notebook.tsx";
 import { QuestionBuilder } from "./QuestionBuilder.tsx";
 import { QuestionPicker } from "./QuestionPicker.tsx";
+import { shortcutRows } from "./shortcutRows.ts";
+import { keyToAction } from "./shortcuts.ts";
 
 // Its own text rather than core/games.ts: importing that from this chunk makes the
 // build split the shell, which grows every page (platform spec 9).
@@ -104,10 +111,12 @@ export function CaseScreen() {
 function CasePlay({ game }: { game: CaseState }) {
   const navigate = useNavigate();
   const { quit, dispatch } = useCaseStore();
+  const desktop = useIsDesktop();
   const [selected, setSelected] = useState<string>();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [accusing, setAccusing] = useState(false);
+  const [help, setHelp] = useState(false);
   // Her sheet opens by itself, and can be folded away to look at the faces and scene.
   const [inspectorFolded, setInspectorFolded] = useState(false);
   // Her question once answered: the engine has moved on, but the result stays up.
@@ -132,6 +141,11 @@ function CasePlay({ game }: { game: CaseState }) {
   const inspector = game.inspector ?? answered?.question;
   const open = inspector ? !inspectorFolded : sheetOpen;
 
+  const select = (role: string) => {
+    setSelected(role);
+    setSheetOpen(true);
+    setInspectorFolded(false);
+  };
   const answerInspector = (choice: string, hintShown: boolean) => {
     if (!game.inspector) return;
     setAnswered({ question: game.inspector, choice });
@@ -148,167 +162,283 @@ function CasePlay({ game }: { game: CaseState }) {
       list?.querySelector<HTMLElement>("button")
     )?.focus();
   };
+  const notebookProps = {
+    state: game,
+    evidence,
+    onMark: (role: string, cleared: boolean) => dispatch({ type: "MARK", role, cleared }),
+  };
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-stone-200 bg-white px-3">
-        <div className="flex min-w-0 items-center gap-2 lg:gap-4">
-          <Logo compact />
-          <div className="min-w-0 leading-tight">
-            <p lang="it" className="truncate font-semibold">
-              {c.title}
-            </p>
-            <p lang="it" aria-live="polite" className="text-sm text-stone-600">
-              Domande: {game.budget}
-            </p>
-          </div>
+  // GS 9.2: one keydown listener for the case's shortcut keys, as Chi è?'s DS 4. The
+  // pure keyToAction() decides; this carries it out with what the buttons do.
+  const onShortcut = useEffectEvent((e: KeyboardEvent) => {
+    const target = e.target instanceof HTMLElement ? e.target : null;
+    // A checkbox or radio takes no typing, so letters stay shortcuts there.
+    const toggle =
+      target instanceof HTMLInputElement && (target.type === "checkbox" || target.type === "radio");
+    const action = keyToAction(
+      {
+        key: e.key,
+        ctrlKey: e.ctrlKey,
+        metaKey: e.metaKey,
+        altKey: e.altKey,
+        targetTag: toggle ? "CHECKBOX" : (target?.tagName ?? ""),
+        targetEditable: !!target?.isContentEditable,
+      },
+      {
+        level: game.level,
+        inspector: game.inspector ? "pending" : answered ? "answered" : "none",
+        desktop,
+        sheetOpen: open,
+        dialogOpen: !!document.querySelector("dialog[open]"),
+      },
+    );
+    if (!action) return;
+    e.preventDefault();
+    switch (action.type) {
+      case "select": {
+        const role = people[action.index]?.role;
+        if (!role) break;
+        // Rendered now, so their questions are there to focus.
+        flushSync(() => select(role));
+        if (!inspector) focusQuestions(game.level);
+        break;
+      }
+      case "focusNotebook":
+        if (desktop) document.querySelector<HTMLElement>("[data-notebook]")?.focus();
+        else setNotebookOpen(true);
+        break;
+      case "accuse":
+        setAccusing(true);
+        break;
+      case "ask":
+        document.querySelector<HTMLButtonElement>("[data-ask]")?.click();
+        break;
+      case "showHint":
+        document.querySelector<HTMLButtonElement>("[data-hint]")?.click();
+        break;
+      case "closeSheet":
+        if (inspector) setInspectorFolded(true);
+        else setSheetOpen(false);
+        break;
+      case "openHelp":
+        setHelp(true);
+        break;
+    }
+  });
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => onShortcut(e);
+    document.addEventListener("keydown", listener);
+    return () => document.removeEventListener("keydown", listener);
+  }, []);
+
+  const pickSomeone = desktop
+    ? "Click a face, or press 1 to 5, to ask them a question."
+    : "Tap a face to ask them a question.";
+  const summary = game.inspector ? (
+    "Ispettrice Bassi has a question for you."
+  ) : outOfQuestions ? (
+    <span lang="it">{content.messages["budget.empty"]}</span>
+  ) : lastAnswer ? (
+    <span lang="it">{lastAnswer}</span>
+  ) : (
+    pickSomeone
+  );
+  const questions = inspector ? (
+    <InspectorSheet
+      question={inspector}
+      choice={answered?.choice}
+      lastAnswer={lastAnswer}
+      onAnswer={answerInspector}
+      onContinue={closeInspector}
+    />
+  ) : person && game.level === 2 ? (
+    <QuestionBuilder
+      key={person.role}
+      state={game}
+      person={person}
+      draft={draft}
+      onDraft={setDraft}
+      disabled={outOfQuestions}
+      roving={desktop}
+      onAsk={(built) => dispatch({ type: "ASK", built })}
+    />
+  ) : person ? (
+    <QuestionPicker
+      key={person.role}
+      state={game}
+      person={person}
+      disabled={outOfQuestions}
+      onAsk={(built) => dispatch({ type: "ASK", built })}
+    />
+  ) : desktop ? null : ( // the panel's summary says it already
+    <p className="py-2 text-stone-600">{pickSomeone}</p>
+  );
+  const accusa = (
+    <button
+      type="button"
+      lang="it"
+      disabled={!!inspector}
+      onClick={() => setAccusing(true)}
+      aria-keyshortcuts="a"
+      className="min-h-12 flex-1 rounded-xl bg-stone-900 font-medium text-white hover:bg-stone-800 disabled:bg-stone-300 disabled:text-stone-600"
+    >
+      Accusa
+      {desktop && <Kbd>A</Kbd>}
+    </button>
+  );
+
+  const header = (
+    <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-stone-200 bg-white px-3">
+      <div className="flex min-w-0 items-center gap-2 lg:gap-4">
+        <Logo compact />
+        <div className="min-w-0 leading-tight">
+          <p lang="it" className="truncate font-semibold">
+            {c.title}
+          </p>
+          <p lang="it" aria-live="polite" className="text-sm text-stone-600">
+            Domande: {game.budget}
+          </p>
         </div>
-        <GameMenu
-          thing="case"
-          onQuit={() => {
-            quit();
-            void navigate(paths.giallo);
-          }}
-        />
-      </header>
-      <div className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 pb-32">
-        <ul ref={faces} aria-label="People" className="grid grid-cols-5 gap-2">
-          {people.map((p) => {
-            const cleared = game.cleared.includes(p.role);
-            return (
-              <li key={p.role}>
-                <button
-                  type="button"
-                  aria-label={cleared ? `${p.label}, cleared` : p.label}
-                  aria-pressed={selected === p.role}
-                  onClick={() => {
-                    setSelected(p.role);
-                    setSheetOpen(true);
-                    setInspectorFolded(false);
-                  }}
-                  className={`flex min-h-11 w-full flex-col items-center gap-1 rounded-xl bg-white p-1 ring-2 hover:bg-stone-100 ${
-                    selected === p.role ? "ring-stone-900" : "ring-stone-200"
-                  }`}
-                >
-                  <Face
-                    character={p.character}
-                    className={`w-full rounded-lg ${cleared ? "opacity-40" : ""}`}
-                  />
-                  <span
-                    className={`max-w-full truncate text-xs font-medium ${cleared ? "line-through" : ""}`}
-                  >
-                    {p.character.name}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        <section
-          aria-labelledby="scene"
-          className="flex flex-col gap-1 rounded-2xl bg-white p-4 ring-1 ring-stone-200"
-        >
-          <h2 id="scene" lang="it" className="font-semibold">
-            {c.setting}
-          </h2>
-          <ul lang="it" className="flex flex-wrap gap-2 text-sm text-stone-600">
-            {evidence.map((text) => (
-              <li key={text} className="rounded-full bg-stone-100 px-3 py-1">
-                {text}
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
-      <>
-        <p role="status" lang="it" className="sr-only">
-          {lastAnswer}
-        </p>
-        <Sheet
-          open={open}
-          onToggle={() =>
-            inspector ? setInspectorFolded(!inspectorFolded) : setSheetOpen(!sheetOpen)
-          }
-          // The picker and builder leave the faces in reach. Hers doesn't need them, and on a small
-          // phone her three options need the room.
-          maxHeight={inspector ? "max-h-[85dvh]" : "max-h-[calc(100dvh-12.5rem)]"}
-          actions={
-            <>
+      <GameMenu
+        thing="case"
+        onQuit={() => {
+          quit();
+          void navigate(paths.giallo);
+        }}
+        onShortcuts={() => setHelp(true)}
+      />
+    </header>
+  );
+  const board = (
+    <>
+      <ul ref={faces} aria-label="People" className="grid grid-cols-5 gap-2 lg:gap-4">
+        {people.map((p, i) => {
+          const cleared = game.cleared.includes(p.role);
+          return (
+            <li key={p.role}>
               <button
                 type="button"
-                lang="it"
-                onClick={() => setNotebookOpen(true)}
-                className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
+                aria-label={cleared ? `${p.label}, cleared` : p.label}
+                aria-pressed={selected === p.role}
+                aria-keyshortcuts={String(i + 1)}
+                onClick={() => select(p.role)}
+                className={`relative flex min-h-11 w-full flex-col items-center gap-1 rounded-xl bg-white p-1 ring-2 hover:bg-stone-100 lg:p-2 ${
+                  selected === p.role ? "ring-stone-900" : "ring-stone-200"
+                }`}
               >
-                Taccuino
+                <Face
+                  character={p.character}
+                  className={`w-full rounded-lg ${cleared ? "opacity-40" : ""}`}
+                />
+                <span
+                  className={`max-w-full truncate text-xs font-medium lg:text-base ${cleared ? "line-through" : ""}`}
+                >
+                  {p.character.name}
+                </span>
+                {desktop && (
+                  <span className="absolute top-1 right-1 rounded bg-white/90 [&>kbd]:ml-0">
+                    <Kbd>{String(i + 1)}</Kbd>
+                  </span>
+                )}
               </button>
-              <button
-                type="button"
-                lang="it"
-                disabled={!!inspector}
-                onClick={() => setAccusing(true)}
-                className="min-h-12 flex-1 rounded-xl bg-stone-900 font-medium text-white hover:bg-stone-800 disabled:bg-stone-300 disabled:text-stone-600"
-              >
-                Accusa
-              </button>
-            </>
-          }
-          summary={
-            game.inspector ? (
-              "Ispettrice Bassi has a question for you."
-            ) : outOfQuestions ? (
-              <span lang="it">{content.messages["budget.empty"]}</span>
-            ) : lastAnswer ? (
-              <span lang="it">{lastAnswer}</span>
-            ) : (
-              "Tap a face to ask them a question."
-            )
-          }
-        >
-          {inspector ? (
-            <InspectorSheet
-              question={inspector}
-              choice={answered?.choice}
-              lastAnswer={lastAnswer}
-              onAnswer={answerInspector}
-              onContinue={closeInspector}
-            />
-          ) : person && game.level === 2 ? (
-            <QuestionBuilder
-              key={person.role}
-              state={game}
-              person={person}
-              draft={draft}
-              onDraft={setDraft}
-              disabled={outOfQuestions}
-              onAsk={(built) => dispatch({ type: "ASK", built })}
-            />
-          ) : person ? (
-            <QuestionPicker
-              key={person.role}
-              state={game}
-              person={person}
-              disabled={outOfQuestions}
-              onAsk={(built) => dispatch({ type: "ASK", built })}
-            />
-          ) : (
-            <p className="py-2 text-stone-600">Tap a face to ask them a question.</p>
-          )}
-        </Sheet>
-        <Notebook
-          state={game}
-          evidence={evidence}
-          open={notebookOpen}
-          onClose={() => setNotebookOpen(false)}
-          onMark={(role, cleared) => dispatch({ type: "MARK", role, cleared })}
-        />
-        <AccuseSheet
-          state={game}
-          open={accusing}
-          onClose={() => setAccusing(false)}
-          onAccuse={(role, room, slot) => dispatch({ type: "ACCUSE", role, room, slot })}
-        />
-      </>
+            </li>
+          );
+        })}
+      </ul>
+      <section
+        aria-labelledby="scene"
+        className="flex flex-col gap-1 rounded-2xl bg-white p-4 ring-1 ring-stone-200"
+      >
+        <h2 id="scene" lang="it" className="font-semibold">
+          {c.setting}
+        </h2>
+        <ul lang="it" className="flex flex-wrap gap-2 text-sm text-stone-600">
+          {evidence.map((text) => (
+            <li key={text} className="rounded-full bg-stone-100 px-3 py-1">
+              {text}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  );
+
+  // GS 9.2: at lg, as Chi è?'s DS 6, the people and scene on the left and an
+  // always-open panel on the right: the questions above the notebook, Accusa below.
+  const screen = desktop ? (
+    <div className="grid h-dvh grid-cols-[1fr_minmax(22rem,26rem)] grid-rows-[auto_1fr]">
+      <div className="col-span-2">{header}</div>
+      <div className="min-h-0 overflow-y-auto p-6">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">{board}</div>
+      </div>
+      <SidePanel
+        summary={summary}
+        actions={accusa}
+        logRoom
+        log={<NotebookPanel {...notebookProps} />}
+      >
+        {questions}
+      </SidePanel>
+    </div>
+  ) : (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {header}
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 pb-32">{board}</div>
+      {/* The panel's summary is live at lg; the collapsed sheet's line isn't. */}
+      <p role="status" lang="it" className="sr-only">
+        {lastAnswer}
+      </p>
+      <Sheet
+        open={open}
+        onToggle={() =>
+          inspector ? setInspectorFolded(!inspectorFolded) : setSheetOpen(!sheetOpen)
+        }
+        // The picker and builder leave the faces in reach. Hers doesn't need them, and on a small
+        // phone her three options need the room.
+        maxHeight={inspector ? "max-h-[85dvh]" : "max-h-[calc(100dvh-12.5rem)]"}
+        actions={
+          <>
+            <button
+              type="button"
+              lang="it"
+              onClick={() => setNotebookOpen(true)}
+              className="min-h-12 flex-1 rounded-xl bg-stone-200 font-medium hover:bg-stone-300"
+            >
+              Taccuino
+            </button>
+            {accusa}
+          </>
+        }
+        summary={summary}
+      >
+        {questions}
+      </Sheet>
+      <Notebook {...notebookProps} open={notebookOpen} onClose={() => setNotebookOpen(false)} />
     </div>
   );
+
+  return (
+    <>
+      {screen}
+      <AccuseSheet
+        state={game}
+        open={accusing}
+        onClose={() => setAccusing(false)}
+        onAccuse={(role, room, slot) => dispatch({ type: "ACCUSE", role, room, slot })}
+      />
+      <ShortcutsDialog open={help} onClose={() => setHelp(false)} rows={shortcutRows} />
+    </>
+  );
+}
+
+// GS 9.2: after 1 to 5, Level 1's first question still to ask, or Level 2's heading,
+// so that Enter asks the question already built (GS 2: the same to everyone).
+function focusQuestions(level: 1 | 2) {
+  const panel = document.querySelector<HTMLElement>("[data-questions]");
+  const to =
+    level === 2
+      ? panel?.querySelector<HTMLElement>("h2")
+      : panel?.querySelector<HTMLElement>("[data-question]:not(:disabled)");
+  to?.focus();
 }

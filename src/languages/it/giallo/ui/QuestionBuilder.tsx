@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Feedback } from "../../engine/types.ts";
 import { FeedbackText } from "../../ui/game/FeedbackText.tsx";
+import { TileRow } from "../../ui/game/TileRow.tsx";
 import { content } from "../content/index.ts";
 import { questionFor } from "../engine/ask.ts";
 import {
@@ -41,6 +42,7 @@ export function QuestionBuilder({
   draft,
   onDraft,
   disabled,
+  roving = false,
   onAsk,
 }: {
   state: CaseState;
@@ -48,6 +50,7 @@ export function QuestionBuilder({
   draft: Draft;
   onDraft: (draft: Draft) => void;
   disabled: boolean; // out of questions (GS 2)
+  roving?: boolean; // GS 9.2: at lg, Tab between rows and the arrows along one
   onAsk: (built: Built) => Event[];
 }) {
   const [outcome, setOutcome] = useState<Outcome>();
@@ -108,8 +111,9 @@ export function QuestionBuilder({
   ];
 
   return (
-    <div className="flex flex-col gap-3 py-2">
-      <h2 ref={heading} className="font-semibold">
+    <div data-questions className="flex flex-col gap-3 py-2">
+      {/* Focused by 1 to 5 (GS 9.2), so that Enter asks what is built. */}
+      <h2 ref={heading} tabIndex={-1} className="font-semibold focus:outline-none">
         Ask {person.character.name}
       </h2>
       <div role="group" aria-label="Your question" className="flex flex-wrap items-center gap-1.5">
@@ -131,14 +135,14 @@ export function QuestionBuilder({
         ))}
       </div>
 
-      <TileRow label="Preposition">
+      <TileRow label="Preposition" roving={roving}>
         {tiles.preps.map((p) => (
           <Tile key={p.id} selected={draft.prep === p.id} onClick={() => toggle("prep", p.id)}>
             {p.text}
           </Tile>
         ))}
       </TileRow>
-      <TileRow label="Question word">
+      <TileRow label="Question word" roving={roving}>
         {tiles.forms.map((form) => (
           <Tile
             key={form}
@@ -163,7 +167,7 @@ export function QuestionBuilder({
           );
         })}
       </TileRow>
-      <TileRow label="Question">
+      <TileRow label="Question" roving={roving}>
         {tiles.bodies.map((b) => (
           <Tile
             key={b.frame}
@@ -175,7 +179,7 @@ export function QuestionBuilder({
         ))}
       </TileRow>
       {body?.slotParam && (
-        <TileRow label="Time">
+        <TileRow label="Time" roving={roving}>
           {tiles.slots.map((text, i) => (
             <Tile key={text} selected={draft.slot === i} onClick={() => toggle("slot", i)}>
               {text}
@@ -196,6 +200,8 @@ export function QuestionBuilder({
         lang="it"
         disabled={disabled}
         onClick={submit}
+        data-ask
+        aria-keyshortcuts="Enter"
         className="min-h-12 rounded-xl bg-stone-900 font-semibold text-white enabled:active:bg-stone-700 disabled:bg-stone-300 disabled:text-stone-600"
       >
         Chiedi
@@ -243,14 +249,6 @@ function Asked({ entry, state }: { entry: NotebookEntry; state: CaseState }) {
       <span className="font-medium">{questionFor(state, entry.built, engineContent)}</span>{" "}
       {entry.answer}
     </p>
-  );
-}
-
-function TileRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-      {children}
-    </div>
   );
 }
 

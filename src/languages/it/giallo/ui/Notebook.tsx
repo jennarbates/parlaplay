@@ -51,21 +51,38 @@ function Section({
   );
 }
 
-// Chi è stato? GS 9.1: the scene's evidence, then one section per person. Marking is
-// free and reversible, like flipping in Chi è? (GS 2).
-export function Notebook({
-  state,
-  evidence,
-  open,
-  onClose,
-  onMark,
-}: {
+type Props = {
   state: CaseState;
   evidence: readonly string[];
-  open: boolean;
-  onClose: () => void;
   onMark: (role: string, cleared: boolean) => void;
-}) {
+};
+
+// The scene's evidence, then one section per person.
+function Pages({ state, evidence, onMark }: Props) {
+  return (
+    <>
+      <ul aria-label="Evidence" lang="it" className="flex flex-wrap gap-2 text-sm text-stone-600">
+        {evidence.map((text) => (
+          <li key={text} className="rounded-full bg-stone-100 px-3 py-1">
+            {text}
+          </li>
+        ))}
+      </ul>
+      {notebookSections(state, engineContent).map((section) => (
+        <Section key={section.person.role} section={section} onMark={onMark} />
+      ))}
+    </>
+  );
+}
+
+// Chi è stato? GS 9.1: the scene's evidence, then one section per person. Marking is
+// free and reversible, like flipping in Chi è? (GS 2). On the phone it is a dialog
+// from Taccuino.
+export function Notebook({
+  open,
+  onClose,
+  ...props
+}: Props & { open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = dialog.current;
@@ -98,22 +115,27 @@ export function Notebook({
       </header>
       {open && (
         <div className="flex min-h-0 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
-          <ul
-            aria-label="Evidence"
-            lang="it"
-            className="flex flex-wrap gap-2 text-sm text-stone-600"
-          >
-            {evidence.map((text) => (
-              <li key={text} className="rounded-full bg-stone-100 px-3 py-1">
-                {text}
-              </li>
-            ))}
-          </ul>
-          {notebookSections(state, engineContent).map((section) => (
-            <Section key={section.person.role} section={section} onMark={onMark} />
-          ))}
+          <Pages {...props} />
         </div>
       )}
     </dialog>
+  );
+}
+
+// GS 9.2: at lg it is always open, under the questions in the side panel. N focuses
+// it, and it scrolls on its own.
+export function NotebookPanel(props: Props) {
+  return (
+    <section
+      aria-labelledby="notebook-panel-title"
+      data-notebook
+      tabIndex={-1}
+      className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-5 py-3 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+    >
+      <h2 id="notebook-panel-title" lang="it" className="text-lg font-semibold">
+        Taccuino
+      </h2>
+      <Pages {...props} />
+    </section>
   );
 }

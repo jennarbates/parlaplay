@@ -498,7 +498,22 @@ Level stays per language (`language_settings`): the learner's Italian level appl
 
 ### GS 9.2 Desktop and keyboard
 
-At `lg` (1024px and wider), as DS: the people strip and scene on the left, a fixed panel on the right with the builder or picker above the notebook, so the notebook is always open. Keyboard shortcuts follow DS's contract: `1` to `5` select a person, `N` focuses the notebook, `A` opens Accusa, `Enter` asks, `Esc` closes a sheet, and at Level 2 typing filters tiles (as Chi è?'s type-to-find). The full shortcut table is written in card PLAY-097 and added here.
+At `lg` (1024px and wider), as DS 6: the people strip and scene on the left, a fixed panel on the right (`SidePanel`, as Chi è?'s) with the picker, builder or her question above the notebook, so the notebook is always open, and `Accusa` pinned at the bottom with "Press ? for shortcuts". There is no sheet and no `Taccuino` button at `lg`. At 1024 × 640 the faces, scene, questions, notebook and `Accusa` fit with no page scroll; the questions and the notebook each scroll on their own, the notebook keeping at least 10rem. With no person picked, the panel's summary says `Click a face, or press 1 to 5, to ask them a question.` and the body is empty. Each face shows its number key in a corner at `lg`, and `Accusa` its `A`, as DS 6.2's `<kbd>`; both carry `aria-keyshortcuts`.
+
+Keyboard shortcuts follow DS's contract (DS 4.3: nothing with Ctrl, Cmd or Alt, while typing, or with a dialog open). They work at every size; a checkbox or radio counts as not typing, so the keys still work from the notebook's `Cleared`. `keyToAction()` in `giallo/ui/shortcuts.ts` is pure, and each cell below is a unit test.
+
+| Key | When | Action |
+|---|---|---|
+| `1` to `5` | Always | Pick that person, in the people strip's order. At Level 1 focus goes to their first question still to ask; at Level 2 to the builder's heading, so `Enter` asks what is already built (GS 2: the same question to the next person). While her question is up, it only picks |
+| `Enter` | Level 2, no question of hers, focus not on a control | `Chiedi`. On a tile, a button or a link, `Enter` is that control's own: it picks the tile |
+| `N` | Always | Desktop: focus the notebook. Phone: open it |
+| `A` | No question of hers | Open `Accusa` (GS 2: accusing waits for her) |
+| `H` | Her question, not yet answered | Her `Show hint` |
+| `Esc` | Phone, sheet open | Fold the sheet, or hers. Dialogs close on `Esc` themselves |
+| `?` | Always | The shortcuts dialog, also in the menu as "Keyboard shortcuts" |
+| Tab, ← → | Level 2 builder, `lg` | Tab moves between tile rows, ← → along one (Chi è?'s roving tabindex, DS 8.1) |
+
+**No typing to filter tiles (as DD8).** Chi è? has no type-to-find to follow, and single letters are shortcuts here; the rows are one tab stop each instead. `TBD:` ask at the playtest (PLAY-100) whether Level 2 needs typed search.
 
 ### GS 9.3 States
 
@@ -606,3 +621,4 @@ These start after the platform launch and cleanup (platform spec 10.4), so nothi
 - 2026-11-04: GS 6 and GS 9.1 as built in PLAY-094. The inspector's question gains `hint`, and frames gain `hintAbout`, because the learner's hints say `you` and hers is about the person; content version 2, so a case saved before this is discarded (GS 4.4). Ispettrice Bassi's face is a fixed look that matches none of the 24 characters. The notebook shows each answer with its question, and is open during her question.
 - 2026-11-04: GS 9.1 as built in PLAY-095. The accuse sheet offers every room, and the case end's proofs are the shortest solution, not the learner's own questions. Both still sit behind Level 1 until PLAY-093.
 - 2026-11-09: GS 9.1 as built in PLAY-093, so a Level 2 case now plays from start to finish. Frames with a noun gain its `text` (GS 4.2), for the agreement feedback to name it; no content version bump, since nothing saved changes. `agree.quale`'s draft takes `{number}` and `{expected}`, because `quali` before `il Suo lavoro` breaks the same rule the other way. `Non capisco la domanda.` is in italics, as Italian is in every other message.
+- 2026-11-09: GS 9.2 as built in PLAY-097, with the shortcut table. `1` to `5` also move focus to the questions, so a case plays from the keys; `Enter` asks only from off a control, and typing doesn't filter tiles (Chi è? has no type-to-find to follow), as DD8. `H` is her hint. The giallo's phone e2e (`giallo.spec.ts`) runs on the phone profiles only, and `e2e/giallo/desktop.spec.ts` on the desktop ones, as Chi è?'s.

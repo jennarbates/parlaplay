@@ -87,7 +87,7 @@ test("a reload resumes the case, with the same people in the same order", async 
 test("Quit case confirms, then returns to the list with nothing to continue", async ({ page }) => {
   await openCase(page);
   await page.getByRole("button", { name: "Menu" }).click();
-  await expect(page.getByRole("menuitem", { name: "Keyboard shortcuts" })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "Keyboard shortcuts" })).toBeVisible(); // GS 9.2
   await page.getByRole("menuitem", { name: "Quit case" }).click();
   await expect(page.getByRole("heading", { name: "Quit this case?" })).toBeVisible();
   await page.getByRole("button", { name: "Keep playing" }).click();

@@ -5,7 +5,7 @@ import { onBackdropClick } from "../../../../core/ui/dialog.ts";
 // round as abandoned (spec 2); words already practised stay in the log.
 // Desktop spec DS 8.3: it also opens the keyboard shortcuts, and closes on Esc
 // or a click outside it, giving focus back to the menu button.
-// The giallo uses it for a case, and has no shortcuts until PLAY-097 (GS 9.1).
+// The giallo uses it for a case, with its own shortcuts (GS 9.2).
 export function GameMenu({
   onQuit,
   onShortcuts,
