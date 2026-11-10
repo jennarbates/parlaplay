@@ -76,6 +76,19 @@ test("the house game names what you tap, and lights one thing up to name", async
   await expect(game.getByRole("textbox", { name: "name, with its article" })).toBeVisible();
 });
 
+test("find the intruder marks the odd one out and explains why", async ({ page }) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.2-4"]');
+  await expect(game.locator(".casa-q")).toContainText("Chi è l’intruso?");
+  await expect(game.locator(".intr-w")).toHaveCount(3);
+  await game.locator(".intr-w").first().click();
+  await expect(game.locator(".intr-w.ok")).toHaveCount(1);
+  await expect(game.locator(".feedback")).toContainText("l’intruso è");
+  await expect(game.locator(".intr-w .en").first()).toBeVisible();
+  await game.getByRole("button", { name: "Avanti" }).click();
+  await expect(game.locator(".stats")).toContainText("Round 2 of 8");
+});
+
 test.describe("signed in", () => {
   test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
   test.skip(({ viewport }) => (viewport?.width ?? 0) >= 1024, "phone profiles only");

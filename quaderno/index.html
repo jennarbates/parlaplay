@@ -1429,6 +1429,89 @@
         line-height: 1.25;
         color: var(--ink);
       }
+      /* Trova l’intruso (5.2): three word cards, tap the one that doesn't belong. */
+      .intr {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      @media (max-width: 420px) {
+        .intr {
+          grid-template-columns: 1fr;
+        }
+        .intr .intr-w {
+          min-height: 0;
+          padding: 10px 8px;
+        }
+      }
+      .intr-w {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 2px;
+        min-height: 92px;
+        padding: 12px 8px;
+        border: 1.5px solid var(--rule);
+        border-radius: var(--r);
+        background: var(--paper);
+        color: var(--ink);
+        cursor: pointer;
+        text-align: center;
+        transition:
+          border-color 0.15s,
+          transform 0.15s;
+      }
+      .intr-w .it {
+        font-family: var(--display);
+        font-size: clamp(1.15rem, 3.4vw, 1.4rem);
+        font-weight: 600;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+      .intr-w .en {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .intr-w .en[hidden] {
+        display: none;
+      }
+      @media (hover: hover) {
+        .intr-w:hover:not(:disabled) {
+          border-color: var(--pen);
+          transform: translateY(-2px);
+        }
+      }
+      .intr-w:focus-visible {
+        outline: 2.5px dashed var(--pen);
+        outline-offset: 2px;
+      }
+      .intr-w:disabled {
+        cursor: default;
+      }
+      .intr.done .intr-w:not(.ok, .no) {
+        opacity: 0.6;
+      }
+      .intr-w.ok {
+        border-color: var(--ok);
+        background: var(--ok-soft);
+      }
+      .intr-w.ok .it {
+        color: var(--ok);
+      }
+      .intr-w.no {
+        border-color: var(--red);
+        background: var(--red-soft);
+      }
+      .intr-w.no .it {
+        color: var(--red);
+        text-decoration: line-through;
+      }
+      .intr-why {
+        display: block;
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 2px;
+      }
       .tris-q {
         background: var(--paper);
         border: 1px solid var(--rule);
@@ -5124,6 +5207,12 @@
                   model:
                     "La casa dei miei sogni è in Sicilia, vicino al mare. È una casa singola con due piani. Ci sono quattro camere da letto e tre bagni. In cucina c’è un forno per la pizza, e c’è un grande balcone con vista sul mare.",
                 },
+                {
+                  type: "widget",
+                  widget: "intruso",
+                  title: "Trova l’intruso!",
+                  en: "Find the intruder. Two of the three words go together: tap the one that doesn’t belong, then read why. Stuck? “Inglese” shows what they mean. A game is eight rounds.",
+                },
               ],
             },
             {
@@ -8083,6 +8172,284 @@
               pic,
               spyRow,
               nameRow,
+              fb,
+              stats,
+            ),
+          );
+          newGame();
+        },
+        intruso(box, id) {
+          // Odd one out, for the 5.2 vocabulary. Each set: three [Italian, English] words,
+          // the intruder first, then why in Italian and in English.
+          const SETS = [
+            [
+              [
+                ["il frigorifero", "fridge"],
+                ["il tavolo", "table"],
+                ["la scrivania", "desk"],
+              ],
+              "Il tavolo e la scrivania sono mobili; il frigorifero è un elettrodomestico.",
+              "A table and a desk are furniture; a fridge is an appliance.",
+            ],
+            [
+              [
+                ["il divano", "sofa"],
+                ["la doccia", "shower"],
+                ["la vasca", "bathtub"],
+              ],
+              "La doccia e la vasca sono in bagno; il divano è in salotto.",
+              "The shower and the bathtub are in the bathroom; the sofa is in the living room.",
+            ],
+            [
+              [
+                ["l’armadio", "wardrobe"],
+                ["la poltrona", "armchair"],
+                ["il divano", "sofa"],
+              ],
+              "Sulla poltrona e sul divano ci sediamo; nell’armadio mettiamo i vestiti.",
+              "You sit in an armchair and on a sofa; you keep clothes in a wardrobe.",
+            ],
+            [
+              [
+                ["il lavandino", "sink"],
+                ["il computer", "computer"],
+                ["la televisione", "television"],
+              ],
+              "Il computer e la televisione hanno uno schermo; il lavandino no.",
+              "A computer and a TV have a screen; a sink doesn’t.",
+            ],
+            [
+              [
+                ["il comodino", "nightstand"],
+                ["il forno", "oven"],
+                ["la lavastoviglie", "dishwasher"],
+              ],
+              "Il forno e la lavastoviglie sono in cucina; il comodino è in camera da letto.",
+              "The oven and the dishwasher are in the kitchen; the nightstand is in the bedroom.",
+            ],
+            [
+              [
+                ["il lavabo", "bathroom sink"],
+                ["il letto", "bed"],
+                ["il comodino", "nightstand"],
+              ],
+              "Il letto e il comodino sono in camera da letto; il lavabo è in bagno.",
+              "The bed and the nightstand are in the bedroom; the bathroom sink is in the bathroom.",
+            ],
+            [
+              [
+                ["lo scaffale", "bookshelf"],
+                ["il water", "toilet"],
+                ["il bidè", "bidet"],
+              ],
+              "Il water e il bidè sono in bagno; lo scaffale no.",
+              "The toilet and the bidet are in the bathroom; the bookshelf isn’t.",
+            ],
+            [
+              [
+                ["il divano", "sofa"],
+                ["il bagno", "bathroom"],
+                ["la cucina", "kitchen"],
+              ],
+              "Il bagno e la cucina sono stanze; il divano è un mobile.",
+              "The bathroom and the kitchen are rooms; the sofa is a piece of furniture.",
+            ],
+            [
+              [
+                ["la lampada", "lamp"],
+                ["la camera da letto", "bedroom"],
+                ["il salotto", "living room"],
+              ],
+              "La camera da letto e il salotto sono stanze; la lampada è un mobile.",
+              "The bedroom and the living room are rooms; the lamp is a piece of furniture.",
+            ],
+            [
+              [
+                ["la lavatrice", "washing machine"],
+                ["lo scaffale", "bookshelf"],
+                ["la libreria", "bookcase"],
+              ],
+              "Sullo scaffale e nella libreria mettiamo i libri; nella lavatrice laviamo i vestiti.",
+              "Books go on a bookshelf and in a bookcase; clothes go in the washing machine.",
+            ],
+            [
+              [
+                ["lo specchio", "mirror"],
+                ["la sedia", "chair"],
+                ["la poltrona", "armchair"],
+              ],
+              "Sulla sedia e sulla poltrona ci sediamo; nello specchio ci guardiamo.",
+              "You sit on a chair and in an armchair; you look at yourself in a mirror.",
+            ],
+            [
+              [
+                ["la vasca", "bathtub"],
+                ["i fornelli", "stovetop"],
+                ["il forno a microonde", "microwave"],
+              ],
+              "Con i fornelli e il forno a microonde cuciniamo; nella vasca facciamo il bagno.",
+              "You cook with a stovetop and a microwave; you take a bath in a bathtub.",
+            ],
+            [
+              [
+                ["il tappeto", "rug"],
+                ["la lavatrice", "washing machine"],
+                ["la lavastoviglie", "dishwasher"],
+              ],
+              "La lavatrice e la lavastoviglie sono elettrodomestici; il tappeto no.",
+              "A washing machine and a dishwasher are appliances; a rug isn’t.",
+            ],
+            [
+              [
+                ["il frigorifero", "fridge"],
+                ["il letto", "bed"],
+                ["il divano", "sofa"],
+              ],
+              "Sul letto e sul divano possiamo dormire; nel frigorifero no!",
+              "You can sleep in a bed or on a sofa; not in the fridge!",
+            ],
+            [
+              [
+                ["la lampada", "lamp"],
+                ["il lavandino", "sink"],
+                ["la doccia", "shower"],
+              ],
+              "Nel lavandino e nella doccia c’è l’acqua; la lampada fa luce.",
+              "A sink and a shower have water; a lamp gives light.",
+            ],
+            [
+              [
+                ["la doccia", "shower"],
+                ["il tavolo", "table"],
+                ["la sedia", "chair"],
+              ],
+              "Il tavolo e la sedia sono in sala da pranzo; la doccia è in bagno.",
+              "The table and the chair are in the dining room; the shower is in the bathroom.",
+            ],
+            [
+              [
+                ["la cantina", "cellar"],
+                ["il balcone", "balcony"],
+                ["il giardino", "garden"],
+              ],
+              "Sul balcone e in giardino siamo all’aperto; in cantina no.",
+              "On the balcony and in the garden you’re outdoors; in the cellar you’re not.",
+            ],
+          ];
+
+          const NEED = 8;
+          const qbox = h("div", { class: "drill-p casa-q" });
+          const grid = h("div", { class: "intr" });
+          const fb = h("div", { class: "feedback", "aria-live": "polite" });
+          const stats = h("span", { class: "stats" });
+          const more = h("button", { class: "btn pri", type: "button" });
+          const eng = h("button", { class: "btn", type: "button" }, "Inglese");
+          let deck, r, score, phase, cards;
+          const cur = () => deck[r];
+          const words = () => cur()[0].map((w) => w[0]);
+
+          const paint = () => {
+            const [ws] = cur();
+            qbox.innerHTML = "";
+            qbox.append(
+              h(
+                "div",
+                { class: "casa-c" },
+                h("p", { class: "now" }, "Chi è l’intruso?"),
+                h("p", {}, "Which one doesn’t belong?"),
+              ),
+              spk(() => words().join(", ")),
+            );
+            grid.innerHTML = "";
+            grid.className = "intr";
+            cards = shuffle(ws).map((w) => {
+              const en = h("span", { class: "en", hidden: true }, w[1]);
+              const b = h(
+                "button",
+                { class: "intr-w", type: "button", onclick: () => choose(w, b) },
+                h("span", { class: "it" }, w[0]),
+                en,
+              );
+              b._w = w;
+              b._en = en;
+              return b;
+            });
+            grid.append(...cards);
+            fb.innerHTML = "";
+            eng.hidden = false;
+            more.hidden = true;
+            stats.textContent = `Round ${r + 1} of ${NEED} · ${score} right`;
+          };
+          function choose(w, b) {
+            if (phase !== "ask") return;
+            phase = "done";
+            const [ws, why, whyEn] = cur();
+            const odd = ws[0];
+            const right = w === odd;
+            if (right) score++;
+            grid.classList.add("done");
+            cards.forEach((c) => {
+              c.disabled = true;
+              c._en.hidden = false;
+              if (c._w === odd) c.classList.add("ok");
+            });
+            if (!right) b.classList.add("no");
+            fb.innerHTML =
+              `<span class="${right ? "ok" : "no"}">${right ? "Sì!" : "No:"}</span> ` +
+              `l’intruso è <b>${esc(odd[0])}</b>. ${esc(why)}` +
+              `<span class="intr-why">${esc(whyEn)}</span>`;
+            say(why);
+            eng.hidden = true;
+            more.hidden = false;
+            more.textContent = r < NEED - 1 ? "Avanti" : "Risultato";
+            stats.textContent = `Round ${r + 1} of ${NEED} · ${score} right`;
+            more.focus();
+          }
+          const finish = () => {
+            phase = "over";
+            qbox.innerHTML = "";
+            qbox.append(
+              h("div", { class: "big" }, `Hai trovato ${score} intrusi su ${NEED}!`),
+              h(
+                "div",
+                { class: "sub" },
+                score === NEED ? "Perfetto!" : "Play again for a new set of rounds.",
+              ),
+            );
+            grid.innerHTML = "";
+            fb.innerHTML = "";
+            stats.textContent = "";
+            eng.hidden = true;
+            more.hidden = false;
+            more.textContent = "Gioca ancora";
+            markDone(id, score, NEED);
+          };
+          const newGame = () => {
+            deck = shuffle(SETS).slice(0, NEED);
+            r = 0;
+            score = 0;
+            phase = "ask";
+            paint();
+          };
+          more.onclick = () => {
+            if (phase === "over") return newGame();
+            if (r >= NEED - 1) return finish();
+            r++;
+            phase = "ask";
+            paint();
+            cards[0].focus();
+          };
+          eng.onclick = () => {
+            cards.forEach((c) => (c._en.hidden = false));
+            eng.hidden = true;
+          };
+          box.append(
+            h(
+              "div",
+              { class: "drill" },
+              qbox,
+              grid,
+              h("div", { class: "drill-row" }, eng, more),
               fb,
               stats,
             ),
