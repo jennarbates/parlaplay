@@ -65,6 +65,17 @@ test("progress saved before scores had timestamps is kept", async ({ page }) => 
   await expect(firstExercise(page).locator(".best")).toHaveText("Best: 3 of 5");
 });
 
+test("the house game names what you tap, and lights one thing up to name", async ({ page }) => {
+  await page.goto("/quaderno/#c5");
+  const game = page.locator('.ex[data-id="5.3-6"]');
+  await expect(game.locator(".casa-q")).toContainText("Vedo, vedo…");
+  await game.getByRole("button", { name: "l’armadio" }).click();
+  await expect(game.locator(".feedback")).toContainText("l’armadio · wardrobe");
+  await game.getByRole("button", { name: "Come si chiama?" }).click();
+  await expect(game.locator(".t.glow")).toHaveCount(1);
+  await expect(game.getByRole("textbox", { name: "name, with its article" })).toBeVisible();
+});
+
 test.describe("signed in", () => {
   test.skip(!hasSupabase, "needs the local Supabase (CI starts it)");
   test.skip(({ viewport }) => (viewport?.width ?? 0) >= 1024, "phone profiles only");
