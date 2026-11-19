@@ -1,9 +1,7 @@
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import type { Character } from "../../content/schemas.ts";
 import { boardShape, boardVars } from "../../../../core/ui/boardLayout.ts";
 import { Card } from "./Card.tsx";
-import { CardPreview } from "./CardPreview.tsx";
-import { useHoverPreview } from "../../../../core/ui/useHoverPreview.ts";
 
 type Props = {
   characters: Character[];
@@ -13,7 +11,6 @@ type Props = {
   onZoom: (id: string) => void;
   onUnflipAll: () => void;
   desktop?: boolean;
-  hoverPreview?: boolean; // desktop spec DS 7.2: lg, a fine pointer that hovers, not guessing
 };
 
 // Spec 8: all 24 faces at once, sized from whichever runs out first, the width or
@@ -26,13 +23,8 @@ export function Board({
   onZoom,
   onUnflipAll,
   desktop = false,
-  hoverPreview = false,
 }: Props) {
   const allDown = characters.length > 0 && characters.every((c) => flipped.includes(c.id));
-  const area = useRef<HTMLDivElement>(null);
-  const tooltipId = useId();
-  const { preview, handlers } = useHoverPreview(hoverPreview, area);
-  const previewed = preview && characters.find((c) => c.id === preview.id);
   const grid = useRef<HTMLDivElement>(null);
   // The card in the tab order: the last one focused, or the first (DS 8.2).
   const [active, setActive] = useState(0);
@@ -84,7 +76,7 @@ export function Board({
 
   const card = (c: Character, i: number) => (
     <Card
-      describedBy={preview?.id === c.id ? tooltipId : undefined}
+      zoomIcon={desktop}
       character={c}
       flipped={flipped.includes(c.id)}
       guessing={guessing}
@@ -98,7 +90,6 @@ export function Board({
 
   return (
     <div
-      ref={area}
       className={`relative min-h-0 flex-1 [container-type:size] ${desktop ? "p-6" : "px-2 py-1"}`}
     >
       {desktop ? (
@@ -115,7 +106,7 @@ export function Board({
           {Array.from({ length: Math.ceil(characters.length / cols) }, (_, r) => (
             <div key={r} role="row" className="flex gap-[var(--gap)]">
               {characters.slice(r * cols, r * cols + cols).map((c, j) => (
-                <div key={c.id} role="gridcell" {...handlers(c.id)}>
+                <div key={c.id} role="gridcell">
                   {card(c, r * cols + j)}
                 </div>
               ))}
@@ -129,14 +120,9 @@ export function Board({
           style={boardVars(desktop)}
         >
           {characters.map((c, i) => (
-            <li key={c.id} {...handlers(c.id)}>
-              {card(c, i)}
-            </li>
+            <li key={c.id}>{card(c, i)}</li>
           ))}
         </ul>
-      )}
-      {preview && previewed && (
-        <CardPreview id={tooltipId} character={previewed} spot={preview.spot} />
       )}
       {allDown && !guessing && (
         <div className="absolute inset-0 flex items-center justify-center">

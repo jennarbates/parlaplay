@@ -32,7 +32,7 @@ Conventions: each section leads with the decision, then the reason. `TBD:` marks
 | Layout for windows 1024px wide or more | Tablet-specific layouts (768 to 1023px) |
 | App shell with a top nav | Sidebar navigation, collapsible menus |
 | Game: 6 × 4 board and an always-open side panel | Resizable or detachable panel |
-| Hover preview, right-click detail | Drag and drop, multi-select flipping |
+| Zoom button on each card, right-click detail | Drag and drop, multi-select flipping |
 | Keyboard shortcuts with a help dialog | User-customisable shortcuts |
 | Progress dashboard built from existing data | Charts, streaks, history over time |
 | Two-column Home, Round end; wider Settings, Privacy | New settings or content |
@@ -46,7 +46,7 @@ Rule: anything not in the left column is out. New ideas go to DS 14.1, not into 
 
 1. The learner opens `chie.parlaplay.games` in a 1280 × 800 window. DesktopNav shows across the top; Home shows two columns (DS 9.1).
 2. They pick Level 1 and click **Play** (or press Enter on it). `/play` opens with no DesktopNav: TopBar on top, the 6 × 4 board on the left, the side panel on the right with the summary "Your turn: ask a question, or guess." and the question list.
-3. They hover a card for 700 ms; a larger preview appears over it (DS 7.2). They move the pointer away and it disappears.
+3. They click the magnifying glass in a card's corner; the card's detail opens (DS 7.2). Esc closes it, and the card has not flipped.
 4. They press `q`; focus moves to the first enabled question. ↓ twice, Enter: the question is asked. The panel shows the answer (phase `playerReview`).
 5. They press `b`; focus moves to the board. They use the arrow keys and Enter to flip down the cards the answer rules out, then press `a` (Avanti).
 6. The CPU asks its question (phase `cpuTurn`). The panel shows it with **Sì** / **No**. They press `s`. The panel shows ✓ or ✗ (phase `cpuReview`). They press `a`.
@@ -63,8 +63,8 @@ At every step the mouse works too: clicking does exactly what tapping does on th
 | Focused element unmounted by a resize | Focus moves to the board's roving card (DS 8.2) |
 | Window narrower than 1024px on a laptop | Phone layout, centred, exactly as today. No "too small" message |
 | Window shorter than 640px at 1024px or wider | Cards shrink to fit (the board formula uses height too). Below about 520px tall the panel body scrolls; the actions never leave view |
-| Touch laptop (touch is the primary input) | `(hover: hover)` is false, so no hover preview; long-press still opens detail; layout is still desktop |
-| Mouse on a phone-sized window | No hover preview (DS 7.2 requires `lg`); right-click still opens detail |
+| Touch laptop (touch is the primary input) | The magnifying glass shows and works by tap (DS 7.2 needs only `lg`); long-press still opens detail; layout is still desktop |
+| Mouse on a phone-sized window | No magnifying glass (DS 7.2 requires `lg`); right-click still opens detail |
 | Shortcut key pressed while typing in the sign-in email or code field | Ignored (DS 4.3 step 2) |
 | Shortcut pressed with a dialog open | Ignored, except the dialog's own Enter and Esc (DS 4.3 step 3) |
 | `s` / `n` pressed outside the CPU turn | Nothing happens; no sound, no message |
@@ -75,8 +75,8 @@ At every step the mouse works too: clicking does exactly what tapping does on th
 | Firefox Shift+right-click | Shows the browser menu; Firefox does not fire `contextmenu` then (MDN). Accepted |
 | Context menu key on the keyboard, focus on a card | Opens CardDetail, the same as right-click |
 | Right-click on anything that is not a card | Normal browser menu |
-| Hover preview open when a dialog opens | Preview closes at once |
-| Hover on a card while guessing | No preview (DS 7.2) |
+| Pointer resting on a card | Nothing pops up; only the hover ring shows (DS 7.4) |
+| Magnifying glass while guessing | Opens the detail as usual; it does not pick the card (DS 7.2) |
 | Reload mid-round on desktop | Same as `spec.md` 8.2 Resume: Home offers "Continue round"; DesktopNav's Play reads "Continue" |
 | All 24 cards flipped down | "Unflip all" appears centred over the board, as on the phone (`spec.md` §2 edge cases) |
 | No progress data | Progress shows the empty message once, full width, with no stat tiles (DS 9.3) |
@@ -344,16 +344,16 @@ Below `lg`: the `max-w-md` column, no nav, no change.
 
 Click works exactly like tap does today: click a card to flip it, click "Indovina" then a card then confirm. No change is needed, because `useLongPress` uses Pointer Events.
 
-### DS 7.2 Hover preview
+### DS 7.2 Zoom button
 
-**Decision: hovering a card shows a larger read-only preview after a short delay (DD6).** The reason: long-press is how the phone shows a face up close, and with a mouse it is slow and nobody finds it.
+**Decision: each face-up card has a small magnifying-glass button in a corner that opens CardDetail on click (DD6).** The reason: long-press is how the phone shows a face up close, and with a mouse it is slow and nobody finds it. An earlier version showed a larger preview after the pointer rested on a card; it popped up while the pointer was only crossing the board (#146), so it was replaced.
 
-- **When.** Only at `lg` with `(hover: hover) and (pointer: fine)`. It appears after the pointer rests on one card for **700 ms**, and hides as soon as the pointer leaves. Moving straight from one card to another while a preview is open swaps it after a shorter **250 ms**, so sweeping across the board does not pop a preview over every card. Clicking a card before its preview appears cancels the preview until the pointer leaves that card, so a flip never flashes one.
-- **What.** The card's face at 2× its board width, capped at `16rem`, with the name under it. No attribute list (that is CardDetail).
-- **Where.** Centred over the hovered card, clamped inside the board area. It grows out of the card rather than sitting beside it, so it covers the card itself and not one side of neighbours; `pointer-events-none` keeps the card under it hoverable and clickable. Its position is computed once when it shows, from `getBoundingClientRect`.
-- **How.** A new `src/ui/game/CardPreview.tsx`: `role="tooltip"`, `pointer-events-none`, no focus. While it is open the card has `aria-describedby` pointing to it.
-- **Not shown** while a dialog is open (CardDetail, GuessConfirm, the menu, ShortcutsDialog), or while guessing, because then it would cover the cards the learner is aiming at. TBD: ask at the playtest whether it is wanted while guessing.
-- **Motion.** A 120 ms fade in; none under `prefers-reduced-motion`. No layout shift.
+- **When.** Only at `lg`. It does not depend on the pointer, so it also works by tap on a touch laptop. Below `lg` the cards are too small for a second 44px target, and long-press does the job.
+- **What.** A round 24px white chip with a magnifying glass, inside a transparent 44 × 44px button in the card's top right corner, clear of the name strip at the bottom. Its accessible name is "Zoom {name}". Clicking it opens CardDetail; it never flips or picks the card. The card's own button is unchanged, so a click anywhere else on the card still flips it.
+- **Which cards.** Face-up cards only. A flipped card has no button; right-click and `i` still open its detail.
+- **While guessing** it still shows and still opens the detail, so the learner can look closely before picking.
+- **Keyboard.** The button is not a tab stop (`tabIndex=-1`): the board has one tab stop (DS 8.2) and `i` opens the detail of the focused card.
+- **How.** The button is part of `Card.tsx`, a sibling of the card's own button. Nothing shows on hover but the hover styles of DS 7.4.
 
 ### DS 7.3 Right-click
 
@@ -404,7 +404,7 @@ Shortcuts work at every size (a phone with a keyboard benefits too). The "Press 
 
 - At `lg` the board is `role="grid"` with four `role="row"` elements, each holding six `role="gridcell"` cards. The rows follow `--cols` (`boardShape()`). Below `lg` it stays the list it was, every card a tab stop, so the phone is unchanged (DD11) and its e2e tests pass without edits. The same goes for TileBuilder's roving tabindex per row: `lg` only.
 - **Roving tabindex**: exactly one card has `tabIndex=0` (the last focused, or the first card); the rest have `-1`. Tab enters and leaves the board in one stop.
-- The phone's focus-only "Zoom {name}" button stays as the screen-reader path to CardDetail. At `lg`, `i` does the same thing.
+- The phone's focus-only "Zoom {name}" button stays as the screen-reader path to CardDetail. At `lg` it is the visible magnifying glass of DS 7.2, and `i` does the same thing.
 - `b` and `g` move focus to the roving card.
 
 ### DS 8.3 Shortcuts dialog and menu
@@ -515,7 +515,6 @@ Every state in `spec.md` §8.2 applies unchanged. The desktop differences:
   ├── progressStats.ts (+ .test.ts)
   └── game/
       ├── SidePanel.tsx
-      ├── CardPreview.tsx
       ├── ShortcutsDialog.tsx
       └── shortcuts.ts (+ .test.ts)
   e2e/
@@ -526,11 +525,10 @@ Every state in `spec.md` §8.2 applies unchanged. The desktop differences:
   - axe reports no violations on every screen at 1440 × 900.
   - The focus ring is always visible (the existing `:focus-visible` rule in `src/index.css`).
   - Pointer targets are at least 24 × 24 CSS px, WCAG 2.2 SC 2.5.8 Target Size (Minimum), level AA. The phone's 44px rule stays anyway, because the components are shared.
-  - Everything is reachable without a mouse; the hover-only preview has a keyboard equivalent (`i`).
+  - Everything is reachable without a mouse; the zoom button has a keyboard equivalent (`i`).
   - Shortcut buttons carry `aria-keyshortcuts`.
 - **Performance.**
   - Hover and focus cause no layout shift (CLS 0 during play).
-  - The preview positions once per show; no scroll or resize listeners while it is closed.
   - The production bundle grows by under 10 kB gzipped, checked by `pnpm check:bundle`.
   - Lighthouse desktop accessibility at least 95 on Home and Game.
 - **Motion.** Every new transition is off under `prefers-reduced-motion`.
@@ -570,7 +568,7 @@ The Playwright projects are `desktop-chromium` (device "Desktop Chrome") and `de
 | Board fits | At 1024 × 640 and 1280 × 720: 24 cards visible, scroll size equals the viewport, the panel's actions visible |
 | No sheet | No "Questions" toggle button; `aside[aria-label="Questions"]` present |
 | Board stable | Card positions are the same in `playerTurn` and `playerReview` |
-| Hover preview | Hover a card for 400 ms and the tooltip is visible; move away and it is gone; never visible while guessing |
+| Zoom button | Each face-up card has one, 44 px, in the top corner; a click opens the detail and does not flip the card; a flipped card and a phone-sized window have none; resting on a card shows no tooltip |
 | Right-click | Right-click a card opens CardDetail |
 | Keyboard round | A full Level 1 round using only the DS 8.1 keys, to the round end |
 | Shortcuts ignored | Typing "sna" in the sign-in email field changes nothing in a saved round |
@@ -583,7 +581,7 @@ The Playwright projects are `desktop-chromium` (device "Desktop Chrome") and `de
 
 | Device | Check |
 |---|---|
-| MacBook with trackpad: Chrome and Safari at 1280 and 1440 wide | A full round by mouse and a full round by keyboard; the hover preview delay feels right |
+| MacBook with trackpad: Chrome and Safari at 1280 and 1440 wide | A full round by mouse and a full round by keyboard; the zoom button is easy to hit and never flips a card by mistake |
 | Windows laptop with mouse: Edge and Firefox at 1920 × 1080 | The same, plus right-click detail |
 | Any laptop, window dragged across 1024px mid-round | Nothing lost |
 
@@ -593,7 +591,7 @@ The Playwright projects are `desktop-chromium` (device "Desktop Chrome") and `de
 - [ ] A full round plays by mouse only and by keyboard only at 1024 × 640 and 1440 × 900
 - [ ] At 1024 × 640 the 24 cards and the whole panel fit with no scroll
 - [ ] No horizontal scroll on any screen at 1024 and 1440
-- [ ] The hover preview and right-click detail work; neither shows on touch
+- [ ] The zoom button and right-click detail work
 - [ ] Resizing across 1024px mid-round loses nothing
 - [ ] The phone layout is unchanged; all existing phone e2e tests pass without edits
 - [ ] Desktop Playwright projects green in CI; axe clean at desktop size
@@ -644,7 +642,7 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 | DD3 | The panel reuses `sheetFor()` output | One source of truth for what each phase shows; phone and desktop cannot drift |
 | DD4 | The board is 6 × 4 on desktop | Fits a landscape area; cards are about 55% bigger than 4 × 6 at 1440 × 900 |
 | DD5 | No DesktopNav on Game | A focus screen; all the height goes to the board; the menu already has "Quit round" |
-| DD6 | Hover preview and right-click instead of long-press | Long-press is slow with a mouse and nobody finds it |
+| DD6 | A zoom button on each card and right-click instead of long-press | Long-press is slow with a mouse and nobody finds it. A hover preview was tried first and popped up while the pointer was only crossing the board (#146) |
 | DD7 | Single-key shortcuts, `s` and `n` for Sì and No | Fast play with both hands on the keyboard; the keys match the Italian words |
 | DD8 | No Level 2 tile letter shortcuts | About 30 tiles cannot map to single keys without modes; Tab and arrows are enough for v1 |
 | DD9 | Shortcut logic is a pure `shortcuts.ts` | Testable in Vitest's node environment without a DOM |
@@ -680,4 +678,5 @@ Desktop work runs **before launch**, alongside the MVP's Sprints 2 and 3 (`spec.
 - 2026-10-12: DS 9.2, DS 9.6: the buttons that take focus on their own (GuessConfirm's confirm, round end's "Play again") ignore a held Enter's repeats. Before, holding Enter on a card while guessing picked the card, confirmed the guess and started the next round. Found by the Shéi desktop paper trace (F2).
 - 2026-10-15: #130. DS 7.2: the hover preview waits 700 ms, not 350 ms, and moving straight to the next card waits 250 ms instead of swapping at once. Moving to a card and clicking it often took longer than 350 ms, so the preview zoomed in mid-aim. A click before the preview shows now cancels it.
 - 2026-10-15: #131. DS 6, DD15: your card is bigger in the TopBar, and a larger copy heads the side panel on screens at least 800px tall.
+- 2026-11-19: #146. DS 7.2, DD6: the hover preview is replaced by a magnifying-glass button in the top right corner of each face-up card, at `lg`. `useHoverPreview`, `CardPreview` and `previewSpot` are removed.
 - 2026-10-15: #132. DS 6.2, DD16: "What you know" under the panel's body. The phone has a button in the sheet that opens the facts in a dialog (`it.md` 8.1).

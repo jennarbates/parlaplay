@@ -862,42 +862,47 @@ test.describe("word glosses (ZS 7.4)", () => {
 
 test.describe("mouse and board keys (ZS 8, ZS 9.4)", () => {
   const tooltip = (page: Page) => page.getByRole("tooltip");
+  const zoom = (page: Page, name: string) =>
+    page.getByRole("button", { name: `Zoom ${name}`, exact: true });
 
-  test("resting on a card shows its face, name and pinyin over it", async ({ page }) => {
+  test("the magnifying glass opens the card's detail and does not flip it", async ({ page }) => {
     await page.goto("/zh/play?seed=1");
+    const name = names[7] ?? "";
     const c = cards(page).nth(7);
-    await c.hover();
-    await expect(tooltip(page)).toBeVisible();
-    await expect(tooltip(page)).toContainText(names[7] ?? "");
-    await expect(tooltip(page).locator('[lang="zh-Latn-pinyin"]')).toHaveText(
-      content.characters[7]?.namePinyin ?? "",
-    );
+    await expect(page.locator("[data-zoom]")).toHaveCount(24);
     const cb = await box(c);
-    const tb = await box(tooltip(page));
-    expect(tb.x < cb.x + cb.width && tb.x + tb.width > cb.x).toBe(true);
-    expect(tb.y < cb.y + cb.height && tb.y + tb.height > cb.y).toBe(true);
-    expect(tb.width).toBeCloseTo(Math.min(cb.width * 2, 256), 0);
-    await page.mouse.move(5, 300);
-    await expect(tooltip(page)).toHaveCount(0);
-  });
-
-  test("clicking a card before the preview shows flips it, with no preview", async ({ page }) => {
-    await page.goto("/zh/play?seed=1");
-    const c = cards(page).nth(7);
-    await c.hover();
-    await page.waitForTimeout(300);
-    await c.click();
+    const zb = await box(zoom(page, name));
+    expect(zb.width).toBeGreaterThanOrEqual(44);
+    expect(zb.height).toBeGreaterThanOrEqual(44);
+    expect(zb.x).toBeCloseTo(cb.x, 0); // top left: the place icon has the top right
+    expect(zb.y).toBeCloseTo(cb.y, 0);
+    await zoom(page, name).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("img", { name })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(c).toHaveAttribute("aria-pressed", "false");
+    // The card itself still flips, and a flipped card has no magnifying glass.
+    await c.click({ position: { x: 60, y: 60 } });
     await expect(c).toHaveAttribute("aria-pressed", "true");
-    await page.waitForTimeout(800);
+    await expect(zoom(page, name)).toHaveCount(0);
+  });
+
+  test("resting on a card shows no preview", async ({ page }) => {
+    await page.goto("/zh/play?seed=1");
+    await cards(page)
+      .nth(7)
+      .hover({ position: { x: 10, y: 60 } });
+    await page.waitForTimeout(900);
     await expect(tooltip(page)).toHaveCount(0);
   });
 
-  test("no preview while guessing", async ({ page }) => {
+  test("the magnifying glass works while guessing", async ({ page }) => {
     await page.goto("/zh/play?seed=1");
     await panel(page).getByRole("button", { name: "Guess" }).click();
-    await cards(page).nth(7).hover();
-    await page.waitForTimeout(600);
-    await expect(tooltip(page)).toHaveCount(0);
+    const name = names[7] ?? "";
+    await zoom(page, name).click();
+    await expect(page.getByRole("dialog").getByRole("img", { name })).toBeVisible();
   });
 
   test("right-click opens the card's detail and does not flip it", async ({ page }) => {

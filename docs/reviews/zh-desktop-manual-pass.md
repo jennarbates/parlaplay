@@ -38,7 +38,7 @@ These are the ones I would look at before anything else, because automated tests
 |---|---|---|
 | 1 | At 1024 × 640 nothing scrolls except the round log when opened, and feedback for two or more mistakes at Level 2 (ZD18) | |
 | 2 | Level 1's three columns read well; no question is cut off; resting on a hint shows it whole | |
-| 3 | Resting on a card shows its preview after about a third of a second, over the card, and never while guessing | |
+| 3 | The magnifying glass in a card's top left corner opens its detail and never flips it; resting on a card pops nothing up | |
 | 4 | Resting on a word in the round log shows its gloss; during the computer's question the gloss has no English | |
 | 5 | At Level 2 the round log is closed while you build a question, and `l` or its header opens it (ZD17). Does it feel right, or does it get in the way? | |
 | 6 | The detail view has no text on desktop (ZD19). Is anything missed? | |
@@ -54,7 +54,7 @@ Two fixes reached Chi è? this week, and neither has been tried by hand.
 | # | Check | Result |
 |---|---|---|
 | I | Check C above, in Chi è? | |
-| II | The hover preview sits over its card, not beside it | |
+| II | The magnifying glass does not cover the place icon or the face | |
 | III | "Sì" is a darker green; feedback after a Level 2 mistake looks as it did | |
 
 ## Findings

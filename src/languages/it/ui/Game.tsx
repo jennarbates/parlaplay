@@ -24,7 +24,7 @@ import { SidePanel } from "../../../core/ui/SidePanel.tsx";
 import { TileBuilder, type TileDraft } from "./game/TileBuilder.tsx";
 import { PanelCard, TopBar } from "./game/TopBar.tsx";
 import { SyncBanner } from "../../../core/ui/SyncBanner.tsx";
-import { useIsDesktop, useMediaQuery } from "../../../core/ui/useMediaQuery.ts";
+import { useIsDesktop } from "../../../core/ui/useMediaQuery.ts";
 import {
   FactItems,
   factsTitle,
@@ -57,7 +57,6 @@ export function Game() {
       set(id);
     };
   const desktop = useIsDesktop();
-  const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
 
   // /play with no round in progress starts one (at ?level=, default 1). ?seed= is
   // for tests that need a known game. Only on arrival: after Quit round the page
@@ -241,7 +240,6 @@ export function Game() {
       flipped={game.flipped}
       guessing={guessing}
       desktop={desktop}
-      hoverPreview={desktop && finePointer && !guessing}
       onTap={(id) =>
         guessing ? openFor(setGuessFor, guessFor)(id) : dispatch({ type: "FLIP", characterId: id })
       }

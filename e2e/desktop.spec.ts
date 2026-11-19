@@ -193,80 +193,69 @@ test.describe("game: 6 × 4 board and side panel (DS 6)", () => {
   });
 });
 
-test.describe("mouse: hover preview and right-click (DS 7)", () => {
+test.describe("mouse: zoom button and right-click (DS 7)", () => {
   const tooltip = (page: Page) => page.getByRole("tooltip");
+  const zoom = (page: Page, name: string) =>
+    page.getByRole("button", { name: `Zoom ${name}`, exact: true });
 
-  test("resting on a card shows a larger preview over it; leaving hides it", async ({ page }) => {
+  test("the magnifying glass opens the card's detail and does not flip it", async ({ page }) => {
     await page.goto("/it/play?seed=1");
     const chiara = card(page, "Chiara");
-    await chiara.hover();
-    await page.waitForTimeout(500);
-    await expect(tooltip(page)).toHaveCount(0); // not before the delay
-    await page.waitForTimeout(300);
-    await expect(tooltip(page)).toBeVisible();
-    await expect(tooltip(page)).toHaveText("Chiara");
-    const id = await tooltip(page).getAttribute("id");
-    await expect(chiara).toHaveAttribute("aria-describedby", id ?? "");
-    // Over the card, not beside it, and twice as wide.
-    const c = await chiara.boundingBox();
-    const t = await tooltip(page).boundingBox();
-    if (!c || !t) throw new Error("no boxes");
-    expect(t.x < c.x + c.width && t.x + t.width > c.x).toBe(true);
-    expect(t.y < c.y + c.height && t.y + t.height > c.y).toBe(true);
-    expect(t.width).toBeCloseTo(Math.min(c.width * 2, 256), 0);
-    // Straight on to the next card: it swaps after a shorter delay.
-    await card(page, "Davide").hover();
-    await expect(tooltip(page)).toHaveCount(0);
-    await expect(tooltip(page)).toHaveText("Davide", { timeout: 500 });
-    await page.mouse.move(5, 300);
-    await expect(tooltip(page)).toHaveCount(0);
-  });
-
-  test("clicking a card before the preview shows flips it, with no preview", async ({ page }) => {
-    await page.goto("/it/play?seed=1");
-    const chiara = card(page, "Chiara");
-    await chiara.hover();
-    await page.waitForTimeout(300);
-    await chiara.click();
+    await expect(page.locator("[data-zoom]")).toHaveCount(24);
+    await zoom(page, "Chiara").click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("img", { name: "Chiara" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(chiara).toHaveAttribute("aria-pressed", "false");
+    // The card itself still flips, and a flipped card has no magnifying glass.
+    await chiara.click({ position: { x: 10, y: 60 } });
     await expect(chiara).toHaveAttribute("aria-pressed", "true");
-    await page.waitForTimeout(800);
+    await expect(zoom(page, "Chiara")).toHaveCount(0);
+    await expect(page.locator("[data-zoom]")).toHaveCount(23);
+  });
+
+  test("its target is 44 px, in the top corner, clear of the name", async ({ page }) => {
+    // The smallest desktop window, where the cards are smallest.
+    await page.setViewportSize({ width: 1024, height: 640 });
+    await page.goto("/it/play?seed=1");
+    const c = await card(page, "Chiara").boundingBox();
+    const z = await zoom(page, "Chiara").boundingBox();
+    if (!c || !z) throw new Error("no boxes");
+    expect(z.width).toBeGreaterThanOrEqual(44);
+    expect(z.height).toBeGreaterThanOrEqual(44);
+    expect(z.x + z.width).toBeCloseTo(c.x + c.width, 0);
+    expect(z.y).toBeCloseTo(c.y, 0);
+    const name = await card(page, "Chiara").getByText("Chiara", { exact: true }).boundingBox();
+    if (!name) throw new Error("no name strip");
+    expect(z.y + z.height).toBeLessThanOrEqual(name.y);
+  });
+
+  test("resting on a card shows no preview", async ({ page }) => {
+    await page.goto("/it/play?seed=1");
+    await card(page, "Chiara").hover({ position: { x: 10, y: 60 } });
+    await page.waitForTimeout(900);
     await expect(tooltip(page)).toHaveCount(0);
   });
 
-  test("no preview while guessing, or on a phone-sized window", async ({ page }) => {
+  test("it works while guessing, and a phone-sized window has none", async ({ page }) => {
     await page.goto("/it/play?seed=1");
     await panel(page).getByRole("button", { name: "Indovina" }).click();
-    await page.getByRole("button", { name: /^Guess Chiara: / }).hover();
-    await page.waitForTimeout(500);
-    await expect(tooltip(page)).toHaveCount(0);
+    await zoom(page, "Chiara").click();
+    await expect(page.getByRole("dialog").getByRole("img", { name: "Chiara" })).toBeVisible();
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/it/play?seed=1");
-    await card(page, "Chiara").hover();
-    await page.waitForTimeout(500);
-    await expect(tooltip(page)).toHaveCount(0);
-  });
-
-  test("a click hides it, and it has no fade under reduced motion", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/it/play?seed=1");
-    await card(page, "Elena").hover();
-    await expect(tooltip(page)).toBeVisible();
-    expect(await tooltip(page).evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-    await page.mouse.down();
-    await expect(tooltip(page)).toHaveCount(0);
-    await page.mouse.up();
+    await expect(card(page, "Chiara")).toBeVisible();
+    await expect(page.locator("[data-zoom]")).toHaveCount(0);
   });
 
   test("right-click opens the card's detail and does not flip it", async ({ page }) => {
     await page.goto("/it/play?seed=1");
     const davide = card(page, "Davide");
-    await davide.hover();
-    await expect(tooltip(page)).toBeVisible();
     await davide.click({ button: "right" });
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("img", { name: "Davide" })).toBeVisible();
-    await expect(tooltip(page)).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(davide).toHaveAttribute("aria-pressed", "false");
