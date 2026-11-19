@@ -1512,6 +1512,31 @@
         font-size: 0.85rem;
         margin-top: 2px;
       }
+      /* Facciamo la valigia! (6.2): eight word cards, pack the four that fit the trip. */
+      .intr.val {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      @media (max-width: 640px) {
+        .intr.val {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .intr-w[aria-pressed="true"] {
+        border-color: var(--pen);
+        background: var(--pen-soft);
+      }
+      .intr.val .intr-w.ok,
+      .intr.val .intr-w.no {
+        opacity: 1;
+      }
+      .intr.val .intr-w.ok {
+        border-color: var(--ok);
+        background: var(--ok-soft);
+      }
+      .intr.val .intr-w.no {
+        border-color: var(--red);
+        background: var(--red-soft);
+      }
       /* Memory (vocabulary panel): six Italian cards, six English cards, find the pairs. */
       .mem {
         display: grid;
@@ -2000,6 +2025,57 @@
         if (v.endsWith("rsi"))
           return present(v.slice(0, -2) + "e").map((f, i) => [RIFL[i], f, ...rest].join(" "));
         return IRREG[v] || conj(v);
+      }
+      // The 6.4 irregular past participles. A "|" separates two forms that are both right.
+      const PART = {
+        aprire: "aperto",
+        bere: "bevuto",
+        chiedere: "chiesto",
+        chiudere: "chiuso",
+        conoscere: "conosciuto",
+        correre: "corso",
+        decidere: "deciso",
+        dire: "detto",
+        essere: "stato",
+        fare: "fatto",
+        leggere: "letto",
+        mettere: "messo",
+        nascere: "nato",
+        offrire: "offerto",
+        perdere: "perso|perduto",
+        prendere: "preso",
+        ridere: "riso",
+        rimanere: "rimasto",
+        rispondere: "risposto",
+        rompere: "rotto",
+        scegliere: "scelto",
+        scrivere: "scritto",
+        spendere: "speso",
+        vedere: "visto|veduto",
+        venire: "venuto",
+        vincere: "vinto",
+        vivere: "vissuto",
+      };
+      // The 6.3 "house of essere": these take essere, and their participle agrees.
+      const ESSERE = new Set(
+        "andare venire arrivare partire entrare uscire tornare nascere diventare stare rimanere restare essere".split(
+          " ",
+        ),
+      );
+      const HO = ["ho", "hai", "ha", "abbiamo", "avete", "hanno"];
+      const SONO = ["sono", "sei", "è", "siamo", "siete", "sono"];
+      // The passato prossimo of a verb: for each person, every right answer
+      // ("andare" → [["sono andato", "sono andata"], …]).
+      function passato(inf) {
+        const parts = (
+          PART[inf] || inf.slice(0, -3) + { are: "ato", ere: "uto", ire: "ito" }[inf.slice(-3)]
+        ).split("|");
+        if (!ESSERE.has(inf)) return HO.map((a) => parts.map((p) => `${a} ${p}`));
+        return SONO.map((s, i) =>
+          parts.flatMap((p) =>
+            (i < 3 ? ["o", "a"] : ["i", "e"]).map((e) => `${s} ${p.slice(0, -1)}${e}`),
+          ),
+        );
       }
       const LETTERS = {
         a: "a",
@@ -6023,6 +6099,12 @@
                   model:
                     "Andiamo a Palermo e a Catania a giugno per una settimana. Dormiamo in un B&B e poi in un agriturismo vicino all’Etna. Facciamo un’escursione sull’Etna e un tour dei templi ad Agrigento. Vogliamo mangiare la pasta alla Norma e la granita al pistacchio. Viaggio per imparare una cultura diversa e per mangiare le specialità del posto!",
                 },
+                {
+                  type: "widget",
+                  widget: "valigia",
+                  title: "Facciamo la valigia!",
+                  en: "Pack the suitcase. Read where I’m going, tap the four things I need, then close the suitcase. Stuck? “Inglese” shows what the words mean. A game is five trips.",
+                },
               ],
             },
             {
@@ -6251,6 +6333,12 @@
                   model:
                     "Il mio bisnonno è partito dall’Irlanda nel 1908. È arrivato a Newark nel 1909. Ha conosciuto mia bisnonna al lavoro. Hanno avuto il loro primo figlio cinque anni dopo. Hanno lavorato molto e hanno comprato una casa insieme.",
                 },
+                {
+                  type: "widget",
+                  widget: "passato",
+                  title: "Giochiamo con i dadi!",
+                  en: "Dice game in the passato prossimo. The die picks the subject (1 io, 2 tu, 3 lui/lei, 4 noi, 5 voi, 6 loro). Write the helping verb and the participle: andare, noi → siamo andati. For essere, either ending is fine. “Irregolari” switches to the irregular participles. Five right answers completes it.",
+                },
               ],
             },
             {
@@ -6386,6 +6474,13 @@
                   prompts: ["Non ho mai…"],
                   model:
                     "Non ho mai mangiato il coniglio. Non sono mai andata in Oklahoma. Non studio più il francese. La mia famiglia non ha ancora visitato l’Italia. Non conosco nessuno che parla giapponese.",
+                },
+                {
+                  type: "widget",
+                  widget: "intruso",
+                  sets: "viaggio",
+                  title: "Trova l’intruso!",
+                  en: "Find the intruder among the chapter’s words. Two of the three go together: tap the one that doesn’t belong, then read why. Stuck? “Inglese” shows what they mean. A game is eight rounds.",
                 },
               ],
             },
@@ -8373,7 +8468,7 @@
         },
         intruso(box, id, ex) {
           // Odd one out. ex.sets picks the chapter: "aula" for 1.7, "c2" for 2.7,
-          // "famiglia" for 4.2, and the 5.2 house words by default. Each set: three
+          // "famiglia" for 4.2, "viaggio" for 6.5, and the 5.2 house words by default. Each set: three
           // [Italian, English] words, the intruder first, then why in Italian and in English.
           const ALL = {
             casa: [
@@ -9428,6 +9523,188 @@
                 "Only children have no brothers or sisters; a sister is one!",
               ],
             ],
+            viaggio: [
+              [
+                [
+                  ["la borraccia", "water bottle"],
+                  ["la nave", "ship"],
+                  ["la barca", "boat"],
+                ],
+                "La nave e la barca vanno sul mare; la borraccia è per l’acqua da bere.",
+                "A ship and a boat go on the sea; a water bottle is for drinking water.",
+              ],
+              [
+                [
+                  ["il passaporto", "passport"],
+                  ["l’agriturismo", "farm stay"],
+                  ["il campeggio", "campsite"],
+                ],
+                "L’agriturismo e il campeggio sono posti dove dormire; il passaporto è un documento.",
+                "A farm stay and a campsite are places to sleep; a passport is a document.",
+              ],
+              [
+                [
+                  ["la valigia", "suitcase"],
+                  ["il Bancomat", "ATM, debit card"],
+                  ["la carta di credito", "credit card"],
+                ],
+                "Con il Bancomat e la carta di credito paghiamo; nella valigia mettiamo i vestiti.",
+                "You pay with a debit card and a credit card; you put clothes in a suitcase.",
+              ],
+              [
+                [
+                  ["l’escursione", "excursion"],
+                  ["i contanti", "cash"],
+                  ["la carta di credito", "credit card"],
+                ],
+                "I contanti e la carta di credito sono per pagare; l’escursione è una gita.",
+                "Cash and a credit card are for paying; an excursion is an outing.",
+              ],
+              [
+                [
+                  ["il museo", "museum"],
+                  ["l’aereo", "plane"],
+                  ["il pullman", "coach"],
+                ],
+                "L’aereo e il pullman sono mezzi di trasporto; il museo è un posto da visitare.",
+                "A plane and a coach are transport; a museum is a place to visit.",
+              ],
+              [
+                [
+                  ["la spiaggia", "beach"],
+                  ["l’aeroporto", "airport"],
+                  ["la stazione", "station"],
+                ],
+                "Dall’aeroporto e dalla stazione partiamo; alla spiaggia prendiamo il sole.",
+                "You leave from an airport and a station; at the beach you sunbathe.",
+              ],
+              [
+                [
+                  ["la stazione", "station"],
+                  ["il bagaglio a mano", "carry-on"],
+                  ["il bagaglio in stiva", "checked bag"],
+                ],
+                "Il bagaglio a mano e il bagaglio in stiva sono valigie; alla stazione prendiamo il treno.",
+                "A carry-on and a checked bag are luggage; the station is where you catch the train.",
+              ],
+              [
+                [
+                  ["l’asciugamano", "towel"],
+                  ["la pensione", "guesthouse"],
+                  ["il villaggio turistico", "resort"],
+                ],
+                "La pensione e il villaggio turistico sono posti dove dormire; l’asciugamano è per la spiaggia.",
+                "A guesthouse and a resort are places to sleep; a towel is for the beach.",
+              ],
+              [
+                [
+                  ["la crociera", "cruise"],
+                  ["prenotare", "to book"],
+                  ["noleggiare", "to rent"],
+                ],
+                "Prenotare e noleggiare sono verbi; la crociera è un viaggio in nave.",
+                "To book and to rent are verbs; a cruise is a trip by ship.",
+              ],
+              [
+                [
+                  ["la crema solare", "sunscreen"],
+                  ["le cuffie", "headphones"],
+                  ["il caricabatterie", "charger"],
+                ],
+                "Le cuffie e il caricabatterie sono per il telefonino; la crema solare è per il sole.",
+                "Headphones and a charger are for your phone; sunscreen is for the sun.",
+              ],
+              [
+                [
+                  ["la giacca", "jacket"],
+                  ["i sandali", "sandals"],
+                  ["l’infradito", "flip-flops"],
+                ],
+                "I sandali e l’infradito sono scarpe per l’estate; la giacca non è una scarpa.",
+                "Sandals and flip-flops are summer shoes; a jacket isn’t a shoe.",
+              ],
+              [
+                [
+                  ["il cappello", "hat"],
+                  ["i calzini", "socks"],
+                  ["gli scarponi", "hiking boots"],
+                ],
+                "I calzini e gli scarponi sono per i piedi; il cappello è per la testa.",
+                "Socks and hiking boots are for your feet; a hat is for your head.",
+              ],
+              [
+                [
+                  ["il portafoglio", "wallet"],
+                  ["la gonna", "skirt"],
+                  ["il vestito", "dress, suit"],
+                ],
+                "La gonna e il vestito sono vestiti; nel portafoglio mettiamo i soldi.",
+                "A skirt and a dress are clothes; a wallet is where you keep money.",
+              ],
+              [
+                [
+                  ["le scarpe da ginnastica", "sneakers"],
+                  ["la maglietta", "T-shirt"],
+                  ["la camicia", "shirt"],
+                ],
+                "La maglietta e la camicia non sono scarpe; le scarpe da ginnastica sono per i piedi.",
+                "A T-shirt and a shirt aren’t shoes; sneakers go on your feet.",
+              ],
+              [
+                [
+                  ["la borsa", "bag"],
+                  ["i pantaloni", "pants"],
+                  ["i pantaloncini", "shorts"],
+                ],
+                "I pantaloni e i pantaloncini sono per le gambe; la borsa è per portare le cose.",
+                "Pants and shorts are for your legs; a bag is for carrying things.",
+              ],
+              [
+                [
+                  ["il trekking", "hiking"],
+                  ["le mutande", "underwear"],
+                  ["il reggiseno", "bra"],
+                ],
+                "Le mutande e il reggiseno sono vestiti; il trekking è un’attività.",
+                "Underwear and a bra are clothes; hiking is an activity.",
+              ],
+              [
+                [
+                  ["non … mai", "never"],
+                  ["ieri", "yesterday"],
+                  ["l’altroieri", "the day before yesterday"],
+                ],
+                "Ieri e l’altroieri sono giorni passati; “non … mai” è un’espressione negativa.",
+                "Yesterday and the day before are days in the past; “non … mai” is a negative.",
+              ],
+              [
+                [
+                  ["non … ancora", "not yet"],
+                  ["non … nessuno", "no one"],
+                  ["non … niente", "nothing"],
+                ],
+                "Nessuno e niente vanno dopo il participio (non ho visto nessuno); ancora va prima (non ho ancora mangiato).",
+                "Nessuno and niente go after the participle; ancora goes before it.",
+              ],
+              [
+                [
+                  ["nato", "born (nascere)"],
+                  ["fatto", "done (fare)"],
+                  ["detto", "said (dire)"],
+                ],
+                "Fatto e detto vogliono avere (ho fatto, ho detto); nato vuole essere (sono nato).",
+                "Fatto and detto take avere; nato takes essere.",
+              ],
+              [
+                [
+                  ["venuto", "come (venire)"],
+                  ["visto", "seen (vedere)"],
+                  ["preso", "taken (prendere)"],
+                ],
+                "Visto e preso vogliono avere (ho visto, ho preso); venuto vuole essere (sono venuto).",
+                "Visto and preso take avere; venuto takes essere.",
+              ],
+            ],
           };
           const SETS = ALL[ex.sets || "casa"];
 
@@ -9526,6 +9803,322 @@
             paint();
           };
           more.onclick = () => {
+            if (phase === "over") return newGame();
+            if (r >= NEED - 1) return finish();
+            r++;
+            phase = "ask";
+            paint();
+            cards[0].focus();
+          };
+          eng.onclick = () => {
+            cards.forEach((c) => (c._en.hidden = false));
+            eng.hidden = true;
+          };
+          box.append(
+            h(
+              "div",
+              { class: "drill" },
+              qbox,
+              grid,
+              h("div", { class: "drill-row" }, eng, more),
+              fb,
+              stats,
+            ),
+          );
+          newGame();
+        },
+        passato(box, id) {
+          // Dice in the passato prossimo: the 6.3 regular verbs, or the 6.4 irregular participles.
+          const VERBS = {
+            reg: [
+              ["mangiare", "to eat"],
+              ["visitare", "to visit"],
+              ["guidare", "to drive"],
+              ["incontrare", "to meet"],
+              ["ballare", "to dance"],
+              ["comprare", "to buy"],
+              ["viaggiare", "to travel"],
+              ["prenotare", "to book"],
+              ["noleggiare", "to rent"],
+              ["vendere", "to sell"],
+              ["dormire", "to sleep"],
+              ["capire", "to understand"],
+              ["finire", "to finish"],
+              ["andare", "to go"],
+              ["arrivare", "to arrive"],
+              ["partire", "to leave"],
+              ["tornare", "to come back"],
+              ["uscire", "to go out"],
+              ["entrare", "to go in"],
+            ],
+            irr: [
+              ["aprire", "to open"],
+              ["bere", "to drink"],
+              ["chiedere", "to ask"],
+              ["chiudere", "to close"],
+              ["conoscere", "to meet, to know"],
+              ["correre", "to run"],
+              ["decidere", "to decide"],
+              ["dire", "to say"],
+              ["essere", "to be"],
+              ["fare", "to do, to make"],
+              ["leggere", "to read"],
+              ["mettere", "to put"],
+              ["nascere", "to be born"],
+              ["offrire", "to offer"],
+              ["perdere", "to lose"],
+              ["prendere", "to take"],
+              ["ridere", "to laugh"],
+              ["rimanere", "to stay"],
+              ["rispondere", "to answer"],
+              ["rompere", "to break"],
+              ["scegliere", "to choose"],
+              ["scrivere", "to write"],
+              ["spendere", "to spend"],
+              ["vedere", "to see"],
+              ["venire", "to come"],
+              ["vincere", "to win"],
+              ["vivere", "to live"],
+            ],
+          };
+          drill(box, id, {
+            modes: [
+              { key: "reg", label: "regolari" },
+              { key: "irr", label: "irregolari" },
+            ],
+            gen: (m) => {
+              const s = rand(1, 6);
+              const [v, en] = pick(VERBS[m]);
+              return {
+                show: () => [
+                  h("div", { html: dieSVG(s) }),
+                  h(
+                    "div",
+                    {},
+                    h("div", { class: "big" }, `${PRON[s - 1]} + ${v}`),
+                    h("div", { class: "sub" }, `${en} · passato prossimo`),
+                  ),
+                ],
+                answers: passato(v)[s - 1],
+              };
+            },
+          });
+        },
+        valigia(box, id) {
+          // Pack the suitcase. Each trip: the plan in Italian and English, the four
+          // [Italian, English] things to pack, then four that don't fit the trip.
+          const TRIPS = [
+            [
+              "Vado al mare in Sicilia ad agosto.",
+              "I’m going to the seaside in Sicily in August.",
+              [
+                ["la crema solare", "sunscreen"],
+                ["l’asciugamano", "towel"],
+                ["l’infradito", "flip-flops"],
+                ["i pantaloncini", "shorts"],
+              ],
+              [
+                ["gli scarponi", "hiking boots"],
+                ["la giacca", "jacket"],
+                ["i calzini", "socks"],
+                ["la stazione", "station"],
+              ],
+            ],
+            [
+              "Faccio un’escursione sull’Etna.",
+              "I’m going on a hike up Etna.",
+              [
+                ["gli scarponi", "hiking boots"],
+                ["la borraccia", "water bottle"],
+                ["la giacca", "jacket"],
+                ["i calzini", "socks"],
+              ],
+              [
+                ["l’infradito", "flip-flops"],
+                ["la gonna", "skirt"],
+                ["i sandali", "sandals"],
+                ["la nave", "ship"],
+              ],
+            ],
+            [
+              "Prendo l’aereo per Londra a novembre.",
+              "I’m flying to London in November.",
+              [
+                ["il passaporto", "passport"],
+                ["il bagaglio a mano", "carry-on"],
+                ["il caricabatterie", "charger"],
+                ["le cuffie", "headphones"],
+              ],
+              [
+                ["l’asciugamano", "towel"],
+                ["i pantaloncini", "shorts"],
+                ["l’infradito", "flip-flops"],
+                ["la barca", "boat"],
+              ],
+            ],
+            [
+              "Vado a una festa elegante a Palermo.",
+              "I’m going to an elegant party in Palermo.",
+              [
+                ["il vestito", "dress, suit"],
+                ["la camicia", "shirt"],
+                ["la giacca", "jacket"],
+                ["la gonna", "skirt"],
+              ],
+              [
+                ["gli scarponi", "hiking boots"],
+                ["i pantaloncini", "shorts"],
+                ["le scarpe da ginnastica", "sneakers"],
+                ["la borraccia", "water bottle"],
+              ],
+            ],
+            [
+              "Vado a correre nel parco.",
+              "I’m going for a run in the park.",
+              [
+                ["le scarpe da ginnastica", "sneakers"],
+                ["i pantaloncini", "shorts"],
+                ["la maglietta", "T-shirt"],
+                ["i calzini", "socks"],
+              ],
+              [
+                ["il vestito", "dress, suit"],
+                ["la camicia", "shirt"],
+                ["i sandali", "sandals"],
+                ["la gonna", "skirt"],
+              ],
+            ],
+            [
+              "Vado in montagna a dicembre: fa molto freddo!",
+              "I’m going to the mountains in December: it’s very cold!",
+              [
+                ["la giacca", "jacket"],
+                ["il cappello", "hat"],
+                ["i calzini", "socks"],
+                ["gli scarponi", "hiking boots"],
+              ],
+              [
+                ["i sandali", "sandals"],
+                ["i pantaloncini", "shorts"],
+                ["l’infradito", "flip-flops"],
+                ["l’asciugamano", "towel"],
+              ],
+            ],
+          ];
+          const NEED = 5,
+            ROOM = 4;
+          const qbox = h("div", { class: "drill-p casa-q" });
+          const grid = h("div", { class: "intr val" });
+          const fb = h("div", { class: "feedback", "aria-live": "polite" });
+          const stats = h("span", { class: "stats" });
+          const more = h("button", { class: "btn pri", type: "button" });
+          const eng = h("button", { class: "btn", type: "button" }, "Inglese");
+          let deck, r, score, phase, cards;
+          const packed = () => cards.filter((c) => c.getAttribute("aria-pressed") === "true");
+          const upd = () => {
+            const n = packed().length;
+            stats.textContent = `Trip ${r + 1} of ${NEED} · ${score} right`;
+            if (phase !== "ask") return;
+            more.textContent = `Chiudi la valigia (${n} di ${ROOM})`;
+            more.disabled = n !== ROOM;
+          };
+          const paint = () => {
+            const [it, en, yes, no] = deck[r];
+            qbox.innerHTML = "";
+            qbox.append(
+              h(
+                "div",
+                { class: "casa-c" },
+                h("p", { class: "now" }, it),
+                h("p", {}, `${en} Pack the four things I need.`),
+              ),
+              spk(() => it),
+            );
+            grid.innerHTML = "";
+            grid.className = "intr val";
+            cards = shuffle([...yes, ...no]).map((w) => {
+              const enEl = h("span", { class: "en", hidden: true }, w[1]);
+              const b = h(
+                "button",
+                { class: "intr-w", type: "button", "aria-pressed": "false" },
+                h("span", { class: "it" }, w[0]),
+                enEl,
+              );
+              b.onclick = () => {
+                if (phase !== "ask") return;
+                const on = b.getAttribute("aria-pressed") === "true";
+                if (!on && packed().length >= ROOM) {
+                  fb.innerHTML = `<span class="no">La valigia è piena!</span> Take something out first.`;
+                  return;
+                }
+                b.setAttribute("aria-pressed", String(!on));
+                fb.innerHTML = "";
+                upd();
+              };
+              b._need = yes.includes(w);
+              b._w = w;
+              b._en = enEl;
+              return b;
+            });
+            grid.append(...cards);
+            fb.innerHTML = "";
+            eng.hidden = false;
+            upd();
+          };
+          const close = () => {
+            phase = "done";
+            const mine = packed();
+            const right = mine.every((c) => c._need);
+            if (right) score++;
+            grid.classList.add("done");
+            cards.forEach((c) => {
+              c.disabled = true;
+              c._en.hidden = false;
+              if (c._need) c.classList.add("ok");
+              else if (mine.includes(c)) c.classList.add("no");
+            });
+            const list = cards.filter((c) => c._need).map((c) => c._w[0]);
+            const sentence = `Ho messo in valigia ${list.slice(0, -1).join(", ")} e ${list.at(-1)}.`;
+            const extra = mine.filter((c) => !c._need).map((c) => c._w[0]);
+            fb.innerHTML =
+              `<span class="${right ? "ok" : "no"}">${right ? "Buon viaggio!" : "Quasi:"}</span> ${esc(sentence)}` +
+              (extra.length
+                ? `<span class="intr-why">Not needed: ${esc(extra.join(", "))}.</span>`
+                : "");
+            say(sentence);
+            eng.hidden = true;
+            more.disabled = false;
+            more.textContent = r < NEED - 1 ? "Avanti" : "Risultato";
+            upd();
+            more.focus();
+          };
+          const finish = () => {
+            phase = "over";
+            qbox.innerHTML = "";
+            qbox.append(
+              h("div", { class: "big" }, `Hai fatto bene ${score} valigie su ${NEED}!`),
+              h(
+                "div",
+                { class: "sub" },
+                score === NEED ? "Perfetto!" : "Play again for a new set of trips.",
+              ),
+            );
+            grid.innerHTML = "";
+            fb.innerHTML = "";
+            stats.textContent = "";
+            eng.hidden = true;
+            more.textContent = "Gioca ancora";
+            markDone(id, score, NEED);
+          };
+          const newGame = () => {
+            deck = shuffle(TRIPS).slice(0, NEED);
+            r = 0;
+            score = 0;
+            phase = "ask";
+            paint();
+          };
+          more.onclick = () => {
+            if (phase === "ask") return close();
             if (phase === "over") return newGame();
             if (r >= NEED - 1) return finish();
             r++;
