@@ -140,6 +140,61 @@ test("the reflexive dice game wants the pronoun with the verb", async ({ page })
   await expect(game.locator(".feedback")).toContainText("Esatto!");
 });
 
+test("the suitcase game holds four things and says what the trip needed", async ({ page }) => {
+  await page.goto("/quaderno/#c6");
+  const game = page.locator('.ex[data-id="6.2-4"]');
+  await expect(game.locator(".ex-t")).toContainText("Facciamo la valigia!");
+  const cards = game.locator(".intr-w");
+  await expect(cards).toHaveCount(8);
+  const close = game.getByRole("button", { name: /Chiudi la valigia/ });
+  await expect(close).toBeDisabled();
+  for (let i = 0; i < 4; i++) await cards.nth(i).click();
+  await expect(close).toHaveText("Chiudi la valigia (4 di 4)");
+  await cards.nth(4).click();
+  await expect(game.locator(".feedback")).toContainText("La valigia è piena!");
+  await expect(game.locator('.intr-w[aria-pressed="true"]')).toHaveCount(4);
+  await close.click();
+  await expect(game.locator(".intr-w.ok")).toHaveCount(4);
+  await expect(game.locator(".feedback")).toContainText("Ho messo in valigia");
+  await game.getByRole("button", { name: "Avanti" }).click();
+  await expect(game.locator(".stats")).toContainText("Trip 2 of 5");
+});
+
+test("the past-tense dice game takes either ending with essere", async ({ page }) => {
+  await page.goto("/quaderno/#c6");
+  const game = page.locator('.ex[data-id="6.4-4"]');
+  await expect(game.locator(".ex-t")).toContainText("Giochiamo con i dadi!");
+  const forms = await page.evaluate(() => {
+    const passato = (window as unknown as { passato: (v: string) => string[][] }).passato;
+    return [passato("andare")[3], passato("vedere")[0], passato("dormire")[5]];
+  });
+  expect(forms).toEqual([
+    ["siamo andati", "siamo andate"],
+    ["ho visto", "ho veduto"],
+    ["hanno dormito"],
+  ]);
+  await game.getByRole("button", { name: "irregolari" }).click();
+  const prompt = (await game.locator(".drill-p .big").textContent()) ?? "";
+  const [subject, verb] = prompt.split(" + ") as [string, string];
+  const person = ["io", "tu", "lui/lei/Lei", "noi", "voi", "loro"].indexOf(subject);
+  const expected = await page.evaluate(
+    ([v, p]) => (window as unknown as { passato: (v: string) => string[][] }).passato(v)[p]?.at(-1),
+    [verb, person] as const,
+  );
+  await game.getByRole("textbox").fill(expected ?? "");
+  await game.getByRole("button", { name: "Check" }).click();
+  await expect(game.locator(".feedback")).toContainText("Esatto!");
+});
+
+test("the chapter 6 intruder game uses the chapter's own words", async ({ page }) => {
+  await page.goto("/quaderno/#c6");
+  const game = page.locator('.ex[data-id="6.5-5"]');
+  await expect(game.locator(".ex-t")).toContainText("Trova l’intruso!");
+  await expect(game.locator(".intr-w")).toHaveCount(3);
+  await game.locator(".intr-w").first().click();
+  await expect(game.locator(".feedback")).toContainText("l’intruso è");
+});
+
 test("memory pairs an Italian word with its meaning and turns a wrong pair back", async ({
   page,
 }) => {
