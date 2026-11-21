@@ -33,7 +33,7 @@ export function Card({
   index,
   onFocus,
 }: Props) {
-  const press = useLongPress(onZoom);
+  const { consumeLongPress, ...press } = useLongPress(onZoom);
   // Spec 9: the name and attributes in Chinese; the flipped state is aria-pressed.
   const described = describeCharacter(character, content.lexicon);
   const label = guessing ? `Guess ${described}${flipped ? " (flipped down)" : ""}` : described;
@@ -60,7 +60,7 @@ export function Card({
         }`}
         {...press}
         onClick={() => {
-          if (press.consumeLongPress()) return;
+          if (consumeLongPress()) return;
           onTap();
         }}
       >

@@ -46,7 +46,8 @@ test("reset asks first, then clears progress and writing", async ({ page }) => {
   const writing = page.locator("textarea.free").first();
   await writing.fill("Ciao, mi chiamo Sam. Come ti chiami?");
   await page.getByRole("button", { name: "Reset progress" }).click();
-  await page.getByRole("button", { name: "Cancel" }).click();
+  // Exact, because the classroom intruder game can deal a card named "il cancellino".
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(firstExercise(page).locator(".best")).toHaveText("Best: 5 of 5");
   await page.getByRole("button", { name: "Reset progress" }).click();
   await page.getByRole("button", { name: "Yes, erase" }).click();
