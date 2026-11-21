@@ -1,17 +1,8 @@
 import { expect, test } from "vitest";
-import { boardShape, boardVars, previewSpot } from "./boardLayout.ts";
+import { boardShape, boardVars } from "./boardLayout.ts";
 
 // What a game with a caption under each card (Shéi, zh-desktop.md ZS 5.2) asks of
 // the shared layout. Chi è?'s own cases are in boardLayout.test.ts, unchanged.
-
-const box = (left: number, top: number, width: number, height: number) => ({
-  left,
-  top,
-  width,
-  height,
-  right: left + width,
-  bottom: top + height,
-});
 
 test("without a layout, the variables are Chi è?'s: its shape and no caption term", () => {
   const vars = boardVars(true) as Record<string, unknown>;
@@ -59,14 +50,4 @@ test.each([
   const byHeight = (((h - topBar - padding - 3 * gap - 4 * caption) / 4) * 5) / 6;
   expect(Math.round(Math.min(byWidth, byHeight))).toBe(card);
   expect(byHeight).toBeLessThan(byWidth); // height-bound at every one
-});
-
-test("a taller caption makes the preview taller, so it is clamped sooner", () => {
-  const area = box(0, 0, 1000, 600);
-  const card = box(400, 500, 100, 120); // near the bottom edge
-  const short = previewSpot(card, area, 16, 32);
-  const tall = previewSpot(card, area, 16, 44);
-  expect(tall.width).toBe(short.width);
-  expect(short.top - tall.top).toBe(12);
-  expect(tall.top + (tall.width * 6) / 5 + 44).toBe(area.bottom);
 });

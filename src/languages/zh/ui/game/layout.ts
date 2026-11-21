@@ -9,7 +9,3 @@ export const boardLayout = (desktop: boolean): BoardLayout =>
   desktop
     ? { shape: { cols, rows: 4, gap: "0.5rem" }, cardCap: "2.25rem" }
     : { shape: { cols, rows: 4, gap: "0.25rem" }, cardCap: "1.75rem" };
-
-// The caption under a previewed face, px: the name at 20px and its pinyin at 14px
-// (ZS 8). previewSpot needs it to keep the preview on the board.
-export const previewCaption = 44;

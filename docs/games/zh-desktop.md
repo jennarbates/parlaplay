@@ -35,7 +35,7 @@ Conventions: each section leads with the decision, then the reason. `TBD:` marks
 | Level 1 questions grouped by verb, 是, 有, 在, all visible at once (ZS 7.1) | Drag and drop of tiles |
 | Level 2 type-to-find: typing pinyin (or characters with an IME) picks tiles (ZS 7.2) | Typing whole questions (`zh.md` Level 3) |
 | A round log beside the board, with word glosses on hover and focus (ZS 7.3, 7.4) | Audio of any kind |
-| Card hover preview, right-click detail, hover styles (ZS 8) | User-customisable shortcuts |
+| Card zoom button, right-click detail, hover styles (ZS 8) | User-customisable shortcuts |
 | Keyboard shortcuts with a help dialog (ZS 9) | Charts, streaks, history over time on Progress |
 | Two-column Home and round end, a Progress dashboard, desktop dialogs (ZS 10) | New settings, new content, new Chinese strings |
 | Moving Chi è?'s language-neutral desktop parts into `src/core` (ZS 4) | Any change to Chi è?'s behaviour |
@@ -72,7 +72,7 @@ At every step the mouse works too: clicking does exactly what tapping does on th
 | Window narrower than 1024px | Phone layout, centred, exactly as today. No "too small" message |
 | Window shorter than 640px at 1024px or wider | Cards shrink to fit (the board formula uses height). The panel's body scrolls; the summary and actions never leave view |
 | Very large window (1920 × 1080 and up) | The panel stays 28rem; the cards grow with the height (168px at 1920 × 1080); the board is centred in its column |
-| Touch laptop (touch is the primary input) | `(hover: hover)` is false: no card preview and no hover glosses; long-press still opens CardDetail; focus glosses still work; layout is still desktop |
+| Touch laptop (touch is the primary input) | `(hover: hover)` is false: no hover glosses; the card zoom button works by tap and long-press still opens CardDetail; focus glosses still work; layout is still desktop |
 | Shortcut key pressed in the find field, the sign-in fields, or any input | Ignored by the shortcut layer; the field handles its own keys (ZS 7.2) |
 | Shortcut pressed with a dialog open | Ignored, except the dialog's own Enter and Esc |
 | `1` to `7` outside `cpuTurn`, or a number above the answers shown (`3` at Level 1) | Nothing happens |
@@ -161,8 +161,7 @@ export function glossShowsEnglish(phase: Phase, level: Level): boolean;
 
 | Part | Moves to | What it takes that differs by language |
 |---|---|---|
-| `useHoverPreview` | `src/core/ui/useHoverPreview.ts` | nothing |
-| `previewSpot`, `boardVars` | `src/core/ui/boardLayout.ts` | `previewSpot`: the caption's height (Chi è? 32px, Shéi 44px). `boardVars`: the shape, the caption height (Chi è? 0) |
+| `boardVars` | `src/core/ui/boardLayout.ts` | the shape, the caption height (Chi è? 0) |
 | `Kbd` | `src/core/ui/Kbd.tsx` | nothing |
 | `SidePanel` | `src/core/ui/SidePanel.tsx` | an optional `log` slot (Chi è? passes none) |
 | `ShortcutsDialog` | `src/core/ui/ShortcutsDialog.tsx` | the rows of keys to list |
@@ -170,7 +169,7 @@ export function glossShowsEnglish(phase: Phase, level: Level): boolean;
 | `progressStats` | `src/core/ui/progressStats.ts` | the language's `cardIds` |
 | `Tooltip` (new, for glosses) | `src/core/ui/Tooltip.tsx` | nothing |
 
-**Stays per language:** `shortcuts.ts` (the key table), `CardPreview` (face and caption differ), and every screen. The purity lint over `src/languages/*/ui/game/shortcuts.ts` already covers Shéi's file; `shortcutGuard.ts`, `roundLog.ts`, `findTiles.ts` and `gloss.ts` are added to it.
+**Stays per language:** `shortcuts.ts` (the key table) and every screen. The purity lint over `src/languages/*/ui/game/shortcuts.ts` already covers Shéi's file; `shortcutGuard.ts`, `roundLog.ts`, `findTiles.ts` and `gloss.ts` are added to it.
 
 **Rule:** the move changes no Chi è? behaviour. Its unit and e2e tests pass without edits, and `pnpm check:bundle` shows `/it` within 1 kB of today.
 
@@ -379,7 +378,7 @@ The builder is `gap-1.5 py-1` at `lg` (the phone keeps `gap-2 py-2`), which is w
 ## ZS 8. Mouse
 
 - **Click** works exactly as tap does today; no change, because `useLongPress` uses Pointer Events.
-- **Card hover preview**, as DS 7.2: after 700ms on a card, the face at 2× the card's width (capped at 16rem) appears centred over the card, clamped inside the board, `pointer-events-none`, with the name at 20px and its pinyin at 14px under it (`previewSpot` caption 44px). Not shown while guessing, with a dialog open, on touch, or below `lg`. Moving straight to another card swaps it after 250ms; a click on the card before it shows cancels it.
+- **Card zoom button**, as DS 7.2: at `lg`, each face-up card has a magnifying glass (a 24px chip in a 44 × 44px button named "Zoom {name}") that opens CardDetail and never flips or picks the card. It is in the **top left** corner of the picture, because the place icon has the top right (`zh.md` 3.5). Shown while guessing; not on flipped cards; not below `lg`; not a tab stop. Nothing pops up on hover.
 - **Right-click** on a card opens CardDetail (already shared through `useLongPress`); the context menu key on a focused card does the same. Elsewhere, the normal browser menu.
 - **Hover styles**, as DS 7.4: face-up card `-translate-y-0.5 ring-2 ring-stone-400`; flipped card `ring-2 ring-stone-400`; card while guessing `ring-2 ring-blue-600 cursor-pointer`; primary button `bg-stone-700`; secondary `bg-stone-300`; question button `bg-stone-200`; tile `bg-stone-200`; log entry `bg-stone-50`; DesktopNav link underline. All through Tailwind `hover:`, which applies only under `(hover: hover)`.
 
@@ -485,7 +484,7 @@ Each is a unit test in `src/languages/zh/ui/game/shortcuts.test.ts`:
 | Tab, ← → | Level 2 tiles | Each row (tray, then the four rows) is one tab stop, with ← → inside it; Enter adds a tile, or removes it in the tray |
 | ↑ ↓ | Round log | Move between entries |
 
-The board grid follows the WAI-ARIA grid pattern (APG: Grid), with roving tabindex: one card has `tabIndex=0`. `b` and `g` move focus to that card. The phone's focus-only "Zoom {name}" button stays. All roving tabindex is `lg` only; the phone's tab order is unchanged.
+The board grid follows the WAI-ARIA grid pattern (APG: Grid), with roving tabindex: one card has `tabIndex=0`. `b` and `g` move focus to that card. The phone's focus-only "Zoom {name}" button stays; at `lg` it is the magnifying glass of ZS 8, outside the tab order. All roving tabindex is `lg` only; the phone's tab order is unchanged.
 
 **ShortcutsDialog**: a `<dialog>` titled "Keyboard shortcuts", `min(90vw, 36rem)`, listing in two columns ZS 9.2's keys, the keys of the table above (board, Level 1 groups, tile rows, round log) and the find field's keys of ZS 7.2, as Chi è?'s lists its board keys. Opened by `?` and by the GameMenu item "Keyboard shortcuts".
 
@@ -570,7 +569,6 @@ Settings and Privacy are shared screens and already have their desktop layouts (
   ```
   src/core/ui/
   ├── boardLayout.ts (+ .test.ts)      moved, ZS 4
-  ├── useHoverPreview.ts               moved
   ├── Kbd.tsx  SidePanel.tsx  ShortcutsDialog.tsx   moved
   ├── shortcutGuard.ts (+ .test.ts)    new, from DS 4.3
   ├── progressStats.ts (+ .test.ts)    moved
@@ -580,14 +578,13 @@ Settings and Privacy are shared screens and already have their desktop layouts (
   ├── roundLog.ts (+ .test.ts)  RoundLog.tsx
   ├── findTiles.ts (+ .test.ts)  FindField.tsx
   ├── gloss.ts (+ .test.ts)  Glossable.tsx
-  ├── QuestionGroups.tsx
-  └── CardPreview.tsx
+  └── QuestionGroups.tsx
   e2e/zh/
   └── desktop.spec.ts
   ```
 
-- **Accessibility (WCAG 2.2 AA).** axe clean on every `/zh` screen at 1440 × 900. Focus ring always visible. Pointer targets at least 24 × 24px (SC 2.5.8); the phone's 44px rule stays because components are shared. Everything reachable without a mouse: the card preview's keyboard equivalent is `i`, the gloss's is the focused log entry's English line. Glosses meet SC 1.4.13. Every control with a shortcut has `aria-keyshortcuts`. Chinese has `lang="zh-Hans"`, pinyin `lang="zh-Latn-pinyin"`.
-- **Performance.** Hover and focus cause no layout shift (CLS 0 during play). The preview and gloss position once per show; no scroll or resize listeners while closed. `findTiles` over 21 tiles runs on every keystroke with no debounce. `/zh` grows by under 12 kB gzipped and stays under its 250 KB budget, checked by `pnpm check:bundle`. Lighthouse desktop accessibility at least 95 on `/zh` and `/zh/play`.
+- **Accessibility (WCAG 2.2 AA).** axe clean on every `/zh` screen at 1440 × 900. Focus ring always visible. Pointer targets at least 24 × 24px (SC 2.5.8); the phone's 44px rule stays because components are shared. Everything reachable without a mouse: the card zoom button's keyboard equivalent is `i`, the gloss's is the focused log entry's English line. Glosses meet SC 1.4.13. Every control with a shortcut has `aria-keyshortcuts`. Chinese has `lang="zh-Hans"`, pinyin `lang="zh-Latn-pinyin"`.
+- **Performance.** Hover and focus cause no layout shift (CLS 0 during play). The gloss positions once per show; no scroll or resize listeners while closed. `findTiles` over 21 tiles runs on every keystroke with no debounce. `/zh` grows by under 12 kB gzipped and stays under its 250 KB budget, checked by `pnpm check:bundle`. Lighthouse desktop accessibility at least 95 on `/zh` and `/zh/play`.
 - **Motion.** Every new transition is off under `prefers-reduced-motion`.
 - **Privacy and security.** No change: no new data, no third parties. The find field's text is never stored or sent.
 - **Error reporting.** No change.
@@ -610,7 +607,7 @@ No Mandarin review is needed: ZS 1's table puts new Chinese strings out, and eve
 | Shortcut logic | Vitest | Every cell of ZS 9.2, the check order, the ZS 9.3 invariants |
 | Find logic | Vitest | `pinyinKey` and `findTiles`: every row of the ZS 3 table, the invariants |
 | Round log, glosses | Vitest | `roundLog` invariants against seeded rounds from `simulate.ts`; `glossShowsEnglish` for every phase and level |
-| Shared parts | Vitest | Chi è?'s existing tests unedited; `boardVars` and `previewSpot` with a caption; `shortcutGuard` |
+| Shared parts | Vitest | Chi è?'s existing tests unedited; `boardVars` with a caption; `shortcutGuard` |
 | Layout and components | Vitest (`Game.test.tsx`) | Skeleton has 24 cells; QuestionGroups puts each noun under its verb |
 | Desktop end to end | Playwright `desktop-chromium`, `desktop-webkit` | ZS 13.3 |
 | Phone end to end | Playwright phone projects | Unchanged |
@@ -632,7 +629,7 @@ No Mandarin review is needed: ZS 1's table puts new Chinese strings out, and eve
 | Log at Level 2 | In `playerTurn` at Level 2 the log is its header button at 1440 × 900; `l` opens it; in `playerReview` it is open |
 | Log | After two turns the log holds two entries, newest first; `l` focuses the newest; its English line shows |
 | Glosses | Hovering 狗 in the log during `playerReview` shows "dog"; during `cpuTurn` at Level 2 the gloss has no English |
-| Hover preview, right-click | As DS 13.3 |
+| Zoom button, right-click | As DS 13.3 |
 | Keyboard rounds | A full round at each level using only ZS 9's keys, to round end |
 | Shortcuts ignored | Typing "nap" in the find field changes nothing but the field |
 | Held keys | With a card focused while guessing, Enter held down (repeating) opens GuessConfirm and goes no further; held Enter in the find field adds one tile and does not ask |
@@ -751,4 +748,5 @@ The build runs in the platform's Sprint 4, before launch (ZD13), on the days tha
 - 2026-10-13: Desktop e2e complete with axe (PLAY-063). axe found two faults, both on the phone too, both fixed: feedback's `role="status"` sat on the list and hid its items from assistive technology, and the pinyin on Level 1's green and red answer buttons was below 4.5:1 (the buttons are now emerald-700 and rose-700, and button pinyin is 90% opaque).
 - 2026-10-15: #130. ZS 8: the card hover preview follows DS 7.2's new timing: 700ms, 250ms when moving straight to the next card, and cancelled by a click before it shows.
 - 2026-10-15: #131. ZD20: your card is bigger in the TopBar, and a larger copy with the name and its pinyin heads the side panel, above the summary, on screens at least 800px tall. ZS 6.3's budget at 1024 × 640 is unchanged, since the copy does not show there.
+- 2026-11-19: #146. ZS 8: the card hover preview is replaced by a magnifying-glass button in the top left corner of each face-up card, as DS 7.2. `useHoverPreview`, `CardPreview` and `previewSpot` are removed.
 - 2026-10-15: #132. ZS 7.5, ZD21: "What you know", the facts the learner's questions have found out, in Chinese only, as the first tab of the panel's section under the phase area, with the round log second (ZS 7.3). The phone has a button in the sheet that opens them in a dialog.

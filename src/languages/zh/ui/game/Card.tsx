@@ -10,9 +10,9 @@ type Props = {
   onTap: () => void;
   onZoom: () => void;
   guessing: boolean;
-  describedBy?: string; // the hover preview, while it shows
+  zoomIcon?: boolean; // desktop: a magnifying glass in the corner of a face-up card (#146)
   // zh-desktop.md ZS 9.4: in the board grid one card is in the tab order (0) and
-  // the rest are not (-1); the Zoom control leaves it, since i does its job.
+  // the rest are not (-1); the Zoom control is never in it, since i does its job.
   // Undefined on the phone, where every card is a tab stop as before.
   tabIndex?: number;
   index?: number;
@@ -20,7 +20,8 @@ type Props = {
 };
 
 // One board card. Tap flips it (or picks it, while guessing); long-press or the
-// Zoom control opens the detail view. Flipped cards hide the face and show a
+// Zoom control opens the detail view. The Zoom control is a magnifying glass on
+// the desktop and a focus-only button on the phone. Flipped cards hide the face and show a
 // cross, so the state never depends on color alone.
 export function Card({
   character,
@@ -28,7 +29,7 @@ export function Card({
   onTap,
   onZoom,
   guessing,
-  describedBy,
+  zoomIcon = false,
   tabIndex,
   index,
   onFocus,
@@ -45,7 +46,6 @@ export function Card({
         aria-label={label}
         lang={guessing ? undefined : "zh-Hans"}
         aria-pressed={guessing ? undefined : flipped}
-        aria-describedby={describedBy}
         tabIndex={tabIndex}
         onFocus={onFocus}
         data-card={index}
@@ -102,7 +102,35 @@ export function Card({
           {character.namePinyin}
         </span>
       </p>
-      {tabIndex === undefined && (
+      {zoomIcon ? (
+        !flipped && (
+          // #146: a 44px target in the top left corner; the place icon has the top right
+          // (spec 3.5). The icon itself is smaller.
+          <button
+            type="button"
+            onClick={onZoom}
+            aria-label={`Zoom ${character.name}`}
+            tabIndex={-1}
+            data-zoom
+            className="group/zoom absolute top-0 left-0 z-10 flex size-11 cursor-zoom-in items-start justify-start rounded-md p-1 outline-offset-[-2px]"
+          >
+            <span className="flex size-6 items-center justify-center rounded-full bg-white/85 text-stone-700 shadow-sm ring-1 ring-stone-300 group-hover/zoom:bg-white group-hover/zoom:text-stone-900 group-hover/zoom:ring-stone-500">
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="size-3.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <circle cx="10.5" cy="10.5" r="6.5" />
+                <path d="M15.5 15.5L21 21" />
+              </svg>
+            </span>
+          </button>
+        )
+      ) : (
         <button
           type="button"
           onClick={onZoom}

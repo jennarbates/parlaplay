@@ -26,28 +26,3 @@ export function boardVars(desktop: boolean, { shape, cardCap }: BoardLayout = {}
     "--card-w": `min(calc((100cqw - (var(--cols) - 1) * var(--gap)) / var(--cols)), calc((100cqh - (var(--rows) - 1) * var(--gap)${captions}) / var(--rows) * 5 / 6))`,
   } as CSSProperties;
 }
-
-type Box = {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-  width: number;
-  height: number;
-};
-
-export type PreviewSpot = { left: number; top: number; width: number };
-
-const nameLine = 32; // Chi è?'s name under the face, px; Shéi's name and pinyin take 44
-
-// Desktop spec DS 7.2: where the preview goes, worked out once when it shows.
-// Twice the card's width, capped at 16rem; centred over the card, so it grows
-// out of it rather than covering its neighbours on one side; kept inside the board.
-export function previewSpot(card: Box, area: Box, rem = 16, caption = nameLine): PreviewSpot {
-  const width = Math.min(card.width * 2, 16 * rem);
-  const height = (width * 6) / 5 + caption;
-  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(v, hi));
-  const left = clamp(card.left + card.width / 2 - width / 2, area.left, area.right - width);
-  const top = clamp(card.top + card.height / 2 - height / 2, area.top, area.bottom - height);
-  return { left, top, width };
-}
